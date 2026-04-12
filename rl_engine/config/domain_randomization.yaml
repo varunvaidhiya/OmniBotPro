@@ -1,0 +1,86 @@
+---
+# Domain Randomization Configuration for OmniBot Isaac Lab Training
+# ─────────────────────────────────────────────────────────────────
+# Applied per-episode in IsaacLab environments.
+# Values must cover the full range observed on hardware —
+# measure actual values after initial hardware testing and update here.
+
+# ── Physics: Base / Mecanum wheels ───────────────────────────────────────────
+physics:
+  # Lateral friction of mecanum passive rollers (per wheel, sampled independently)
+  # Real range: ~0.5 (tile floor) to ~0.85 (rubber mat)
+  wheel_lateral_friction:
+    min: 0.40
+    max: 0.90
+
+  # Per-wheel velocity output scale (models wear, surface asymmetry, slip)
+  wheel_velocity_scale:
+    min: 0.85
+    max: 1.00
+
+  # Total robot mass scale factor (arm payload changes CoM significantly)
+  robot_mass_scale:
+    min: 0.80
+    max: 1.20
+
+  # Action delay in simulation steps (20 Hz → 50–150 ms delay)
+  # Models Yahboom board's command processing and ramp latency
+  action_delay_steps:
+    min: 1
+    max: 3
+
+# ── Physics: SO-101 arm ───────────────────────────────────────────────────────
+arm:
+  # Joint damping scale (STS3215 backlash varies with temperature + load)
+  joint_damping_scale:
+    min: 0.50
+    max: 2.00
+
+  # Object mass scale (grasped object mass affects wrist torque)
+  object_mass_scale:
+    min: 0.50
+    max: 1.50
+
+  # Object surface friction (smooth bottle vs. textured box)
+  object_friction:
+    min: 0.30
+    max: 0.90
+
+  # Camera mount position noise (wrist camera wobble, mm converted to m)
+  camera_mount_noise_m:
+    min: -0.003   # -3 mm
+    max:  0.003   # +3 mm
+
+  # Action step dropout probability (models servo bus packet loss)
+  action_dropout_prob: 0.10
+
+# ── Observation noise ─────────────────────────────────────────────────────────
+observations:
+  # Synthetic lidar sectors (from depth pointcloud projection)
+  lidar_noise_sigma_m: 0.03         # 3 cm Gaussian noise
+
+  # Odometry velocity feedback from Yahboom board
+  odom_vel_noise_sigma_ms: 0.01     # 1 cm/s Gaussian noise
+
+  # Arm joint position feedback (encoder noise)
+  joint_pos_noise_sigma_rad: 0.005  # ~0.3° Gaussian noise
+
+  # Object pose estimate noise (models ArUco/vision detector error)
+  object_pose_noise_sigma_m: 0.02   # 2 cm Gaussian noise (covers ArUco error)
+
+# ── Lighting (for environments using camera observations) ─────────────────────
+lighting:
+  num_lights: 3
+  intensity_min_lm: 300
+  intensity_max_lm: 5000
+
+# ── Obstacle randomization (navigation env) ───────────────────────────────────
+obstacles:
+  # Box dimensions range (metres)
+  size_min: [0.20, 0.20, 0.40]    # width, depth, height
+  size_max: [0.60, 0.60, 1.20]
+  # Placed within this radius of the robot's starting position
+  placement_radius_m: 2.50
+  # Minimum distance from robot start and goal
+  min_clearance_from_robot_m: 0.60
+  min_clearance_from_goal_m:  0.40

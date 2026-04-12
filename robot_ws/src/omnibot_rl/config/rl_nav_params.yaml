@@ -1,0 +1,29 @@
+---
+# RL Navigation Node Parameters
+# ─────────────────────────────
+# Loaded by rl_inference.launch.py for rl_nav_node.
+#
+# policy_path: path to the exported ONNX policy file.
+#   Export from Isaac Lab with:
+#     python rl_engine/export/export_policy.py \
+#       --checkpoint <path> --output ~/models/omnibot_nav_policy.onnx
+#
+# Observation / action dims MUST match the training environment exactly.
+# See rl_engine/envs/omnibot_nav_env.py for the canonical spec.
+
+rl_nav_node:
+  ros__parameters:
+    # Policy
+    policy_path: "~/models/omnibot_nav_policy.onnx"
+    policy_hz:   20.0           # Hz — matches training env 20 Hz control freq
+
+    # Goal
+    goal_tolerance: 0.25        # metres — goal considered reached
+
+    # Velocity limits (must match hardware limits in yahboom_controller_node.py)
+    max_lin_vel: 0.20           # m/s
+    max_ang_vel: 1.00           # rad/s
+
+    # Lidar sector synthesis from /camera/depth/points
+    lidar_min: 0.30             # metres — ignore points closer than this
+    lidar_max: 3.00             # metres — observation clip range

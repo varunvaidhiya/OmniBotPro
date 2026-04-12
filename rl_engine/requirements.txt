@@ -1,0 +1,33 @@
+# RL Engine dependencies for OmniBot Isaac Lab training
+#
+# Isaac Lab installation:
+#   git clone https://github.com/isaac-sim/IsaacLab.git
+#   cd IsaacLab && ./isaaclab.sh --install
+#
+# After Isaac Lab is installed, install these additional packages:
+#   pip install -r rl_engine/requirements.txt
+
+# Core RL framework
+isaaclab>=1.1.0
+
+# Deep learning
+torch>=2.1.0
+
+# Policy inference deployment
+onnxruntime-gpu>=1.16.0    # GPU-accelerated ONNX inference for ROS 2 nodes
+onnx>=1.14.0
+
+# Training algorithms (Isaac Lab bundles rsl_rl; rl_games is optional)
+# rsl_rl is installed as part of Isaac Lab
+# rl_games>=1.6.1           # alternative RL trainer (uncomment if needed)
+
+# Utilities
+numpy>=1.24.0
+scipy>=1.10.0               # used for domain randomization sampling
+pyyaml>=6.0
+tqdm>=4.65.0
+tensorboard>=2.13.0         # training curve visualization
+
+# For export/testing without full Isaac Lab install
+# (lightweight inference only)
+# onnxruntime>=1.16.0       # CPU-only fallback

@@ -94,11 +94,32 @@
   message_type: sensor_msgs/msg/PointCloud2
   direction: publisher           # Isaac lidar / depth-to-pointcloud node
 
-# ── Arm commands (teleoperation / SmolVLA → Isaac) ───────────────────────────
-- topic_name: /arm/joint_commands
+# ── Arm commands (teleoperation / SmolVLA / RL → Isaac) ──────────────────────
+# arm_cmd_mux routes SmolVLA or RL arm commands to /arm/joint_commands/out.
+# arm_driver_node subscribes to /arm/joint_commands/out and writes to servos.
+# Isaac Sim receives /arm/joint_commands/out via this subscriber entry.
+- topic_name: /arm/joint_commands/out
   message_type: sensor_msgs/msg/JointState
   direction: subscriber          # ROS → Isaac: drives the arm articulation
 
 - topic_name: /arm/joint_states
   message_type: sensor_msgs/msg/JointState
   direction: publisher           # Isaac → ROS: actual arm joint angles
+
+# ── RL navigation topics ─────────────────────────────────────────────────────
+# /cmd_vel/rl is published by rl_nav_node and forwarded by cmd_vel_mux
+# to /cmd_vel/out when control_mode == "rl_nav".
+# Isaac Sim can receive it for sim-to-sim testing.
+- topic_name: /cmd_vel/rl
+  message_type: geometry_msgs/msg/Twist
+  direction: subscriber          # ROS → Isaac: RL nav velocity
+
+# /rl_nav/goal is published by mission_planner to rl_nav_node.
+- topic_name: /rl_nav/goal
+  message_type: geometry_msgs/msg/PoseStamped
+  direction: subscriber          # ROS → Isaac: goal for RL nav (monitoring)
+
+# ── Arm mode control ─────────────────────────────────────────────────────────
+- topic_name: /arm/cmd_mode
+  message_type: std_msgs/msg/String
+  direction: subscriber          # ROS → Isaac: "smolvla" | "rl_arm" (monitoring)

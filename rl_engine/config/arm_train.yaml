@@ -1,0 +1,60 @@
+---
+# Arm Manipulation Policy Training Hyperparameters (PPO via RSL-RL)
+# ─────────────────────────────────────────────────────────────────
+# Used by rl_engine/scripts/train_arm.py
+
+training:
+  max_iterations: 3000
+  num_envs: 256               # arm envs are more expensive (contact detection)
+
+  log_dir: "~/logs/omnibot_arm"
+  save_interval: 200
+
+  # Phase curriculum: start with 1 object type, expand to all 4 YCB objects
+  curriculum_enabled: true
+  curriculum_stages:
+    - object_types: ["mustard_bottle"]
+      duration_iterations: 1000
+    - object_types: ["mustard_bottle", "tomato_soup_can"]
+      duration_iterations: 1000
+    - object_types: ["mustard_bottle", "tomato_soup_can", "cracker_box", "klt_bin"]
+      duration_iterations: 1000
+
+# PPO hyperparameters
+ppo:
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  entropy_coef: 0.005         # lower entropy for precise manipulation
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 5.0e-4       # lower LR for fine manipulation
+  schedule: "adaptive"
+  gamma: 0.99
+  lam: 0.95
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+
+# Actor-critic network
+network:
+  actor_hidden_dims: [256, 256, 128]
+  critic_hidden_dims: [256, 256, 128]
+  activation: "elu"
+  init_noise_std: 0.5         # smaller initial noise for arm precision
+
+# Environment parameters
+env:
+  episode_length_steps: 400   # 20 s at 20 Hz — enough for pick+place
+  obs_dim: 30
+  action_dim: 6
+
+  # Reward weights (tune after initial training)
+  reward:
+    w_reach:     2.0
+    w_orient:    0.5
+    w_grasp:    10.0
+    w_lift:     20.0
+    w_place:    50.0
+    w_limit:    -0.1
+    w_smooth:   -0.01
+    w_collision: -5.0

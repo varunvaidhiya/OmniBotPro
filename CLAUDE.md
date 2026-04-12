@@ -18,6 +18,7 @@ parameters, or conventions.
 | `vla_engine/` | PyTorch VLA training/inference (no ROS) |
 | `data_engine/` | Episode-based dataset collection pipeline |
 | `lerobot_engine/` | Direct LeRobot training/recording/inference scripts (no ROS) |
+| `rl_engine/` | Isaac Lab RL training + ONNX export for sim-to-real |
 | `digital_twin/` | Contributor simulation environment (Gazebo, Isaac Sim, Foxglove) |
 | `android_app/` | Kotlin MVVM Android controller (ROSBridge WebSocket) |
 | `infra/` | Docker, DevContainers, CI/CD scripts |
@@ -45,6 +46,7 @@ Mecanum-Wheel-Robot/
 │       ├── omnibot_arm/           # SO-101 arm driver (LeRobot)
 │       ├── omnibot_hybrid/        # cmd_vel mux + mission planner
 │       ├── omnibot_lerobot/       # SmolVLA unified 9-DOF policy
+│       ├── omnibot_rl/            # RL inference nodes (nav + arm)
 │       └── omnibot_firmware/      # Legacy STM32 (not active)
 ├── packages/
 │   ├── yahboom_ros2/              # Pure-Python Yahboom protocol encoder/decoder
@@ -65,6 +67,13 @@ Mecanum-Wheel-Robot/
 │   ├── record.py                  # Direct LeRobot episode recording
 │   ├── infer.py                   # Direct LeRobot inference
 │   └── requirements.txt
+├── rl_engine/
+│   ├── requirements.txt           # isaaclab, onnxruntime-gpu, torch
+│   ├── config/                    # PPO hyperparams + domain randomization YAMLs
+│   ├── envs/                      # Isaac Lab ManagerBasedRLEnvCfg (nav + arm)
+│   ├── tasks/mdp/                 # Actions, observations, rewards, terminations
+│   ├── export/export_policy.py    # Checkpoint → ONNX opset 17 + TorchScript
+│   └── scripts/                   # train_nav.py, train_arm.py
 ├── digital_twin/
 │   ├── worlds/omnibot_lab.sdf     # Rich indoor lab world (table, shelf, YCB objects)
 │   ├── scenarios/                 # VLA/nav benchmark scenario definitions
@@ -215,6 +224,35 @@ ros2 topic pub --once /vla/prompt std_msgs/msg/String "data: 'Find the red cup'"
 # Send a mission command (hybrid mode)
 ros2 topic pub --once /mission/command std_msgs/msg/String \
   "data: 'navigate:kitchen,vla:find the red cup'"
+
+# Full hybrid robot WITH RL inference nodes enabled
+ros2 launch omnibot_hybrid hybrid_robot.launch.py use_rl:=true
+
+# RL inference nodes only (4 nodes: rl_nav, rl_arm, arm_cmd_mux, rl_object_pose)
+ros2 launch omnibot_rl rl_inference.launch.py
+
+# Train navigation RL policy in Isaac Lab (requires Isaac Sim + Isaac Lab)
+python rl_engine/scripts/train_nav.py --num_envs 512
+
+# Train arm RL policy in Isaac Lab
+python rl_engine/scripts/train_arm.py --num_envs 256
+
+# Export trained policy to ONNX (nav: 27D obs → 3D act)
+python rl_engine/export/export_policy.py \
+  --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
+  --output ~/models/omnibot_nav_policy.onnx --type nav
+
+# Switch base to RL navigation mode (short-range goal approach ≤ 3 m)
+ros2 topic pub --once /control_mode std_msgs/msg/String "data: 'rl_nav'"
+ros2 topic pub --once /rl_nav/goal geometry_msgs/msg/PoseStamped \
+  "{header: {frame_id: 'map'}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}}"
+
+# Switch arm to RL control mode (precision pick/place, triggered by mission planner)
+ros2 topic pub --once /arm/cmd_mode std_msgs/msg/String "data: 'rl_arm'"
+
+# Send RL nav + arm mission
+ros2 topic pub --once /mission/command std_msgs/msg/String \
+  "data: 'rl_nav:kitchen,rl_arm:pick up the cup'"
 ```
 
 ---
@@ -231,20 +269,30 @@ Xbox Joy     ──/joy───────────────────
                                                 │    encoders/IMU → /odom, /imu/data
                                                 │
                                                 ├─ cmd_vel_mux  (/cmd_vel/out)
-                                                │    modes: nav2 | vla | teleop
+                                                │    modes: nav2 | vla | teleop | rl_nav
+                                                │
+                                                ├─ arm_cmd_mux  (/arm/joint_commands/out)
+                                                │    modes: smolvla (default) | rl_arm
                                                 │
                                                 ├─ mission_planner
                                                 │    parses "navigate:X,vla:Y" commands
+                                                │    parses "rl_nav:X,rl_arm:Y" commands
                                                 │
                                                 ├─ slam_toolbox + Nav2 → /cmd_vel
                                                 │
                                                 └─ arm_driver_node
-                                                     /arm/joint_commands → Feetech bus
+                                                     /arm/joint_commands/out → Feetech bus
 
 VLA Desktop (GPU PC)
   OpenVLA node  ← /image_raw + /vla/prompt  →  /cmd_vel/vla
   SmolVLA node  ← /camera/wrist + /camera/base/bev + /arm/joint_states + /odom
                →  /arm/joint_commands + /cmd_vel
+  rl_nav_node   ← /odom + /camera/depth/points + /rl_nav/goal
+               →  /cmd_vel/rl  (ONNX, 20 Hz, 27D obs → 3D act)
+  rl_arm_node   ← /arm/joint_states + /rl_arm/target_pose
+               →  /arm/joint_commands/rl  (ONNX, 20 Hz, 30D obs → 6D act)
+  rl_object_pose_node ← /camera/wrist/image_raw + /camera/depth/image_raw
+               →  /rl_arm/target_pose + /rl_arm/target_detected  (ArUco)
 ```
 
 ### Complete topic map
@@ -270,8 +318,16 @@ VLA Desktop (GPU PC)
 | `/joint_states` | JointState | `robot_state_publisher`, Gazebo | `robot_state_publisher` |
 | `/arm/joint_states` | JointState | `arm_driver_node` | `smolvla_node`, Android |
 | `/arm/leader_states` | JointState | `arm_driver_node` (teleop) | `teleop_recorder_node` |
-| `/arm/joint_commands` | JointState | Android, `smolvla_node` | `arm_driver_node` |
+| `/arm/joint_commands` | JointState | Android, `smolvla_node` | `arm_cmd_mux` |
+| `/arm/joint_commands/rl` | JointState | `rl_arm_node` | `arm_cmd_mux` |
+| `/arm/joint_commands/out` | JointState | `arm_cmd_mux` | `arm_driver_node` |
+| `/arm/cmd_mode` | String | `mission_planner`, manual pub | `arm_cmd_mux` |
+| `/arm/cmd_mode/active` | String | `arm_cmd_mux` | monitoring |
 | `/arm/enable` | Bool | Android | `arm_driver_node` |
+| `/cmd_vel/rl` | Twist | `rl_nav_node` | `cmd_vel_mux` |
+| `/rl_nav/goal` | PoseStamped | `mission_planner`, manual pub | `rl_nav_node` |
+| `/rl_arm/target_pose` | PoseStamped | `rl_object_pose_node` | `rl_arm_node` |
+| `/rl_arm/target_detected` | Bool | `rl_object_pose_node` | `rl_arm_node` |
 | `/emergency_stop` | Bool | Android | *(not yet subscribed — known gap)* |
 | `/robot_mode` | String | Android | *(monitored externally)* |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
@@ -378,28 +434,33 @@ Falls back to passthrough/simulation mode if `lerobot` is not installed.
 
 ### `omnibot_hybrid`
 
-**`cmd_vel_mux.py`** — routes one of three `/cmd_vel` sources to `/cmd_vel/out`.
+**`cmd_vel_mux.py`** — routes one of four `/cmd_vel` sources to `/cmd_vel/out`.
 
 | Parameter | Default |
 |---|---|
 | `default_mode` | `'nav2'` |
 
-Valid `control_mode` strings: `"nav2"`, `"vla"`, `"teleop"` (any other value
-is silently ignored — the active mode does not change).
+Valid `control_mode` strings: `"nav2"`, `"vla"`, `"teleop"`, `"rl_nav"` (any
+other value is silently ignored — the active mode does not change).
 
 **`mission_planner.py`** — high-level state machine.
 
 Command format on `/mission/command`:
 ```
-"navigate:kitchen,vla:find the red cup"   # navigate then VLA
-"navigate:kitchen"                         # navigate only
-"vla:find the red cup"                     # VLA only
+"navigate:kitchen,vla:find the red cup"    # navigate (Nav2) then VLA
+"navigate:kitchen"                          # navigate only
+"vla:find the red cup"                      # VLA only
+"rl_nav:kitchen,rl_arm:pick up the cup"    # RL nav then RL arm
+"rl_nav:kitchen"                            # RL nav only
 ```
 
 Named locations loaded from `config/named_locations.yaml`
 (keys: location name → `{x, y, yaw}`).
 
-State machine: `idle → navigating → vla → done → idle`.
+State machine: `idle → navigating → vla → done → idle`
+              `idle → rl_navigating → rl_arm → done → idle`
+
+Publishers added for RL: `/rl_nav/goal` (PoseStamped), `/arm/cmd_mode` (String).
 
 ### `omnibot_lerobot`
 
@@ -432,6 +493,114 @@ available — no graceful degradation if either is missing.
 | `joy_discard_button` | `6` (LB) |
 
 Max recorded speeds: `MAX_LINEAR=0.2 m/s`, `MAX_ANGULAR=1.0 rad/s`.
+
+### `omnibot_rl`
+
+Four ROS 2 nodes for RL policy inference (ONNX Runtime, 20 Hz).
+
+**`rl_nav_node.py`** — base navigation RL policy.
+
+| Parameter | Default |
+|---|---|
+| `policy_path` | `'~/models/omnibot_nav_policy.onnx'` |
+| `policy_hz` | `20.0` |
+| `goal_tolerance` | `0.25` m |
+| `max_lin_vel` | `0.20` m/s |
+| `max_ang_vel` | `1.00` rad/s |
+| `lidar_min` | `0.30` m |
+| `lidar_max` | `3.00` m |
+
+Obs (27D): goal_rel_xy (2), base_vel (3), 8-sector lidar (8), prev_action (3),
+dist/yaw_error/heading (3), lidar replicated (8).
+Action (3D): velocity deltas (Δvx, Δvy, Δω), accumulated and clipped to hardware limits.
+Synthesizes 8-sector lidar from `/camera/depth/points` (XY plane, z ∈ [0.05, 1.5] m).
+Active only when `/control_mode/active == "rl_nav"`.
+
+**`rl_arm_node.py`** — arm precision control RL policy.
+
+| Parameter | Default |
+|---|---|
+| `policy_path` | `'~/models/omnibot_arm_policy.onnx'` |
+| `policy_hz` | `20.0` |
+| `max_delta` | `0.05` rad/step |
+
+Obs (30D): joint_pos_normalized (6), joint_vel (6), ee_pos (3), ee_rot6d (6),
+target_pos (3), prev_action (6).
+Action (6D): joint position deltas, clipped to ±0.05 rad/step, enforced within URDF limits.
+Active only when `/arm/cmd_mode == "rl_arm"`.
+
+**`arm_cmd_mux.py`** — arm command multiplexer (mirrors cmd_vel_mux design).
+
+Valid modes: `"smolvla"` (default, transparent pass-through), `"rl_arm"`.
+Inputs: `/arm/joint_commands` (SmolVLA), `/arm/joint_commands/rl` (RL arm node).
+Output: `/arm/joint_commands/out` → `arm_driver_node`.
+Mode feedback on `/arm/cmd_mode/active` at 1 Hz.
+
+**`rl_object_pose_node.py`** — ArUco marker-based object pose estimator.
+
+| Parameter | Default |
+|---|---|
+| `aruco_dict_id` | `4` (DICT_4X4_50) |
+| `marker_id` | `0` |
+| `marker_size_m` | `0.05` |
+| `camera_frame` | `'wrist_camera_link'` |
+
+Subscribes `/camera/wrist/image_raw` + `/camera/depth/image_raw`.
+Publishes `/rl_arm/target_pose` (PoseStamped in `base_link`) and
+`/rl_arm/target_detected` (Bool). Holds last pose for 0.5 s after detection loss.
+Uses TF2 to transform wrist_camera_link → base_link.
+
+Config files: `robot_ws/src/omnibot_rl/config/rl_nav_params.yaml`,
+`robot_ws/src/omnibot_rl/config/rl_arm_params.yaml`.
+Launch: `robot_ws/src/omnibot_rl/launch/rl_inference.launch.py`.
+
+---
+
+## RL Engine (`rl_engine/`)
+
+Isaac Lab training infrastructure for sim-to-real RL. Requires Isaac Sim + Isaac Lab
+(not part of the ROS build — run separately on the GPU PC).
+
+```
+rl_engine/
+├── requirements.txt          # isaaclab>=1.1.0, onnxruntime-gpu>=1.16, torch>=2.1
+├── config/
+│   ├── domain_randomization.yaml   # Per-episode randomization ranges
+│   ├── nav_train.yaml              # PPO hyperparams + curriculum for nav
+│   └── arm_train.yaml              # PPO hyperparams + curriculum for arm
+├── envs/
+│   ├── omnibot_nav_env.py          # OmnibotNavEnvCfg (27D obs, 3D act, 512 envs)
+│   └── omnibot_arm_env.py          # OmnibotArmEnvCfg (30D obs, 6D act, 256 envs)
+├── tasks/mdp/
+│   ├── actions.py        # MecanumWheelActionTerm, ArmJointDeltaActionTerm
+│   ├── observations.py   # LidarSectorObsTerm, GoalRelativeObsTerm, ArmNormJointPos
+│   ├── rewards.py        # nav_goal_approach, arm_ee_approach, grasp/lift/place bonuses
+│   └── terminations.py   # collision, timeout, goal_reached, object_dropped
+├── export/
+│   └── export_policy.py  # --checkpoint → ONNX opset 17 or TorchScript
+└── scripts/
+    ├── train_nav.py       # AppLauncher → OmnibotNavEnvCfg → RSL-RL PPO
+    └── train_arm.py       # AppLauncher → OmnibotArmEnvCfg → RSL-RL PPO
+```
+
+**Key design decisions:**
+- Actions are velocity **deltas** (not absolute), matching Yahboom's 0.05 m/s ramp limiter.
+- `MecanumWheelActionTerm` uses exact OmniBot constants: `lx=0.0825`, `ly=0.1075`, `r=0.04`.
+- Arm actions are joint position deltas (±0.05 rad/step → maps to STS3215 Goal_Position).
+- `ActionDelayTerm` (1–3 steps at 20 Hz = 50–150 ms) models servo bus latency.
+- `physics_randomization` in `randomization_config.yaml` is disabled by default;
+  set `enabled: true` only during Isaac Lab RL training.
+
+**Training workflow:**
+```bash
+# 1. Train
+python rl_engine/scripts/train_nav.py --num_envs 512 --max_iterations 2000
+# 2. Export
+python rl_engine/export/export_policy.py \
+  --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
+  --output ~/models/omnibot_nav_policy.onnx --type nav
+# 3. Deploy: copy .onnx to robot, launch with use_rl:=true
+```
 
 ---
 
