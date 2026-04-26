@@ -4,6 +4,7 @@ Unit tests for CmdVelMux — pure logic, no hardware required.
 These tests spin a real rclpy node in a thread so that ROS callbacks fire
 without needing a full ROS 2 environment beyond the library itself.
 """
+
 import threading
 import time
 
@@ -92,8 +93,7 @@ class TestForwarding:
     def test_nav2_forwarded_in_nav2_mode(self, mux_node):
         _pub_mode(mux_node, "nav2")
         received: list[Twist] = []
-        sub = mux_node.create_subscription(
-            Twist, "/cmd_vel/out", received.append, 10)
+        sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
 
         pub = mux_node.create_publisher(Twist, "/cmd_vel", 10)
         pub.publish(_make_twist(0.5))
@@ -107,8 +107,7 @@ class TestForwarding:
     def test_vla_not_forwarded_in_nav2_mode(self, mux_node):
         _pub_mode(mux_node, "nav2")
         received: list[Twist] = []
-        sub = mux_node.create_subscription(
-            Twist, "/cmd_vel/out", received.append, 10)
+        sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
 
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
         pub.publish(_make_twist(0.7))
@@ -121,8 +120,7 @@ class TestForwarding:
     def test_vla_forwarded_in_vla_mode(self, mux_node):
         _pub_mode(mux_node, "vla")
         received: list[Twist] = []
-        sub = mux_node.create_subscription(
-            Twist, "/cmd_vel/out", received.append, 10)
+        sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
 
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
         pub.publish(_make_twist(0.3))
@@ -136,8 +134,7 @@ class TestForwarding:
     def test_teleop_forwarded_in_teleop_mode(self, mux_node):
         _pub_mode(mux_node, "teleop")
         received: list[Twist] = []
-        sub = mux_node.create_subscription(
-            Twist, "/cmd_vel/out", received.append, 10)
+        sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
 
         pub = mux_node.create_publisher(Twist, "/cmd_vel/teleop", 10)
         pub.publish(_make_twist(0.1))
@@ -153,7 +150,8 @@ class TestActiveModePublisher:
         _pub_mode(mux_node, "vla")
         received: list[String] = []
         sub = mux_node.create_subscription(
-            String, "/control_mode/active", received.append, 10)
+            String, "/control_mode/active", received.append, 10
+        )
         time.sleep(1.2)  # 1 Hz timer fires at least once
 
         sub.destroy()

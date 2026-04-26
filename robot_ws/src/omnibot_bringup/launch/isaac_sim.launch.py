@@ -46,42 +46,44 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    pkg_desc    = FindPackageShare('omnibot_description').find('omnibot_description')
-    pkg_bringup = FindPackageShare('omnibot_bringup').find('omnibot_bringup')
-    pkg_arm     = FindPackageShare('omnibot_arm').find('omnibot_arm')
-    pkg_lerobot = FindPackageShare('omnibot_lerobot').find('omnibot_lerobot')
+    pkg_desc = FindPackageShare("omnibot_description").find("omnibot_description")
+    pkg_bringup = FindPackageShare("omnibot_bringup").find("omnibot_bringup")
+    pkg_arm = FindPackageShare("omnibot_arm").find("omnibot_arm")
+    pkg_lerobot = FindPackageShare("omnibot_lerobot").find("omnibot_lerobot")
 
-    xacro_file   = os.path.join(pkg_desc, 'urdf', 'omnibot.urdf.xacro')
-    rviz_config  = os.path.join(pkg_bringup, 'config', 'omnibot.rviz')
-    arm_params   = os.path.join(pkg_arm, 'config', 'arm_params.yaml')
-    bev_params   = os.path.join(pkg_lerobot, 'config', 'bev_params.yaml')
+    xacro_file = os.path.join(pkg_desc, "urdf", "omnibot.urdf.xacro")
+    rviz_config = os.path.join(pkg_bringup, "config", "omnibot.rviz")
+    arm_params = os.path.join(pkg_arm, "config", "arm_params.yaml")
+    bev_params = os.path.join(pkg_lerobot, "config", "bev_params.yaml")
 
-    robot_desc = ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
+    robot_desc = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
 
     # ── Launch arguments ─────────────────────────────────────────────────────
     declare_rviz = DeclareLaunchArgument(
-        'rviz', default_value='true',
-        description='Launch RViz2 for visualization'
+        "rviz", default_value="true", description="Launch RViz2 for visualization"
     )
     declare_arm = DeclareLaunchArgument(
-        'arm', default_value='true',
-        description='Launch arm_driver_node (set false for base-only tests)'
+        "arm",
+        default_value="true",
+        description="Launch arm_driver_node (set false for base-only tests)",
     )
     declare_bev = DeclareLaunchArgument(
-        'bev', default_value='true',
-        description='Launch bev_stitcher_node (required for smolvla_node)'
+        "bev",
+        default_value="true",
+        description="Launch bev_stitcher_node (required for smolvla_node)",
     )
     declare_foxglove = DeclareLaunchArgument(
-        'foxglove', default_value='true',
-        description='Launch Foxglove bridge on ws://localhost:8765'
+        "foxglove",
+        default_value="true",
+        description="Launch Foxglove bridge on ws://localhost:8765",
     )
 
     # ── 1. Robot State Publisher ─────────────────────────────────────────────
     robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[{'robot_description': robot_desc}],
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="screen",
+        parameters=[{"robot_description": robot_desc}],
     )
 
     # ── 2. Arm driver — simulation passthrough mode (4 s delay) ─────────────
@@ -89,26 +91,26 @@ def generate_launch_description():
         period=4.0,
         actions=[
             Node(
-                package='omnibot_arm',
-                executable='arm_driver_node.py',
-                name='arm_driver_node',
-                output='screen',
-                condition=IfCondition(LaunchConfiguration('arm')),
+                package="omnibot_arm",
+                executable="arm_driver_node.py",
+                name="arm_driver_node",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("arm")),
                 parameters=[arm_params],
                 remappings=[
-                    ('/arm/joint_states', '/joint_states'),
+                    ("/arm/joint_states", "/joint_states"),
                 ],
             )
-        ]
+        ],
     )
 
     # ── 3. BEV stitcher ──────────────────────────────────────────────────────
     bev_stitcher = Node(
-        package='omnibot_lerobot',
-        executable='bev_stitcher_node.py',
-        name='bev_stitcher_node',
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('bev')),
+        package="omnibot_lerobot",
+        executable="bev_stitcher_node.py",
+        name="bev_stitcher_node",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("bev")),
         parameters=[bev_params],
     )
 
@@ -117,53 +119,57 @@ def generate_launch_description():
     # slam_toolbox needs /scan; this converts depth → LaserScan identically
     # to the Gazebo and hardware pipelines.
     depth_to_scan = Node(
-        package='depthimage_to_laserscan',
-        executable='depthimage_to_laserscan_node',
-        name='depthimage_to_laserscan',
-        output='screen',
-        parameters=[{
-            'scan_height':  1,
-            'range_min':    0.6,
-            'range_max':    8.0,
-            'output_frame': 'depth_camera_optical_frame',
-        }],
+        package="depthimage_to_laserscan",
+        executable="depthimage_to_laserscan_node",
+        name="depthimage_to_laserscan",
+        output="screen",
+        parameters=[
+            {
+                "scan_height": 1,
+                "range_min": 0.6,
+                "range_max": 8.0,
+                "output_frame": "depth_camera_optical_frame",
+            }
+        ],
         remappings=[
-            ('depth',             '/camera/depth/image_raw'),
-            ('depth_camera_info', '/camera/depth/camera_info'),
-            ('scan',              '/scan'),
+            ("depth", "/camera/depth/image_raw"),
+            ("depth_camera_info", "/camera/depth/camera_info"),
+            ("scan", "/scan"),
         ],
     )
 
     # ── 5. Foxglove bridge — browser-based live monitoring ───────────────────
     # Open https://app.foxglove.dev → Connect → ws://localhost:8765
     foxglove_bridge = Node(
-        package='foxglove_bridge',
-        executable='foxglove_bridge',
-        name='foxglove_bridge',
-        output='screen',
-        parameters=[{'port': 8765, 'address': '0.0.0.0'}],
-        condition=IfCondition(LaunchConfiguration('foxglove')),
+        package="foxglove_bridge",
+        executable="foxglove_bridge",
+        name="foxglove_bridge",
+        output="screen",
+        parameters=[{"port": 8765, "address": "0.0.0.0"}],
+        condition=IfCondition(LaunchConfiguration("foxglove")),
     )
 
     # ── 6. RViz ──────────────────────────────────────────────────────────────
     rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('rviz')),
-        arguments=['-d', rviz_config],
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("rviz")),
+        arguments=["-d", rviz_config],
     )
 
-    return LaunchDescription([
-        declare_rviz,
-        declare_arm,
-        declare_bev,
-        declare_foxglove,
-        robot_state_publisher,
-        arm_driver,
-        bev_stitcher,
-        depth_to_scan,
-        foxglove_bridge,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            declare_rviz,
+            declare_arm,
+            declare_bev,
+            declare_foxglove,
+            robot_state_publisher,
+            arm_driver,
+            bev_stitcher,
+            depth_to_scan,
+            foxglove_bridge,
+            rviz,
+        ]
+    )

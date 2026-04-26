@@ -21,7 +21,7 @@ from contextlib import asynccontextmanager
 from typing import Optional
 
 import uvicorn
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.security.api_key import APIKeyHeader
 
 from .schema import InferenceRequest, InferenceResponse
@@ -42,14 +42,15 @@ logging.basicConfig(
 _model: Optional[VLAModel] = None
 
 # Simple in-process token-bucket rate limiter: {api_key: (tokens, last_refill)}
-_rate_buckets: dict[str, tuple[float, float]] = defaultdict(lambda: (float(os.getenv("VLA_RATE_LIMIT", "10")), time.monotonic()))
+_rate_buckets: dict[str, tuple[float, float]] = defaultdict(
+    lambda: (float(os.getenv("VLA_RATE_LIMIT", "10")), time.monotonic())
+)
 _RATE_LIMIT = float(os.getenv("VLA_RATE_LIMIT", "10"))  # requests per second
 
 
 def _get_model_class() -> type:
-    cls_path = os.getenv(
-        'VLA_MODEL_CLASS', 'vla_serve.models.openvla.OpenVLAModel')
-    module_path, cls_name = cls_path.rsplit('.', 1)
+    cls_path = os.getenv("VLA_MODEL_CLASS", "vla_serve.models.openvla.OpenVLAModel")
+    module_path, cls_name = cls_path.rsplit(".", 1)
     module = importlib.import_module(module_path)
     return getattr(module, cls_name)
 
@@ -96,6 +97,7 @@ def _check_rate_limit(key: str) -> None:
 # Lifespan
 # ---------------------------------------------------------------------------
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global _model
@@ -105,9 +107,9 @@ async def lifespan(app: FastAPI):
     auth_status = "enabled" if _API_KEY else "DISABLED (set VLA_API_KEY to enable)"
     logger.info("API key authentication: %s", auth_status)
 
-    if os.getenv('VLA_AUTO_LOAD', '0') == '1':
-        model_path = os.getenv('VLA_MODEL_PATH', 'openvla/openvla-7b')
-        load_4bit = os.getenv('VLA_LOAD_4BIT', '0') == '1'
+    if os.getenv("VLA_AUTO_LOAD", "0") == "1":
+        model_path = os.getenv("VLA_MODEL_PATH", "openvla/openvla-7b")
+        load_4bit = os.getenv("VLA_LOAD_4BIT", "0") == "1"
         logger.info("auto-loading %s (4bit=%s)", model_path, load_4bit)
         _model.load_model(model_path=model_path, load_in_4bit=load_4bit)
         logger.info("model loaded successfully")
@@ -123,58 +125,60 @@ async def lifespan(app: FastAPI):
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title='vla_serve',
-    description='Model-agnostic VLA inference REST server',
-    version='1.0.0',
+    title="vla_serve",
+    description="Model-agnostic VLA inference REST server",
+    version="1.0.0",
     lifespan=lifespan,
 )
 
 
-@app.get('/health')
+@app.get("/health")
 def health():
     """Health check — no auth required."""
-    loaded = (_model is not None and
-              getattr(_model, 'model', None) is not None)
-    return {'status': 'ok', 'model_loaded': loaded}
+    loaded = _model is not None and getattr(_model, "model", None) is not None
+    return {"status": "ok", "model_loaded": loaded}
 
 
-@app.post('/load_model')
+@app.post("/load_model")
 def load_model(
-    model_path: str = 'openvla/openvla-7b',
+    model_path: str = "openvla/openvla-7b",
     load_4bit: bool = False,
     _key: str = Depends(_require_api_key),
 ):
     if _model is None:
-        raise HTTPException(status_code=503, detail='Server not initialized.')
+        raise HTTPException(status_code=503, detail="Server not initialized.")
     try:
         logger.info("loading model %s (4bit=%s)", model_path, load_4bit)
         _model.load_model(model_path=model_path, load_in_4bit=load_4bit)
         logger.info("model %s loaded", model_path)
-        return {'status': 'success', 'model': model_path}
+        return {"status": "success", "model": model_path}
     except Exception as exc:
         logger.error("load_model failed: %s", exc)
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-@app.post('/predict', response_model=InferenceResponse)
+@app.post("/predict", response_model=InferenceResponse)
 def predict(
     request: InferenceRequest,
     key: str = Depends(_require_api_key),
 ):
     _check_rate_limit(key or "anon")
 
-    if _model is None or getattr(_model, 'model', None) is None:
+    if _model is None or getattr(_model, "model", None) is None:
         raise HTTPException(
-            status_code=503,
-            detail='Model not loaded. POST to /load_model first.')
+            status_code=503, detail="Model not loaded. POST to /load_model first."
+        )
     try:
         t0 = time.time()
         image = decode_base64_image(request.image_base64)
-        result = _model.predict_action(image, request.instruction,
-                                       **(request.config or {}))
+        result = _model.predict_action(
+            image, request.instruction, **(request.config or {})
+        )
         latency = (time.time() - t0) * 1000.0
-        logger.debug("inference latency=%.1f ms instruction=%r", latency, request.instruction)
-        action = result if isinstance(result, dict) else {'vector': result}
+        logger.debug(
+            "inference latency=%.1f ms instruction=%r", latency, request.instruction
+        )
+        action = result if isinstance(result, dict) else {"vector": result}
         return InferenceResponse(
             action=action,
             raw_output=str(result),
@@ -191,14 +195,15 @@ def predict(
 # Entry point
 # ---------------------------------------------------------------------------
 
+
 def main():
     uvicorn.run(
-        'vla_serve.inference.server:app',
-        host='0.0.0.0',
-        port=int(os.getenv('VLA_PORT', '8000')),
+        "vla_serve.inference.server:app",
+        host="0.0.0.0",
+        port=int(os.getenv("VLA_PORT", "8000")),
         reload=False,
     )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

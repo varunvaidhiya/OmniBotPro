@@ -26,13 +26,13 @@ from .schema import (
 )
 from .loader import EpisodeDataset
 
-__version__ = '1.0.0'
+__version__ = "1.0.0"
 __all__ = [
-    'TopicSynchronizer',
-    'StateSpec',
-    'ActionSpec',
-    'CameraConfig',
-    'DatasetSchema',
-    'OMNIBOT_SCHEMA',
-    'EpisodeDataset',
+    "TopicSynchronizer",
+    "StateSpec",
+    "ActionSpec",
+    "CameraConfig",
+    "DatasetSchema",
+    "OMNIBOT_SCHEMA",
+    "EpisodeDataset",
 ]

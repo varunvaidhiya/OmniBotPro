@@ -14,18 +14,21 @@ import numpy as np
 
 try:
     import cv2
+
     CV2_AVAILABLE = True
 except ImportError:
     CV2_AVAILABLE = False
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
 
 try:
     from lerobot.common.policies.smolvla.modeling_smolvla import SmolVLAPolicy
+
     LEROBOT_AVAILABLE = True
 except ImportError:
     LEROBOT_AVAILABLE = False
@@ -34,8 +37,12 @@ except ImportError:
 # Constants
 # ---------------------------------------------------------------------------
 JOINT_NAMES = [
-    'shoulder_pan', 'shoulder_lift', 'elbow_flex',
-    'wrist_flex', 'wrist_roll', 'gripper'
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll",
+    "gripper",
 ]
 IMAGE_H = 240
 IMAGE_W = 320
@@ -61,6 +68,7 @@ class DummyPolicy:
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def frame_to_tensor(frame_bgr: np.ndarray, device):
     """Convert BGR uint8 HxWx3 frame to float32 CHW tensor in [0,1], batched."""
@@ -98,8 +106,9 @@ def build_state_tensor(device):
     return arr
 
 
-def overlay_action_text(frame_bgr: np.ndarray, action_np: np.ndarray,
-                        fps: float, frame_idx: int) -> np.ndarray:
+def overlay_action_text(
+    frame_bgr: np.ndarray, action_np: np.ndarray, fps: float, frame_idx: int
+) -> np.ndarray:
     """Draw action values and stats onto the frame."""
     overlay = frame_bgr.copy()
 
@@ -111,19 +120,26 @@ def overlay_action_text(frame_bgr: np.ndarray, action_np: np.ndarray,
     base = action_np[6:9]
 
     lines = [
-        f'Frame: {frame_idx}  |  Policy FPS: {fps:.1f}',
-        '',
-        'Arm joints (rad):',
-        '  ' + '  '.join(f'{n[:4]}:{v:+.3f}' for n, v in zip(JOINT_NAMES, arm)),
-        '',
-        f'Base vel:  vx={base[0]:+.3f}  vy={base[1]:+.3f}  vz={base[2]:+.3f}',
+        f"Frame: {frame_idx}  |  Policy FPS: {fps:.1f}",
+        "",
+        "Arm joints (rad):",
+        "  " + "  ".join(f"{n[:4]}:{v:+.3f}" for n, v in zip(JOINT_NAMES, arm)),
+        "",
+        f"Base vel:  vx={base[0]:+.3f}  vy={base[1]:+.3f}  vz={base[2]:+.3f}",
     ]
 
     y = 18
     for line in lines:
-        cv2.putText(overlay, line, (8, y),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 255, 0), 1,
-                    cv2.LINE_AA)
+        cv2.putText(
+            overlay,
+            line,
+            (8, y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.45,
+            (0, 255, 0),
+            1,
+            cv2.LINE_AA,
+        )
         y += 20
 
     return overlay
@@ -133,29 +149,34 @@ def overlay_action_text(frame_bgr: np.ndarray, action_np: np.ndarray,
 # Args
 # ---------------------------------------------------------------------------
 
+
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Standalone SmolVLA inference test (no ROS required).'
+        description="Standalone SmolVLA inference test (no ROS required)."
     )
     parser.add_argument(
-        '--checkpoint', type=str, default='lerobot/smolvla_base',
-        help='Path to SmolVLA checkpoint directory or HF model ID.'
+        "--checkpoint",
+        type=str,
+        default="lerobot/smolvla_base",
+        help="Path to SmolVLA checkpoint directory or HF model ID.",
     )
     parser.add_argument(
-        '--camera-id', type=int, default=0,
-        help='OpenCV camera index for the wrist camera.'
+        "--camera-id",
+        type=int,
+        default=0,
+        help="OpenCV camera index for the wrist camera.",
     )
     parser.add_argument(
-        '--task', type=str, default='pick up the cube',
-        help='Natural language task description.'
+        "--task",
+        type=str,
+        default="pick up the cube",
+        help="Natural language task description.",
     )
     parser.add_argument(
-        '--device', type=str, default='cuda',
-        help='Inference device: cuda or cpu.'
+        "--device", type=str, default="cuda", help="Inference device: cuda or cpu."
     )
     parser.add_argument(
-        '--fps', type=float, default=10.0,
-        help='Target inference frequency in Hz.'
+        "--fps", type=float, default=10.0, help="Target inference frequency in Hz."
     )
     return parser.parse_args()
 
@@ -164,24 +185,25 @@ def parse_args():
 # Main
 # ---------------------------------------------------------------------------
 
+
 def main():
     args = parse_args()
 
     if not CV2_AVAILABLE:
-        print('[ERROR] opencv-python is required. Install: pip install opencv-python')
+        print("[ERROR] opencv-python is required. Install: pip install opencv-python")
         return
 
     # Device
     if TORCH_AVAILABLE:
-        if args.device == 'cuda' and torch.cuda.is_available():
-            device = torch.device('cuda')
+        if args.device == "cuda" and torch.cuda.is_available():
+            device = torch.device("cuda")
         else:
-            if args.device == 'cuda':
-                print('[WARNING] CUDA not available, using CPU.')
-            device = torch.device('cpu')
+            if args.device == "cuda":
+                print("[WARNING] CUDA not available, using CPU.")
+            device = torch.device("cpu")
     else:
         device = None
-        print('[WARNING] PyTorch not installed — using DummyPolicy.')
+        print("[WARNING] PyTorch not installed — using DummyPolicy.")
 
     # Policy
     policy = None
@@ -191,18 +213,18 @@ def main():
             policy = SmolVLAPolicy.from_pretrained(args.checkpoint)
             policy = policy.to(device)
             policy.eval()
-            print('Policy loaded.')
+            print("Policy loaded.")
         except Exception as exc:
-            print(f'[WARNING] Failed to load policy: {exc}. Using DummyPolicy.')
+            print(f"[WARNING] Failed to load policy: {exc}. Using DummyPolicy.")
             policy = DummyPolicy()
     else:
-        print('[WARNING] lerobot not installed — using DummyPolicy (returns zeros).')
+        print("[WARNING] lerobot not installed — using DummyPolicy (returns zeros).")
         policy = DummyPolicy()
 
     # Camera
     cap = cv2.VideoCapture(args.camera_id)
     if not cap.isOpened():
-        print(f'[WARNING] Could not open camera {args.camera_id}. Using dummy frames.')
+        print(f"[WARNING] Could not open camera {args.camera_id}. Using dummy frames.")
         cap = None
 
     print(f'\nRunning inference at {args.fps:.0f} Hz | Task: "{args.task}"')
@@ -213,10 +235,10 @@ def main():
     fps_actual = args.fps
     t_prev = time.perf_counter()
 
-    if hasattr(policy, 'reset'):
+    if hasattr(policy, "reset"):
         policy.reset()
 
-    window_name = 'SmolVLA Inference — OmniBot'
+    window_name = "SmolVLA Inference — OmniBot"
     cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
     cv2.resizeWindow(window_name, 640, 480)
 
@@ -228,7 +250,7 @@ def main():
             if cap is not None:
                 ret, frame_bgr = cap.read()
                 if not ret:
-                    print('[WARNING] Camera read failed. Using dummy frame.')
+                    print("[WARNING] Camera read failed. Using dummy frame.")
                     frame_bgr = np.zeros((IMAGE_H, IMAGE_W, 3), dtype=np.uint8)
             else:
                 frame_bgr = np.zeros((IMAGE_H, IMAGE_W, 3), dtype=np.uint8)
@@ -239,18 +261,18 @@ def main():
             state_t = build_state_tensor(device)
 
             obs = {
-                'observation.images.wrist': wrist_t,
-                'observation.images.front': front_t,
-                'observation.state': state_t,
-                'task': args.task,
+                "observation.images.wrist": wrist_t,
+                "observation.images.front": front_t,
+                "observation.state": state_t,
+                "task": args.task,
             }
 
             # Inference
             try:
-                with (torch.no_grad() if TORCH_AVAILABLE else _null_context()):
+                with torch.no_grad() if TORCH_AVAILABLE else _null_context():
                     action = policy.select_action(obs)
 
-                if TORCH_AVAILABLE and hasattr(action, 'cpu'):
+                if TORCH_AVAILABLE and hasattr(action, "cpu"):
                     action_np = action.cpu().numpy()
                 else:
                     action_np = np.array(action)
@@ -259,7 +281,7 @@ def main():
                     action_np = action_np[0]
 
             except Exception as exc:
-                print(f'[WARNING] Inference error: {exc}')
+                print(f"[WARNING] Inference error: {exc}")
                 action_np = np.zeros(9, dtype=np.float32)
 
             # Compute actual FPS
@@ -271,10 +293,10 @@ def main():
             arm = action_np[:6]
             base = action_np[6:9]
             print(
-                f'[{frame_idx:5d}] '
-                f'arm: [{", ".join(f"{v:+.4f}" for v in arm)}] | '
-                f'base: vx={base[0]:+.4f} vy={base[1]:+.4f} vz={base[2]:+.4f} | '
-                f'{fps_actual:.1f} Hz'
+                f"[{frame_idx:5d}] "
+                f"arm: [{', '.join(f'{v:+.4f}' for v in arm)}] | "
+                f"base: vx={base[0]:+.4f} vy={base[1]:+.4f} vz={base[2]:+.4f} | "
+                f"{fps_actual:.1f} Hz"
             )
 
             # Display
@@ -286,8 +308,8 @@ def main():
 
             # Exit on 'q'
             key = cv2.waitKey(1) & 0xFF
-            if key == ord('q'):
-                print('\nExiting (q pressed).')
+            if key == ord("q"):
+                print("\nExiting (q pressed).")
                 break
 
             # Pace loop
@@ -297,18 +319,21 @@ def main():
                 time.sleep(sleep_t)
 
     except KeyboardInterrupt:
-        print('\nInterrupted by user.')
+        print("\nInterrupted by user.")
     finally:
         if cap is not None:
             cap.release()
         cv2.destroyAllWindows()
-        print('Done.')
+        print("Done.")
 
 
 class _null_context:
-    def __enter__(self): return self
-    def __exit__(self, *a): pass
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -43,24 +43,24 @@ Install Orbbec driver (build from source — not on apt):
 import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument
 from launch.conditions import UnlessCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    nav_dir = get_package_share_directory('omnibot_navigation')
-    rtabmap_params = os.path.join(nav_dir, 'config', 'rtabmap_params.yaml')
-    octomap_params = os.path.join(nav_dir, 'config', 'octomap_params.yaml')
+    nav_dir = get_package_share_directory("omnibot_navigation")
+    rtabmap_params = os.path.join(nav_dir, "config", "rtabmap_params.yaml")
+    octomap_params = os.path.join(nav_dir, "config", "octomap_params.yaml")
 
-    use_sim_time = LaunchConfiguration('use_sim_time')
+    use_sim_time = LaunchConfiguration("use_sim_time")
 
     declare_use_sim_time = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='false',
-        description='Use Gazebo clock; skips the real Astra Pro driver when true')
+        "use_sim_time",
+        default_value="false",
+        description="Use Gazebo clock; skips the real Astra Pro driver when true",
+    )
 
     # ── Orbbec Astra Pro driver (physical robot only) ─────────────────────────
     # Skipped in simulation — Gazebo RGBD sensor + ros_gz_bridge provide the
@@ -69,26 +69,28 @@ def generate_launch_description():
     # The ros2_astra_camera package must be built from source:
     #   https://github.com/orbbec/ros2_astra_camera
     astra_camera_node = Node(
-        package='astra_camera',
-        executable='astra_camera_node',
-        name='astra_camera',
-        namespace='camera',
-        output='screen',
-        parameters=[{
-            'use_sim_time': use_sim_time,
-            # Publish depth registered with colour for better RTAB-Map quality
-            'depth_registration': True,
-            # Astra Pro device type
-            'camera_name': 'camera',
-            'color_width': 640,
-            'color_height': 480,
-            'color_fps': 30,
-            'depth_width': 640,
-            'depth_height': 480,
-            'depth_fps': 30,
-            'enable_point_cloud': True,
-            'enable_colored_point_cloud': False,   # unregistered cloud for Nav2
-        }],
+        package="astra_camera",
+        executable="astra_camera_node",
+        name="astra_camera",
+        namespace="camera",
+        output="screen",
+        parameters=[
+            {
+                "use_sim_time": use_sim_time,
+                # Publish depth registered with colour for better RTAB-Map quality
+                "depth_registration": True,
+                # Astra Pro device type
+                "camera_name": "camera",
+                "color_width": 640,
+                "color_height": 480,
+                "color_fps": 30,
+                "depth_width": 640,
+                "depth_height": 480,
+                "depth_fps": 30,
+                "enable_point_cloud": True,
+                "enable_colored_point_cloud": False,  # unregistered cloud for Nav2
+            }
+        ],
         # Only start on physical robot
         condition=UnlessCondition(use_sim_time),
     )
@@ -97,27 +99,27 @@ def generate_launch_description():
     # Full RGB-D SLAM: uses colour image for loop-closure bag-of-words and
     # depth image for 3-D reconstruction + OctoMap generation.
     rtabmap_node = Node(
-        package='rtabmap_ros',
-        executable='rtabmap',
-        name='rtabmap',
-        output='screen',
+        package="rtabmap_ros",
+        executable="rtabmap",
+        name="rtabmap",
+        output="screen",
         parameters=[
             rtabmap_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
         remappings=[
             # Astra Pro driver publishes colour and depth on separate topics;
             # this gives RTAB-Map real RGB for superior loop-closure detection.
-            ('rgb/image',         '/camera/color/image_raw'),
-            ('rgb/camera_info',   '/camera/color/camera_info'),
-            ('depth/image',       '/camera/depth/image_raw'),
-            ('depth/camera_info', '/camera/depth/camera_info'),
+            ("rgb/image", "/camera/color/image_raw"),
+            ("rgb/camera_info", "/camera/color/camera_info"),
+            ("depth/image", "/camera/depth/image_raw"),
+            ("depth/camera_info", "/camera/depth/camera_info"),
             # Odometry from EKF
-            ('odom',              '/odom'),
+            ("odom", "/odom"),
             # Published map topics
-            ('grid_map',          '/rtabmap/grid_map'),
+            ("grid_map", "/rtabmap/grid_map"),
         ],
-        arguments=['--delete_db_on_start'],   # remove to preserve map across restarts
+        arguments=["--delete_db_on_start"],  # remove to preserve map across restarts
     )
 
     # ── OctoMap server ────────────────────────────────────────────────────────
@@ -126,16 +128,16 @@ def generate_launch_description():
     #   /octomap_full          — full-probability OctoMap
     #   /projected_map         — 2-D OccupancyGrid (Nav2 compatible)
     octomap_server_node = Node(
-        package='octomap_server',
-        executable='octomap_server_node',
-        name='octomap_server',
-        output='screen',
+        package="octomap_server",
+        executable="octomap_server_node",
+        name="octomap_server",
+        output="screen",
         parameters=[
             octomap_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
         remappings=[
-            ('cloud_in', '/rtabmap/cloud_map'),
+            ("cloud_in", "/rtabmap/cloud_map"),
         ],
     )
 

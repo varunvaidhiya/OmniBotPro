@@ -42,9 +42,12 @@ def _load_episode_parquet(dataset_root: Path, ep_idx: int) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
-def _open_video(dataset_root: Path, cam_key: str, ep_idx: int) -> cv2.VideoCapture | None:
-    path = (dataset_root / "videos" / _chunk(ep_idx)
-            / cam_key / f"episode_{ep_idx:06d}.mp4")
+def _open_video(
+    dataset_root: Path, cam_key: str, ep_idx: int
+) -> cv2.VideoCapture | None:
+    path = (
+        dataset_root / "videos" / _chunk(ep_idx) / cam_key / f"episode_{ep_idx:06d}.mp4"
+    )
     if not path.exists():
         return None
     cap = cv2.VideoCapture(str(path))
@@ -54,35 +57,46 @@ def _open_video(dataset_root: Path, cam_key: str, ep_idx: int) -> cv2.VideoCaptu
 def _overlay(img: np.ndarray, lines: list[str]) -> np.ndarray:
     y, dy = 28, 22
     for line in lines:
-        cv2.putText(img, line, (8, y), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.55, (0, 0, 0), 3, cv2.LINE_AA)
-        cv2.putText(img, line, (8, y), cv2.FONT_HERSHEY_SIMPLEX,
-                    0.55, (0, 255, 80), 1, cv2.LINE_AA)
+        cv2.putText(
+            img, line, (8, y), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 0), 3, cv2.LINE_AA
+        )
+        cv2.putText(
+            img,
+            line,
+            (8, y),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.55,
+            (0, 255, 80),
+            1,
+            cv2.LINE_AA,
+        )
         y += dy
     return img
 
 
 @click.command()
-@click.option("--dataset", required=True, type=click.Path(exists=True),
-              help="LeRobot dataset root")
-@click.option("--episode", default=0, show_default=True,
-              help="Episode index to play")
-@click.option("--fps",     default=30.0, show_default=True,
-              help="Playback frame rate")
+@click.option(
+    "--dataset",
+    required=True,
+    type=click.Path(exists=True),
+    help="LeRobot dataset root",
+)
+@click.option("--episode", default=0, show_default=True, help="Episode index to play")
+@click.option("--fps", default=30.0, show_default=True, help="Playback frame rate")
 def main(dataset: str, episode: int, fps: float) -> None:
-    root   = Path(dataset)
+    root = Path(dataset)
     ep_idx = episode
 
     # ── Load task name ────────────────────────────────────────────────────────
     tasks_path = root / "meta" / "tasks.jsonl"
-    task_name  = "unknown"
+    task_name = "unknown"
     if tasks_path.exists():
         episodes_path = root / "meta" / "episodes.jsonl"
         if episodes_path.exists():
             for line in episodes_path.read_text().splitlines():
                 rec = json.loads(line)
                 if rec["episode_index"] == ep_idx:
-                    task_idx  = rec["tasks"][0] if rec["tasks"] else 0
+                    task_idx = rec["tasks"][0] if rec["tasks"] else 0
                     for tline in tasks_path.read_text().splitlines():
                         trec = json.loads(tline)
                         if trec["task_index"] == task_idx:
@@ -93,7 +107,7 @@ def main(dataset: str, episode: int, fps: float) -> None:
     n_frames = len(df)
     click.echo(f"Episode {ep_idx} — {n_frames} frames — task: {task_name}")
 
-    states  = df["observation.state"].tolist()
+    states = df["observation.state"].tolist()
     actions = df["action"].tolist()
 
     # ── Open video captures ───────────────────────────────────────────────────
@@ -114,20 +128,20 @@ def main(dataset: str, episode: int, fps: float) -> None:
 
     click.echo("Controls: SPACE=pause/resume  n=step  q=quit")
 
-    paused   = False
-    idx      = 0
+    paused = False
+    idx = 0
     dt_frame = 1.0 / fps
 
     while idx < n_frames:
         t_start = time.time()
 
-        state  = states[idx]
+        state = states[idx]
         action = actions[idx]
 
         # Arm joints (indices 0-5) and base (6-8)
-        s_arm  = [f"{v:+.2f}" for v in state[:6]]
+        s_arm = [f"{v:+.2f}" for v in state[:6]]
         s_base = [f"{v:+.3f}" for v in state[6:]]
-        a_arm  = [f"{v:+.2f}" for v in action[:6]]
+        a_arm = [f"{v:+.2f}" for v in action[:6]]
         a_base = [f"{v:+.3f}" for v in action[6:]]
 
         overlay_lines = [
@@ -162,7 +176,7 @@ def main(dataset: str, episode: int, fps: float) -> None:
         if not paused:
             idx += 1
             elapsed = time.time() - t_start
-            wait    = dt_frame - elapsed
+            wait = dt_frame - elapsed
             if wait > 0:
                 time.sleep(wait)
 

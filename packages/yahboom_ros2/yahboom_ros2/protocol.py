@@ -66,6 +66,7 @@ CAR_TYPE_MECANUM_X3: int = 1
 # TX helpers
 # ---------------------------------------------------------------------------
 
+
 def _checksum(packet: Sequence[int]) -> int:
     """Compute Yahboom TX checksum: (sum(all bytes) + 5) & 0xFF."""
     return (sum(packet) + _COMPLEMENT) & 0xFF
@@ -81,16 +82,17 @@ def build_packet(func_id: int, payload: Sequence[int]) -> bytes:
 
 def packet_set_car_type(car_type: int = CAR_TYPE_MECANUM_X3) -> bytes:
     """Build SET_CAR_TYPE packet. Call 5× at startup with 50 ms gaps."""
-    return build_packet(FUNC_SET_CAR_TYPE, struct.pack('<b', car_type))
+    return build_packet(FUNC_SET_CAR_TYPE, struct.pack("<b", car_type))
 
 
 def packet_beep(duration_ms: int) -> bytes:
     """Build BEEP packet. duration_ms=0 stops, >0 beeps for that many ms."""
-    return build_packet(FUNC_BEEP, struct.pack('<h', int(duration_ms)))
+    return build_packet(FUNC_BEEP, struct.pack("<h", int(duration_ms)))
 
 
-def packet_motion(vx: float, vy: float, vz: float,
-                  car_type: int = CAR_TYPE_MECANUM_X3) -> bytes:
+def packet_motion(
+    vx: float, vy: float, vz: float, car_type: int = CAR_TYPE_MECANUM_X3
+) -> bytes:
     """
     Build MOTION packet (holonomic).
 
@@ -101,7 +103,7 @@ def packet_motion(vx: float, vy: float, vz: float,
         car_type: Board car-type constant (default: 1 = Mecanum X3)
     """
     payload = struct.pack(
-        '<bhhh',
+        "<bhhh",
         car_type,
         int(vx * 1000),
         int(vy * 1000),
@@ -117,7 +119,7 @@ def packet_motor(fl: int, fr: int, bl: int, br: int) -> bytes:
     Args:
         fl, fr, bl, br: Front-left, Front-right, Back-left, Back-right PWM.
     """
-    payload = struct.pack('<hhhh', fl, fr, bl, br)
+    payload = struct.pack("<hhhh", fl, fr, bl, br)
     return build_packet(FUNC_MOTOR, payload)
 
 
@@ -125,32 +127,33 @@ def packet_motor(fl: int, fr: int, bl: int, br: int) -> bytes:
 # RX parsing
 # ---------------------------------------------------------------------------
 
+
 @dataclass
 class VelocityPacket:
-    vx: float   # m/s
-    vy: float   # m/s
-    vz: float   # rad/s
+    vx: float  # m/s
+    vy: float  # m/s
+    vz: float  # rad/s
 
 
 @dataclass
 class ImuAccelPacket:
-    ax: float   # m/s²
-    ay: float   # m/s²
-    az: float   # m/s²
+    ax: float  # m/s²
+    ay: float  # m/s²
+    az: float  # m/s²
 
 
 @dataclass
 class ImuGyroPacket:
-    gx: float   # rad/s
-    gy: float   # rad/s
-    gz: float   # rad/s
+    gx: float  # rad/s
+    gy: float  # rad/s
+    gz: float  # rad/s
 
 
 @dataclass
 class ImuAttitudePacket:
-    roll: float   # rad
+    roll: float  # rad
     pitch: float  # rad
-    yaw: float    # rad
+    yaw: float  # rad
 
 
 RxPacket = VelocityPacket | ImuAccelPacket | ImuGyroPacket | ImuAttitudePacket
@@ -179,28 +182,28 @@ def parse_rx_buffer(data: bytes) -> List[Tuple[int, RxPacket]]:
         if idx + total > n:
             break  # incomplete — wait for more data
 
-        pkt = data[idx: idx + total]
+        pkt = data[idx : idx + total]
         pkt_type = pkt[3]
         payload = pkt[4:-1]
 
         parsed: Optional[RxPacket] = None
 
         if pkt_type == TYPE_VELOCITY and len(payload) >= 6:
-            vx_raw, vy_raw, vz_raw = struct.unpack_from('<hhh', payload)
+            vx_raw, vy_raw, vz_raw = struct.unpack_from("<hhh", payload)
             parsed = VelocityPacket(
                 vx=vx_raw / 1000.0,
                 vy=vy_raw / 1000.0,
                 vz=vz_raw / 1000.0,
             )
         elif pkt_type == TYPE_ACCEL and len(payload) >= 6:
-            ax, ay, az = struct.unpack_from('<hhh', payload)
+            ax, ay, az = struct.unpack_from("<hhh", payload)
             parsed = ImuAccelPacket(
                 ax=ax / 1000.0 * 9.81,
                 ay=ay / 1000.0 * 9.81,
                 az=az / 1000.0 * 9.81,
             )
         elif pkt_type == TYPE_GYRO and len(payload) >= 6:
-            gx, gy, gz = struct.unpack_from('<hhh', payload)
+            gx, gy, gz = struct.unpack_from("<hhh", payload)
             parsed = ImuGyroPacket(
                 gx=gx / 1000.0,
                 gy=gy / 1000.0,
@@ -208,7 +211,8 @@ def parse_rx_buffer(data: bytes) -> List[Tuple[int, RxPacket]]:
             )
         elif pkt_type == TYPE_ATTITUDE and len(payload) >= 6:
             import math
-            r, p, y = struct.unpack_from('<hhh', payload)
+
+            r, p, y = struct.unpack_from("<hhh", payload)
             parsed = ImuAttitudePacket(
                 roll=r / 100.0 * math.pi / 180.0,
                 pitch=p / 100.0 * math.pi / 180.0,

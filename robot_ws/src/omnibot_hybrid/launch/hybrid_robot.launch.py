@@ -59,148 +59,153 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
-from launch_ros.parameter_descriptions import ParameterFile
 
 
 def generate_launch_description():
-    pkg_hybrid     = get_package_share_directory('omnibot_hybrid')
-    pkg_navigation = get_package_share_directory('omnibot_navigation')
-    pkg_description = get_package_share_directory('omnibot_description')
+    pkg_navigation = get_package_share_directory("omnibot_navigation")
+    pkg_description = get_package_share_directory("omnibot_description")
 
-    xacro_file = os.path.join(pkg_description, 'urdf', 'omnibot.urdf.xacro')
-    robot_description = ParameterValue(
-        Command(['xacro ', xacro_file]), value_type=str)
+    xacro_file = os.path.join(pkg_description, "urdf", "omnibot.urdf.xacro")
+    robot_description = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
 
     # ── Launch arguments ──────────────────────────────────────────────────────
-    use_sim_time   = LaunchConfiguration('use_sim_time',   default='false')
-    use_rviz       = LaunchConfiguration('use_rviz',       default='true')
-    use_slam       = LaunchConfiguration('use_slam',       default='true')
-    vla_device     = LaunchConfiguration('vla_device',     default='cuda')
-    vla_4bit       = LaunchConfiguration('vla_4bit',       default='false')
-    use_rosbridge  = LaunchConfiguration('use_rosbridge',  default='true')
-    use_foxglove   = LaunchConfiguration('use_foxglove',   default='true')
-    use_bev        = LaunchConfiguration('use_bev',        default='true')
+    use_sim_time = LaunchConfiguration("use_sim_time", default="false")
+    use_rviz = LaunchConfiguration("use_rviz", default="true")
+    use_slam = LaunchConfiguration("use_slam", default="true")
+    vla_device = LaunchConfiguration("vla_device", default="cuda")
+    vla_4bit = LaunchConfiguration("vla_4bit", default="false")
+    use_rosbridge = LaunchConfiguration("use_rosbridge", default="true")
+    use_foxglove = LaunchConfiguration("use_foxglove", default="true")
+    use_bev = LaunchConfiguration("use_bev", default="true")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
     # Remapped: driver reads /cmd_vel/out (mux output) instead of /cmd_vel.
     # This keeps Nav2 writing to /cmd_vel natively, while the mux selects
     # the correct source and forwards it to /cmd_vel/out.
     driver_node = Node(
-        package='omnibot_driver',
-        executable='yahboom_controller_node.py',
-        name='yahboom_driver',
-        output='screen',
-        parameters=[{
-            'serial_port':             '/dev/ttyUSB0',
-            'baud_rate':               115200,
-            'wheel_separation_length': 0.165,
-            'wheel_separation_width':  0.215,
-            'wheel_radius':            0.04,
-            'use_sim_time':            use_sim_time,
-        }],
-        remappings=[('/cmd_vel', '/cmd_vel/out')],
+        package="omnibot_driver",
+        executable="yahboom_controller_node.py",
+        name="yahboom_driver",
+        output="screen",
+        parameters=[
+            {
+                "serial_port": "/dev/ttyUSB0",
+                "baud_rate": 115200,
+                "wheel_separation_length": 0.165,
+                "wheel_separation_width": 0.215,
+                "wheel_radius": 0.04,
+                "use_sim_time": use_sim_time,
+            }
+        ],
+        remappings=[("/cmd_vel", "/cmd_vel/out")],
     )
 
     # ── Robot state publisher ─────────────────────────────────────────────────
     robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[{
-            'robot_description': robot_description,
-            'use_sim_time':      use_sim_time,
-        }],
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="screen",
+        parameters=[
+            {
+                "robot_description": robot_description,
+                "use_sim_time": use_sim_time,
+            }
+        ],
     )
 
     # ── EKF localisation ──────────────────────────────────────────────────────
     ekf_node = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
-        output='screen',
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        output="screen",
         parameters=[
-            os.path.join(pkg_navigation, 'config', 'robot_localization.yaml'),
-            {'use_sim_time': use_sim_time},
+            os.path.join(pkg_navigation, "config", "robot_localization.yaml"),
+            {"use_sim_time": use_sim_time},
         ],
     )
 
     # ── SLAM Toolbox ──────────────────────────────────────────────────────────
     slam_toolbox = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_navigation, 'launch', 'slam_toolbox.launch.py')),
+            os.path.join(pkg_navigation, "launch", "slam_toolbox.launch.py")
+        ),
         condition=IfCondition(use_slam),
-        launch_arguments={'use_sim_time': use_sim_time}.items(),
+        launch_arguments={"use_sim_time": use_sim_time}.items(),
     )
 
     # ── Nav2 (outputs to /cmd_vel natively) ───────────────────────────────────
     # The mux subscribes to /cmd_vel as the "nav2" source.
     autonomous_navigation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(
-                pkg_navigation, 'launch', 'autonomous_navigation.launch.py')),
+            os.path.join(pkg_navigation, "launch", "autonomous_navigation.launch.py")
+        ),
         launch_arguments={
-            'use_sim_time': use_sim_time,
-            'params_file':  os.path.join(
-                pkg_navigation, 'config', 'nav2_params.yaml'),
+            "use_sim_time": use_sim_time,
+            "params_file": os.path.join(pkg_navigation, "config", "nav2_params.yaml"),
         }.items(),
     )
 
     # ── VLA node (publishes to /cmd_vel/vla) ──────────────────────────────────
     vla_node = Node(
-        package='omnibot_vla',
-        executable='vla_node',
-        name='vla_node',
-        output='screen',
-        parameters=[{
-            'model_path':   'openvla/openvla-7b',
-            'device':       vla_device,
-            'load_in_4bit': vla_4bit,
-            'use_sim_time': use_sim_time,
-        }],
+        package="omnibot_vla",
+        executable="vla_node",
+        name="vla_node",
+        output="screen",
+        parameters=[
+            {
+                "model_path": "openvla/openvla-7b",
+                "device": vla_device,
+                "load_in_4bit": vla_4bit,
+                "use_sim_time": use_sim_time,
+            }
+        ],
     )
 
     # ── cmd_vel Mux ───────────────────────────────────────────────────────────
     # Subscribes: /cmd_vel (nav2), /cmd_vel/vla, /cmd_vel/teleop
     # Publishes:  /cmd_vel/out  →  driver
     cmd_vel_mux_node = Node(
-        package='omnibot_hybrid',
-        executable='cmd_vel_mux',
-        name='cmd_vel_mux',
-        output='screen',
-        parameters=[{
-            'default_mode': 'nav2',
-            'use_sim_time': use_sim_time,
-        }],
+        package="omnibot_hybrid",
+        executable="cmd_vel_mux",
+        name="cmd_vel_mux",
+        output="screen",
+        parameters=[
+            {
+                "default_mode": "nav2",
+                "use_sim_time": use_sim_time,
+            }
+        ],
     )
 
     # ── Mission Planner ───────────────────────────────────────────────────────
     mission_planner_node = Node(
-        package='omnibot_hybrid',
-        executable='mission_planner',
-        name='mission_planner',
-        output='screen',
-        parameters=[{'use_sim_time': use_sim_time}],
+        package="omnibot_hybrid",
+        executable="mission_planner",
+        name="mission_planner",
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
     )
 
     # ── BEV stitcher (required by SmolVLA) ───────────────────────────────────
     # Publishes /camera/base/bev/image_raw from 4 base-mounted cameras.
     # Disable only if smolvla_node is not in use.
     bev_stitcher_node = Node(
-        package='omnibot_lerobot',
-        executable='bev_stitcher_node',
-        name='bev_stitcher_node',
-        output='screen',
-        parameters=[{'use_sim_time': use_sim_time}],
+        package="omnibot_lerobot",
+        executable="bev_stitcher_node",
+        name="bev_stitcher_node",
+        output="screen",
+        parameters=[{"use_sim_time": use_sim_time}],
         condition=IfCondition(use_bev),
     )
 
     # ── ROSBridge WebSocket server ────────────────────────────────────────────
     rosbridge_node = Node(
-        package='rosbridge_server',
-        executable='rosbridge_websocket',
-        name='rosbridge_websocket',
-        output='screen',
-        parameters=[{'port': 9090}],
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        name="rosbridge_websocket",
+        output="screen",
+        parameters=[{"port": 9090}],
         condition=IfCondition(use_rosbridge),
     )
 
@@ -209,65 +214,81 @@ def generate_launch_description():
     # Shows: 3D model, camera feeds, map, costmap, arm joints, mission status.
     # Disable with: hybrid_robot.launch.py use_foxglove:=false
     foxglove_node = Node(
-        package='foxglove_bridge',
-        executable='foxglove_bridge',
-        name='foxglove_bridge',
-        output='screen',
-        parameters=[{'port': 8765, 'address': '0.0.0.0'}],
+        package="foxglove_bridge",
+        executable="foxglove_bridge",
+        name="foxglove_bridge",
+        output="screen",
+        parameters=[{"port": 8765, "address": "0.0.0.0"}],
         condition=IfCondition(use_foxglove),
     )
 
     # ── RViz (optional) ───────────────────────────────────────────────────────
-    rviz_config = os.path.join(
-        pkg_description, 'config', 'omnibot_navigation.rviz')
+    rviz_config = os.path.join(pkg_description, "config", "omnibot_navigation.rviz")
     rviz_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config],
-        parameters=[{'use_sim_time': use_sim_time}],
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d", rviz_config],
+        parameters=[{"use_sim_time": use_sim_time}],
         condition=IfCondition(use_rviz),
     )
 
-    return LaunchDescription([
-        # ── Arguments ─────────────────────────────────────────────────────────
-        DeclareLaunchArgument(
-            'use_sim_time', default_value='false',
-            description='Use Gazebo simulation clock'),
-        DeclareLaunchArgument(
-            'use_rviz', default_value='true',
-            description='Launch RViz for visualisation'),
-        DeclareLaunchArgument(
-            'use_slam', default_value='true',
-            description='Launch SLAM Toolbox for live mapping'),
-        DeclareLaunchArgument(
-            'vla_device', default_value='cuda',
-            description='PyTorch device for VLA inference (cuda / cpu)'),
-        DeclareLaunchArgument(
-            'vla_4bit', default_value='false',
-            description='Load VLA model in 4-bit quantisation (needs <16 GB VRAM)'),
-        DeclareLaunchArgument(
-            'use_rosbridge', default_value='true',
-            description='Start ROSBridge WebSocket server on port 9090 for Android app'),
-        DeclareLaunchArgument(
-            'use_foxglove', default_value='true',
-            description='Start Foxglove bridge on port 8765 for browser-based monitoring'),
-        DeclareLaunchArgument(
-            'use_bev', default_value='true',
-            description='Start BEV stitcher node (required by SmolVLA)'),
-
-        # ── Nodes ─────────────────────────────────────────────────────────────
-        driver_node,
-        robot_state_publisher,
-        ekf_node,
-        slam_toolbox,
-        autonomous_navigation,
-        vla_node,
-        cmd_vel_mux_node,
-        mission_planner_node,
-        bev_stitcher_node,
-        rosbridge_node,
-        foxglove_node,
-        rviz_node,
-    ])
+    return LaunchDescription(
+        [
+            # ── Arguments ─────────────────────────────────────────────────────────
+            DeclareLaunchArgument(
+                "use_sim_time",
+                default_value="false",
+                description="Use Gazebo simulation clock",
+            ),
+            DeclareLaunchArgument(
+                "use_rviz",
+                default_value="true",
+                description="Launch RViz for visualisation",
+            ),
+            DeclareLaunchArgument(
+                "use_slam",
+                default_value="true",
+                description="Launch SLAM Toolbox for live mapping",
+            ),
+            DeclareLaunchArgument(
+                "vla_device",
+                default_value="cuda",
+                description="PyTorch device for VLA inference (cuda / cpu)",
+            ),
+            DeclareLaunchArgument(
+                "vla_4bit",
+                default_value="false",
+                description="Load VLA model in 4-bit quantisation (needs <16 GB VRAM)",
+            ),
+            DeclareLaunchArgument(
+                "use_rosbridge",
+                default_value="true",
+                description="Start ROSBridge WebSocket server on port 9090 for Android app",
+            ),
+            DeclareLaunchArgument(
+                "use_foxglove",
+                default_value="true",
+                description="Start Foxglove bridge on port 8765 for browser-based monitoring",
+            ),
+            DeclareLaunchArgument(
+                "use_bev",
+                default_value="true",
+                description="Start BEV stitcher node (required by SmolVLA)",
+            ),
+            # ── Nodes ─────────────────────────────────────────────────────────────
+            driver_node,
+            robot_state_publisher,
+            ekf_node,
+            slam_toolbox,
+            autonomous_navigation,
+            vla_node,
+            cmd_vel_mux_node,
+            mission_planner_node,
+            bev_stitcher_node,
+            rosbridge_node,
+            foxglove_node,
+            rviz_node,
+        ]
+    )

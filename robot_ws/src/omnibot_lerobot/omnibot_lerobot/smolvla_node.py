@@ -34,18 +34,21 @@ from std_msgs.msg import String, Bool
 
 try:
     from cv_bridge import CvBridge
+
     CV_BRIDGE_AVAILABLE = True
 except ImportError:
     CV_BRIDGE_AVAILABLE = False
 
 try:
     import cv2
+
     CV2_AVAILABLE = True
 except ImportError:
     CV2_AVAILABLE = False
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
@@ -55,14 +58,19 @@ except ImportError:
 # ---------------------------------------------------------------------------
 try:
     from lerobot.common.policies.smolvla.modeling_smolvla import SmolVLAPolicy
+
     LEROBOT_AVAILABLE = True
 except ImportError:
     LEROBOT_AVAILABLE = False
 
 
 JOINT_NAMES = [
-    'shoulder_pan', 'shoulder_lift', 'elbow_flex',
-    'wrist_flex', 'wrist_roll', 'gripper'
+    "shoulder_pan",
+    "shoulder_lift",
+    "elbow_flex",
+    "wrist_flex",
+    "wrist_roll",
+    "gripper",
 ]
 
 
@@ -91,45 +99,45 @@ class SmolVLANode(Node):
     """SmolVLA policy inference node."""
 
     def __init__(self):
-        super().__init__('smolvla_node')
+        super().__init__("smolvla_node")
 
         # ------------------------------------------------------------------
         # Parameters
         # ------------------------------------------------------------------
-        self.declare_parameter('checkpoint_path', 'lerobot/smolvla_base')
-        self.declare_parameter('device', 'cuda')
-        self.declare_parameter('policy_hz', 10.0)
-        self.declare_parameter('chunk_size', 50)
-        self.declare_parameter('state_dim', 9)
-        self.declare_parameter('action_dim', 9)
-        self.declare_parameter('image_width', 320)
-        self.declare_parameter('image_height', 240)
-        self.declare_parameter('task_description', 'pick up the object and place it')
-        self.declare_parameter('base_vel_scale', 0.3)
+        self.declare_parameter("checkpoint_path", "lerobot/smolvla_base")
+        self.declare_parameter("device", "cuda")
+        self.declare_parameter("policy_hz", 10.0)
+        self.declare_parameter("chunk_size", 50)
+        self.declare_parameter("state_dim", 9)
+        self.declare_parameter("action_dim", 9)
+        self.declare_parameter("image_width", 320)
+        self.declare_parameter("image_height", 240)
+        self.declare_parameter("task_description", "pick up the object and place it")
+        self.declare_parameter("base_vel_scale", 0.3)
 
-        self.checkpoint_path = self.get_parameter('checkpoint_path').value
-        self.device_str = self.get_parameter('device').value
-        self.policy_hz = self.get_parameter('policy_hz').value
-        self.chunk_size = self.get_parameter('chunk_size').value
-        self.state_dim = self.get_parameter('state_dim').value
-        self.action_dim = self.get_parameter('action_dim').value
-        self.image_width = self.get_parameter('image_width').value
-        self.image_height = self.get_parameter('image_height').value
-        self.task_description = self.get_parameter('task_description').value
-        self.base_vel_scale = self.get_parameter('base_vel_scale').value
+        self.checkpoint_path = self.get_parameter("checkpoint_path").value
+        self.device_str = self.get_parameter("device").value
+        self.policy_hz = self.get_parameter("policy_hz").value
+        self.chunk_size = self.get_parameter("chunk_size").value
+        self.state_dim = self.get_parameter("state_dim").value
+        self.action_dim = self.get_parameter("action_dim").value
+        self.image_width = self.get_parameter("image_width").value
+        self.image_height = self.get_parameter("image_height").value
+        self.task_description = self.get_parameter("task_description").value
+        self.base_vel_scale = self.get_parameter("base_vel_scale").value
 
         # ------------------------------------------------------------------
         # State
         # ------------------------------------------------------------------
-        self.declare_parameter('use_depth', False)
-        self.use_depth = self.get_parameter('use_depth').value
+        self.declare_parameter("use_depth", False)
+        self.use_depth = self.get_parameter("use_depth").value
 
         self.enabled = False
-        self.wrist_image = None   # numpy HxWx3 uint8
-        self.bev_image   = None   # numpy HxWx3 uint8 — BEV mosaic from 4 base cameras
-        self.depth_image = None   # numpy HxWx3 uint8 — Orbbec Astra Pro (optional)
+        self.wrist_image = None  # numpy HxWx3 uint8
+        self.bev_image = None  # numpy HxWx3 uint8 — BEV mosaic from 4 base cameras
+        self.depth_image = None  # numpy HxWx3 uint8 — Orbbec Astra Pro (optional)
         self.arm_positions = np.zeros(6, dtype=np.float32)
-        self.base_vel      = np.zeros(3, dtype=np.float32)
+        self.base_vel = np.zeros(3, dtype=np.float32)
 
         # ------------------------------------------------------------------
         # cv_bridge
@@ -138,21 +146,23 @@ class SmolVLANode(Node):
             self.bridge = CvBridge()
         else:
             self.bridge = None
-            self.get_logger().warn('cv_bridge not available — image data will be zeroed.')
+            self.get_logger().warn(
+                "cv_bridge not available — image data will be zeroed."
+            )
 
         # ------------------------------------------------------------------
         # Device selection
         # ------------------------------------------------------------------
         if TORCH_AVAILABLE:
-            if self.device_str == 'cuda' and torch.cuda.is_available():
-                self.device = torch.device('cuda')
+            if self.device_str == "cuda" and torch.cuda.is_available():
+                self.device = torch.device("cuda")
             else:
-                self.device = torch.device('cpu')
-                if self.device_str == 'cuda':
-                    self.get_logger().warn('CUDA not available, falling back to CPU.')
+                self.device = torch.device("cpu")
+                if self.device_str == "cuda":
+                    self.get_logger().warn("CUDA not available, falling back to CPU.")
         else:
             self.device = None
-            self.get_logger().warn('PyTorch not installed — using DummyPolicy.')
+            self.get_logger().warn("PyTorch not installed — using DummyPolicy.")
 
         # ------------------------------------------------------------------
         # Load policy
@@ -163,29 +173,28 @@ class SmolVLANode(Node):
         # Publishers
         # ------------------------------------------------------------------
         self.joint_cmd_pub = self.create_publisher(
-            JointState, '/arm/joint_commands', 10)
-        self.cmd_vel_pub = self.create_publisher(
-            Twist, '/cmd_vel', 10)
+            JointState, "/arm/joint_commands", 10
+        )
+        self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
 
         # ------------------------------------------------------------------
         # Subscribers
         # ------------------------------------------------------------------
         self.create_subscription(
-            Image, '/camera/wrist/image_raw', self.wrist_image_cb, 10)
+            Image, "/camera/wrist/image_raw", self.wrist_image_cb, 10
+        )
         self.create_subscription(
-            Image, '/camera/base/bev/image_raw', self.bev_image_cb, 10)
+            Image, "/camera/base/bev/image_raw", self.bev_image_cb, 10
+        )
         # Orbbec Astra Pro — optional, enabled by use_depth parameter
         if self.use_depth:
             self.create_subscription(
-                Image, '/camera/depth/image_raw', self.depth_image_cb, 10)
-        self.create_subscription(
-            JointState, '/arm/joint_states', self.arm_state_cb, 10)
-        self.create_subscription(
-            Odometry, '/odom', self.odom_cb, 10)
-        self.create_subscription(
-            String, '/smolvla/task', self.task_cb, 10)
-        self.create_subscription(
-            Bool, '/smolvla/enable', self.enable_cb, 10)
+                Image, "/camera/depth/image_raw", self.depth_image_cb, 10
+            )
+        self.create_subscription(JointState, "/arm/joint_states", self.arm_state_cb, 10)
+        self.create_subscription(Odometry, "/odom", self.odom_cb, 10)
+        self.create_subscription(String, "/smolvla/task", self.task_cb, 10)
+        self.create_subscription(Bool, "/smolvla/enable", self.enable_cb, 10)
 
         # ------------------------------------------------------------------
         # Inference timer
@@ -194,8 +203,8 @@ class SmolVLANode(Node):
         self.create_timer(timer_period, self.inference_loop)
 
         self.get_logger().info(
-            f'SmolVLANode started | policy={"SmolVLA" if LEROBOT_AVAILABLE else "Dummy"} '
-            f'| device={self.device} | hz={self.policy_hz} | enabled={self.enabled}'
+            f"SmolVLANode started | policy={'SmolVLA' if LEROBOT_AVAILABLE else 'Dummy'} "
+            f"| device={self.device} | hz={self.policy_hz} | enabled={self.enabled}"
         )
 
     # ------------------------------------------------------------------
@@ -205,7 +214,7 @@ class SmolVLANode(Node):
     def _load_policy(self):
         if not LEROBOT_AVAILABLE:
             self.get_logger().warn(
-                'lerobot not installed — using DummyPolicy that returns zero actions.'
+                "lerobot not installed — using DummyPolicy that returns zero actions."
             )
             return DummyPolicy(self.action_dim)
 
@@ -216,11 +225,11 @@ class SmolVLANode(Node):
             policy = SmolVLAPolicy.from_pretrained(self.checkpoint_path)
             policy = policy.to(self.device)
             policy.eval()
-            self.get_logger().info('SmolVLAPolicy loaded successfully.')
+            self.get_logger().info("SmolVLAPolicy loaded successfully.")
             return policy
         except Exception as exc:
             self.get_logger().error(
-                f'Failed to load SmolVLAPolicy: {exc}. Using DummyPolicy.'
+                f"Failed to load SmolVLAPolicy: {exc}. Using DummyPolicy."
             )
             return DummyPolicy(self.action_dim)
 
@@ -232,10 +241,10 @@ class SmolVLANode(Node):
         """Convert ROS Image message to numpy HxWx3 uint8 RGB array."""
         if self.bridge is not None:
             try:
-                cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
+                cv_img = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
                 return np.array(cv_img, dtype=np.uint8)
             except Exception as exc:
-                self.get_logger().warn(f'cv_bridge conversion error: {exc}')
+                self.get_logger().warn(f"cv_bridge conversion error: {exc}")
 
         # Fallback: return zeros
         return np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
@@ -246,8 +255,9 @@ class SmolVLANode(Node):
             resized = img_np
         else:
             resized = cv2.resize(
-                img_np, (self.image_width, self.image_height),
-                interpolation=cv2.INTER_LINEAR
+                img_np,
+                (self.image_width, self.image_height),
+                interpolation=cv2.INTER_LINEAR,
             )
         arr = resized.astype(np.float32) / 255.0
         arr = arr.transpose(2, 0, 1)  # HWC → CHW
@@ -279,24 +289,27 @@ class SmolVLANode(Node):
         )
 
     def odom_cb(self, msg: Odometry):
-        self.base_vel = np.array([
-            msg.twist.twist.linear.x,
-            msg.twist.twist.linear.y,
-            msg.twist.twist.angular.z,
-        ], dtype=np.float32)
+        self.base_vel = np.array(
+            [
+                msg.twist.twist.linear.x,
+                msg.twist.twist.linear.y,
+                msg.twist.twist.angular.z,
+            ],
+            dtype=np.float32,
+        )
 
     def task_cb(self, msg: String):
         self.task_description = msg.data
         self.get_logger().info(f'Task updated: "{self.task_description}"')
         # Reset policy recurrent state if applicable
-        if hasattr(self.policy, 'reset'):
+        if hasattr(self.policy, "reset"):
             self.policy.reset()
 
     def enable_cb(self, msg: Bool):
         self.enabled = msg.data
-        status = 'ENABLED' if msg.data else 'DISABLED'
-        self.get_logger().info(f'SmolVLA policy {status}.')
-        if msg.data and hasattr(self.policy, 'reset'):
+        status = "ENABLED" if msg.data else "DISABLED"
+        self.get_logger().info(f"SmolVLA policy {status}.")
+        if msg.data and hasattr(self.policy, "reset"):
             self.policy.reset()
 
     # ------------------------------------------------------------------
@@ -310,10 +323,10 @@ class SmolVLANode(Node):
 
         if self.wrist_image is None or self.bev_image is None:
             self.get_logger().warn(
-                'Waiting for camera images: '
-                f'wrist={"OK" if self.wrist_image is not None else "MISSING"}, '
-                f'bev={"OK" if self.bev_image is not None else "MISSING"}',
-                throttle_duration_sec=2.0
+                "Waiting for camera images: "
+                f"wrist={'OK' if self.wrist_image is not None else 'MISSING'}, "
+                f"bev={'OK' if self.bev_image is not None else 'MISSING'}",
+                throttle_duration_sec=2.0,
             )
             return
 
@@ -330,21 +343,21 @@ class SmolVLANode(Node):
                 state_t = state[np.newaxis]
 
             obs = {
-                'observation.images.wrist': wrist_t,
-                'observation.images.bev': bev_t,   # BEV mosaic from 4 base cameras
-                'observation.state': state_t,
+                "observation.images.wrist": wrist_t,
+                "observation.images.bev": bev_t,  # BEV mosaic from 4 base cameras
+                "observation.state": state_t,
             }
 
             # Add task description if policy supports it
-            if hasattr(self.policy, 'set_task') or hasattr(self.policy, 'task'):
-                obs['task'] = self.task_description
+            if hasattr(self.policy, "set_task") or hasattr(self.policy, "task"):
+                obs["task"] = self.task_description
 
             # Run inference
-            with (torch.no_grad() if TORCH_AVAILABLE else _null_context()):
+            with torch.no_grad() if TORCH_AVAILABLE else _null_context():
                 action = self.policy.select_action(obs)
 
             # Convert to numpy
-            if TORCH_AVAILABLE and hasattr(action, 'cpu'):
+            if TORCH_AVAILABLE and hasattr(action, "cpu"):
                 action_np = action.cpu().numpy()
             else:
                 action_np = np.array(action)
@@ -357,7 +370,7 @@ class SmolVLANode(Node):
 
         except Exception as exc:
             self.get_logger().error(
-                f'Inference error: {exc}', throttle_duration_sec=5.0
+                f"Inference error: {exc}", throttle_duration_sec=5.0
             )
 
     def _publish_arm_command(self, arm_action: np.ndarray):
@@ -385,15 +398,21 @@ class SmolVLANode(Node):
 # Utility
 # ---------------------------------------------------------------------------
 
+
 class _null_context:
     """No-op context manager for when torch.no_grad() is unavailable."""
-    def __enter__(self): return self
-    def __exit__(self, *args): pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
 
 
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+
 
 def main(args=None):
     rclpy.init(args=args)
@@ -407,5 +426,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

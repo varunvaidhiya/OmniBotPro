@@ -8,55 +8,68 @@ from launch_ros.descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 import os
 
+
 def generate_launch_description():
-    pkg_ros_gz_sim          = FindPackageShare(package='ros_gz_sim').find('ros_gz_sim')
-    pkg_omnibot_description = FindPackageShare(package='omnibot_description').find('omnibot_description')
-    pkg_omnibot_bringup     = FindPackageShare(package='omnibot_bringup').find('omnibot_bringup')
-    pkg_omnibot_arm         = FindPackageShare(package='omnibot_arm').find('omnibot_arm')
+    pkg_ros_gz_sim = FindPackageShare(package="ros_gz_sim").find("ros_gz_sim")
+    pkg_omnibot_description = FindPackageShare(package="omnibot_description").find(
+        "omnibot_description"
+    )
+    pkg_omnibot_bringup = FindPackageShare(package="omnibot_bringup").find(
+        "omnibot_bringup"
+    )
+    pkg_omnibot_arm = FindPackageShare(package="omnibot_arm").find("omnibot_arm")
 
-    xacro_file       = os.path.join(pkg_omnibot_description, 'urdf', 'omnibot.urdf.xacro')
-    rviz_config_path = os.path.join(pkg_omnibot_bringup, 'config', 'omnibot.rviz')
-    bridge_config    = os.path.join(pkg_omnibot_bringup, 'config', 'ros_gz_bridge.yaml')
-    world_file       = os.path.join(pkg_omnibot_bringup, 'worlds', 'omnibot_world.sdf')
-    arm_params       = os.path.join(pkg_omnibot_arm, 'config', 'arm_params.yaml')
+    xacro_file = os.path.join(pkg_omnibot_description, "urdf", "omnibot.urdf.xacro")
+    rviz_config_path = os.path.join(pkg_omnibot_bringup, "config", "omnibot.rviz")
+    bridge_config = os.path.join(pkg_omnibot_bringup, "config", "ros_gz_bridge.yaml")
+    world_file = os.path.join(pkg_omnibot_bringup, "worlds", "omnibot_world.sdf")
+    arm_params = os.path.join(pkg_omnibot_arm, "config", "arm_params.yaml")
 
-    robot_desc = ParameterValue(Command(['xacro ', xacro_file]), value_type=str)
+    robot_desc = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
 
     # ── Launch arguments ──────────────────────────────────────────────────────
     rviz_arg = DeclareLaunchArgument(
-        'rviz', default_value='true',
-        description='Launch RViz2 (set false for headless / CI)')
+        "rviz",
+        default_value="true",
+        description="Launch RViz2 (set false for headless / CI)",
+    )
 
     bev_arg = DeclareLaunchArgument(
-        'bev', default_value='true',
-        description='Launch BEV stitcher (requires 4 base cameras in Gazebo)')
+        "bev",
+        default_value="true",
+        description="Launch BEV stitcher (requires 4 base cameras in Gazebo)",
+    )
 
     rosbridge_arg = DeclareLaunchArgument(
-        'rosbridge', default_value='true',
-        description='Launch ROSBridge on port 9090 (needed for Android app)')
+        "rosbridge",
+        default_value="true",
+        description="Launch ROSBridge on port 9090 (needed for Android app)",
+    )
 
     foxglove_arg = DeclareLaunchArgument(
-        'foxglove', default_value='true',
-        description='Launch Foxglove bridge on ws://localhost:8765')
+        "foxglove",
+        default_value="true",
+        description="Launch Foxglove bridge on ws://localhost:8765",
+    )
 
     world_arg = DeclareLaunchArgument(
-        'world', default_value=world_file,
-        description='Path to Gazebo world SDF')
+        "world", default_value=world_file, description="Path to Gazebo world SDF"
+    )
 
     # ── 1. Gazebo Sim (-r = run unpaused) ────────────────────────────────────
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_ros_gz_sim, 'launch', 'gz_sim.launch.py')
+            os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")
         ),
-        launch_arguments={'gz_args': ['-r ', LaunchConfiguration('world')]}.items(),
+        launch_arguments={"gz_args": ["-r ", LaunchConfiguration("world")]}.items(),
     )
 
     # ── 2. Robot State Publisher ──────────────────────────────────────────────
     robot_state_publisher = Node(
-        package='robot_state_publisher',
-        executable='robot_state_publisher',
-        output='screen',
-        parameters=[{'robot_description': robot_desc, 'use_sim_time': True}]
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="screen",
+        parameters=[{"robot_description": robot_desc, "use_sim_time": True}],
     )
 
     # ── 3. Spawn robot — wait 3 s for RSP to publish /robot_description ──────
@@ -64,24 +77,27 @@ def generate_launch_description():
         period=3.0,
         actions=[
             Node(
-                package='ros_gz_sim',
-                executable='create',
+                package="ros_gz_sim",
+                executable="create",
                 arguments=[
-                    '-name', 'mecanum_bot',
-                    '-topic', '/robot_description',
-                    '-z', '0.1'
+                    "-name",
+                    "mecanum_bot",
+                    "-topic",
+                    "/robot_description",
+                    "-z",
+                    "0.1",
                 ],
-                output='screen'
+                output="screen",
             )
-        ]
+        ],
     )
 
     # ── 4. ROS ↔ GZ bridge (/cmd_vel, /odom, /tf, /imu, /camera/*) ──────────
     bridge = Node(
-        package='ros_gz_bridge',
-        executable='parameter_bridge',
-        parameters=[{'config_file': bridge_config}],
-        output='screen'
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        parameters=[{"config_file": bridge_config}],
+        output="screen",
     )
 
     # ── 5. Arm driver — simulation passthrough mode ───────────────────────────
@@ -93,24 +109,24 @@ def generate_launch_description():
         period=4.0,
         actions=[
             Node(
-                package='omnibot_arm',
-                executable='arm_driver_node.py',
-                name='arm_driver_node',
-                output='screen',
+                package="omnibot_arm",
+                executable="arm_driver_node.py",
+                name="arm_driver_node",
+                output="screen",
                 parameters=[arm_params],
             )
-        ]
+        ],
     )
 
     # Relay arm joint states into the shared /joint_states topic so
     # robot_state_publisher can update arm-link TF alongside wheel joints.
     arm_joint_state_relay = Node(
-        package='topic_tools',
-        executable='relay',
-        name='arm_joint_state_relay',
-        output='screen',
-        arguments=['/arm/joint_states', '/joint_states'],
-        parameters=[{'use_sim_time': True}],
+        package="topic_tools",
+        executable="relay",
+        name="arm_joint_state_relay",
+        output="screen",
+        arguments=["/arm/joint_states", "/joint_states"],
+        parameters=[{"use_sim_time": True}],
     )
 
     # ── 6. depthimage_to_laserscan — virtual /scan from Astra Pro depth image ──
@@ -120,21 +136,23 @@ def generate_launch_description():
     # nav2_params.yaml drives slam_toolbox from the depth camera.
     # scan_height=1 takes the single middle row; range_min/max match Astra Pro.
     depth_to_scan = Node(
-        package='depthimage_to_laserscan',
-        executable='depthimage_to_laserscan_node',
-        name='depthimage_to_laserscan',
-        output='screen',
-        parameters=[{
-            'scan_height':   1,
-            'range_min':     0.6,
-            'range_max':     8.0,
-            'output_frame':  'depth_camera_optical_frame',
-            'use_sim_time':  True,
-        }],
+        package="depthimage_to_laserscan",
+        executable="depthimage_to_laserscan_node",
+        name="depthimage_to_laserscan",
+        output="screen",
+        parameters=[
+            {
+                "scan_height": 1,
+                "range_min": 0.6,
+                "range_max": 8.0,
+                "output_frame": "depth_camera_optical_frame",
+                "use_sim_time": True,
+            }
+        ],
         remappings=[
-            ('depth',          '/camera/depth/image_raw'),
-            ('depth_camera_info', '/camera/depth/camera_info'),
-            ('scan',           '/scan'),
+            ("depth", "/camera/depth/image_raw"),
+            ("depth_camera_info", "/camera/depth/camera_info"),
+            ("scan", "/scan"),
         ],
     )
 
@@ -144,74 +162,76 @@ def generate_launch_description():
         period=5.0,
         actions=[
             Node(
-                package='ros2_bev_stitcher',
-                executable='bev_stitcher_node',
-                name='bev_stitcher_node',
-                output='screen',
-                condition=IfCondition(LaunchConfiguration('bev')),
+                package="ros2_bev_stitcher",
+                executable="bev_stitcher_node",
+                name="bev_stitcher_node",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("bev")),
             )
-        ]
+        ],
     )
 
     # ── 9a. web_video_server — MJPEG stream for Android CameraView ──────────────
     # Android MjpegView connects to http://<ip>:8080/stream?topic=/camera/image_raw
     # This node must be running for the camera feed to appear in the Android app.
     web_video_server = Node(
-        package='web_video_server',
-        executable='web_video_server',
-        name='web_video_server',
-        output='screen',
-        parameters=[{'port': 8080, 'use_sim_time': True}],
-        condition=IfCondition(LaunchConfiguration('rosbridge')),
+        package="web_video_server",
+        executable="web_video_server",
+        name="web_video_server",
+        output="screen",
+        parameters=[{"port": 8080, "use_sim_time": True}],
+        condition=IfCondition(LaunchConfiguration("rosbridge")),
     )
 
     # ── 9. ROSBridge — WebSocket on port 9090 (Android app + web clients) ────
     rosbridge = Node(
-        package='rosbridge_server',
-        executable='rosbridge_websocket',
-        name='rosbridge_websocket',
-        output='screen',
-        parameters=[{'port': 9090}],
-        condition=IfCondition(LaunchConfiguration('rosbridge')),
+        package="rosbridge_server",
+        executable="rosbridge_websocket",
+        name="rosbridge_websocket",
+        output="screen",
+        parameters=[{"port": 9090}],
+        condition=IfCondition(LaunchConfiguration("rosbridge")),
     )
 
     # ── 10. Foxglove bridge — WebSocket on port 8765 (browser visualisation) ──
     # Open https://app.foxglove.dev → Connect → ws://localhost:8765
     foxglove_bridge = Node(
-        package='foxglove_bridge',
-        executable='foxglove_bridge',
-        name='foxglove_bridge',
-        output='screen',
-        parameters=[{'port': 8765, 'address': '0.0.0.0'}],
-        condition=IfCondition(LaunchConfiguration('foxglove')),
+        package="foxglove_bridge",
+        executable="foxglove_bridge",
+        name="foxglove_bridge",
+        output="screen",
+        parameters=[{"port": 8765, "address": "0.0.0.0"}],
+        condition=IfCondition(LaunchConfiguration("foxglove")),
     )
 
     # ── 11. RViz ───────────────────────────────────────────────────────────────
     rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', rviz_config_path],
-        condition=IfCondition(LaunchConfiguration('rviz')),
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d", rviz_config_path],
+        condition=IfCondition(LaunchConfiguration("rviz")),
     )
 
-    return LaunchDescription([
-        rviz_arg,
-        bev_arg,
-        rosbridge_arg,
-        foxglove_arg,
-        world_arg,
-        gazebo,
-        robot_state_publisher,
-        spawn_entity,
-        bridge,
-        arm_driver,
-        arm_joint_state_relay,
-        depth_to_scan,
-        bev_stitcher,
-        web_video_server,
-        rosbridge,
-        foxglove_bridge,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            rviz_arg,
+            bev_arg,
+            rosbridge_arg,
+            foxglove_arg,
+            world_arg,
+            gazebo,
+            robot_state_publisher,
+            spawn_entity,
+            bridge,
+            arm_driver,
+            arm_joint_state_relay,
+            depth_to_scan,
+            bev_stitcher,
+            web_video_server,
+            rosbridge,
+            foxglove_bridge,
+            rviz,
+        ]
+    )

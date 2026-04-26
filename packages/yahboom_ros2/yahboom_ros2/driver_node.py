@@ -24,7 +24,6 @@ ROS Parameters:
 """
 
 import math
-import struct
 import time
 import traceback
 from typing import Optional
@@ -65,30 +64,30 @@ class YahboomDriverNode(Node):
     """Full-featured ROS 2 driver for the Yahboom expansion board."""
 
     def __init__(self) -> None:
-        super().__init__('yahboom_driver')
+        super().__init__("yahboom_driver")
 
         # ── Parameters ──────────────────────────────────────────────────────
-        self.declare_parameter('serial_port', '/dev/ttyUSB0')
-        self.declare_parameter('baud_rate', 115200)
-        self.declare_parameter('wheel_radius', 0.04)
-        self.declare_parameter('wheel_separation_width', 0.215)
-        self.declare_parameter('wheel_separation_length', 0.165)
-        self.declare_parameter('max_linear_vel', 0.5)
-        self.declare_parameter('max_angular_vel', 2.0)
-        self.declare_parameter('ramp_step', 0.05)
-        self.declare_parameter('update_hz', 20.0)
-        self.declare_parameter('debug_serial', False)
+        self.declare_parameter("serial_port", "/dev/ttyUSB0")
+        self.declare_parameter("baud_rate", 115200)
+        self.declare_parameter("wheel_radius", 0.04)
+        self.declare_parameter("wheel_separation_width", 0.215)
+        self.declare_parameter("wheel_separation_length", 0.165)
+        self.declare_parameter("max_linear_vel", 0.5)
+        self.declare_parameter("max_angular_vel", 2.0)
+        self.declare_parameter("ramp_step", 0.05)
+        self.declare_parameter("update_hz", 20.0)
+        self.declare_parameter("debug_serial", False)
 
-        self._port_name = self.get_parameter('serial_port').value
-        self._baud_rate = self.get_parameter('baud_rate').value
-        self._wheel_radius = self.get_parameter('wheel_radius').value
-        self._sep_width = self.get_parameter('wheel_separation_width').value
-        self._sep_length = self.get_parameter('wheel_separation_length').value
-        self._max_lin = self.get_parameter('max_linear_vel').value
-        self._max_ang = self.get_parameter('max_angular_vel').value
-        self._ramp_step = self.get_parameter('ramp_step').value
-        self._update_hz = self.get_parameter('update_hz').value
-        self._debug_serial = self.get_parameter('debug_serial').value
+        self._port_name = self.get_parameter("serial_port").value
+        self._baud_rate = self.get_parameter("baud_rate").value
+        self._wheel_radius = self.get_parameter("wheel_radius").value
+        self._sep_width = self.get_parameter("wheel_separation_width").value
+        self._sep_length = self.get_parameter("wheel_separation_length").value
+        self._max_lin = self.get_parameter("max_linear_vel").value
+        self._max_ang = self.get_parameter("max_angular_vel").value
+        self._ramp_step = self.get_parameter("ramp_step").value
+        self._update_hz = self.get_parameter("update_hz").value
+        self._debug_serial = self.get_parameter("debug_serial").value
 
         # ── Robot state ──────────────────────────────────────────────────────
         self._x = self._y = self._theta = 0.0
@@ -104,12 +103,10 @@ class YahboomDriverNode(Node):
         self._imu_roll = self._imu_pitch = self._imu_yaw = 0.0
 
         # ── ROS interfaces ───────────────────────────────────────────────────
-        self._cmd_sub = self.create_subscription(
-            Twist, 'cmd_vel', self._cmd_vel_cb, 10)
-        self._joy_sub = self.create_subscription(
-            Joy, 'joy', self._joy_cb, 10)
-        self._odom_pub = self.create_publisher(Odometry, 'odom', 10)
-        self._imu_pub = self.create_publisher(Imu, 'imu/data', 10)
+        self._cmd_sub = self.create_subscription(Twist, "cmd_vel", self._cmd_vel_cb, 10)
+        self._joy_sub = self.create_subscription(Joy, "joy", self._joy_cb, 10)
+        self._odom_pub = self.create_publisher(Odometry, "odom", 10)
+        self._imu_pub = self.create_publisher(Imu, "imu/data", 10)
         self._tf_broadcaster = TransformBroadcaster(self)
 
         # ── Serial ───────────────────────────────────────────────────────────
@@ -119,27 +116,27 @@ class YahboomDriverNode(Node):
         # ── Control loop ─────────────────────────────────────────────────────
         self.create_timer(1.0 / self._update_hz, self._update_cb)
         self.get_logger().info(
-            f'yahboom_driver ready on {self._port_name} @ {self._baud_rate} baud')
+            f"yahboom_driver ready on {self._port_name} @ {self._baud_rate} baud"
+        )
 
     # ── Serial helpers ───────────────────────────────────────────────────────
 
     def _connect_serial(self) -> None:
         if serial is None:
-            self.get_logger().error('pyserial not installed.')
+            self.get_logger().error("pyserial not installed.")
             return
         try:
             if self._serial and self._serial.is_open:
                 self._serial.close()
-            self._serial = serial.Serial(
-                self._port_name, self._baud_rate, timeout=1.0)
+            self._serial = serial.Serial(self._port_name, self._baud_rate, timeout=1.0)
             time.sleep(0.3)
             # Board requires CAR_TYPE to be set each session
             for _ in range(5):
                 self._serial.write(packet_set_car_type(CAR_TYPE_MECANUM_X3))
                 time.sleep(0.05)
-            self.get_logger().info('Serial connected; CAR_TYPE set to Mecanum X3.')
+            self.get_logger().info("Serial connected; CAR_TYPE set to Mecanum X3.")
         except Exception as exc:
-            self.get_logger().error(f'Serial connect failed: {exc}')
+            self.get_logger().error(f"Serial connect failed: {exc}")
             self._serial = None
 
     def _send(self, data: bytes) -> None:
@@ -149,7 +146,7 @@ class YahboomDriverNode(Node):
             self._serial.write(data)
             time.sleep(0.002)  # board needs a small inter-packet gap
         except Exception as exc:
-            self.get_logger().error(f'Serial TX error: {exc}')
+            self.get_logger().error(f"Serial TX error: {exc}")
             self._serial.close()
             self._serial = None
 
@@ -178,13 +175,14 @@ class YahboomDriverNode(Node):
             self._publish_imu(now)
             self._send_motion()
         except Exception as exc:
-            self.get_logger().error(f'Update error: {exc}')
+            self.get_logger().error(f"Update error: {exc}")
 
     def _send_motion(self) -> None:
         import numpy as _np  # local import so we fail gracefully if missing
+
         msg = self._current_twist
-        target_vx = float(_np.clip(msg.linear.x,  -self._max_lin, self._max_lin))
-        target_vy = float(_np.clip(msg.linear.y,  -self._max_lin, self._max_lin))
+        target_vx = float(_np.clip(msg.linear.x, -self._max_lin, self._max_lin))
+        target_vy = float(_np.clip(msg.linear.y, -self._max_lin, self._max_lin))
         target_wa = float(_np.clip(msg.angular.z, -self._max_ang, self._max_ang))
 
         # Velocity ramping
@@ -204,7 +202,7 @@ class YahboomDriverNode(Node):
                 return
             data = self._serial.read(waiting)
         except Exception as exc:
-            self.get_logger().error(f'Serial RX error: {exc}')
+            self.get_logger().error(f"Serial RX error: {exc}")
             return
 
         for _offset, pkt in parse_rx_buffer(data):
@@ -222,7 +220,8 @@ class YahboomDriverNode(Node):
                     self._y += (vx * sin_th + vy * cos_th) * dt
                     self._theta += vz * dt
                     self._theta = math.atan2(
-                        math.sin(self._theta), math.cos(self._theta))
+                        math.sin(self._theta), math.cos(self._theta)
+                    )
                 self._current_vx = vx
                 self._current_vy = vy
                 self._current_vz = vz
@@ -235,14 +234,14 @@ class YahboomDriverNode(Node):
                 self._imu_pitch = pkt.pitch
                 self._imu_yaw = pkt.yaw
             elif self._debug_serial:
-                self.get_logger().info(f'[debug_serial] unknown packet: {pkt}')
+                self.get_logger().info(f"[debug_serial] unknown packet: {pkt}")
 
     def _publish_odometry(self, stamp: rclpy.time.Time) -> None:
         q = quaternion_from_euler(0, 0, self._theta)
         ts = TransformStamped()
         ts.header.stamp = stamp.to_msg()
-        ts.header.frame_id = 'odom'
-        ts.child_frame_id = 'base_link'
+        ts.header.frame_id = "odom"
+        ts.child_frame_id = "base_link"
         ts.transform.translation.x = self._x
         ts.transform.translation.y = self._y
         ts.transform.translation.z = 0.0
@@ -254,8 +253,8 @@ class YahboomDriverNode(Node):
 
         odom = Odometry()
         odom.header.stamp = stamp.to_msg()
-        odom.header.frame_id = 'odom'
-        odom.child_frame_id = 'base_link'
+        odom.header.frame_id = "odom"
+        odom.child_frame_id = "base_link"
         odom.pose.pose.position.x = self._x
         odom.pose.pose.position.y = self._y
         odom.pose.pose.orientation.x = q[0]
@@ -271,27 +270,31 @@ class YahboomDriverNode(Node):
         q = quaternion_from_euler(self._imu_roll, self._imu_pitch, self._imu_yaw)
         msg = Imu()
         msg.header.stamp = stamp.to_msg()
-        msg.header.frame_id = 'imu_link'
+        msg.header.frame_id = "imu_link"
         msg.orientation.x = q[0]
         msg.orientation.y = q[1]
         msg.orientation.z = q[2]
         msg.orientation.w = q[3]
-        msg.orientation_covariance[0] = msg.orientation_covariance[4] = \
-            msg.orientation_covariance[8] = 0.01
+        msg.orientation_covariance[0] = msg.orientation_covariance[
+            4
+        ] = msg.orientation_covariance[8] = 0.01
         msg.angular_velocity.x = self._imu_gyro[0]
         msg.angular_velocity.y = self._imu_gyro[1]
         msg.angular_velocity.z = self._imu_gyro[2]
-        msg.angular_velocity_covariance[0] = msg.angular_velocity_covariance[4] = \
-            msg.angular_velocity_covariance[8] = 0.001
+        msg.angular_velocity_covariance[0] = msg.angular_velocity_covariance[
+            4
+        ] = msg.angular_velocity_covariance[8] = 0.001
         msg.linear_acceleration.x = self._imu_accel[0]
         msg.linear_acceleration.y = self._imu_accel[1]
         msg.linear_acceleration.z = self._imu_accel[2]
-        msg.linear_acceleration_covariance[0] = msg.linear_acceleration_covariance[4] = \
-            msg.linear_acceleration_covariance[8] = 0.1
+        msg.linear_acceleration_covariance[0] = msg.linear_acceleration_covariance[
+            4
+        ] = msg.linear_acceleration_covariance[8] = 0.1
         self._imu_pub.publish(msg)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _ramp(current: float, target: float, step: float) -> float:
     if current < target:
@@ -303,19 +306,20 @@ def _ramp(current: float, target: float, step: float) -> float:
 
 # ── Entry point ──────────────────────────────────────────────────────────────
 
+
 def main(args=None) -> None:
     rclpy.init(args=args)
     try:
         node = YahboomDriverNode()
         rclpy.spin(node)
     except Exception as exc:
-        print(f'FATAL: {exc}')
+        print(f"FATAL: {exc}")
         traceback.print_exc()
     finally:
-        if 'node' in dir():
+        if "node" in dir():
             node.destroy_node()  # type: ignore[possibly-undefined]
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

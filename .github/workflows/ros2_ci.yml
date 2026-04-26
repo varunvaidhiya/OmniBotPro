@@ -18,14 +18,20 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install ruff
-        run: pip install ruff
+      - name: Install lint tools
+        run: pip install ruff mypy
 
       - name: Check formatting
         run: ruff format --check --exclude robot_ws/src/omnibot_firmware .
 
       - name: Check linting
         run: ruff check --exclude robot_ws/src/omnibot_firmware .
+
+      - name: Type check (mypy)
+        run: |
+          mypy packages/yahboom_ros2/yahboom_ros2/protocol.py \
+               packages/mecanum_drive_ros2/mecanum_drive_ros2/ \
+               --ignore-missing-imports
 
   build_and_test:
     name: Build & Test (Jazzy)
@@ -75,11 +81,12 @@ jobs:
       - name: Run Python Package Tests with Coverage
         run: |
           pip3 install -e packages/yahboom_ros2 -e packages/vla_serve \
-                       -e packages/robot_episode_dataset --break-system-packages
+                       -e packages/robot_episode_dataset \
+                       -e packages/mecanum_drive_ros2 --break-system-packages
           pytest packages/ vla_engine/tests/ data_engine/tests/ \
                  --cov=packages --cov=vla_engine --cov=data_engine \
                  --cov-report=xml --cov-report=term-missing \
-                 --cov-fail-under=30 \
+                 --cov-fail-under=60 \
                  -v
 
       - name: Upload Coverage to Codecov

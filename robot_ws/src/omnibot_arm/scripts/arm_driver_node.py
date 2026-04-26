@@ -15,7 +15,6 @@ Topics subscribed:
 """
 
 import math
-import sys
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -26,6 +25,7 @@ from std_msgs.msg import Bool
 # ---------------------------------------------------------------------------
 try:
     from lerobot.common.robot_devices.motors.feetech import FeetechMotorsBus
+
     LEROBOT_AVAILABLE = True
 except ImportError:
     LEROBOT_AVAILABLE = False
@@ -35,37 +35,44 @@ class ArmDriverNode(Node):
     """ROS 2 driver for the SO-101 arm using FeetechMotorsBus."""
 
     def __init__(self):
-        super().__init__('arm_driver_node')
+        super().__init__("arm_driver_node")
 
         # ------------------------------------------------------------------
         # Parameters
         # ------------------------------------------------------------------
-        self.declare_parameter('follower_port', '/dev/ttyACM0')
-        self.declare_parameter('leader_port', '/dev/ttyACM1')
-        self.declare_parameter('baudrate', 1000000)
-        self.declare_parameter('publish_rate', 100.0)
-        self.declare_parameter('teleop_mode', False)
-        self.declare_parameter('ticks_per_rev', 4096)
-        self.declare_parameter('joint_names', [
-            'arm_shoulder_pan', 'arm_shoulder_lift', 'arm_elbow_flex',
-            'arm_wrist_flex', 'arm_wrist_roll', 'arm_gripper'
-        ])
-        self.declare_parameter('motor_ids', [1, 2, 3, 4, 5, 6])
-        self.declare_parameter('home_ticks', [2048, 2048, 2048, 2048, 2048, 2048])
-        self.declare_parameter('joint_min', [-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
-        self.declare_parameter('joint_max', [3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
+        self.declare_parameter("follower_port", "/dev/ttyACM0")
+        self.declare_parameter("leader_port", "/dev/ttyACM1")
+        self.declare_parameter("baudrate", 1000000)
+        self.declare_parameter("publish_rate", 100.0)
+        self.declare_parameter("teleop_mode", False)
+        self.declare_parameter("ticks_per_rev", 4096)
+        self.declare_parameter(
+            "joint_names",
+            [
+                "arm_shoulder_pan",
+                "arm_shoulder_lift",
+                "arm_elbow_flex",
+                "arm_wrist_flex",
+                "arm_wrist_roll",
+                "arm_gripper",
+            ],
+        )
+        self.declare_parameter("motor_ids", [1, 2, 3, 4, 5, 6])
+        self.declare_parameter("home_ticks", [2048, 2048, 2048, 2048, 2048, 2048])
+        self.declare_parameter("joint_min", [-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
+        self.declare_parameter("joint_max", [3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
 
-        self.follower_port = self.get_parameter('follower_port').value
-        self.leader_port = self.get_parameter('leader_port').value
-        self.baudrate = self.get_parameter('baudrate').value
-        self.publish_rate = self.get_parameter('publish_rate').value
-        self.teleop_mode = self.get_parameter('teleop_mode').value
-        self.ticks_per_rev = self.get_parameter('ticks_per_rev').value
-        self.joint_names = list(self.get_parameter('joint_names').value)
-        self.motor_ids = list(self.get_parameter('motor_ids').value)
-        self.home_ticks = list(self.get_parameter('home_ticks').value)
-        self.joint_min = list(self.get_parameter('joint_min').value)
-        self.joint_max = list(self.get_parameter('joint_max').value)
+        self.follower_port = self.get_parameter("follower_port").value
+        self.leader_port = self.get_parameter("leader_port").value
+        self.baudrate = self.get_parameter("baudrate").value
+        self.publish_rate = self.get_parameter("publish_rate").value
+        self.teleop_mode = self.get_parameter("teleop_mode").value
+        self.ticks_per_rev = self.get_parameter("ticks_per_rev").value
+        self.joint_names = list(self.get_parameter("joint_names").value)
+        self.motor_ids = list(self.get_parameter("motor_ids").value)
+        self.home_ticks = list(self.get_parameter("home_ticks").value)
+        self.joint_min = list(self.get_parameter("joint_min").value)
+        self.joint_max = list(self.get_parameter("joint_max").value)
 
         self.num_joints = len(self.joint_names)
         # scale: ticks per radian
@@ -83,18 +90,20 @@ class ArmDriverNode(Node):
         # Publishers
         # ------------------------------------------------------------------
         self.joint_state_pub = self.create_publisher(
-            JointState, '/arm/joint_states', 10)
+            JointState, "/arm/joint_states", 10
+        )
         if self.teleop_mode:
             self.leader_state_pub = self.create_publisher(
-                JointState, '/arm/leader_states', 10)
+                JointState, "/arm/leader_states", 10
+            )
 
         # ------------------------------------------------------------------
         # Subscribers
         # ------------------------------------------------------------------
         self.create_subscription(
-            JointState, '/arm/joint_commands', self.joint_command_cb, 10)
-        self.create_subscription(
-            Bool, '/arm/enable', self.enable_cb, 10)
+            JointState, "/arm/joint_commands", self.joint_command_cb, 10
+        )
+        self.create_subscription(Bool, "/arm/enable", self.enable_cb, 10)
 
         # ------------------------------------------------------------------
         # Connect hardware
@@ -105,8 +114,8 @@ class ArmDriverNode(Node):
                 self.connect_leader()
         else:
             self.get_logger().warn(
-                'lerobot not installed — running in simulation mode. '
-                'Joint states will reflect commanded positions with no hardware.'
+                "lerobot not installed — running in simulation mode. "
+                "Joint states will reflect commanded positions with no hardware."
             )
 
         # ------------------------------------------------------------------
@@ -116,8 +125,8 @@ class ArmDriverNode(Node):
         self.create_timer(timer_period, self.publish_states)
 
         self.get_logger().info(
-            f'ArmDriverNode started | hardware={"real" if LEROBOT_AVAILABLE and self.follower_bus else "sim"} '
-            f'| teleop={self.teleop_mode} | joints={self.joint_names}'
+            f"ArmDriverNode started | hardware={'real' if LEROBOT_AVAILABLE and self.follower_bus else 'sim'} "
+            f"| teleop={self.teleop_mode} | joints={self.joint_names}"
         )
 
     # ------------------------------------------------------------------
@@ -127,7 +136,7 @@ class ArmDriverNode(Node):
     def _motors_dict(self):
         """Build motors dict for FeetechMotorsBus: {name: (id, model)}."""
         return {
-            name: (mid, 'sts3215')
+            name: (mid, "sts3215")
             for name, mid in zip(self.joint_names, self.motor_ids)
         }
 
@@ -135,15 +144,14 @@ class ArmDriverNode(Node):
         """Connect to the follower arm bus."""
         try:
             self.follower_bus = FeetechMotorsBus(
-                port=self.follower_port,
-                motors=self._motors_dict()
+                port=self.follower_port, motors=self._motors_dict()
             )
             self.follower_bus.connect()
-            self.get_logger().info(f'Follower bus connected on {self.follower_port}')
+            self.get_logger().info(f"Follower bus connected on {self.follower_port}")
         except Exception as exc:
             self.get_logger().error(
-                f'Failed to connect follower bus on {self.follower_port}: {exc}. '
-                'Falling back to simulation mode.'
+                f"Failed to connect follower bus on {self.follower_port}: {exc}. "
+                "Falling back to simulation mode."
             )
             self.follower_bus = None
 
@@ -151,14 +159,13 @@ class ArmDriverNode(Node):
         """Connect to the leader arm bus (teleop mode only)."""
         try:
             self.leader_bus = FeetechMotorsBus(
-                port=self.leader_port,
-                motors=self._motors_dict()
+                port=self.leader_port, motors=self._motors_dict()
             )
             self.leader_bus.connect()
-            self.get_logger().info(f'Leader bus connected on {self.leader_port}')
+            self.get_logger().info(f"Leader bus connected on {self.leader_port}")
         except Exception as exc:
             self.get_logger().error(
-                f'Failed to connect leader bus on {self.leader_port}: {exc}.'
+                f"Failed to connect leader bus on {self.leader_port}: {exc}."
             )
             self.leader_bus = None
 
@@ -203,7 +210,7 @@ class ArmDriverNode(Node):
         self.joint_state_pub.publish(js)
 
         # --- leader arm (teleop only) ---
-        if self.teleop_mode and hasattr(self, 'leader_state_pub'):
+        if self.teleop_mode and hasattr(self, "leader_state_pub"):
             leader_pos = self._read_leader_positions()
             ljs = JointState()
             ljs.header.stamp = now
@@ -215,22 +222,26 @@ class ArmDriverNode(Node):
         """Read follower arm positions; returns radians list."""
         if self.follower_bus is not None:
             try:
-                ticks_dict = self.follower_bus.read('Present_Position')
+                ticks_dict = self.follower_bus.read("Present_Position")
                 ticks = [ticks_dict[name] for name in self.joint_names]
                 return self.ticks_to_radians(ticks)
             except Exception as exc:
-                self.get_logger().warn(f'Follower read error: {exc}', throttle_duration_sec=5.0)
+                self.get_logger().warn(
+                    f"Follower read error: {exc}", throttle_duration_sec=5.0
+                )
         return list(self.sim_positions)
 
     def _read_leader_positions(self):
         """Read leader arm positions; returns radians list."""
         if self.leader_bus is not None:
             try:
-                ticks_dict = self.leader_bus.read('Present_Position')
+                ticks_dict = self.leader_bus.read("Present_Position")
                 ticks = [ticks_dict[name] for name in self.joint_names]
                 return self.ticks_to_radians(ticks)
             except Exception as exc:
-                self.get_logger().warn(f'Leader read error: {exc}', throttle_duration_sec=5.0)
+                self.get_logger().warn(
+                    f"Leader read error: {exc}", throttle_duration_sec=5.0
+                )
         return [0.0] * self.num_joints
 
     # ------------------------------------------------------------------
@@ -251,12 +262,13 @@ class ArmDriverNode(Node):
             try:
                 ticks = self.radians_to_ticks(commanded)
                 values_dict = {
-                    name: tick
-                    for name, tick in zip(self.joint_names, ticks)
+                    name: tick for name, tick in zip(self.joint_names, ticks)
                 }
-                self.follower_bus.write('Goal_Position', values_dict)
+                self.follower_bus.write("Goal_Position", values_dict)
             except Exception as exc:
-                self.get_logger().warn(f'Follower write error: {exc}', throttle_duration_sec=5.0)
+                self.get_logger().warn(
+                    f"Follower write error: {exc}", throttle_duration_sec=5.0
+                )
         else:
             # Simulation mode: passthrough
             self.sim_positions = commanded
@@ -264,16 +276,16 @@ class ArmDriverNode(Node):
     def enable_cb(self, msg: Bool):
         """Enable or disable torque on the follower arm."""
         self.torque_enabled = msg.data
-        status = 'enabled' if msg.data else 'disabled'
-        self.get_logger().info(f'Arm torque {status}')
+        status = "enabled" if msg.data else "disabled"
+        self.get_logger().info(f"Arm torque {status}")
 
         if self.follower_bus is not None:
             try:
                 torque_val = 1 if msg.data else 0
                 values_dict = {name: torque_val for name in self.joint_names}
-                self.follower_bus.write('Torque_Enable', values_dict)
+                self.follower_bus.write("Torque_Enable", values_dict)
             except Exception as exc:
-                self.get_logger().warn(f'Torque write error: {exc}')
+                self.get_logger().warn(f"Torque write error: {exc}")
 
     # ------------------------------------------------------------------
     # Cleanup
@@ -284,15 +296,15 @@ class ArmDriverNode(Node):
         if self.follower_bus is not None:
             try:
                 self.follower_bus.disconnect()
-                self.get_logger().info('Follower bus disconnected.')
+                self.get_logger().info("Follower bus disconnected.")
             except Exception as exc:
-                self.get_logger().warn(f'Error disconnecting follower: {exc}')
+                self.get_logger().warn(f"Error disconnecting follower: {exc}")
         if self.leader_bus is not None:
             try:
                 self.leader_bus.disconnect()
-                self.get_logger().info('Leader bus disconnected.')
+                self.get_logger().info("Leader bus disconnected.")
             except Exception as exc:
-                self.get_logger().warn(f'Error disconnecting leader: {exc}')
+                self.get_logger().warn(f"Error disconnecting leader: {exc}")
         super().destroy_node()
 
 
@@ -308,5 +320,5 @@ def main(args=None):
         rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

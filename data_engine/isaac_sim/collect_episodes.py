@@ -57,11 +57,12 @@ from pathlib import Path
 
 # ── Isaac Sim imports (only available inside ./python.sh) ────────────────────
 try:
-    import omni
+    import omni  # noqa: F401
     import omni.replicator.core as rep
     from omni.isaac.core import World
     from omni.isaac.core.utils.stage import add_reference_to_stage
     from omni.isaac.core.utils.nucleus import get_assets_root_path
+
     _ISAAC_AVAILABLE = True
 except ImportError:
     _ISAAC_AVAILABLE = False
@@ -71,6 +72,7 @@ try:
     import rclpy
     from geometry_msgs.msg import Twist
     from sensor_msgs.msg import JointState
+
     _ROS_AVAILABLE = True
 except ImportError:
     _ROS_AVAILABLE = False
@@ -82,8 +84,12 @@ _DEFAULT_CONFIG = Path(__file__).parent / "randomization_config.yaml"
 
 # ARM joint names must match arm_params.yaml (prefixed form)
 _ARM_JOINT_NAMES = [
-    "arm_shoulder_pan", "arm_shoulder_lift", "arm_elbow_flex",
-    "arm_wrist_flex", "arm_wrist_roll", "arm_gripper",
+    "arm_shoulder_pan",
+    "arm_shoulder_lift",
+    "arm_elbow_flex",
+    "arm_wrist_flex",
+    "arm_wrist_roll",
+    "arm_gripper",
 ]
 
 # Topics recorded into each ROS 2 bag
@@ -106,6 +112,7 @@ _BAG_TOPICS = [
 
 
 # ── Scene setup ──────────────────────────────────────────────────────────────
+
 
 def _load_config(config_path: Path) -> dict:
     with open(config_path) as f:
@@ -169,8 +176,10 @@ def _setup_scene(cfg: dict, usd_robot: Path) -> "World":
 
 # ── Scripted policy primitives ───────────────────────────────────────────────
 
-def _publish_base_vel(pub: "rclpy.publisher.Publisher",
-                      vx: float, vy: float, w: float) -> None:
+
+def _publish_base_vel(
+    pub: "rclpy.publisher.Publisher", vx: float, vy: float, w: float
+) -> None:
     msg = Twist()
     msg.linear.x = vx
     msg.linear.y = vy
@@ -178,18 +187,20 @@ def _publish_base_vel(pub: "rclpy.publisher.Publisher",
     pub.publish(msg)
 
 
-def _publish_arm_cmd(pub: "rclpy.publisher.Publisher",
-                     positions: list[float]) -> None:
+def _publish_arm_cmd(pub: "rclpy.publisher.Publisher", positions: list[float]) -> None:
     msg = JointState()
     msg.name = _ARM_JOINT_NAMES
     msg.position = positions
     pub.publish(msg)
 
 
-def _run_scripted_policy(world: "World", node: "rclpy.Node",
-                         base_pub: "rclpy.publisher.Publisher",
-                         arm_pub: "rclpy.publisher.Publisher",
-                         cfg: dict) -> None:
+def _run_scripted_policy(
+    world: "World",
+    node: "rclpy.Node",
+    base_pub: "rclpy.publisher.Publisher",
+    arm_pub: "rclpy.publisher.Publisher",
+    cfg: dict,
+) -> None:
     """
     Simple scripted pick-and-place primitive.
 
@@ -205,18 +216,22 @@ def _run_scripted_policy(world: "World", node: "rclpy.Node",
     step_dt = 1.0 / cfg.get("policy_hz", 10.0)
 
     # Home pose (all zeros except gripper slightly open)
-    home_pos   = [0.0, 0.0, 0.0, 0.0, 0.0, 0.1]
+    home_pos = [0.0, 0.0, 0.0, 0.0, 0.0, 0.1]
     # Pre-grasp: arm extended forward
-    pregrasp   = [0.0, -0.8, 0.6, -0.5, 0.0, 0.1]
+    pregrasp = [0.0, -0.8, 0.6, -0.5, 0.0, 0.1]
     # Grasp: lower end-effector
-    grasp_pos  = [0.0, -1.0, 0.8, -0.6, 0.0, 0.1]
+    grasp_pos = [0.0, -1.0, 0.8, -0.6, 0.0, 0.1]
     # Closed gripper
-    grasped    = [0.0, -1.0, 0.8, -0.6, 0.0, 0.7]
+    grasped = [0.0, -1.0, 0.8, -0.6, 0.0, 0.7]
     # Lifted
-    lifted     = [0.0, -0.6, 0.5, -0.4, 0.0, 0.7]
+    lifted = [0.0, -0.6, 0.5, -0.4, 0.0, 0.7]
 
-    def step_world(duration_s: float, base_vx: float = 0.0,
-                   base_vy: float = 0.0, arm_pos: list[float] | None = None) -> None:
+    def step_world(
+        duration_s: float,
+        base_vx: float = 0.0,
+        base_vy: float = 0.0,
+        arm_pos: list[float] | None = None,
+    ) -> None:
         deadline = time.time() + duration_s
         while time.time() < deadline:
             _publish_base_vel(base_pub, base_vx, base_vy, 0.0)
@@ -225,18 +240,19 @@ def _run_scripted_policy(world: "World", node: "rclpy.Node",
             world.step(render=True)
             time.sleep(step_dt)
 
-    step_world(1.5, base_vx=0.12, arm_pos=home_pos)    # approach
-    step_world(0.5, arm_pos=pregrasp)                   # pre-grasp
-    step_world(0.8, arm_pos=grasp_pos)                  # lower
-    step_world(0.5, arm_pos=grasped)                    # close gripper
-    step_world(0.8, arm_pos=lifted)                     # lift
-    step_world(1.5, base_vx=-0.12, arm_pos=lifted)      # retreat
-    step_world(0.8, arm_pos=grasp_pos)                  # lower to place
-    step_world(0.5, arm_pos=grasped[:5] + [0.1])        # open gripper
-    step_world(0.5, arm_pos=home_pos)                   # home
+    step_world(1.5, base_vx=0.12, arm_pos=home_pos)  # approach
+    step_world(0.5, arm_pos=pregrasp)  # pre-grasp
+    step_world(0.8, arm_pos=grasp_pos)  # lower
+    step_world(0.5, arm_pos=grasped)  # close gripper
+    step_world(0.8, arm_pos=lifted)  # lift
+    step_world(1.5, base_vx=-0.12, arm_pos=lifted)  # retreat
+    step_world(0.8, arm_pos=grasp_pos)  # lower to place
+    step_world(0.5, arm_pos=grasped[:5] + [0.1])  # open gripper
+    step_world(0.5, arm_pos=home_pos)  # home
 
 
 # ── Main collection loop ─────────────────────────────────────────────────────
+
 
 def collect_episodes(
     num_episodes: int,
@@ -258,13 +274,13 @@ def collect_episodes(
         )
 
     output_dir.mkdir(parents=True, exist_ok=True)
-    cfg   = _load_config(config_path)
+    cfg = _load_config(config_path)
     world = _setup_scene(cfg, usd_robot)
 
     rclpy.init()
-    node     = rclpy.create_node("isaac_episode_collector")
-    base_pub = node.create_publisher(Twist,      "/cmd_vel",          10)
-    arm_pub  = node.create_publisher(JointState, "/arm/joint_commands", 10)
+    node = rclpy.create_node("isaac_episode_collector")
+    base_pub = node.create_publisher(Twist, "/cmd_vel", 10)
+    arm_pub = node.create_publisher(JointState, "/arm/joint_commands", 10)
 
     print(f"[collect_episodes] Starting collection of {num_episodes} episodes.")
     print(f"[collect_episodes] Task: '{task_description}'")
@@ -306,36 +322,57 @@ def collect_episodes(
         f"  python -m data_engine.ingestion.bag_to_omnibot \\\n"
         f"      --bag {output_dir}/episode_00000 \\\n"
         f"      --dataset ~/datasets/omnibot_isaac \\\n"
-        f"      --task \"{task_description}\"\n"
+        f'      --task "{task_description}"\n'
         "\nOr batch-ingest all bags:\n"
         f"  python data_engine/scripts/ingest_dataset.py \\\n"
         f"      --input {output_dir} \\\n"
         f"      --output ~/datasets/omnibot_isaac \\\n"
-        f"      --task \"{task_description}\""
+        f'      --task "{task_description}"'
     )
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
+
 def _parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description="Collect OmniBot episodes in Isaac Sim with domain randomisation."
     )
-    p.add_argument("--episodes", type=int, default=100,
-                   help="Number of episodes to collect (default: 100)")
-    p.add_argument("--task",
-                   default="pick up the red cup and place it on the tray",
-                   help="Natural language task description written to dataset metadata")
-    p.add_argument("--output", type=Path,
-                   default=Path.home() / "datasets/isaac_bags",
-                   help="Directory to save ROS 2 bags (default: ~/datasets/isaac_bags)")
-    p.add_argument("--dataset", type=Path,
-                   default=Path.home() / "datasets/omnibot_isaac",
-                   help="LeRobot dataset root for direct ingestion after collection")
-    p.add_argument("--config", type=Path, default=_DEFAULT_CONFIG,
-                   help="Path to randomization_config.yaml")
-    p.add_argument("--usd", type=Path, default=_USD_ROBOT,
-                   help="Path to omnibot.usd (generated from URDF importer)")
+    p.add_argument(
+        "--episodes",
+        type=int,
+        default=100,
+        help="Number of episodes to collect (default: 100)",
+    )
+    p.add_argument(
+        "--task",
+        default="pick up the red cup and place it on the tray",
+        help="Natural language task description written to dataset metadata",
+    )
+    p.add_argument(
+        "--output",
+        type=Path,
+        default=Path.home() / "datasets/isaac_bags",
+        help="Directory to save ROS 2 bags (default: ~/datasets/isaac_bags)",
+    )
+    p.add_argument(
+        "--dataset",
+        type=Path,
+        default=Path.home() / "datasets/omnibot_isaac",
+        help="LeRobot dataset root for direct ingestion after collection",
+    )
+    p.add_argument(
+        "--config",
+        type=Path,
+        default=_DEFAULT_CONFIG,
+        help="Path to randomization_config.yaml",
+    )
+    p.add_argument(
+        "--usd",
+        type=Path,
+        default=_USD_ROBOT,
+        help="Path to omnibot.usd (generated from URDF importer)",
+    )
     return p.parse_args()
 
 

@@ -11,7 +11,6 @@ implementation so the data_engine works without a full lerobot install.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -26,6 +25,7 @@ def load_dataset(dataset_root: str | Path, split: str = "train", **kwargs):
     """
     try:
         from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
+
         return LeRobotDataset(str(dataset_root), split=split, **kwargs)
     except ImportError:
         return LeRobotDatasetLite(dataset_root, **kwargs)
@@ -39,25 +39,27 @@ class LeRobotDatasetLite(Dataset):
     """
 
     def __init__(self, dataset_root: str | Path, chunk_size: int = 50):
-        self.root       = Path(dataset_root)
+        self.root = Path(dataset_root)
         self.chunk_size = chunk_size
 
         parquet_files = sorted((self.root / "data").rglob("*.parquet"))
         if not parquet_files:
-            raise FileNotFoundError(f"No parquet files found under {self.root / 'data'}")
+            raise FileNotFoundError(
+                f"No parquet files found under {self.root / 'data'}"
+            )
 
         frames = pd.concat(
             [pd.read_parquet(p) for p in parquet_files],
             ignore_index=True,
         )
-        self._states  = np.stack(frames["observation.state"].tolist()).astype(np.float32)
+        self._states = np.stack(frames["observation.state"].tolist()).astype(np.float32)
         self._actions = np.stack(frames["action"].tolist()).astype(np.float32)
         self._episode = frames["episode_index"].to_numpy(dtype=np.int64)
-        self._done    = frames["next.done"].to_numpy(dtype=bool)
+        self._done = frames["next.done"].to_numpy(dtype=bool)
 
         # Build episode-boundary index for chunk sampling
         self._ep_starts: dict[int, int] = {}
-        self._ep_ends:   dict[int, int] = {}
+        self._ep_ends: dict[int, int] = {}
         for i, ep in enumerate(self._episode):
             if ep not in self._ep_starts:
                 self._ep_starts[ep] = i
@@ -75,17 +77,16 @@ class LeRobotDatasetLite(Dataset):
 
     def __getitem__(self, idx: int) -> dict[str, torch.Tensor]:
         start = self._valid[idx]
-        end   = min(start + self.chunk_size, len(self._states))
-        pad   = self.chunk_size - (end - start)
+        end = min(start + self.chunk_size, len(self._states))
+        pad = self.chunk_size - (end - start)
 
-        state   = torch.from_numpy(self._states[start])
+        state = torch.from_numpy(self._states[start])
         actions = torch.from_numpy(self._actions[start:end])
         if pad > 0:
-            actions = torch.cat([actions,
-                                  actions[-1:].expand(pad, -1)], dim=0)
+            actions = torch.cat([actions, actions[-1:].expand(pad, -1)], dim=0)
         return {
             "observation.state": state,
-            "action":            actions,       # [chunk_size, action_dim]
-            "episode_index":     torch.tensor(int(self._episode[start])),
-            "frame_index":       torch.tensor(start - self._ep_starts[self._episode[start]]),
+            "action": actions,  # [chunk_size, action_dim]
+            "episode_index": torch.tensor(int(self._episode[start])),
+            "frame_index": torch.tensor(start - self._ep_starts[self._episode[start]]),
         }

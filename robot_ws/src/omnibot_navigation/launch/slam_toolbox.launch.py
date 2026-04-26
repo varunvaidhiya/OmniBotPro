@@ -10,33 +10,33 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     # Get the launch directory
-    bringup_dir = get_package_share_directory('omnibot_navigation')
-    
+    bringup_dir = get_package_share_directory("omnibot_navigation")
+
     # Create the launch configuration variables
-    use_sim_time = LaunchConfiguration('use_sim_time')
-    params_file = LaunchConfiguration('params_file')
-    
+    use_sim_time = LaunchConfiguration("use_sim_time")
+    params_file = LaunchConfiguration("params_file")
+
     # Declare the launch arguments
     declare_use_sim_time_cmd = DeclareLaunchArgument(
-        'use_sim_time',
-        default_value='false',
-        description='Use simulation (Gazebo) clock if true')
-    
+        "use_sim_time",
+        default_value="false",
+        description="Use simulation (Gazebo) clock if true",
+    )
+
     declare_params_file_cmd = DeclareLaunchArgument(
-        'params_file',
-        default_value=os.path.join(bringup_dir, 'config', 'slam_toolbox_params.yaml'),
-        description='Full path to the ROS2 parameters file to use for slam_toolbox')
+        "params_file",
+        default_value=os.path.join(bringup_dir, "config", "slam_toolbox_params.yaml"),
+        description="Full path to the ROS2 parameters file to use for slam_toolbox",
+    )
 
     # Specify the actions
     start_async_slam_toolbox_node = Node(
-        parameters=[
-          params_file,
-          {'use_sim_time': use_sim_time}
-        ],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen')
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+        package="slam_toolbox",
+        executable="async_slam_toolbox_node",
+        name="slam_toolbox",
+        output="screen",
+    )
 
     # Create the launch description and populate
     ld = LaunchDescription()
