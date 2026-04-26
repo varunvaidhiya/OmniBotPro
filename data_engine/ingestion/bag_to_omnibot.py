@@ -31,15 +31,12 @@ Usage (CLI):
 from __future__ import annotations
 
 import json
-import math
-import struct
 from pathlib import Path
 from typing import Any
 
 import click
 import cv2
 import numpy as np
-import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 
@@ -48,29 +45,31 @@ from data_engine.ingestion.sync_topics import TopicSynchronizer
 from data_engine.schema.constants import (
     MOBILE_MANIP_ACTION_SPEC,
     MOBILE_MANIP_STATE_SPEC,
-    ARM_JOINT_NAMES,
     CAMERA_FRONT,
     CAMERA_WRIST,
 )
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-CHUNK_SIZE_EPISODES = 1000   # episodes per chunk folder
-CODEBASE_VERSION    = "v2.0"
+CHUNK_SIZE_EPISODES = 1000  # episodes per chunk folder
+CODEBASE_VERSION = "v2.0"
 
-_PARQUET_SCHEMA = pa.schema([
-    pa.field("observation.state",        pa.list_(pa.float32())),
-    pa.field("action",                   pa.list_(pa.float32())),
-    pa.field("timestamp",                pa.float64()),
-    pa.field("frame_index",              pa.int64()),
-    pa.field("episode_index",            pa.int64()),
-    pa.field("index",                    pa.int64()),
-    pa.field("task_index",               pa.int64()),
-    pa.field("next.done",                pa.bool_()),
-])
+_PARQUET_SCHEMA = pa.schema(
+    [
+        pa.field("observation.state", pa.list_(pa.float32())),
+        pa.field("action", pa.list_(pa.float32())),
+        pa.field("timestamp", pa.float64()),
+        pa.field("frame_index", pa.int64()),
+        pa.field("episode_index", pa.int64()),
+        pa.field("index", pa.int64()),
+        pa.field("task_index", pa.int64()),
+        pa.field("next.done", pa.bool_()),
+    ]
+)
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _load_meta(dataset_root: Path) -> dict[str, Any]:
     info_path = dataset_root / "meta" / "info.json"
@@ -97,14 +96,20 @@ def _load_meta(dataset_root: Path) -> dict[str, Any]:
             "observation.images.front": {
                 "dtype": "video",
                 "shape": [CAMERA_FRONT.height, CAMERA_FRONT.width, 3],
-                "info": {"video.fps": 30, "video.codec": "h264",
-                         "video.pix_fmt": "yuv420p"},
+                "info": {
+                    "video.fps": 30,
+                    "video.codec": "h264",
+                    "video.pix_fmt": "yuv420p",
+                },
             },
             "observation.images.wrist": {
                 "dtype": "video",
                 "shape": [CAMERA_WRIST.height, CAMERA_WRIST.width, 3],
-                "info": {"video.fps": 30, "video.codec": "h264",
-                         "video.pix_fmt": "yuv420p"},
+                "info": {
+                    "video.fps": 30,
+                    "video.codec": "h264",
+                    "video.pix_fmt": "yuv420p",
+                },
             },
         },
     }
@@ -151,28 +156,27 @@ def _write_video(frames: list[np.ndarray], path: Path, fps: int) -> None:
     writer.release()
 
 
-def _compute_stats(
-    states: list[list[float]], actions: list[list[float]]
-) -> dict:
+def _compute_stats(states: list[list[float]], actions: list[list[float]]) -> dict:
     s = np.array(states, dtype=np.float32)
     a = np.array(actions, dtype=np.float32)
     return {
         "observation.state": {
-            "mean":  s.mean(axis=0).tolist(),
-            "std":   s.std(axis=0).tolist(),
-            "min":   s.min(axis=0).tolist(),
-            "max":   s.max(axis=0).tolist(),
+            "mean": s.mean(axis=0).tolist(),
+            "std": s.std(axis=0).tolist(),
+            "min": s.min(axis=0).tolist(),
+            "max": s.max(axis=0).tolist(),
         },
         "action": {
-            "mean":  a.mean(axis=0).tolist(),
-            "std":   a.std(axis=0).tolist(),
-            "min":   a.min(axis=0).tolist(),
-            "max":   a.max(axis=0).tolist(),
+            "mean": a.mean(axis=0).tolist(),
+            "std": a.std(axis=0).tolist(),
+            "min": a.min(axis=0).tolist(),
+            "max": a.max(axis=0).tolist(),
         },
     }
 
 
 # ── Core conversion ──────────────────────────────────────────────────────────
+
 
 def bag_to_omnibot(
     bag_path: str | Path,
@@ -184,57 +188,61 @@ def bag_to_omnibot(
     Convert one ROS 2 bag to a LeRobot episode and append it to dataset_root.
     Returns the episode_index assigned.
     """
-    bag_path     = Path(bag_path)
+    bag_path = Path(bag_path)
     dataset_root = Path(dataset_root)
 
     # ── Load existing metadata ────────────────────────────────────────────
-    info        = _load_meta(dataset_root)
+    info = _load_meta(dataset_root)
     episode_idx = info["total_episodes"]
-    task_idx    = _ensure_task(dataset_root, task_name)
-    chunk       = episode_idx // CHUNK_SIZE_EPISODES
-    ep_str      = f"episode_{episode_idx:06d}"
+    task_idx = _ensure_task(dataset_root, task_name)
+    chunk = episode_idx // CHUNK_SIZE_EPISODES
+    ep_str = f"episode_{episode_idx:06d}"
 
     # ── Parse bag ─────────────────────────────────────────────────────────
     parser = ROSBagParser(str(bag_path))
-    raw    = parser.extract_all()               # returns dict of topic→list[(ts, data)]
+    raw = parser.extract_all()  # returns dict of topic→list[(ts, data)]
 
     syncer = TopicSynchronizer(fps=fps)
-    frames_sync = syncer.synchronize(raw)       # list of dicts, one per target frame
+    frames_sync = syncer.synchronize(raw)  # list of dicts, one per target frame
 
     if not frames_sync:
         raise RuntimeError(f"No synchronized frames found in {bag_path}")
 
     global_offset = info["total_frames"]
-    t0            = frames_sync[0]["timestamp"]
+    t0 = frames_sync[0]["timestamp"]
 
-    rows: list[dict]        = []
+    rows: list[dict] = []
     front_frames: list[np.ndarray] = []
     wrist_frames: list[np.ndarray] = []
 
     for local_idx, frame in enumerate(frames_sync):
-        state  = frame.get("state",  [0.0] * MOBILE_MANIP_STATE_SPEC.dim)
+        state = frame.get("state", [0.0] * MOBILE_MANIP_STATE_SPEC.dim)
         action = frame.get("action", [0.0] * MOBILE_MANIP_ACTION_SPEC.dim)
 
-        rows.append({
-            "observation.state": state,
-            "action":            action,
-            "timestamp":         frame["timestamp"] - t0,
-            "frame_index":       local_idx,
-            "episode_index":     episode_idx,
-            "index":             global_offset + local_idx,
-            "task_index":        task_idx,
-            "next.done":         local_idx == len(frames_sync) - 1,
-        })
+        rows.append(
+            {
+                "observation.state": state,
+                "action": action,
+                "timestamp": frame["timestamp"] - t0,
+                "frame_index": local_idx,
+                "episode_index": episode_idx,
+                "index": global_offset + local_idx,
+                "task_index": task_idx,
+                "next.done": local_idx == len(frames_sync) - 1,
+            }
+        )
 
         # Images: syncer returns np arrays (BGR) or None
         front = frame.get("camera_front")
         wrist = frame.get("camera_wrist")
         front_frames.append(
-            front if front is not None
+            front
+            if front is not None
             else np.zeros((CAMERA_FRONT.height, CAMERA_FRONT.width, 3), np.uint8)
         )
         wrist_frames.append(
-            wrist if wrist is not None
+            wrist
+            if wrist is not None
             else np.zeros((CAMERA_WRIST.height, CAMERA_WRIST.width, 3), np.uint8)
         )
 
@@ -250,35 +258,44 @@ def bag_to_omnibot(
 
     # ── Write videos ──────────────────────────────────────────────────────
     vid_base = dataset_root / "videos" / f"chunk-{chunk:03d}"
-    _write_video(front_frames, vid_base / "observation.images.front" / f"{ep_str}.mp4", fps)
-    _write_video(wrist_frames, vid_base / "observation.images.wrist" / f"{ep_str}.mp4", fps)
+    _write_video(
+        front_frames, vid_base / "observation.images.front" / f"{ep_str}.mp4", fps
+    )
+    _write_video(
+        wrist_frames, vid_base / "observation.images.wrist" / f"{ep_str}.mp4", fps
+    )
 
     # ── Update metadata ───────────────────────────────────────────────────
     ep_length = len(rows)
     info["total_episodes"] += 1
-    info["total_frames"]   += ep_length
-    info["fps"]             = fps
+    info["total_frames"] += ep_length
+    info["fps"] = fps
     _save_meta(dataset_root, info)
 
     episodes_path = dataset_root / "meta" / "episodes.jsonl"
-    _append_jsonl(episodes_path, {
-        "episode_index": episode_idx,
-        "tasks":         [task_idx],
-        "length":        ep_length,
-    })
+    _append_jsonl(
+        episodes_path,
+        {
+            "episode_index": episode_idx,
+            "tasks": [task_idx],
+            "length": ep_length,
+        },
+    )
 
     # ── Update running stats ──────────────────────────────────────────────
     _update_stats(dataset_root, rows)
 
-    print(f"[bag_to_omnibot] episode {episode_idx} written ({ep_length} frames) → {ep_str}")
+    print(
+        f"[bag_to_omnibot] episode {episode_idx} written ({ep_length} frames) → {ep_str}"
+    )
     return episode_idx
 
 
 def _update_stats(dataset_root: Path, rows: list[dict]) -> None:
     stats_path = dataset_root / "meta" / "stats.json"
-    new_states  = [r["observation.state"] for r in rows]
-    new_actions = [r["action"]            for r in rows]
-    new_stats   = _compute_stats(new_states, new_actions)
+    new_states = [r["observation.state"] for r in rows]
+    new_actions = [r["action"] for r in rows]
+    new_stats = _compute_stats(new_states, new_actions)
 
     if not stats_path.exists():
         stats_path.write_text(json.dumps(new_stats, indent=2))
@@ -295,18 +312,19 @@ def _update_stats(dataset_root: Path, rows: list[dict]) -> None:
             ]
         # Overwrite mean/std with new episode values (good enough for normalisation)
         old[key]["mean"] = new_stats[key]["mean"]
-        old[key]["std"]  = new_stats[key]["std"]
+        old[key]["std"] = new_stats[key]["std"]
 
     stats_path.write_text(json.dumps(old, indent=2))
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
+
 @click.command()
-@click.option("--bag",     required=True, help="Path to ROS 2 bag directory")
+@click.option("--bag", required=True, help="Path to ROS 2 bag directory")
 @click.option("--dataset", required=True, help="LeRobot dataset root to append to")
-@click.option("--task",    required=True, help="Natural language task description")
-@click.option("--fps",     default=30,   show_default=True, help="Target frame rate")
+@click.option("--task", required=True, help="Natural language task description")
+@click.option("--fps", default=30, show_default=True, help="Target frame rate")
 def main(bag: str, dataset: str, task: str, fps: int) -> None:
     bag_to_omnibot(bag, dataset, task, fps)
 

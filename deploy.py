@@ -38,7 +38,6 @@ multi   Three-machine distributed setup:
 from __future__ import annotations
 
 import argparse
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -50,12 +49,13 @@ _BANNER = """\
 ╚══════════════════════════════════════════╝"""
 
 _DEFAULT_VLA_IP = "192.168.1.100"
-_DEFAULT_PI_IP  = "192.168.1.101"
+_DEFAULT_PI_IP = "192.168.1.101"
 _DEFAULT_SIM_IP = "192.168.1.102"
 _DEFAULT_DOMAIN = "30"
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
+
 
 def _prompt(label: str, default: str) -> str:
     try:
@@ -150,6 +150,7 @@ def _show_current() -> None:
 
 # ── Interactive flow ──────────────────────────────────────────────────────────
 
+
 def _interactive_single(domain: str) -> tuple[str, str, str, str, str]:
     domain = _prompt("ROS Domain ID", domain)
     return "single", "127.0.0.1", "127.0.0.1", "127.0.0.1", domain
@@ -158,15 +159,19 @@ def _interactive_single(domain: str) -> tuple[str, str, str, str, str]:
 def _interactive_multi(domain: str, ping_check: bool) -> tuple[str, str, str, str, str]:
     print()
     vla_ip = _prompt("VLA PC IP   (vla_node, smolvla_node)", _DEFAULT_VLA_IP)
-    pi_ip  = _prompt("Pi IP       (robot driver, Nav2)     ", _DEFAULT_PI_IP)
+    pi_ip = _prompt("Pi IP       (robot driver, Nav2)     ", _DEFAULT_PI_IP)
     sim_ip = _prompt("Sim PC IP   (Isaac Sim / Gazebo)     ", _DEFAULT_SIM_IP)
     domain = _prompt("ROS Domain ID                        ", domain)
 
     if ping_check:
         ok = _check_reachability({"VLA PC": vla_ip, "Pi": pi_ip, "Sim PC": sim_ip})
         if not ok:
-            print("\n  [WARN] Some machines unreachable — deployment.env written anyway.")
-            print("         Ensure all machines are on the same LAN with ROS_DOMAIN_ID matching.")
+            print(
+                "\n  [WARN] Some machines unreachable — deployment.env written anyway."
+            )
+            print(
+                "         Ensure all machines are on the same LAN with ROS_DOMAIN_ID matching."
+            )
 
     return "multi", vla_ip, pi_ip, sim_ip, domain
 
@@ -207,6 +212,7 @@ def _run_interactive(ping_check: bool) -> None:
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
 
+
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         description="OmniBot deployment mode configurator.",
@@ -214,27 +220,48 @@ def _build_parser() -> argparse.ArgumentParser:
         epilog=__doc__,
     )
     p.add_argument(
-        "--mode", choices=["single", "multi"],
+        "--mode",
+        choices=["single", "multi"],
         help="Deployment mode: 'single' (one PC) or 'multi' (Pi + VLA PC + Sim PC).",
     )
-    p.add_argument("--vla-ip",  default=_DEFAULT_VLA_IP, metavar="IP",
-                   help=f"VLA PC IP (default: {_DEFAULT_VLA_IP}). Multi mode only.")
-    p.add_argument("--pi-ip",   default=_DEFAULT_PI_IP,  metavar="IP",
-                   help=f"Raspberry Pi IP (default: {_DEFAULT_PI_IP}). Multi mode only.")
-    p.add_argument("--sim-ip",  default=_DEFAULT_SIM_IP, metavar="IP",
-                   help=f"Sim PC IP (default: {_DEFAULT_SIM_IP}). Multi mode only.")
-    p.add_argument("--domain",  default=_DEFAULT_DOMAIN, metavar="N",
-                   help=f"ROS_DOMAIN_ID (default: {_DEFAULT_DOMAIN}).")
-    p.add_argument("--no-ping-check", action="store_true",
-                   help="Skip IP reachability check (useful for CI or offline setup).")
-    p.add_argument("--show", action="store_true",
-                   help="Print current deployment.env and exit.")
+    p.add_argument(
+        "--vla-ip",
+        default=_DEFAULT_VLA_IP,
+        metavar="IP",
+        help=f"VLA PC IP (default: {_DEFAULT_VLA_IP}). Multi mode only.",
+    )
+    p.add_argument(
+        "--pi-ip",
+        default=_DEFAULT_PI_IP,
+        metavar="IP",
+        help=f"Raspberry Pi IP (default: {_DEFAULT_PI_IP}). Multi mode only.",
+    )
+    p.add_argument(
+        "--sim-ip",
+        default=_DEFAULT_SIM_IP,
+        metavar="IP",
+        help=f"Sim PC IP (default: {_DEFAULT_SIM_IP}). Multi mode only.",
+    )
+    p.add_argument(
+        "--domain",
+        default=_DEFAULT_DOMAIN,
+        metavar="N",
+        help=f"ROS_DOMAIN_ID (default: {_DEFAULT_DOMAIN}).",
+    )
+    p.add_argument(
+        "--no-ping-check",
+        action="store_true",
+        help="Skip IP reachability check (useful for CI or offline setup).",
+    )
+    p.add_argument(
+        "--show", action="store_true", help="Print current deployment.env and exit."
+    )
     return p
 
 
 def main() -> None:
     parser = _build_parser()
-    args   = parser.parse_args()
+    args = parser.parse_args()
 
     if args.show:
         _show_current()
@@ -254,11 +281,13 @@ def main() -> None:
         _write_env("single", "127.0.0.1", "127.0.0.1", "127.0.0.1", args.domain)
     else:
         if ping_check:
-            ok = _check_reachability({
-                "VLA PC": args.vla_ip,
-                "Pi":     args.pi_ip,
-                "Sim PC": args.sim_ip,
-            })
+            ok = _check_reachability(
+                {
+                    "VLA PC": args.vla_ip,
+                    "Pi": args.pi_ip,
+                    "Sim PC": args.sim_ip,
+                }
+            )
             if not ok:
                 print("\n  [WARN] Some machines unreachable — continuing anyway.")
         _write_env("multi", args.vla_ip, args.pi_ip, args.sim_ip, args.domain)

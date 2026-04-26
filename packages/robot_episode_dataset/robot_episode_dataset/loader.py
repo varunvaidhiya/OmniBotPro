@@ -7,7 +7,6 @@ PyTorch Dataset that reads episodes stored in LeRobot v2.0 format
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
@@ -43,7 +42,7 @@ class EpisodeDataset:
         try:
             import pyarrow.parquet as pq
         except ImportError:
-            raise ImportError('pyarrow is required: pip install pyarrow')
+            raise ImportError("pyarrow is required: pip install pyarrow")
 
         self._root = Path(root)
         self._transform = transform
@@ -51,12 +50,12 @@ class EpisodeDataset:
         self._rows: List[Dict[str, Any]] = []
 
         # Load all parquet files
-        for chunk_dir in sorted((self._root / 'data').glob('chunk-*')):
-            for pq_file in sorted(chunk_dir.glob('episode_*.parquet')):
+        for chunk_dir in sorted((self._root / "data").glob("chunk-*")):
+            for pq_file in sorted(chunk_dir.glob("episode_*.parquet")):
                 table = pq.read_table(pq_file)
                 for i in range(table.num_rows):
                     row = {col: table[col][i].as_py() for col in table.schema.names}
-                    row['_parquet_file'] = str(pq_file)
+                    row["_parquet_file"] = str(pq_file)
                     self._rows.append(row)
 
     def __len__(self) -> int:
@@ -66,17 +65,15 @@ class EpisodeDataset:
         row = dict(self._rows[idx])
 
         if self._image_keys:
-            frame_idx = row.get('frame_index', 0)
-            ep_idx = row.get('episode_index', 0)
-            chunk = f'chunk-{ep_idx // 1000:03d}'
-            ep_str = f'episode_{ep_idx:06d}'
+            frame_idx = row.get("frame_index", 0)
+            ep_idx = row.get("episode_index", 0)
+            chunk = f"chunk-{ep_idx // 1000:03d}"
+            ep_str = f"episode_{ep_idx:06d}"
 
             for key in self._image_keys:
-                video_path = (
-                    self._root / 'videos' / chunk / key / f'{ep_str}.mp4')
+                video_path = self._root / "videos" / chunk / key / f"{ep_str}.mp4"
                 if video_path.exists():
-                    row[key] = self._load_video_frame(
-                        str(video_path), frame_idx)
+                    row[key] = self._load_video_frame(str(video_path), frame_idx)
 
         if self._transform:
             row = self._transform(row)
@@ -88,7 +85,7 @@ class EpisodeDataset:
         try:
             import cv2
         except ImportError:
-            raise ImportError('opencv-python is required for image loading.')
+            raise ImportError("opencv-python is required for image loading.")
         cap = cv2.VideoCapture(path)
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
         ret, frame = cap.read()
@@ -102,7 +99,7 @@ class EpisodeDataset:
         try:
             from torch.utils.data import Dataset
         except ImportError:
-            raise ImportError('torch is required: pip install torch')
+            raise ImportError("torch is required: pip install torch")
 
         parent = self
 

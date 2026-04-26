@@ -45,30 +45,33 @@ class CmdVelMux(Node):
         One of "nav2" (default), "vla", "teleop".
     """
 
-    VALID_MODES = ('nav2', 'vla', 'teleop')
+    VALID_MODES = ("nav2", "vla", "teleop")
 
     def __init__(self):
-        super().__init__('cmd_vel_mux')
+        super().__init__("cmd_vel_mux")
 
-        self.declare_parameter('default_mode', 'nav2')
-        self._active_mode: str = self.get_parameter('default_mode').value
+        self.declare_parameter("default_mode", "nav2")
+        self._active_mode: str = self.get_parameter("default_mode").value
 
         # ── Inputs ────────────────────────────────────────────────────────────
-        self.create_subscription(Twist, '/cmd_vel',         self._nav2_cb,   10)
-        self.create_subscription(Twist, '/cmd_vel/vla',     self._vla_cb,    10)
-        self.create_subscription(Twist, '/cmd_vel/teleop',  self._teleop_cb, 10)
-        self.create_subscription(String, '/control_mode',   self._mode_cb,   10)
+        self.create_subscription(Twist, "/cmd_vel", self._nav2_cb, 10)
+        self.create_subscription(Twist, "/cmd_vel/vla", self._vla_cb, 10)
+        self.create_subscription(Twist, "/cmd_vel/teleop", self._teleop_cb, 10)
+        self.create_subscription(String, "/control_mode", self._mode_cb, 10)
 
         # ── Output ────────────────────────────────────────────────────────────
-        self._out_pub         = self.create_publisher(Twist,  '/cmd_vel/out',         10)
-        self._active_mode_pub = self.create_publisher(String, '/control_mode/active', 10)
+        self._out_pub = self.create_publisher(Twist, "/cmd_vel/out", 10)
+        self._active_mode_pub = self.create_publisher(
+            String, "/control_mode/active", 10
+        )
 
         # Publish active mode at 1 Hz so other nodes can query it
         self.create_timer(1.0, self._publish_active_mode)
 
         self.get_logger().info(
             f'CmdVelMux ready. Default mode: "{self._active_mode}". '
-            f'Valid modes: {self.VALID_MODES}')
+            f"Valid modes: {self.VALID_MODES}"
+        )
 
     # ── Mode switch ───────────────────────────────────────────────────────────
 
@@ -76,26 +79,28 @@ class CmdVelMux(Node):
         mode = msg.data.strip().lower()
         if mode not in self.VALID_MODES:
             self.get_logger().warn(
-                f'Unknown mode "{mode}" ignored. Valid: {self.VALID_MODES}')
+                f'Unknown mode "{mode}" ignored. Valid: {self.VALID_MODES}'
+            )
             return
         if mode != self._active_mode:
             self.get_logger().info(
-                f'[CmdVelMux] Mode switch: {self._active_mode} → {mode}')
+                f"[CmdVelMux] Mode switch: {self._active_mode} → {mode}"
+            )
             self._active_mode = mode
             self._publish_active_mode()
 
     # ── Source callbacks ──────────────────────────────────────────────────────
 
     def _nav2_cb(self, msg: Twist) -> None:
-        if self._active_mode == 'nav2':
+        if self._active_mode == "nav2":
             self._out_pub.publish(msg)
 
     def _vla_cb(self, msg: Twist) -> None:
-        if self._active_mode == 'vla':
+        if self._active_mode == "vla":
             self._out_pub.publish(msg)
 
     def _teleop_cb(self, msg: Twist) -> None:
-        if self._active_mode == 'teleop':
+        if self._active_mode == "teleop":
             self._out_pub.publish(msg)
 
     # ── Periodic feedback ─────────────────────────────────────────────────────
@@ -114,5 +119,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

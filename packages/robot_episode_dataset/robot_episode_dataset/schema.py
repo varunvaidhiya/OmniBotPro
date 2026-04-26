@@ -7,13 +7,14 @@ and cameras.  Replace the defaults with values for your own robot.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from typing import Dict, List, Tuple
 
 
 @dataclass
 class StateSpec:
     """Describes the robot state vector."""
+
     names: List[str]
     ranges: List[Tuple[float, float]]  # (min, max) per dimension
     units: List[str]
@@ -26,6 +27,7 @@ class StateSpec:
 @dataclass
 class ActionSpec:
     """Describes the robot action vector."""
+
     names: List[str]
     ranges: List[Tuple[float, float]]
     units: List[str]
@@ -38,11 +40,12 @@ class ActionSpec:
 @dataclass
 class CameraConfig:
     """Per-camera configuration."""
+
     name: str
     topic: str
     resolution: Tuple[int, int]  # (height, width)
     fps: int
-    encoding: str = 'bgr8'
+    encoding: str = "bgr8"
 
     @property
     def height(self) -> int:
@@ -61,11 +64,12 @@ class DatasetSchema:
     Pass an instance of this to the ingestion pipeline and dataset loader
     so they know how to interpret state/action/camera data.
     """
+
     state_spec: StateSpec
     action_spec: ActionSpec
     cameras: List[CameraConfig]
-    robot_name: str = 'robot'
-    description: str = ''
+    robot_name: str = "robot"
+    description: str = ""
 
     @property
     def camera_names(self) -> List[str]:
@@ -73,7 +77,7 @@ class DatasetSchema:
 
     @property
     def lerobot_camera_keys(self) -> Dict[str, CameraConfig]:
-        return {f'observation.images.{c.name}': c for c in self.cameras}
+        return {f"observation.images.{c.name}": c for c in self.cameras}
 
 
 # ---------------------------------------------------------------------------
@@ -81,36 +85,60 @@ class DatasetSchema:
 # ---------------------------------------------------------------------------
 
 OMNIBOT_SCHEMA = DatasetSchema(
-    robot_name='omnibot',
-    description='Mecanum-wheel mobile manipulator (SO-101 arm + mecanum base)',
+    robot_name="omnibot",
+    description="Mecanum-wheel mobile manipulator (SO-101 arm + mecanum base)",
     state_spec=StateSpec(
         names=[
-            'shoulder_pan', 'shoulder_lift', 'elbow_flex',
-            'wrist_flex', 'wrist_roll', 'gripper',
-            'base_vx', 'base_vy', 'base_vz',
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper",
+            "base_vx",
+            "base_vy",
+            "base_vz",
         ],
         ranges=[
-            (-3.14, 3.14), (-1.57, 1.57), (-1.57, 1.57),
-            (-1.57, 1.57), (-3.14, 3.14), (-0.10, 0.80),
-            (-0.30, 0.30), (-0.30, 0.30), (-1.00, 1.00),
+            (-3.14, 3.14),
+            (-1.57, 1.57),
+            (-1.57, 1.57),
+            (-1.57, 1.57),
+            (-3.14, 3.14),
+            (-0.10, 0.80),
+            (-0.30, 0.30),
+            (-0.30, 0.30),
+            (-1.00, 1.00),
         ],
-        units=['rad'] * 6 + ['m/s', 'm/s', 'rad/s'],
+        units=["rad"] * 6 + ["m/s", "m/s", "rad/s"],
     ),
     action_spec=ActionSpec(
         names=[
-            'shoulder_pan', 'shoulder_lift', 'elbow_flex',
-            'wrist_flex', 'wrist_roll', 'gripper',
-            'base_vx', 'base_vy', 'base_vz',
+            "shoulder_pan",
+            "shoulder_lift",
+            "elbow_flex",
+            "wrist_flex",
+            "wrist_roll",
+            "gripper",
+            "base_vx",
+            "base_vy",
+            "base_vz",
         ],
         ranges=[
-            (-3.14, 3.14), (-1.57, 1.57), (-1.57, 1.57),
-            (-1.57, 1.57), (-3.14, 3.14), (-0.10, 0.80),
-            (-0.30, 0.30), (-0.30, 0.30), (-1.00, 1.00),
+            (-3.14, 3.14),
+            (-1.57, 1.57),
+            (-1.57, 1.57),
+            (-1.57, 1.57),
+            (-3.14, 3.14),
+            (-0.10, 0.80),
+            (-0.30, 0.30),
+            (-0.30, 0.30),
+            (-1.00, 1.00),
         ],
-        units=['rad'] * 6 + ['m/s', 'm/s', 'rad/s'],
+        units=["rad"] * 6 + ["m/s", "m/s", "rad/s"],
     ),
     cameras=[
-        CameraConfig('bev',   '/camera/base/bev/image_raw', (480, 640), 30),
-        CameraConfig('wrist', '/camera/wrist/image_raw',    (240, 320), 30),
+        CameraConfig("bev", "/camera/base/bev/image_raw", (480, 640), 30),
+        CameraConfig("wrist", "/camera/wrist/image_raw", (240, 320), 30),
     ],
 )

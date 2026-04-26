@@ -27,15 +27,15 @@ from pathlib import Path
 import numpy as np
 
 # ── Resolve repo root ──────────────────────────────────────────────────────────
-SCRIPT_DIR  = Path(__file__).resolve().parent
-REPO_ROOT   = SCRIPT_DIR.parent
-URDF_XACRO  = REPO_ROOT / "robot_ws/src/omnibot_description/urdf/omnibot.urdf.xacro"
-MESH_DIR    = REPO_ROOT / "robot_ws/src/omnibot_description/meshes"
-OUTPUT_GLB  = REPO_ROOT / "android_app/app/src/main/assets/robot.glb"
+SCRIPT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = SCRIPT_DIR.parent
+URDF_XACRO = REPO_ROOT / "robot_ws/src/omnibot_description/urdf/omnibot.urdf.xacro"
+MESH_DIR = REPO_ROOT / "robot_ws/src/omnibot_description/meshes"
+OUTPUT_GLB = REPO_ROOT / "android_app/app/src/main/assets/robot.glb"
 
 # ── Colours for the procedural fallback geometry ──────────────────────────────
-COLOUR_BASE  = [0.25, 0.25, 0.30, 1.0]  # dark grey  — robot body
-COLOUR_ARM   = [0.15, 0.50, 0.80, 1.0]  # blue       — arm links
+COLOUR_BASE = [0.25, 0.25, 0.30, 1.0]  # dark grey  — robot body
+COLOUR_ARM = [0.15, 0.50, 0.80, 1.0]  # blue       — arm links
 COLOUR_WHEEL = [0.10, 0.10, 0.10, 1.0]  # black      — wheels
 COLOUR_FLOOR = [0.06, 0.06, 0.10, 0.6]  # dark blue transparent — floor
 
@@ -43,13 +43,12 @@ COLOUR_FLOOR = [0.06, 0.06, 0.10, 0.6]  # dark blue transparent — floor
 def run_xacro(xacro_path: Path) -> Path:
     """Expand xacro → plain URDF.  Returns path to temp file."""
     tmp = tempfile.NamedTemporaryFile(suffix=".urdf", delete=False)
-    result = subprocess.run(
-        ["xacro", str(xacro_path)],
-        capture_output=True, text=True
-    )
+    result = subprocess.run(["xacro", str(xacro_path)], capture_output=True, text=True)
     if result.returncode != 0:
         # xacro not installed — fall back to reading it as plain XML (may fail on macros)
-        print("  [warn] xacro not found, attempting plain XML parse (macros may not expand)")
+        print(
+            "  [warn] xacro not found, attempting plain XML parse (macros may not expand)"
+        )
         tmp.write(xacro_path.read_bytes())
     else:
         tmp.write(result.stdout.encode())
@@ -65,7 +64,7 @@ def parse_origin(origin_elem) -> tuple[np.ndarray, np.ndarray]:
     rpy_str = origin_elem.get("rpy", "0 0 0")
     return (
         np.array([float(v) for v in xyz_str.split()]),
-        np.array([float(v) for v in rpy_str.split()])
+        np.array([float(v) for v in rpy_str.split()]),
     )
 
 
@@ -75,12 +74,12 @@ def rpy_to_matrix(rpy: np.ndarray) -> np.ndarray:
     cr, sr = np.cos(r), np.sin(r)
     cp, sp = np.cos(p), np.sin(p)
     cy, sy = np.cos(y), np.sin(y)
-    Rx = np.array([[1,0,0],[0,cr,-sr],[0,sr,cr]])
-    Ry = np.array([[cp,0,sp],[0,1,0],[-sp,0,cp]])
-    Rz = np.array([[cy,-sy,0],[sy,cy,0],[0,0,1]])
-    R  = Rz @ Ry @ Rx
-    T  = np.eye(4)
-    T[:3,:3] = R
+    Rx = np.array([[1, 0, 0], [0, cr, -sr], [0, sr, cr]])
+    Ry = np.array([[cp, 0, sp], [0, 1, 0], [-sp, 0, cp]])
+    Rz = np.array([[cy, -sy, 0], [sy, cy, 0], [0, 0, 1]])
+    R = Rz @ Ry @ Rx
+    T = np.eye(4)
+    T[:3, :3] = R
     return T
 
 
@@ -94,13 +93,14 @@ def origin_to_transform(origin_elem) -> np.ndarray:
 def load_stl(stl_path: Path, colour: list[float]):
     """Load STL, return trimesh.Trimesh with vertex colours applied."""
     import trimesh
+
     mesh = trimesh.load(str(stl_path), force="mesh")
     mesh.visual = trimesh.visual.ColorVisuals(
         mesh=mesh,
         vertex_colors=np.tile(
             np.array([[int(c * 255) for c in colour]], dtype=np.uint8),
-            (len(mesh.vertices), 1)
-        )
+            (len(mesh.vertices), 1),
+        ),
     )
     return mesh
 
@@ -135,8 +135,8 @@ def build_scene(urdf_path: Path):
                     mesh=tm,
                     vertex_colors=np.tile(
                         np.array([[int(c * 255) for c in colour]], dtype=np.uint8),
-                        (len(tm.vertices), 1)
-                    )
+                        (len(tm.vertices), 1),
+                    ),
                 )
                 link_meshes[name] = tm
                 continue
@@ -151,8 +151,8 @@ def build_scene(urdf_path: Path):
                     mesh=tm,
                     vertex_colors=np.tile(
                         np.array([[int(c * 255) for c in colour]], dtype=np.uint8),
-                        (len(tm.vertices), 1)
-                    )
+                        (len(tm.vertices), 1),
+                    ),
                 )
                 link_meshes[name] = tm
                 continue
@@ -162,8 +162,10 @@ def build_scene(urdf_path: Path):
 
         # Resolve STL path (package:// URI)
         filename = mesh_elem.get("filename", "")
-        filename = filename.replace("package://omnibot_description/", str(
-            REPO_ROOT / "robot_ws/src/omnibot_description") + "/")
+        filename = filename.replace(
+            "package://omnibot_description/",
+            str(REPO_ROOT / "robot_ws/src/omnibot_description") + "/",
+        )
 
         stl_path = Path(filename)
         if not stl_path.exists():
@@ -175,8 +177,10 @@ def build_scene(urdf_path: Path):
             link_meshes[name] = None
             continue
 
-        colour = COLOUR_WHEEL if "wheel" in name else (
-            COLOUR_BASE if "base" in name else COLOUR_ARM
+        colour = (
+            COLOUR_WHEEL
+            if "wheel" in name
+            else (COLOUR_BASE if "base" in name else COLOUR_ARM)
         )
         # Scale from mm→m if the mesh looks too large
         tm = load_stl(stl_path, colour)
@@ -197,12 +201,12 @@ def build_scene(urdf_path: Path):
 
     for joint in root.iter("joint"):
         parent_elem = joint.find("parent")
-        child_elem  = joint.find("child")
+        child_elem = joint.find("child")
         if parent_elem is None or child_elem is None:
             continue
         parent_link = parent_elem.get("link", "")
-        child_link  = child_elem.get("link", "")
-        origin      = joint.find("origin")
+        child_link = child_elem.get("link", "")
+        origin = joint.find("origin")
         T = origin_to_transform(origin)
         joint_transforms[child_link] = T
         parent_map[child_link] = parent_link
@@ -210,10 +214,10 @@ def build_scene(urdf_path: Path):
     # ── Compute world transforms via DFS ────────────────────────────────────
     def world_transform(link_name: str) -> np.ndarray:
         if link_name not in parent_map:
-            return np.eye(4)   # root link
+            return np.eye(4)  # root link
         parent = parent_map[link_name]
         T_parent = world_transform(parent)
-        T_joint  = joint_transforms.get(link_name, np.eye(4))
+        T_joint = joint_transforms.get(link_name, np.eye(4))
         return T_parent @ T_joint
 
     # ── Build scene ───────────────────────────────────────────────────────────
@@ -231,16 +235,15 @@ def build_scene(urdf_path: Path):
     grid_lines = []
     for i in range(-5, 6):
         v = i * 0.1
-        grid_lines += [[v, 0.0, -0.5], [v, 0.0,  0.5]]
-        grid_lines += [[-0.5, 0.0, v], [ 0.5, 0.0, v]]
+        grid_lines += [[v, 0.0, -0.5], [v, 0.0, 0.5]]
+        grid_lines += [[-0.5, 0.0, v], [0.5, 0.0, v]]
     # Export grid as a thin plane instead of lines (trimesh GLB doesn't support lines well)
     floor = trimesh.creation.box(extents=[2.0, 0.002, 2.0])
     floor.visual = trimesh.visual.ColorVisuals(
         mesh=floor,
         vertex_colors=np.tile(
-            np.array([[15, 15, 25, 120]], dtype=np.uint8),
-            (len(floor.vertices), 1)
-        )
+            np.array([[15, 15, 25, 120]], dtype=np.uint8), (len(floor.vertices), 1)
+        ),
     )
     floor.apply_translation([0, -0.001, 0])
     scene.add_geometry(floor, node_name="floor_plane")
@@ -254,9 +257,11 @@ def main():
     print(f"  Output: {OUTPUT_GLB}")
 
     try:
-        import trimesh
+        import trimesh  # noqa: F401
     except ImportError:
-        print("\n[error] trimesh not installed.  Run:\n  pip install trimesh[easy] numpy lxml")
+        print(
+            "\n[error] trimesh not installed.  Run:\n  pip install trimesh[easy] numpy lxml"
+        )
         sys.exit(1)
 
     if not URDF_XACRO.exists():

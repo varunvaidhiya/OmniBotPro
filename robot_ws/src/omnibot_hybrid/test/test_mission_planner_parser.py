@@ -6,6 +6,7 @@ real correctness risk (wrong parse → wrong nav target or silent VLA skip).
 We extract the method via a lightweight monkey-patch so we can test it
 without spinning a full ROS node or loading Nav2 action clients.
 """
+
 import pytest
 
 # Import just the parsing logic without triggering ROS initialization.
@@ -27,6 +28,7 @@ def parse(raw: str):
 
 
 # ── Happy paths ──────────────────────────────────────────────────────────────
+
 
 class TestFullHybridCommand:
     def test_basic_hybrid(self):
@@ -74,6 +76,7 @@ class TestVlaOnlyCommand:
 
 # ── Edge cases ───────────────────────────────────────────────────────────────
 
+
 class TestParseEdgeCases:
     def test_empty_string_returns_none(self):
         assert parse("") is None
@@ -106,6 +109,7 @@ class TestParseEdgeCases:
 
 # ── Location resolver ─────────────────────────────────────────────────────────
 
+
 class TestResolveLocation:
     """Test _resolve_location with a mocked locations dict."""
 
@@ -115,6 +119,7 @@ class TestResolveLocation:
 
             def get_clock(self):
                 import rclpy.clock
+
                 return rclpy.clock.Clock()
 
             _resolve_location = MissionPlanner._resolve_location
@@ -128,10 +133,10 @@ class TestResolveLocation:
 
     def test_returns_pose_for_known_location(self):
         import rclpy
+
         rclpy.init()
         try:
-            stub = self._make_node(
-                {"kitchen": {"x": 3.5, "y": -1.2, "yaw": 1.57}})
+            stub = self._make_node({"kitchen": {"x": 3.5, "y": -1.2, "yaw": 1.57}})
             pose = stub._resolve_location("kitchen")
             assert pose is not None
             assert pose.pose.position.x == pytest.approx(3.5)

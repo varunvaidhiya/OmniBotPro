@@ -74,8 +74,8 @@ class TopicSynchronizer:
         if not streams_sec:
             return []
 
-        start_t = max(ts[0]  for ts, _ in streams_sec.values())
-        end_t   = min(ts[-1] for ts, _ in streams_sec.values())
+        start_t = max(ts[0] for ts, _ in streams_sec.values())
+        end_t = min(ts[-1] for ts, _ in streams_sec.values())
 
         if end_t <= start_t:
             return []
@@ -87,7 +87,7 @@ class TopicSynchronizer:
         frames: List[Dict[str, Any]] = []
 
         for t in target_ts:
-            frame: Dict[str, Any] = {'timestamp': float(t)}
+            frame: Dict[str, Any] = {"timestamp": float(t)}
 
             for key, (timestamps, values) in streams_sec.items():
                 idx = int(np.argmin(np.abs(timestamps - t)))

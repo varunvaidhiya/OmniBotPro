@@ -44,16 +44,17 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description():
-    pkg_bringup = FindPackageShare('omnibot_bringup').find('omnibot_bringup')
-    pkg_lerobot = FindPackageShare('omnibot_lerobot').find('omnibot_lerobot')
+    pkg_bringup = FindPackageShare("omnibot_bringup").find("omnibot_bringup")
+    pkg_lerobot = FindPackageShare("omnibot_lerobot").find("omnibot_lerobot")
 
-    rviz_config = os.path.join(pkg_bringup, 'config', 'omnibot.rviz')
-    bev_params  = os.path.join(pkg_lerobot, 'config', 'bev_params.yaml')
+    rviz_config = os.path.join(pkg_bringup, "config", "omnibot.rviz")
+    bev_params = os.path.join(pkg_lerobot, "config", "bev_params.yaml")
 
     # ── Launch arguments ─────────────────────────────────────────────────────
     declare_rviz = DeclareLaunchArgument(
-        'rviz', default_value='true',
-        description='Launch RViz2 for visualisation',
+        "rviz",
+        default_value="true",
+        description="Launch RViz2 for visualisation",
     )
 
     # ── BEV stitcher ─────────────────────────────────────────────────────────
@@ -62,25 +63,27 @@ def generate_launch_description():
     # 800×800 bird's-eye-view image.  smolvla_node on PC1 subscribes to the
     # output topic /camera/base/bev/image_raw over DDS.
     bev_stitcher = Node(
-        package='omnibot_lerobot',
-        executable='bev_stitcher_node.py',
-        name='bev_stitcher_node',
-        output='screen',
+        package="omnibot_lerobot",
+        executable="bev_stitcher_node.py",
+        name="bev_stitcher_node",
+        output="screen",
         parameters=[bev_params],
     )
 
     # ── RViz ─────────────────────────────────────────────────────────────────
     rviz = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        condition=IfCondition(LaunchConfiguration('rviz')),
-        arguments=['-d', rviz_config],
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("rviz")),
+        arguments=["-d", rviz_config],
     )
 
-    return LaunchDescription([
-        declare_rviz,
-        bev_stitcher,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            declare_rviz,
+            bev_stitcher,
+            rviz,
+        ]
+    )

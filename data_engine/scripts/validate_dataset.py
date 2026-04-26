@@ -23,11 +23,25 @@ from pathlib import Path
 import click
 import pyarrow.parquet as pq
 
-REQUIRED_META      = {"codebase_version", "fps", "total_episodes", "total_frames", "features"}
-REQUIRED_PARQUET   = {"observation.state", "action", "timestamp", "frame_index",
-                      "episode_index", "index", "task_index", "next.done"}
-REQUIRED_CAM_KEYS  = {"observation.images.front", "observation.images.wrist"}
-CHUNKS_SIZE        = 1000
+REQUIRED_META = {
+    "codebase_version",
+    "fps",
+    "total_episodes",
+    "total_frames",
+    "features",
+}
+REQUIRED_PARQUET = {
+    "observation.state",
+    "action",
+    "timestamp",
+    "frame_index",
+    "episode_index",
+    "index",
+    "task_index",
+    "next.done",
+}
+REQUIRED_CAM_KEYS = {"observation.images.front", "observation.images.wrist"}
+CHUNKS_SIZE = 1000
 
 
 def _chunk(ep_idx: int) -> str:
@@ -56,15 +70,21 @@ def validate(dataset_root: Path, verbose: bool) -> bool:
     for field in REQUIRED_META:
         if field not in info:
             fail(f"meta/info.json missing field: {field}")
-    info_msg(f"meta/info.json — {info.get('total_episodes')} episodes, "
-             f"{info.get('total_frames')} frames")
+    info_msg(
+        f"meta/info.json — {info.get('total_episodes')} episodes, "
+        f"{info.get('total_frames')} frames"
+    )
 
     # ── meta/tasks.jsonl ──────────────────────────────────────────────────────
     tasks_path = dataset_root / "meta" / "tasks.jsonl"
     if not tasks_path.exists():
         fail("meta/tasks.jsonl not found")
     else:
-        tasks = [json.loads(l) for l in tasks_path.read_text().splitlines() if l.strip()]
+        tasks = [
+            json.loads(line)
+            for line in tasks_path.read_text().splitlines()
+            if line.strip()
+        ]
         info_msg(f"meta/tasks.jsonl — {len(tasks)} task(s)")
 
     # ── meta/episodes.jsonl ───────────────────────────────────────────────────
@@ -73,10 +93,16 @@ def validate(dataset_root: Path, verbose: bool) -> bool:
         fail("meta/episodes.jsonl not found")
         return False
 
-    episodes = [json.loads(l) for l in episodes_path.read_text().splitlines() if l.strip()]
+    episodes = [
+        json.loads(line)
+        for line in episodes_path.read_text().splitlines()
+        if line.strip()
+    ]
     declared = info.get("total_episodes", 0)
     if len(episodes) != declared:
-        fail(f"episodes.jsonl has {len(episodes)} entries but info.json says {declared}")
+        fail(
+            f"episodes.jsonl has {len(episodes)} entries but info.json says {declared}"
+        )
     info_msg(f"meta/episodes.jsonl — {len(episodes)} entries match info.json")
 
     # ── meta/stats.json ───────────────────────────────────────────────────────
@@ -88,10 +114,10 @@ def validate(dataset_root: Path, verbose: bool) -> bool:
     # ── Per-episode checks ────────────────────────────────────────────────────
     total_frames_seen = 0
     for ep in episodes:
-        ep_idx  = ep["episode_index"]
-        ep_len  = ep["length"]
-        chunk   = _chunk(ep_idx)
-        ep_str  = f"episode_{ep_idx:06d}"
+        ep_idx = ep["episode_index"]
+        ep_len = ep["length"]
+        chunk = _chunk(ep_idx)
+        ep_str = f"episode_{ep_idx:06d}"
 
         # Parquet
         pq_path = dataset_root / "data" / chunk / f"{ep_str}.parquet"
@@ -121,8 +147,10 @@ def validate(dataset_root: Path, verbose: bool) -> bool:
 
     # ── Frame count consistency ───────────────────────────────────────────────
     if total_frames_seen != info.get("total_frames", -1):
-        fail(f"Frame count mismatch: counted {total_frames_seen}, "
-             f"info.json says {info.get('total_frames')}")
+        fail(
+            f"Frame count mismatch: counted {total_frames_seen}, "
+            f"info.json says {info.get('total_frames')}"
+        )
     else:
         info_msg(f"Total frame count consistent: {total_frames_seen}")
 
@@ -130,10 +158,18 @@ def validate(dataset_root: Path, verbose: bool) -> bool:
 
 
 @click.command()
-@click.option("--dataset", required=True, type=click.Path(exists=True),
-              help="LeRobot dataset root directory")
-@click.option("--verbose", is_flag=True, default=False,
-              help="Print OK lines in addition to failures")
+@click.option(
+    "--dataset",
+    required=True,
+    type=click.Path(exists=True),
+    help="LeRobot dataset root directory",
+)
+@click.option(
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Print OK lines in addition to failures",
+)
 def main(dataset: str, verbose: bool) -> None:
     root = Path(dataset)
     click.echo(f"Validating LeRobot dataset: {root}\n")

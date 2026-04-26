@@ -11,10 +11,9 @@ Tests cover:
 
 All tests use the mock_serial fixture from conftest.py — no hardware needed.
 """
+
 import math
 import struct
-import threading
-import time
 
 import pytest
 import rclpy
@@ -35,6 +34,7 @@ def ros_context():
 def node(mock_serial):
     """Spin a YahboomControllerNode with mocked serial."""
     from omnibot_driver.scripts import yahboom_controller_node as mod
+
     n = mod.YahboomControllerNode()
     # Override the timer so tests can drive callbacks manually
     n.update_timer.cancel()
@@ -44,16 +44,19 @@ def node(mock_serial):
 
 # ── Checksum ─────────────────────────────────────────────────────────────────
 
+
 class TestChecksum:
     def test_checksum_known_vector(self):
         # Manually compute: (0xFF + 0xFC + 4 + 0x12 + 1 + 0 + 0 + 0 + 5) & 0xFF
         packet = [0xFF, 0xFC, 4, 0x12, 1, 0, 0, 0]
         from omnibot_driver.scripts.yahboom_controller_node import YahboomControllerNode
+
         cs = YahboomControllerNode.calculate_checksum(None, packet)
         assert 0 <= cs <= 255
 
     def test_checksum_consistent(self):
         from omnibot_driver.scripts.yahboom_controller_node import YahboomControllerNode
+
         data = [0x01, 0x02, 0x03]
         cs1 = YahboomControllerNode.calculate_checksum(None, data)
         cs2 = YahboomControllerNode.calculate_checksum(None, data)
@@ -61,12 +64,14 @@ class TestChecksum:
 
     def test_checksum_differs_on_different_data(self):
         from omnibot_driver.scripts.yahboom_controller_node import YahboomControllerNode
+
         cs1 = YahboomControllerNode.calculate_checksum(None, [0x01])
         cs2 = YahboomControllerNode.calculate_checksum(None, [0x02])
         assert cs1 != cs2
 
 
 # ── TX packet structure ───────────────────────────────────────────────────────
+
 
 class TestTxPacket:
     def test_packet_starts_with_header(self, node, mock_serial):
@@ -89,6 +94,7 @@ class TestTxPacket:
 
 
 # ── RX odometry parsing ───────────────────────────────────────────────────────
+
 
 class TestOdometryParsing:
     def test_velocity_packet_updates_state(self, node, mock_serial):
@@ -136,6 +142,7 @@ class TestOdometryParsing:
 
 # ── IMU packet parsing ────────────────────────────────────────────────────────
 
+
 class TestImuParsing:
     def test_accel_packet_0x61(self, node, mock_serial):
         # ax=1000 mg → 9.81 m/s², ay=0, az=0
@@ -172,6 +179,7 @@ class TestImuParsing:
 
 # ── Ramp limiting ─────────────────────────────────────────────────────────────
 
+
 class TestRampLimiting:
     def test_velocity_clamped_to_max(self, node, mock_serial):
         msg = Twist()
@@ -197,6 +205,7 @@ class TestRampLimiting:
 
 
 # ── Emergency stop ────────────────────────────────────────────────────────────
+
 
 class TestEmergencyStop:
     def test_estop_zeroes_velocity(self, node, mock_serial):

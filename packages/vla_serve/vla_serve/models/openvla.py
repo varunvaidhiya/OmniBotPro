@@ -27,39 +27,41 @@ class OpenVLAModel(VLAModel):
     def _detect_device() -> str:
         try:
             import torch
-            return 'cuda' if torch.cuda.is_available() else 'cpu'
+
+            return "cuda" if torch.cuda.is_available() else "cpu"
         except ImportError:
-            return 'cpu'
+            return "cpu"
 
     def load_model(
         self,
-        model_path: str = 'openvla/openvla-7b',
+        model_path: str = "openvla/openvla-7b",
         load_in_4bit: bool = False,
         **kwargs,
     ) -> None:
         import torch
         from transformers import AutoModelForVision2Seq, AutoProcessor
 
-        print(f'Loading OpenVLA from {model_path} on {self._device}...')
+        print(f"Loading OpenVLA from {model_path} on {self._device}...")
         self.processor = AutoProcessor.from_pretrained(
-            model_path, trust_remote_code=True)
+            model_path, trust_remote_code=True
+        )
 
         model_kwargs: Dict[str, Any] = {
-            'trust_remote_code': True,
-            'torch_dtype': (
-                torch.bfloat16 if self._device == 'cuda' else torch.float32),
-            'low_cpu_mem_usage': True,
+            "trust_remote_code": True,
+            "torch_dtype": (
+                torch.bfloat16 if self._device == "cuda" else torch.float32
+            ),
+            "low_cpu_mem_usage": True,
         }
         if load_in_4bit:
-            model_kwargs['load_in_4bit'] = True
+            model_kwargs["load_in_4bit"] = True
 
-        self.model = AutoModelForVision2Seq.from_pretrained(
-            model_path, **model_kwargs)
+        self.model = AutoModelForVision2Seq.from_pretrained(model_path, **model_kwargs)
 
         if not load_in_4bit:
             self.model.to(self._device)
 
-        print('OpenVLA loaded.')
+        print("OpenVLA loaded.")
 
     def predict_action(
         self,
@@ -69,16 +71,16 @@ class OpenVLAModel(VLAModel):
         **kwargs,
     ) -> Union[List[float], Dict[str, Any]]:
         if self.model is None:
-            raise RuntimeError('Model not loaded. Call load_model() first.')
+            raise RuntimeError("Model not loaded. Call load_model() first.")
 
         import torch
 
         if isinstance(image, np.ndarray):
             image = Image.fromarray(image)
 
-        inputs = self.processor(
-            text=instruction, images=image, return_tensors='pt'
-        ).to(self._device)
+        inputs = self.processor(text=instruction, images=image, return_tensors="pt").to(
+            self._device
+        )
 
         with torch.inference_mode():
             generated_ids = self.model.generate(
@@ -87,6 +89,5 @@ class OpenVLAModel(VLAModel):
                 do_sample=False,
             )
 
-        text = self.processor.batch_decode(
-            generated_ids, skip_special_tokens=True)[0]
-        return {'raw_output': text}
+        text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+        return {"raw_output": text}

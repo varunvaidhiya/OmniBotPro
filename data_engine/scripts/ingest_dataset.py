@@ -32,28 +32,42 @@ def _worker(args: tuple) -> None:
 
 
 @click.command()
-@click.option("--input-dir",  required=True, type=click.Path(exists=True),
-              help="Directory containing ROS 2 bag folders")
-@click.option("--output-dir", required=True,
-              help="LeRobot dataset root to write episodes to")
-@click.option("--task",       required=True,
-              help="Natural language task description")
-@click.option("--fps",        default=30, show_default=True,
-              help="Target frame rate")
-@click.option("--workers",    default=1, show_default=True,
-              help="Parallel workers (keep at 1 to avoid meta write conflicts)")
-@click.option("--pattern",    default="*", show_default=True,
-              help="Glob pattern to match bag directories (e.g. 'ep*')")
-def main(input_dir: str, output_dir: str, task: str,
-         fps: int, workers: int, pattern: str) -> None:
+@click.option(
+    "--input-dir",
+    required=True,
+    type=click.Path(exists=True),
+    help="Directory containing ROS 2 bag folders",
+)
+@click.option(
+    "--output-dir", required=True, help="LeRobot dataset root to write episodes to"
+)
+@click.option("--task", required=True, help="Natural language task description")
+@click.option("--fps", default=30, show_default=True, help="Target frame rate")
+@click.option(
+    "--workers",
+    default=1,
+    show_default=True,
+    help="Parallel workers (keep at 1 to avoid meta write conflicts)",
+)
+@click.option(
+    "--pattern",
+    default="*",
+    show_default=True,
+    help="Glob pattern to match bag directories (e.g. 'ep*')",
+)
+def main(
+    input_dir: str, output_dir: str, task: str, fps: int, workers: int, pattern: str
+) -> None:
 
-    input_path  = Path(input_dir)
+    input_path = Path(input_dir)
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     bags = sorted(p for p in input_path.glob(pattern) if p.is_dir())
     if not bags:
-        click.echo(f"[WARN] No bag directories found in {input_dir} matching '{pattern}'")
+        click.echo(
+            f"[WARN] No bag directories found in {input_dir} matching '{pattern}'"
+        )
         return
 
     click.echo(f"Found {len(bags)} bag(s). Writing to {output_dir} ...")

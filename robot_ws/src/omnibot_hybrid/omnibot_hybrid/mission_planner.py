@@ -56,7 +56,7 @@ class MissionPlanner(Node):
     """
 
     def __init__(self):
-        super().__init__('mission_planner')
+        super().__init__("mission_planner")
 
         self._cb_group = ReentrantCallbackGroup()
 
@@ -65,52 +65,62 @@ class MissionPlanner(Node):
         self._load_locations()
 
         # ── State ─────────────────────────────────────────────────────────────
-        self._phase: str = 'idle'          # idle | navigating | vla | done
+        self._phase: str = "idle"  # idle | navigating | vla | done
         self._mission: dict | None = None  # parsed mission dict
 
         # ── Publishers ────────────────────────────────────────────────────────
-        self._mode_pub   = self.create_publisher(String, '/control_mode',   10)
-        self._prompt_pub = self.create_publisher(String, '/vla/prompt',     10)
-        self._status_pub = self.create_publisher(String, '/mission/status', 10)
+        self._mode_pub = self.create_publisher(String, "/control_mode", 10)
+        self._prompt_pub = self.create_publisher(String, "/vla/prompt", 10)
+        self._status_pub = self.create_publisher(String, "/mission/status", 10)
 
         # ── Subscribers ───────────────────────────────────────────────────────
         self.create_subscription(
-            String, '/mission/command', self._on_command, 10,
-            callback_group=self._cb_group)
+            String,
+            "/mission/command",
+            self._on_command,
+            10,
+            callback_group=self._cb_group,
+        )
         self.create_subscription(
-            String, '/mission/cancel', self._on_cancel, 10,
-            callback_group=self._cb_group)
+            String,
+            "/mission/cancel",
+            self._on_cancel,
+            10,
+            callback_group=self._cb_group,
+        )
 
         # ── Nav2 action client ────────────────────────────────────────────────
         self._nav_client = ActionClient(
-            self, NavigateToPose, 'navigate_to_pose',
-            callback_group=self._cb_group)
+            self, NavigateToPose, "navigate_to_pose", callback_group=self._cb_group
+        )
 
         # Publish status at 2 Hz
         self.create_timer(2.0, self._publish_status)
 
         self.get_logger().info(
-            f'MissionPlanner ready. '
-            f'Known locations: {sorted(self._locations.keys())}')
+            f"MissionPlanner ready. Known locations: {sorted(self._locations.keys())}"
+        )
 
     # ── Location loading ──────────────────────────────────────────────────────
 
     def _load_locations(self) -> None:
         try:
-            pkg_dir = get_package_share_directory('omnibot_hybrid')
-            path = os.path.join(pkg_dir, 'config', 'named_locations.yaml')
+            pkg_dir = get_package_share_directory("omnibot_hybrid")
+            path = os.path.join(pkg_dir, "config", "named_locations.yaml")
             if os.path.exists(path):
-                with open(path, 'r') as f:
+                with open(path, "r") as f:
                     data = yaml.safe_load(f)
-                    self._locations = data.get('locations', {})
+                    self._locations = data.get("locations", {})
                 self.get_logger().info(
-                    f'Loaded {len(self._locations)} named locations from {path}')
+                    f"Loaded {len(self._locations)} named locations from {path}"
+                )
             else:
                 self.get_logger().warn(
-                    f'named_locations.yaml not found at {path}. '
-                    'Navigation phases will fail until the file is present.')
+                    f"named_locations.yaml not found at {path}. "
+                    "Navigation phases will fail until the file is present."
+                )
         except Exception as exc:
-            self.get_logger().error(f'Failed to load named locations: {exc}')
+            self.get_logger().error(f"Failed to load named locations: {exc}")
 
     # ── Command parsing ───────────────────────────────────────────────────────
 
@@ -127,28 +137,29 @@ class MissionPlanner(Node):
           "vla:pick up the bottle"
           "go:hallway,vla:wave at the person"   (go/nav/nav2 are aliases)
         """
-        NAV_KEYS = {'navigate', 'nav', 'nav2', 'go'}
+        NAV_KEYS = {"navigate", "nav", "nav2", "go"}
         mission: dict = {}
-        for part in raw.split(','):
+        for part in raw.split(","):
             part = part.strip()
-            if ':' not in part:
+            if ":" not in part:
                 continue
-            key, _, val = part.partition(':')
+            key, _, val = part.partition(":")
             key = key.strip().lower()
             val = val.strip()
             if key in NAV_KEYS:
-                mission['navigate'] = val
-            elif key == 'vla':
-                mission['vla'] = val
+                mission["navigate"] = val
+            elif key == "vla":
+                mission["vla"] = val
         return mission if mission else None
 
     # ── Subscriber callbacks ──────────────────────────────────────────────────
 
     def _on_command(self, msg: String) -> None:
-        if self._phase not in ('idle', 'done'):
+        if self._phase not in ("idle", "done"):
             self.get_logger().warn(
                 f'Mission already running (phase="{self._phase}"). '
-                'Send any message to /mission/cancel first.')
+                "Send any message to /mission/cancel first."
+            )
             return
 
         mission = self._parse_command(msg.data)
@@ -156,19 +167,19 @@ class MissionPlanner(Node):
             self.get_logger().error(
                 f'Could not parse mission: "{msg.data}". '
                 'Expected format: "navigate:<location>,vla:<task>" '
-                'or "navigate:<location>" or "vla:<task>"')
+                'or "navigate:<location>" or "vla:<task>"'
+            )
             return
 
-        self.get_logger().info(f'New mission: {mission}')
+        self.get_logger().info(f"New mission: {mission}")
         self._mission = mission
         self._execute_mission()
 
     def _on_cancel(self, _msg: String) -> None:
-        self.get_logger().info(
-            f'Mission cancelled (was phase="{self._phase}").')
-        self._phase = 'idle'
+        self.get_logger().info(f'Mission cancelled (was phase="{self._phase}").')
+        self._phase = "idle"
         self._mission = None
-        self._set_mode('nav2')   # return control to Nav2 on cancel
+        self._set_mode("nav2")  # return control to Nav2 on cancel
         self._publish_status()
 
     # ── Execution ─────────────────────────────────────────────────────────────
@@ -177,27 +188,29 @@ class MissionPlanner(Node):
         if self._mission is None:
             return
 
-        if 'navigate' in self._mission:
+        if "navigate" in self._mission:
             # Phase 1: navigate to named location
-            location = self._mission['navigate']
+            location = self._mission["navigate"]
             pose = self._resolve_location(location)
             if pose is None:
                 self.get_logger().error(
                     f'Unknown location "{location}". '
-                    f'Known: {sorted(self._locations.keys())}')
-                self._phase = 'idle'
+                    f"Known: {sorted(self._locations.keys())}"
+                )
+                self._phase = "idle"
                 self._publish_status()
                 return
 
-            self._phase = 'navigating'
-            self._set_mode('nav2')
+            self._phase = "navigating"
+            self._set_mode("nav2")
             self._publish_status()
             self.get_logger().info(
                 f'[Phase 1/2] Navigating to "{location}" '
-                f'({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})')
+                f"({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})"
+            )
             self._send_nav2_goal(pose)
 
-        elif 'vla' in self._mission:
+        elif "vla" in self._mission:
             # VLA-only mission — skip navigation
             self._start_vla_phase()
 
@@ -207,13 +220,13 @@ class MissionPlanner(Node):
             return None
 
         pose = PoseStamped()
-        pose.header.frame_id = 'map'
+        pose.header.frame_id = "map"
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = float(loc['x'])
-        pose.pose.position.y = float(loc['y'])
+        pose.pose.position.x = float(loc["x"])
+        pose.pose.position.y = float(loc["y"])
         pose.pose.position.z = 0.0
 
-        yaw = float(loc.get('yaw', 0.0))
+        yaw = float(loc.get("yaw", 0.0))
         pose.pose.orientation.z = math.sin(yaw / 2.0)
         pose.pose.orientation.w = math.cos(yaw / 2.0)
         return pose
@@ -223,10 +236,11 @@ class MissionPlanner(Node):
     def _send_nav2_goal(self, pose: PoseStamped) -> None:
         if not self._nav_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().error(
-                'navigate_to_pose action server not available. '
-                'Is Nav2 running? Aborting mission.')
-            self._phase = 'idle'
-            self._set_mode('nav2')
+                "navigate_to_pose action server not available. "
+                "Is Nav2 running? Aborting mission."
+            )
+            self._phase = "idle"
+            self._set_mode("nav2")
             self._publish_status()
             return
 
@@ -238,30 +252,30 @@ class MissionPlanner(Node):
     def _on_nav2_goal_response(self, future) -> None:
         goal_handle = future.result()
         if not goal_handle.accepted:
-            self.get_logger().error('Nav2 goal was rejected.')
-            self._phase = 'idle'
+            self.get_logger().error("Nav2 goal was rejected.")
+            self._phase = "idle"
             self._publish_status()
             return
-        self.get_logger().info('Nav2 goal accepted — navigating...')
+        self.get_logger().info("Nav2 goal accepted — navigating...")
         goal_handle.get_result_async().add_done_callback(self._on_nav2_result)
 
     def _on_nav2_result(self, future) -> None:
-        self.get_logger().info('Nav2 navigation complete.')
-        if self._mission and 'vla' in self._mission:
+        self.get_logger().info("Nav2 navigation complete.")
+        if self._mission and "vla" in self._mission:
             self._start_vla_phase()
         else:
-            self._phase = 'done'
-            self._set_mode('nav2')
+            self._phase = "done"
+            self._set_mode("nav2")
             self._publish_status()
-            self.get_logger().info('Mission complete (nav2-only).')
+            self.get_logger().info("Mission complete (nav2-only).")
 
     # ── VLA phase ─────────────────────────────────────────────────────────────
 
     def _start_vla_phase(self) -> None:
-        task = self._mission.get('vla', '')
+        task = self._mission.get("vla", "")
         self.get_logger().info(f'[Phase 2/2] Starting VLA task — "{task}"')
-        self._phase = 'vla'
-        self._set_mode('vla')
+        self._phase = "vla"
+        self._set_mode("vla")
         self._publish_status()
 
         prompt = String()
@@ -275,12 +289,12 @@ class MissionPlanner(Node):
         msg = String()
         msg.data = mode
         self._mode_pub.publish(msg)
-        self.get_logger().info(f'[MissionPlanner] Control mode → {mode}')
+        self.get_logger().info(f"[MissionPlanner] Control mode → {mode}")
 
     def _publish_status(self) -> None:
-        mission_str = str(self._mission) if self._mission else 'none'
+        mission_str = str(self._mission) if self._mission else "none"
         msg = String()
-        msg.data = f'phase={self._phase} mission={mission_str}'
+        msg.data = f"phase={self._phase} mission={mission_str}"
         self._status_pub.publish(msg)
 
 
@@ -292,5 +306,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

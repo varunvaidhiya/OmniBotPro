@@ -16,7 +16,7 @@ from typing import Tuple
 
 @dataclass
 class RobotGeometry:
-    wheel_radius: float           # metres
+    wheel_radius: float  # metres
     wheel_separation_width: float  # metres, left–right full track
     wheel_separation_length: float  # metres, front–rear full wheelbase
 
@@ -44,7 +44,7 @@ def inverse_kinematics(
         (fl, fr, bl, br) wheel speeds in rad/s
     """
     L = geom.wheel_separation_length / 2.0
-    W = geom.wheel_separation_width  / 2.0
+    W = geom.wheel_separation_width / 2.0
     k = L + W
     r = geom.wheel_radius
 
@@ -71,12 +71,12 @@ def forward_kinematics(
     """
     fl, fr, bl, br = wheels
     L = geom.wheel_separation_length / 2.0
-    W = geom.wheel_separation_width  / 2.0
+    W = geom.wheel_separation_width / 2.0
     k = L + W
     r = geom.wheel_radius
 
-    vx    = r * (fl + fr + bl + br) / 4.0
-    vy    = r * (-fl + fr + bl - br) / 4.0
+    vx = r * (fl + fr + bl + br) / 4.0
+    vy = r * (-fl + fr + bl - br) / 4.0
     omega = r * (-fl + fr - bl + br) / (4.0 * k)
     return vx, vy, omega
 
@@ -97,8 +97,8 @@ def integrate_pose(
     """
     cos_th = math.cos(theta)
     sin_th = math.sin(theta)
-    x     += (vx * cos_th - vy * sin_th) * dt
-    y     += (vx * sin_th + vy * cos_th) * dt
+    x += (vx * cos_th - vy * sin_th) * dt
+    y += (vx * sin_th + vy * cos_th) * dt
     theta += omega * dt
-    theta  = math.atan2(math.sin(theta), math.cos(theta))
+    theta = math.atan2(math.sin(theta), math.cos(theta))
     return x, y, theta
