@@ -97,8 +97,12 @@ install(FILES package.xml
 )
 
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(test_yahboom_protocol
+    test/test_yahboom_protocol.py
+    TIMEOUT 120
+    APPEND_ENV PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}/..
+  )
 endif()
 
 ament_package()

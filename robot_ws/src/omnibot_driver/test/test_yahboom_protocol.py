@@ -20,7 +20,7 @@ import rclpy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 
-from .conftest import build_velocity_packet, build_rx_packet
+from conftest import build_velocity_packet, build_rx_packet
 
 
 @pytest.fixture(scope="module", autouse=True)
