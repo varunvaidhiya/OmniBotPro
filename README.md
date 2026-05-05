@@ -3,6 +3,11 @@
 > **A $500 mobile manipulation robot** that learns pick-and-place tasks from ~50 human demonstrations.
 > Mecanum base + SO-101 arm + 6-camera array controlled by a single learned policy. Fully open-source.
 
+<p align="center">
+  <img src="assets/PXL_20260505_121303728.jpg" width="49%" />
+  <img src="assets/PXL_20260505_121328008.jpg" width="49%" />
+</p>
+
 ![OmniBot demo 1](assets/Omnibot_demo1.gif)
 ![OmniBot demo 2](assets/Omnibot_demo2.gif)
 
