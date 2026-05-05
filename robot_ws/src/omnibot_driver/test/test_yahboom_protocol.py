@@ -14,6 +14,7 @@ All tests use the mock_serial fixture from conftest.py — no hardware needed.
 
 import math
 import struct
+import time
 
 import pytest
 import rclpy
@@ -38,6 +39,9 @@ def node(mock_serial):
     n = mod.YahboomControllerNode()
     # Override the timer so tests can drive callbacks manually
     n.update_timer.cancel()
+    # connect_serial() sleeps ~0.55 s; reset so read_yahboom_odometry
+    # doesn't hit the dt > 0.5 early-return guard.
+    n.last_odom_time = time.time()
     yield n
     n.destroy_node()
 
@@ -84,8 +88,8 @@ class TestTxPacket:
         payload = struct.pack("<H", 200)
         node.send_packet(0x02, payload)
         written = bytearray(mock_serial.write.call_args[0][0])
-        # LEN = total_bytes - 1
-        assert written[2] == len(written) - 1
+        # LEN = 3 + N (DEVICE_ID + LEN + FUNC + payload), not counting HEAD or CS
+        assert written[2] == len(written) - 2
 
     def test_motion_packet_type_0x12(self, node, mock_serial):
         node.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
@@ -190,8 +194,8 @@ class TestRampLimiting:
         written = bytearray(mock_serial.write.call_args[0][0])
         # Payload starts at byte 4: CAR_TYPE(1b) + vx(2b) + vy(2b) + w(2b)
         vx_int = struct.unpack_from("<h", written, 5)[0]
-        # After one ramp step from 0, vx should be 50 (0.05 m/s = 50 mm/s)
-        assert vx_int == 50
+        # After one ramp step from 0, vx should be 25 (RAMP_STEP=0.025 m/s = 25 mm/s)
+        assert vx_int == 25
 
     def test_negative_velocity_ramps(self, node, mock_serial):
         msg = Twist()
@@ -201,7 +205,7 @@ class TestRampLimiting:
 
         written = bytearray(mock_serial.write.call_args[0][0])
         vx_int = struct.unpack_from("<h", written, 5)[0]
-        assert vx_int == -50
+        assert vx_int == -25
 
 
 # ── Emergency stop ────────────────────────────────────────────────────────────
