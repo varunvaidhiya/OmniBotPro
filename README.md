@@ -8,8 +8,10 @@
   <img src="assets/PXL_20260505_121328008.jpg" width="49%" />
 </p>
 
-![OmniBot demo 1](assets/Omnibot_demo1.gif)
-![OmniBot demo 2](assets/Omnibot_demo2.gif)
+<p align="center">
+  <img src="assets/Omnibot_demo1.gif" width="49%" />
+  <img src="assets/Omnibot_demo2.gif" width="49%" />
+</p>
 
 <p align="center">
   <a href="../../wiki/Bill-of-Materials"><img src="https://img.shields.io/badge/BOM-Wiki-blue"/></a>
