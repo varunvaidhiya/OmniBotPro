@@ -10,3 +10,8 @@ numpy>=1.24.0,<2.0.0
 pyserial>=3.5
 Pillow>=10.0.0
 einops>=0.7.0
+
+# TensorRT acceleration (optional — install separately from NVIDIA)
+# tensorrt>=8.6.0        # pip install tensorrt  (requires CUDA 11.8+)
+# onnx>=1.14.0           # pip install onnx
+# onnxruntime-gpu>=1.16  # pip install onnxruntime-gpu  (ONNX sanity check)

@@ -33,6 +33,13 @@ try:
 except ImportError:
     LEROBOT_AVAILABLE = False
 
+try:
+    from vla_engine.trt import patch_policy_vision_encoder
+
+    TRT_PATCH_AVAILABLE = True
+except ImportError:
+    TRT_PATCH_AVAILABLE = False
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -178,6 +185,14 @@ def parse_args():
     parser.add_argument(
         "--fps", type=float, default=10.0, help="Target inference frequency in Hz."
     )
+    parser.add_argument(
+        "--trt-engine",
+        type=str,
+        default=None,
+        help="Path to a pre-built TRT vision encoder engine (.trt). "
+             "When set, replaces the PyTorch vision encoder for faster inference. "
+             "Build with: python -m vla_engine.trt.build_engine --help",
+    )
     return parser.parse_args()
 
 
@@ -214,6 +229,21 @@ def main():
             policy = policy.to(device)
             policy.eval()
             print("Policy loaded.")
+
+            if args.trt_engine:
+                if not TRT_PATCH_AVAILABLE:
+                    print(
+                        "[WARNING] --trt-engine specified but vla_engine.trt is not importable. "
+                        "Install tensorrt and add vla_engine to PYTHONPATH. "
+                        "Running with PyTorch encoder."
+                    )
+                else:
+                    try:
+                        patch_policy_vision_encoder(policy, args.trt_engine)
+                        print(f"[TRT] Vision encoder replaced with TRT engine: {args.trt_engine}")
+                    except Exception as exc:
+                        print(f"[WARNING] TRT patch failed: {exc}. Running with PyTorch encoder.")
+
         except Exception as exc:
             print(f"[WARNING] Failed to load policy: {exc}. Using DummyPolicy.")
             policy = DummyPolicy()
