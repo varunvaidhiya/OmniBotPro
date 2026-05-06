@@ -10,6 +10,15 @@ smolvla_node:
     image_height: 240
     task_description: "pick up the object and place it in the bin"
     base_vel_scale: 0.3
+    # TensorRT acceleration (Phase 1 — vision encoder only)
+    # Set use_trt: true and point trt_engine_path at the pre-built engine.
+    # Build the engine once with:
+    #   python -m vla_engine.trt.build_engine \
+    #       --checkpoint lerobot/smolvla_base \
+    #       --output /path/to/engines/smolvla_vision_fp16.trt \
+    #       --precision fp16
+    use_trt: false
+    trt_engine_path: ""
 
 teleop_recorder_node:
   ros__parameters:

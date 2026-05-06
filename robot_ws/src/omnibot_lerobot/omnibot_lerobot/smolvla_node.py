@@ -66,6 +66,13 @@ try:
 except ImportError:
     LEROBOT_AVAILABLE = False
 
+try:
+    from vla_engine.trt import patch_policy_vision_encoder
+
+    TRT_PATCH_AVAILABLE = True
+except ImportError:
+    TRT_PATCH_AVAILABLE = False
+
 
 JOINT_NAMES = [
     "shoulder_pan",
@@ -119,6 +126,8 @@ class SmolVLANode(Node):
         self.declare_parameter("base_vel_scale", 0.3)
         # Set True to publish rolling inference timing to /diagnostics at 1 Hz.
         self.declare_parameter("publish_diagnostics", False)
+        self.declare_parameter("use_trt", False)
+        self.declare_parameter("trt_engine_path", "")
 
         self.checkpoint_path = self.get_parameter("checkpoint_path").value
         self.device_str = self.get_parameter("device").value
@@ -131,6 +140,8 @@ class SmolVLANode(Node):
         self.task_description = self.get_parameter("task_description").value
         self.base_vel_scale = self.get_parameter("base_vel_scale").value
         self._diag_enabled = self.get_parameter("publish_diagnostics").value
+        self.use_trt = self.get_parameter("use_trt").value
+        self.trt_engine_path = self.get_parameter("trt_engine_path").value
 
         # Rolling timing accumulators (active only when _diag_enabled=True)
         self._t_preprocess = collections.deque(maxlen=100)
@@ -221,9 +232,10 @@ class SmolVLANode(Node):
             self._diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
             self.create_timer(1.0, self._publish_diagnostics)
 
+        trt_status = f"TRT({self.trt_engine_path})" if self.use_trt else "PyTorch"
         self.get_logger().info(
             f"SmolVLANode started | policy={'SmolVLA' if LEROBOT_AVAILABLE else 'Dummy'} "
-            f"| device={self.device} | hz={self.policy_hz} | enabled={self.enabled}"
+            f"| encoder={trt_status} | device={self.device} | hz={self.policy_hz} | enabled={self.enabled}"
         )
 
     # ------------------------------------------------------------------
@@ -245,12 +257,46 @@ class SmolVLANode(Node):
             policy = policy.to(self.device)
             policy.eval()
             self.get_logger().info("SmolVLAPolicy loaded successfully.")
+
+            if self.use_trt:
+                self._apply_trt_patch(policy)
+
             return policy
         except Exception as exc:
             self.get_logger().error(
                 f"Failed to load SmolVLAPolicy: {exc}. Using DummyPolicy."
             )
             return DummyPolicy(self.action_dim)
+
+    def _apply_trt_patch(self, policy) -> None:
+        """Swap the vision encoder for a TRT-backed module."""
+        if not TRT_PATCH_AVAILABLE:
+            self.get_logger().error(
+                "use_trt=True but vla_engine.trt is not importable. "
+                "Install tensorrt and ensure vla_engine is on PYTHONPATH. "
+                "Falling back to PyTorch encoder."
+            )
+            return
+
+        if not self.trt_engine_path:
+            self.get_logger().error(
+                "use_trt=True but trt_engine_path is empty. "
+                "Build an engine with: python -m vla_engine.trt.build_engine "
+                "--checkpoint <ckpt> --output <engine.trt> "
+                "Then set the trt_engine_path parameter. "
+                "Falling back to PyTorch encoder."
+            )
+            return
+
+        try:
+            patch_policy_vision_encoder(policy, self.trt_engine_path)
+            self.get_logger().info(
+                f"TRT vision encoder patch applied from: {self.trt_engine_path}"
+            )
+        except Exception as exc:
+            self.get_logger().error(
+                f"TRT patch failed: {exc}. Falling back to PyTorch encoder."
+            )
 
     # ------------------------------------------------------------------
     # Image conversion helpers
