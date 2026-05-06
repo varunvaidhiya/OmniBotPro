@@ -38,6 +38,7 @@ def mux_node():
 def _pub_mode(node, mode: str, *, wait: float = 0.1):
     """Publish a control_mode message and wait for the callback."""
     pub = node.create_publisher(String, "/control_mode", 10)
+    time.sleep(0.1)  # Allow DDS to match publisher against the node's subscription
     msg = String()
     msg.data = mode
     pub.publish(msg)
@@ -94,10 +95,11 @@ class TestForwarding:
         _pub_mode(mux_node, "nav2")
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
-
         pub = mux_node.create_publisher(Twist, "/cmd_vel", 10)
+        time.sleep(0.2)  # Allow DDS to match new pub and sub against the mux node
+
         pub.publish(_make_twist(0.5))
-        time.sleep(0.15)
+        time.sleep(0.3)
 
         sub.destroy()
         pub.destroy()
@@ -108,10 +110,11 @@ class TestForwarding:
         _pub_mode(mux_node, "nav2")
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
-
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
+        time.sleep(0.2)  # Allow DDS discovery
+
         pub.publish(_make_twist(0.7))
-        time.sleep(0.15)
+        time.sleep(0.3)
 
         sub.destroy()
         pub.destroy()
@@ -121,10 +124,11 @@ class TestForwarding:
         _pub_mode(mux_node, "vla")
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
-
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
+        time.sleep(0.2)  # Allow DDS discovery
+
         pub.publish(_make_twist(0.3))
-        time.sleep(0.15)
+        time.sleep(0.3)
 
         sub.destroy()
         pub.destroy()
@@ -135,10 +139,11 @@ class TestForwarding:
         _pub_mode(mux_node, "teleop")
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
-
         pub = mux_node.create_publisher(Twist, "/cmd_vel/teleop", 10)
+        time.sleep(0.2)  # Allow DDS discovery
+
         pub.publish(_make_twist(0.1))
-        time.sleep(0.15)
+        time.sleep(0.3)
 
         sub.destroy()
         pub.destroy()
