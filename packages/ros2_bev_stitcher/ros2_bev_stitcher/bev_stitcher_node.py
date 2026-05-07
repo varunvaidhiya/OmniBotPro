@@ -31,7 +31,10 @@ calibration_file (string, default '~/bev_calibration.npz')
 output_frame_id (string, default 'bev_frame')  TF frame for output header.
 """
 
+import collections
 import os
+import statistics as _statistics
+import time
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -116,6 +119,9 @@ class BevStitcherNode(Node):
             "calibration_file", os.path.expanduser("~/bev_calibration.npz")
         )
         self.declare_parameter("output_frame_id", "bev_frame")
+        # Set True to publish rolling stitch timing to /diagnostics at 1 Hz.
+        # Zero overhead when False.
+        self.declare_parameter("publish_diagnostics", False)
 
         self._names = list(self.get_parameter("camera_names").value)
         self._topic_pattern = self.get_parameter("input_topic_pattern").value
@@ -128,6 +134,11 @@ class BevStitcherNode(Node):
         self._hz = self.get_parameter("publish_hz").value
         self._cal_file = self.get_parameter("calibration_file").value
         self._frame_id = self.get_parameter("output_frame_id").value
+        self._diag_enabled = self.get_parameter("publish_diagnostics").value
+
+        # Rolling timing accumulators (active only when _diag_enabled=True)
+        self._t_stitch_total: collections.deque = collections.deque(maxlen=100)
+        self._t_per_cam: dict[str, collections.deque] = {}
 
         if not _CV_BRIDGE:
             self.get_logger().error("cv_bridge not available — cannot run.")
@@ -156,8 +167,20 @@ class BevStitcherNode(Node):
         # ── Publisher ────────────────────────────────────────────────────────
         self._pub = self.create_publisher(Image, self._out_topic, 10)
 
+        # ── Per-camera timing deques (one per camera name) ───────────────────
+        for name in self._names:
+            self._t_per_cam[name] = collections.deque(maxlen=100)
+
         # ── Timer ────────────────────────────────────────────────────────────
         self.create_timer(1.0 / self._hz, self._timer_cb)
+
+        if self._diag_enabled:
+            from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+            self._DiagnosticArray = DiagnosticArray
+            self._DiagnosticStatus = DiagnosticStatus
+            self._KeyValue = KeyValue
+            self._diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
+            self.create_timer(1.0, self._publish_diagnostics)
 
         self.get_logger().info(
             f"BevStitcherNode ready | cameras={self._names} "
@@ -204,6 +227,7 @@ class BevStitcherNode(Node):
             )
 
     def _timer_cb(self) -> None:
+        _t0 = time.perf_counter() if self._diag_enabled else None
         canvas = np.zeros((self._canvas, self._canvas, 3), dtype=np.float32)
         w_sum = np.zeros((self._canvas, self._canvas, 1), dtype=np.float32)
         any_img = False
@@ -214,6 +238,8 @@ class BevStitcherNode(Node):
                 continue
             any_img = True
 
+            _tc = time.perf_counter() if self._diag_enabled else None
+
             if img.shape[1] != self._src_w or img.shape[0] != self._src_h:
                 img = cv2.resize(img, (self._src_w, self._src_h))
 
@@ -222,6 +248,9 @@ class BevStitcherNode(Node):
                 self._homographies[name],
                 (self._canvas, self._canvas),
             )
+
+            if self._diag_enabled and _tc is not None:
+                self._t_per_cam[name].append((time.perf_counter() - _tc) * 1000.0)
 
             w = self._blend_weights[name][:, :, np.newaxis]
             canvas += warped * w
@@ -240,6 +269,9 @@ class BevStitcherNode(Node):
         if self._out_w != self._canvas or self._out_h != self._canvas:
             out = cv2.resize(out, (self._out_w, self._out_h))
 
+        if self._diag_enabled and _t0 is not None:
+            self._t_stitch_total.append((time.perf_counter() - _t0) * 1000.0)
+
         try:
             msg = self._bridge.cv2_to_imgmsg(out, encoding="rgb8")
             msg.header = Header()
@@ -248,6 +280,48 @@ class BevStitcherNode(Node):
             self._pub.publish(msg)
         except Exception as exc:
             self.get_logger().error(f"Publish error: {exc}", throttle_duration_sec=5.0)
+
+
+    # ── Diagnostics helper ───────────────────────────────────────────────────
+
+    def _publish_diagnostics(self) -> None:
+        msg = self._DiagnosticArray()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        statuses = []
+
+        def _make(name, deque_):
+            st = self._DiagnosticStatus()
+            st.name = name
+            if not deque_:
+                st.level = self._DiagnosticStatus.OK
+                st.message = "no data"
+                return st
+            s = sorted(deque_)
+            n = len(s)
+            p95 = s[max(0, int(0.95 * n) - 1)]
+            st.level = (
+                self._DiagnosticStatus.ERROR if p95 > 50.0
+                else self._DiagnosticStatus.WARN if p95 > 33.0
+                else self._DiagnosticStatus.OK
+            )
+            st.message = f"p95={p95:.2f}ms"
+            for k, v in [
+                ("mean_ms", _statistics.mean(s)),
+                ("p50_ms", s[n // 2]),
+                ("p95_ms", p95),
+                ("max_ms", s[-1]),
+            ]:
+                kv = self._KeyValue()
+                kv.key = k
+                kv.value = f"{v:.3f}"
+                st.values.append(kv)
+            return st
+
+        statuses.append(_make("bev_stitcher/total_stitch_ms", self._t_stitch_total))
+        for name in self._names:
+            statuses.append(_make(f"bev_stitcher/warp_{name}_ms", self._t_per_cam[name]))
+        msg.status = statuses
+        self._diag_pub.publish(msg)
 
 
 # ---------------------------------------------------------------------------
