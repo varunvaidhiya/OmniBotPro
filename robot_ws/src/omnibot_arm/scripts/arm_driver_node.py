@@ -14,7 +14,10 @@ Topics subscribed:
   /arm/enable         (std_msgs/Bool)          - enable/disable torque
 """
 
+import collections
 import math
+import statistics as _statistics
+import time
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
@@ -61,6 +64,8 @@ class ArmDriverNode(Node):
         self.declare_parameter("home_ticks", [2048, 2048, 2048, 2048, 2048, 2048])
         self.declare_parameter("joint_min", [-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
         self.declare_parameter("joint_max", [3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
+        # Set True to publish rolling cycle-time stats to /diagnostics at 1 Hz.
+        self.declare_parameter("publish_diagnostics", False)
 
         self.follower_port = self.get_parameter("follower_port").value
         self.leader_port = self.get_parameter("leader_port").value
@@ -75,8 +80,13 @@ class ArmDriverNode(Node):
         self.joint_max = list(self.get_parameter("joint_max").value)
 
         self.num_joints = len(self.joint_names)
-        # scale: ticks per radian
         self.ticks_per_rad = self.ticks_per_rev / (2.0 * math.pi)
+        self._diag_enabled = self.get_parameter("publish_diagnostics").value
+
+        # Rolling timing accumulators (active only when _diag_enabled=True)
+        self._t_read_follower = collections.deque(maxlen=100)
+        self._t_publish = collections.deque(maxlen=100)
+        self._t_read_leader = collections.deque(maxlen=100)
 
         # ------------------------------------------------------------------
         # State
@@ -123,6 +133,14 @@ class ArmDriverNode(Node):
         # ------------------------------------------------------------------
         timer_period = 1.0 / self.publish_rate
         self.create_timer(timer_period, self.publish_states)
+
+        if self._diag_enabled:
+            from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+            self._DiagnosticArray = DiagnosticArray
+            self._DiagnosticStatus = DiagnosticStatus
+            self._KeyValue = KeyValue
+            self._diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
+            self.create_timer(1.0, self._publish_diagnostics)
 
         self.get_logger().info(
             f"ArmDriverNode started | hardware={'real' if LEROBOT_AVAILABLE and self.follower_bus else 'sim'} "
@@ -202,16 +220,29 @@ class ArmDriverNode(Node):
         now = self.get_clock().now().to_msg()
 
         # --- follower arm ---
+        _t0 = time.perf_counter() if self._diag_enabled else None
         positions = self._read_follower_positions()
+        _t1 = time.perf_counter() if self._diag_enabled else None
+
         js = JointState()
         js.header.stamp = now
         js.name = self.joint_names
         js.position = positions
         self.joint_state_pub.publish(js)
 
+        _t2 = time.perf_counter() if self._diag_enabled else None
+
+        if self._diag_enabled and _t0 is not None:
+            self._t_read_follower.append((_t1 - _t0) * 1000.0)
+            self._t_publish.append((_t2 - _t1) * 1000.0)
+
         # --- leader arm (teleop only) ---
         if self.teleop_mode and hasattr(self, "leader_state_pub"):
+            _tl0 = time.perf_counter() if self._diag_enabled else None
             leader_pos = self._read_leader_positions()
+            if self._diag_enabled and _tl0 is not None:
+                self._t_read_leader.append((time.perf_counter() - _tl0) * 1000.0)
+
             ljs = JointState()
             ljs.header.stamp = now
             ljs.name = self.joint_names
@@ -247,6 +278,45 @@ class ArmDriverNode(Node):
     # ------------------------------------------------------------------
     # Subscribers
     # ------------------------------------------------------------------
+
+    def _publish_diagnostics(self) -> None:
+        msg = self._DiagnosticArray()
+        msg.header.stamp = self.get_clock().now().to_msg()
+
+        def _make(name, deque_, warn_ms, err_ms):
+            st = self._DiagnosticStatus()
+            st.name = name
+            if not deque_:
+                st.level = self._DiagnosticStatus.OK
+                st.message = "no data"
+                return st
+            s = sorted(deque_)
+            n = len(s)
+            p95 = s[max(0, int(0.95 * n) - 1)]
+            st.level = (
+                self._DiagnosticStatus.ERROR if p95 > err_ms
+                else self._DiagnosticStatus.WARN if p95 > warn_ms
+                else self._DiagnosticStatus.OK
+            )
+            st.message = f"p95={p95:.2f}ms"
+            for k, v in [
+                ("mean_ms", _statistics.mean(s)),
+                ("p50_ms", s[n // 2]),
+                ("p95_ms", p95),
+                ("max_ms", s[-1]),
+            ]:
+                kv = self._KeyValue()
+                kv.key = k
+                kv.value = f"{v:.3f}"
+                st.values.append(kv)
+            return st
+
+        msg.status = [
+            _make("arm_driver/follower_read_ms", self._t_read_follower, 5.0, 20.0),
+            _make("arm_driver/publish_ms", self._t_publish, 1.0, 5.0),
+            _make("arm_driver/leader_read_ms", self._t_read_leader, 5.0, 20.0),
+        ]
+        self._diag_pub.publish(msg)
 
     def joint_command_cb(self, msg: JointState):
         """Receive commanded joint positions and write to follower arm."""

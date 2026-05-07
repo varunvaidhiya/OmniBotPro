@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import collections
 import os
 import rclpy
 from rclpy.node import Node
@@ -32,6 +33,9 @@ class YahboomControllerNode(Node):
         # Set to true to log every unknown RX packet type — use this to
         # discover actual IMU packet codes sent by the Yahboom board.
         self.declare_parameter("debug_serial", False)
+        # Set True to publish rolling cycle-time stats to /diagnostics at 1 Hz.
+        # Zero overhead when False — the guard is checked before every perf_counter call.
+        self.declare_parameter("publish_diagnostics", False)
 
         # Get parameters
         self.wheel_radius = self.get_parameter("wheel_radius").value
@@ -42,6 +46,13 @@ class YahboomControllerNode(Node):
         self.port_name = self.get_parameter("serial_port").value
         self.baud_rate = self.get_parameter("baud_rate").value
         self.debug_serial = self.get_parameter("debug_serial").value
+        self._diag_enabled = self.get_parameter("publish_diagnostics").value
+
+        # Rolling timing accumulators (active only when _diag_enabled=True)
+        self._t_cycle = collections.deque(maxlen=100)
+        self._t_read = collections.deque(maxlen=100)
+        self._t_pub = collections.deque(maxlen=100)
+        self._t_send = collections.deque(maxlen=100)
 
         # Robot state
         self.x_pos = 0.0
@@ -97,6 +108,16 @@ class YahboomControllerNode(Node):
         # Serial Setup
         self.serial_port = None
         self.connect_serial()
+
+        if self._diag_enabled:
+            from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+            self._DiagnosticArray = DiagnosticArray
+            self._DiagnosticStatus = DiagnosticStatus
+            self._KeyValue = KeyValue
+            self._diag_pub = self.create_publisher(
+                DiagnosticArray, "/diagnostics", 10
+            )
+            self.create_timer(1.0, self._publish_diagnostics)
 
         self.get_logger().info("Yahboom controller node initialized")
 
@@ -241,6 +262,7 @@ class YahboomControllerNode(Node):
             self.log_to_file(traceback.format_exc())
 
     def update_callback(self):
+        _t0 = time.perf_counter() if self._diag_enabled else None
         try:
             if self.serial_port is None:
                 self.connect_serial()
@@ -248,14 +270,24 @@ class YahboomControllerNode(Node):
 
             # 1. Read Odom
             self.read_yahboom_odometry()
+            _t1 = time.perf_counter() if self._diag_enabled else None
 
             # 2. Publish Odom + IMU
             now = self.get_clock().now()
             self.publish_odometry(now)
             self.publish_imu(now)
+            _t2 = time.perf_counter() if self._diag_enabled else None
 
             # 3. Send Motor Command (Throttled to 10Hz)
             self.send_motion_command()
+            _t3 = time.perf_counter() if self._diag_enabled else None
+
+            if self._diag_enabled and _t0 is not None:
+                ms = lambda a, b: (b - a) * 1000.0
+                self._t_cycle.append(ms(_t0, _t3))
+                self._t_read.append(ms(_t0, _t1))
+                self._t_pub.append(ms(_t1, _t2))
+                self._t_send.append(ms(_t2, _t3))
 
         except Exception as e:
             self.get_logger().error(f"Update Error: {e}")
@@ -432,6 +464,54 @@ class YahboomControllerNode(Node):
             self.imu_pub.publish(msg)
         except Exception as e:
             self.get_logger().error(f"IMU Pub Error: {e}")
+
+
+    def _rolling_stats(self, deque_: collections.deque) -> dict:
+        if not deque_:
+            return {}
+        s = sorted(deque_)
+        n = len(s)
+        import statistics as _st
+        return {
+            "mean": _st.mean(s),
+            "p50": s[n // 2],
+            "p95": s[max(0, int(0.95 * n) - 1)],
+            "max": s[-1],
+        }
+
+    def _publish_diagnostics(self) -> None:
+        msg = self._DiagnosticArray()
+        msg.header.stamp = self.get_clock().now().to_msg()
+
+        def _make_status(name, deque_):
+            st = self._DiagnosticStatus()
+            st.name = name
+            stats = self._rolling_stats(deque_)
+            if not stats:
+                st.level = self._DiagnosticStatus.OK
+                st.message = "no data yet"
+                return st
+            p95 = stats["p95"]
+            st.level = (
+                self._DiagnosticStatus.ERROR if p95 > 50.0
+                else self._DiagnosticStatus.WARN if p95 > 20.0
+                else self._DiagnosticStatus.OK
+            )
+            st.message = f"p95={p95:.2f}ms"
+            for k, v in stats.items():
+                kv = self._KeyValue()
+                kv.key = k
+                kv.value = f"{v:.3f}ms"
+                st.values.append(kv)
+            return st
+
+        msg.status = [
+            _make_status("yahboom/cycle_total_ms", self._t_cycle),
+            _make_status("yahboom/read_odom_ms", self._t_read),
+            _make_status("yahboom/publish_ms", self._t_pub),
+            _make_status("yahboom/send_motion_ms", self._t_send),
+        ]
+        self._diag_pub.publish(msg)
 
 
 def main(args=None):
