@@ -24,6 +24,9 @@ Topics published:
   /cmd_vel             (geometry_msgs/Twist)
 """
 
+import collections
+import statistics as _statistics
+import time
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -114,6 +117,8 @@ class SmolVLANode(Node):
         self.declare_parameter("image_height", 240)
         self.declare_parameter("task_description", "pick up the object and place it")
         self.declare_parameter("base_vel_scale", 0.3)
+        # Set True to publish rolling inference timing to /diagnostics at 1 Hz.
+        self.declare_parameter("publish_diagnostics", False)
 
         self.checkpoint_path = self.get_parameter("checkpoint_path").value
         self.device_str = self.get_parameter("device").value
@@ -125,6 +130,12 @@ class SmolVLANode(Node):
         self.image_height = self.get_parameter("image_height").value
         self.task_description = self.get_parameter("task_description").value
         self.base_vel_scale = self.get_parameter("base_vel_scale").value
+        self._diag_enabled = self.get_parameter("publish_diagnostics").value
+
+        # Rolling timing accumulators (active only when _diag_enabled=True)
+        self._t_preprocess = collections.deque(maxlen=100)
+        self._t_inference = collections.deque(maxlen=100)
+        self._t_total = collections.deque(maxlen=100)
 
         # ------------------------------------------------------------------
         # State
@@ -201,6 +212,14 @@ class SmolVLANode(Node):
         # ------------------------------------------------------------------
         timer_period = 1.0 / self.policy_hz
         self.create_timer(timer_period, self.inference_loop)
+
+        if self._diag_enabled:
+            from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+            self._DiagnosticArray = DiagnosticArray
+            self._DiagnosticStatus = DiagnosticStatus
+            self._KeyValue = KeyValue
+            self._diag_pub = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
+            self.create_timer(1.0, self._publish_diagnostics)
 
         self.get_logger().info(
             f"SmolVLANode started | policy={'SmolVLA' if LEROBOT_AVAILABLE else 'Dummy'} "
@@ -330,6 +349,7 @@ class SmolVLANode(Node):
             )
             return
 
+        _t0 = time.perf_counter() if self._diag_enabled else None
         try:
             # Build observation tensors
             wrist_t = self._numpy_to_tensor(self.wrist_image)
@@ -352,9 +372,19 @@ class SmolVLANode(Node):
             if hasattr(self.policy, "set_task") or hasattr(self.policy, "task"):
                 obs["task"] = self.task_description
 
+            _t1 = time.perf_counter() if self._diag_enabled else None
+
             # Run inference
             with torch.no_grad() if TORCH_AVAILABLE else _null_context():
                 action = self.policy.select_action(obs)
+
+            _t2 = time.perf_counter() if self._diag_enabled else None
+
+            if self._diag_enabled and _t0 is not None:
+                ms = lambda a, b: (b - a) * 1000.0
+                self._t_preprocess.append(ms(_t0, _t1))
+                self._t_inference.append(ms(_t1, _t2))
+                self._t_total.append(ms(_t0, _t2))
 
             # Convert to numpy
             if TORCH_AVAILABLE and hasattr(action, "cpu"):
@@ -372,6 +402,47 @@ class SmolVLANode(Node):
             self.get_logger().error(
                 f"Inference error: {exc}", throttle_duration_sec=5.0
             )
+
+    def _publish_diagnostics(self) -> None:
+        msg = self._DiagnosticArray()
+        msg.header.stamp = self.get_clock().now().to_msg()
+
+        def _make(name, deque_):
+            st = self._DiagnosticStatus()
+            st.name = name
+            if not deque_:
+                st.level = self._DiagnosticStatus.OK
+                st.message = "no data"
+                return st
+            s = sorted(deque_)
+            n = len(s)
+            p95 = s[max(0, int(0.95 * n) - 1)]
+            hz_target = self.policy_hz
+            budget_ms = 1000.0 / hz_target
+            st.level = (
+                self._DiagnosticStatus.ERROR if p95 > budget_ms
+                else self._DiagnosticStatus.WARN if p95 > budget_ms * 0.8
+                else self._DiagnosticStatus.OK
+            )
+            st.message = f"p95={p95:.1f}ms (budget={budget_ms:.0f}ms)"
+            for k, v in [
+                ("mean_ms", _statistics.mean(s)),
+                ("p50_ms", s[n // 2]),
+                ("p95_ms", p95),
+                ("max_ms", s[-1]),
+            ]:
+                kv = self._KeyValue()
+                kv.key = k
+                kv.value = f"{v:.3f}"
+                st.values.append(kv)
+            return st
+
+        msg.status = [
+            _make("smolvla/total_inference_ms", self._t_total),
+            _make("smolvla/preprocess_ms", self._t_preprocess),
+            _make("smolvla/policy_select_action_ms", self._t_inference),
+        ]
+        self._diag_pub.publish(msg)
 
     def _publish_arm_command(self, arm_action: np.ndarray):
         """Publish 6D arm action as JointState."""

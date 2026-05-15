@@ -1,0 +1,190 @@
+name: Performance Benchmarks
+
+on:
+  schedule:
+    # Weekly: Sunday 03:00 UTC — avoids contention with weekday CI
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      machine:
+        description: 'Machine type: ci | pi5 | gpu'
+        required: false
+        default: 'ci'
+      update_baseline:
+        description: 'Update baseline after run (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Pure-Python benchmarks — no hardware, no ROS, no GPU
+  # Runs on standard GitHub-hosted runners
+  # ---------------------------------------------------------------------------
+  bench_ci:
+    name: Benchmarks (pure-Python, x86-64)
+    runs-on: ubuntu-24.04
+    env:
+      OMNIBOT_MACHINE: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -e packages/yahboom_ros2 \
+                      -e packages/mecanum_drive_ros2 \
+                      numpy opencv-python pytest
+
+      - name: Run serial protocol benchmarks
+        run: |
+          pytest benchmarks/serial/bench_yahboom_protocol.py \
+                 -v --tb=short -m "not hardware and not ros and not gpu" \
+                 --timeout=120
+
+      - name: Run kinematics benchmarks
+        run: |
+          pytest benchmarks/kinematics/bench_mecanum_kinematics.py \
+                 -v --tb=short -m "not hardware and not ros and not gpu" \
+                 --timeout=120
+
+      - name: Run BEV stitcher benchmarks (CPU)
+        run: |
+          pytest benchmarks/vision/bench_bev_stitcher.py \
+                 -v --tb=short \
+                 -m "not hardware and not ros and not gpu" \
+                 -k "not gpu_warp" \
+                 --timeout=120
+
+      - name: Run SmolVLA preprocess benchmarks (CPU, no GPU transfer)
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu -q
+          pytest benchmarks/vision/bench_smolvla_preprocess.py \
+                 -v --tb=short \
+                 -m "not hardware and not ros and not gpu" \
+                 -k "not gpu_transfer" \
+                 --timeout=120
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-${{ github.sha }}
+          path: benchmarks/results/
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # Regression check against stored baseline
+  # ---------------------------------------------------------------------------
+  bench_regression_check:
+    name: SLO Regression Check
+    runs-on: ubuntu-24.04
+    needs: bench_ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Download benchmark results
+        uses: actions/download-artifact@v4
+        with:
+          name: bench-results-${{ github.sha }}
+          path: benchmarks/results/
+
+      - name: Install packages
+        run: |
+          pip install -e packages/yahboom_ros2 \
+                      -e packages/mecanum_drive_ros2 -q
+
+      - name: Compare against baseline
+        run: |
+          python benchmarks/compare_baseline.py \
+            --results benchmarks/results/ \
+            --baseline benchmarks/baselines/baseline_ci.json \
+            --threshold 0.20
+        # Exits 1 if any metric:
+        #   - exceeds SLO max (hard failure)
+        #   - regresses >20% vs baseline p95
+
+      - name: Update baseline (manual trigger only)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_baseline == 'true'
+        run: |
+          python benchmarks/compare_baseline.py \
+            --results benchmarks/results/ \
+            --baseline benchmarks/baselines/baseline_ci.json \
+            --update-baseline
+          echo "Baseline updated."
+
+      - name: Commit updated baseline
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.update_baseline == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update performance baseline [skip ci]"
+          file_pattern: benchmarks/baselines/baseline_ci.json
+
+  # ---------------------------------------------------------------------------
+  # Pi 5 benchmarks — self-hosted runner required
+  # Only triggered manually or on weekly schedule
+  # ---------------------------------------------------------------------------
+  bench_pi5:
+    name: Benchmarks (Raspberry Pi 5)
+    runs-on: [self-hosted, pi5]
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    env:
+      OMNIBOT_MACHINE: pi5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip3 install -e packages/yahboom_ros2 \
+                       -e packages/mecanum_drive_ros2 \
+                       numpy opencv-python pytest \
+                       --break-system-packages
+
+      - name: Run Pi 5 benchmarks
+        run: bash benchmarks/run_benchmarks.sh pi5
+
+      - name: Upload Pi 5 results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-pi5-${{ github.sha }}
+          path: benchmarks/results/
+          retention-days: 30
+
+  # ---------------------------------------------------------------------------
+  # GPU benchmarks — self-hosted runner required
+  # Only triggered manually or on weekly schedule
+  # ---------------------------------------------------------------------------
+  bench_gpu:
+    name: Benchmarks (GPU Desktop)
+    runs-on: [self-hosted, gpu, cuda]
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    env:
+      OMNIBOT_MACHINE: gpu
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          pip install -e packages/yahboom_ros2 \
+                      -e packages/mecanum_drive_ros2 \
+                      -e packages/vla_serve \
+                      numpy opencv-python torch pytest --quiet
+
+      - name: Run GPU benchmarks
+        run: bash benchmarks/run_benchmarks.sh gpu
+
+      - name: Upload GPU results
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-results-gpu-${{ github.sha }}
+          path: benchmarks/results/
+          retention-days: 30

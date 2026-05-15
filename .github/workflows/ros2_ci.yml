@@ -103,6 +103,20 @@ jobs:
           files: ./coverage-packages.xml,./coverage-extra.xml
           fail_ci_if_error: false
 
+      - name: Benchmark smoke test (pure-Python, <30s)
+        run: |
+          # Fast sanity pass — catches import errors and obvious regressions.
+          # Full benchmarks run on the weekly schedule in benchmarks.yml.
+          pip3 install -e packages/yahboom_ros2 \
+                       -e packages/mecanum_drive_ros2 --break-system-packages
+          python3 -m pytest \
+            benchmarks/serial/bench_yahboom_protocol.py \
+            benchmarks/kinematics/bench_mecanum_kinematics.py \
+            -v --tb=short \
+            -m "not hardware and not ros and not gpu" \
+            -k "not sleep_overhead and not numpy_batch and not atan2" \
+            --timeout=30
+
   vla_serve_test:
     name: vla_serve Tests
     runs-on: ubuntu-24.04
