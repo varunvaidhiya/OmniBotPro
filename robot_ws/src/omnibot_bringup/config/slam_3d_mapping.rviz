@@ -1,0 +1,219 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /RobotModel1
+        - /SLAM Map1
+        - /RTAB-Map Cloud1
+        - /OctoMap Voxels1
+      Splitter Ratio: 0.5
+    Tree Height: 700
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Views
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+    Name: Views
+
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Name: Grid
+      Normal Cell Count: 0
+      Plane: XY
+      Plane Cell Count: 20
+      Reference Frame: map
+
+    - Class: rviz_default_plugins/RobotModel
+      Enabled: true
+      Name: RobotModel
+      Robot Description: robot_description
+      Visual Enabled: true
+      Collision Enabled: false
+
+    - Class: rviz_default_plugins/TF
+      Enabled: true
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: true
+      Marker Scale: 0.5
+      Frame Timeout: 15
+
+    # ── Virtual LiDAR scan ────────────────────────────────────────────────────
+    - Alpha: 1
+      Class: rviz_default_plugins/LaserScan
+      Color: 255; 80; 80
+      Color Transformer: FlatColor
+      Decay Time: 0
+      Enabled: true
+      Name: LaserScan
+      Size (Pixels): 3
+      Size (m): 0.03
+      Style: Spheres
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /scan
+      Unreliable: true
+      Value: true
+
+    # ── slam_toolbox 2-D map ──────────────────────────────────────────────────
+    - Alpha: 0.7
+      Class: nav2_rviz_plugins/MapDisplay
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: SLAM Map
+      Topic:
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map
+      Unreliable: false
+      Value: true
+
+    # ── OctoMap projected 2-D slice (octomap_server → /projected_map) ─────────
+    - Alpha: 0.45
+      Class: nav2_rviz_plugins/MapDisplay
+      Color Scheme: costmap
+      Draw Behind: false
+      Enabled: true
+      Name: OctoMap Projected 2D
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /projected_map
+      Unreliable: false
+      Value: true
+
+    # ── RTAB-Map 3-D accumulated point cloud ──────────────────────────────────
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: 0
+        Value: true
+      Axis: Z
+      Class: rviz_default_plugins/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: AxisColor
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Name: RTAB-Map Cloud
+      Position Transformer: XYZ
+      Selectable: true
+      Size (Pixels): 2
+      Size (m): 0.02
+      Style: Points
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /rtabmap/cloud_map
+      Unreliable: true
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: true
+
+    # ── OctoMap voxels (3-D MarkerArray from octomap_server) ─────────────────
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: OctoMap Voxels
+      Namespaces:
+        {}
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /occupied_cells_vis_array
+      Value: true
+
+    # ── Odometry trail ────────────────────────────────────────────────────────
+    - Alpha: 1
+      Class: rviz_default_plugins/Odometry
+      Covariance:
+        Orientation:
+          Value: false
+        Position:
+          Value: false
+        Value: false
+      Enabled: true
+      Keep: 100
+      Name: Odometry
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Best Effort
+        Value: /odom
+      Value: true
+
+    # ── Nav2 global path (shown when navigation is active) ────────────────────
+    - Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 0; 220; 0
+      Enabled: false
+      Line Style: Lines
+      Line Width: 0.03
+      Name: Global Path
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /plan
+      Value: false
+
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: map
+    Frame Rate: 10
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 6.0
+      Enable Stereo Rendering:
+        Value: false
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.5
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.01
+      Pitch: 0.8
+      Target Frame: map
+      Value: Orbit (rviz)
+      Yaw: 0.8
+    Saved: ~
+
+Window Geometry:
+  Width: 1600
+  Height: 900

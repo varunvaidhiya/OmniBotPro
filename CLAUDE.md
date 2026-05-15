@@ -148,7 +148,26 @@ Writes `deployment.env` which all launch scripts source automatically.
 ## Launch Commands
 
 ```bash
-# Basic robot: driver + state publisher
+# ── Perception (all cameras + BEV + depth→scan) ────────────────────────────
+# Run on Pi — starts 5 USB cams, Astra Pro, BEV stitcher, Foxglove bridge
+ros2 launch omnibot_bringup perception.launch.py
+# With local RViz (Pi has a display)
+ros2 launch omnibot_bringup perception.launch.py rviz:=true
+# View camera feeds + BEV + point cloud on workstation (ROS_DOMAIN_ID=30 must match)
+ros2 launch omnibot_bringup perception_viewer.launch.py
+
+# ── SLAM + 3-D mapping (run after perception.launch.py) ───────────────────
+# 2-D slam_toolbox + RTAB-Map 3-D + OctoMap — run on Pi
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py
+# Headless Pi — view SLAM + 3-D map on workstation
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py rviz:=false
+ros2 launch omnibot_bringup slam_3d_viewer.launch.py    # workstation
+# 2-D SLAM only (no RTAB-Map / OctoMap)
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py slam3d:=false
+# Localization against a saved map
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py slam_mode:=localization map_file:=/path/to/omnibot_map
+
+# ── Basic robot: driver + state publisher
 ros2 launch omnibot_bringup robot.launch.py
 
 # Robot + Xbox controller (also available as ./launch_teleop.sh which sources network.env)
