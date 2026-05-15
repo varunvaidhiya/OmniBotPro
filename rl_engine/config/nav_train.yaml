@@ -1,0 +1,54 @@
+---
+# Navigation Policy Training Hyperparameters (PPO via RSL-RL)
+# ─────────────────────────────────────────────────────────────
+# Used by rl_engine/scripts/train_nav.py
+
+training:
+  # Total environment steps
+  max_iterations: 2000
+  num_envs: 512               # parallel environments (requires ≥16 GB VRAM)
+
+  # Logging
+  log_dir: "~/logs/omnibot_nav"
+  save_interval: 100          # save checkpoint every N iterations
+
+  # Curriculum
+  curriculum_enabled: true
+  curriculum_stages:
+    # Stage 0: 0 obstacles — learn to reach goals cleanly
+    - max_obstacles: 0
+      duration_iterations: 200
+    # Stage 1: 1-2 obstacles
+    - max_obstacles: 2
+      duration_iterations: 400
+    # Stage 2: 3-5 obstacles
+    - max_obstacles: 5
+      duration_iterations: 1400
+
+# PPO hyperparameters (RSL-RL defaults tuned for this observation/action size)
+ppo:
+  value_loss_coef: 1.0
+  use_clipped_value_loss: true
+  clip_param: 0.2
+  entropy_coef: 0.01
+  num_learning_epochs: 5
+  num_mini_batches: 4
+  learning_rate: 1.0e-3
+  schedule: "adaptive"        # adaptive learning rate
+  gamma: 0.99
+  lam: 0.95
+  desired_kl: 0.01
+  max_grad_norm: 1.0
+
+# Actor-critic network
+network:
+  actor_hidden_dims: [256, 128, 64]
+  critic_hidden_dims: [256, 128, 64]
+  activation: "elu"
+  init_noise_std: 1.0
+
+# Environment parameters (override omnibot_nav_env defaults)
+env:
+  episode_length_steps: 500   # 25 s at 20 Hz
+  obs_dim: 27
+  action_dim: 3

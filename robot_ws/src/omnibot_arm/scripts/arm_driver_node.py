@@ -10,8 +10,10 @@ Topics published:
   /arm/leader_states (sensor_msgs/JointState)  - leader arm positions (teleop_mode only)
 
 Topics subscribed:
-  /arm/joint_commands (sensor_msgs/JointState) - commanded positions for follower
-  /arm/enable         (std_msgs/Bool)          - enable/disable torque
+  /arm/joint_commands/out (sensor_msgs/JointState) - commanded positions for follower
+                          routed via arm_cmd_mux (omnibot_rl) which selects between
+                          SmolVLA (/arm/joint_commands) and RL (/arm/joint_commands/rl)
+  /arm/enable             (std_msgs/Bool)           - enable/disable torque
 """
 
 import collections
@@ -111,9 +113,9 @@ class ArmDriverNode(Node):
         # Subscribers
         # ------------------------------------------------------------------
         self.create_subscription(
-            JointState, "/arm/joint_commands", self.joint_command_cb, 10
-        )
-        self.create_subscription(Bool, "/arm/enable", self.enable_cb, 10)
+            JointState, '/arm/joint_commands/out', self.joint_command_cb, 10)
+        self.create_subscription(
+            Bool, '/arm/enable', self.enable_cb, 10)
 
         # ------------------------------------------------------------------
         # Connect hardware

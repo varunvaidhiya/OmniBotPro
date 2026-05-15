@@ -60,10 +60,16 @@ from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
 
+# RL inference nodes are included when use_rl:=true.
+# arm_driver reads /arm/joint_commands/out (routed via arm_cmd_mux)
+# instead of /arm/joint_commands so the RL arm policy can be interleaved.
+
 
 def generate_launch_description():
+    pkg_hybrid = get_package_share_directory("omnibot_hybrid")
     pkg_navigation = get_package_share_directory("omnibot_navigation")
     pkg_description = get_package_share_directory("omnibot_description")
+    pkg_rl = get_package_share_directory("omnibot_rl")
 
     xacro_file = os.path.join(pkg_description, "urdf", "omnibot.urdf.xacro")
     robot_description = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
@@ -77,6 +83,7 @@ def generate_launch_description():
     use_rosbridge = LaunchConfiguration("use_rosbridge", default="true")
     use_foxglove = LaunchConfiguration("use_foxglove", default="true")
     use_bev = LaunchConfiguration("use_bev", default="true")
+    use_rl = LaunchConfiguration("use_rl", default="false")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
     # Remapped: driver reads /cmd_vel/out (mux output) instead of /cmd_vel.
@@ -98,6 +105,18 @@ def generate_launch_description():
             }
         ],
         remappings=[("/cmd_vel", "/cmd_vel/out")],
+    )
+
+    # ── RL Inference nodes (optional, use_rl:=true) ───────────────────────────
+    # Includes: rl_nav_node, rl_arm_node, arm_cmd_mux, rl_object_pose_node.
+    # arm_driver must read /arm/joint_commands/out (arm_cmd_mux output) when
+    # RL is active. The arm_driver_node.py now subscribes to /arm/joint_commands/out
+    # by default, so arm_cmd_mux is always needed when use_rl:=true.
+    rl_inference = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_rl, 'launch', 'rl_inference.launch.py')),
+        condition=IfCondition(use_rl),
+        launch_arguments={'use_sim_time': use_sim_time}.items(),
     )
 
     # ── Robot state publisher ─────────────────────────────────────────────────
@@ -277,8 +296,14 @@ def generate_launch_description():
                 default_value="true",
                 description="Start BEV stitcher node (required by SmolVLA)",
             ),
+            DeclareLaunchArgument(
+                "use_rl",
+                default_value="false",
+                description="Start Isaac Lab RL inference nodes (rl_nav, rl_arm, arm_cmd_mux)",
+            ),
             # ── Nodes ─────────────────────────────────────────────────────────────
             driver_node,
+            rl_inference,
             robot_state_publisher,
             ekf_node,
             slam_toolbox,

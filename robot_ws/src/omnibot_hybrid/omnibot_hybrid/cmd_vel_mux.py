@@ -11,9 +11,10 @@ Topic routing
     /cmd_vel          ← Nav2 velocity_smoother (native Nav2 output)
     /cmd_vel/vla      ← VLA inference node
     /cmd_vel/teleop   ← keyboard / joystick teleoperation
+    /cmd_vel/rl       ← Isaac Lab RL navigation policy (rl_nav_node)
 
   Mode control:
-    /control_mode     ← std_msgs/String  "nav2" | "vla" | "teleop"
+    /control_mode     ← std_msgs/String  "nav2" | "vla" | "teleop" | "rl_nav"
 
   Output:
     /cmd_vel/out      → robot driver (remapped from /cmd_vel in hybrid launch)
@@ -26,6 +27,7 @@ Usage
   ros2 topic pub /control_mode std_msgs/msg/String "data: 'vla'"
   ros2 topic pub /control_mode std_msgs/msg/String "data: 'nav2'"
   ros2 topic pub /control_mode std_msgs/msg/String "data: 'teleop'"
+  ros2 topic pub /control_mode std_msgs/msg/String "data: 'rl_nav'"
 """
 
 import rclpy
@@ -45,7 +47,7 @@ class CmdVelMux(Node):
         One of "nav2" (default), "vla", "teleop".
     """
 
-    VALID_MODES = ("nav2", "vla", "teleop")
+    VALID_MODES = ("nav2", "vla", "teleop", "rl_nav")
 
     def __init__(self):
         super().__init__("cmd_vel_mux")
@@ -57,6 +59,7 @@ class CmdVelMux(Node):
         self.create_subscription(Twist, "/cmd_vel", self._nav2_cb, 10)
         self.create_subscription(Twist, "/cmd_vel/vla", self._vla_cb, 10)
         self.create_subscription(Twist, "/cmd_vel/teleop", self._teleop_cb, 10)
+        self.create_subscription(Twist, "/cmd_vel/rl", self._rl_nav_cb, 10)
         self.create_subscription(String, "/control_mode", self._mode_cb, 10)
 
         # ── Output ────────────────────────────────────────────────────────────
@@ -101,6 +104,10 @@ class CmdVelMux(Node):
 
     def _teleop_cb(self, msg: Twist) -> None:
         if self._active_mode == "teleop":
+            self._out_pub.publish(msg)
+
+    def _rl_nav_cb(self, msg: Twist) -> None:
+        if self._active_mode == 'rl_nav':
             self._out_pub.publish(msg)
 
     # ── Periodic feedback ─────────────────────────────────────────────────────

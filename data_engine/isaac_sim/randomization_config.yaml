@@ -74,3 +74,39 @@ replicator_warmup_subframes: 4
 
 # Seconds to wait after ros2 bag record starts before running the policy.
 bag_startup_delay_s: 0.5
+
+# ── Physics randomization (Isaac Lab RL training only) ───────────────────────
+# These parameters are NOT used by collect_episodes.py (which uses Replicator).
+# They are referenced by rl_engine/config/domain_randomization.yaml and applied
+# inside Isaac Lab ManagerBasedRLEnv via EventTerms.
+#
+# Update ranges below after system identification on real hardware:
+#   1. Measure wheel slip on tile/carpet/rubber surfaces → update friction range
+#   2. Measure servo response latency with ros2 topic echo → update delay range
+#   3. Measure payload-loaded vs. empty CoM shift → update mass_scale range
+physics_randomization:
+  enabled: false   # set to true only in rl_engine training (not collect_episodes)
+
+  # Mecanum wheel lateral roller friction (per wheel, per episode)
+  wheel_lateral_friction_range: [0.40, 0.90]
+
+  # Per-wheel velocity output scale (surface asymmetry, wear)
+  wheel_velocity_scale_range: [0.85, 1.00]
+
+  # Total robot mass scale (arm payload changes CoM)
+  robot_mass_scale_range: [0.80, 1.20]
+
+  # Action delay in timesteps at 20 Hz (50–150 ms)
+  action_delay_steps_range: [1, 3]
+
+  # Arm joint damping scale (STS3215 backlash and temperature variation)
+  joint_damping_scale_range: [0.50, 2.00]
+
+  # Object mass scale (grasped object)
+  object_mass_scale_range: [0.50, 1.50]
+
+  # Object detector noise added to observed object pose (metres)
+  object_pose_noise_sigma_m: 0.02
+
+  # Action step dropout (models servo bus packet loss, 10%)
+  action_dropout_prob: 0.10

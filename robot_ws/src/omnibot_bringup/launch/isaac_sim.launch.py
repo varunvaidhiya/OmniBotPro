@@ -87,6 +87,11 @@ def generate_launch_description():
     )
 
     # ── 2. Arm driver — simulation passthrough mode (4 s delay) ─────────────
+    # arm_driver_node subscribes to /arm/joint_commands/out (routed by
+    # arm_cmd_mux when omnibot_rl is active, or directly from SmolVLA when not).
+    # When omnibot_rl is NOT launched, /arm/joint_commands/out will not be
+    # published; remap /arm/joint_commands → /arm/joint_commands/out to
+    # allow direct SmolVLA → arm_driver pass-through without arm_cmd_mux.
     arm_driver = TimerAction(
         period=4.0,
         actions=[
@@ -99,6 +104,11 @@ def generate_launch_description():
                 parameters=[arm_params],
                 remappings=[
                     ("/arm/joint_states", "/joint_states"),
+                    # Allow SmolVLA to reach arm_driver directly in Isaac Sim
+                    # testing without launching the full omnibot_rl stack.
+                    # When arm_cmd_mux IS running it publishes /arm/joint_commands/out
+                    # and this remap is overridden by the topic being present.
+                    ("/arm/joint_commands/out", "/arm/joint_commands"),
                 ],
             )
         ],
