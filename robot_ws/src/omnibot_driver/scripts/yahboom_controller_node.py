@@ -49,6 +49,9 @@ class YahboomControllerNode(Node):
         # Set to true to log every unknown RX packet type — use this to
         # discover actual IMU packet codes sent by the Yahboom board.
         self.declare_parameter('debug_serial', False)
+        # Set false when robot_localization EKF is running — the EKF owns
+        # the odom→base_link TF; broadcasting it here too causes conflicts.
+        self.declare_parameter('publish_tf', True)
         
         # Get parameters
         self.wheel_radius = self.get_parameter('wheel_radius').value
@@ -57,6 +60,7 @@ class YahboomControllerNode(Node):
         self.port_name = self.get_parameter('serial_port').value
         self.baud_rate = self.get_parameter('baud_rate').value
         self.debug_serial = self.get_parameter('debug_serial').value
+        self.publish_tf = self.get_parameter('publish_tf').value
         
         # Robot state
         self.x_pos = 0.0
@@ -420,7 +424,8 @@ class YahboomControllerNode(Node):
             ts.transform.rotation.y = q[1]
             ts.transform.rotation.z = q[2]
             ts.transform.rotation.w = q[3]
-            self.tf_broadcaster.sendTransform(ts)
+            if self.publish_tf:
+                self.tf_broadcaster.sendTransform(ts)
 
             odom = Odometry()
             odom.header.stamp = stamp.to_msg()
@@ -436,6 +441,21 @@ class YahboomControllerNode(Node):
             odom.twist.twist.linear.x  = self.current_vx
             odom.twist.twist.linear.y  = self.current_vy
             odom.twist.twist.angular.z = self.current_vz
+
+            # Pose covariance (row-major 6×6: x,y,z,roll,pitch,yaw).
+            # Dead-reckoning from commanded velocity accumulates error over
+            # time; these values are intentionally conservative so the EKF
+            # down-weights the wheel odometry relative to the IMU orientation.
+            odom.pose.covariance[0]  = 0.05   # x
+            odom.pose.covariance[7]  = 0.05   # y
+            odom.pose.covariance[35] = 0.1    # yaw
+
+            # Twist covariance — commanded velocity is accurate at the start
+            # of a move but drifts; moderate uncertainty.
+            odom.twist.covariance[0]  = 0.01  # vx
+            odom.twist.covariance[7]  = 0.01  # vy
+            odom.twist.covariance[35] = 0.05  # vz (angular)
+
             self.odom_pub.publish(odom)
         except Exception as e:
             self.get_logger().error(f'Pub Error: {e}')

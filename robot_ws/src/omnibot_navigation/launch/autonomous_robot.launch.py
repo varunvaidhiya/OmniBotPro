@@ -10,9 +10,12 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
+
+
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory("omnibot_navigation")
+    omnibot_bringup_dir = get_package_share_directory("omnibot_bringup")
     omnibot_driver_dir = get_package_share_directory("omnibot_driver")
     omnibot_description_dir = get_package_share_directory("omnibot_description")
 
@@ -145,16 +148,12 @@ def generate_launch_description():
         condition=IfCondition(use_rviz),
     )
 
-    # Robot localization
-    robot_localization_node = Node(
-        package="robot_localization",
-        executable="ekf_node",
-        name="ekf_filter_node",
-        output="screen",
-        parameters=[
-            os.path.join(bringup_dir, "config", "robot_localization.yaml"),
-            {"use_sim_time": use_sim_time},
-        ],
+    # State estimation — shared launch so EKF config stays in one place
+    robot_localization_node = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(omnibot_bringup_dir, "launch", "state_estimation.launch.py")
+        ),
+        launch_arguments={"use_sim_time": use_sim_time}.items(),
     )
 
     # Create the launch description and populate

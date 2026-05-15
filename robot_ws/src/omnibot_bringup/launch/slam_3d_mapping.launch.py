@@ -123,7 +123,9 @@ def generate_launch_description():
             ("rgb/camera_info", "/camera/color/camera_info"),
             ("depth/image", "/camera/depth/image_raw"),
             ("depth/camera_info", "/camera/depth/camera_info"),
-            ("odom", "/odom"),
+            # Use EKF-fused odometry when available; falls back to raw /odom
+            # if state_estimation.launch.py is not running.
+            ("odom", "/odometry/filtered"),
             ("grid_map", "/rtabmap/grid_map"),
         ],
         arguments=["--delete_db_on_start"],
