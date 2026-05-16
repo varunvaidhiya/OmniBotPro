@@ -53,7 +53,7 @@ from rclpy.node import Node
 
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
-from std_msgs.msg import String
+from std_msgs.msg import Bool, String
 
 # RL nav arrival detection: subscribe to /rl_nav/goal distance feedback
 # via /odom. Mission planner polls for arrival using a simple timer.
@@ -96,6 +96,9 @@ class MissionPlanner(Node):
         self._status_pub = self.create_publisher(String, "/mission/status", 10)
         self._rl_goal_pub = self.create_publisher(PoseStamped, "/rl_nav/goal", 10)
         self._arm_mode_pub = self.create_publisher(String, "/arm/cmd_mode", 10)
+        # SmolVLA-specific: task description and enable/disable
+        self._smolvla_task_pub = self.create_publisher(String, "/smolvla/task", 10)
+        self._smolvla_enable_pub = self.create_publisher(Bool, "/smolvla/enable", 10)
 
         # ── Subscribers ───────────────────────────────────────────────────────
         self.create_subscription(
@@ -391,12 +394,24 @@ class MissionPlanner(Node):
         self.get_logger().info(f'[Phase 2/2] Starting VLA task — "{task}"')
         self._phase = "vla"
         self._set_mode("vla")
+        self._set_arm_mode("smolvla")
         self._publish_status()
 
+        # SmolVLA: set task description then enable inference
+        task_msg = String()
+        task_msg.data = task
+        self._smolvla_task_pub.publish(task_msg)
+
+        enable_msg = Bool()
+        enable_msg.data = True
+        self._smolvla_enable_pub.publish(enable_msg)
+
+        # OpenVLA (legacy): also publish to /vla/prompt for backward compatibility
         prompt = String()
         prompt.data = task
         self._prompt_pub.publish(prompt)
-        self.get_logger().info(f'VLA prompt published: "{task}"')
+
+        self.get_logger().info(f'VLA task started: "{task}"')
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
@@ -404,6 +419,11 @@ class MissionPlanner(Node):
         msg = String()
         msg.data = mode
         self._mode_pub.publish(msg)
+        # Disable SmolVLA inference whenever we leave "vla" mode
+        if mode != "vla":
+            disable = Bool()
+            disable.data = False
+            self._smolvla_enable_pub.publish(disable)
         self.get_logger().info(f"[MissionPlanner] Control mode → {mode}")
 
     def _set_arm_mode(self, mode: str) -> None:
