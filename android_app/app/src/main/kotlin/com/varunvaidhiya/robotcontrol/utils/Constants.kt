@@ -13,13 +13,24 @@ object Constants {
     const val CMD_VEL_PUBLISH_RATE_HZ  = 20
 
     // ── ROS Topics: publish ───────────────────────────────────────────────────
-    const val TOPIC_CMD_VEL            = "/cmd_vel"
+    // Joystick velocity goes to the cmd_vel_mux teleop slot so it is only
+    // forwarded when /control_mode == "teleop". Set the mode explicitly before
+    // driving manually (repository.sendControlMode("teleop")).
+    const val TOPIC_CMD_VEL            = "/cmd_vel/teleop"
     const val TOPIC_EMERGENCY_STOP     = "/emergency_stop"
-    const val TOPIC_ROBOT_MODE         = "/robot_mode"
+    const val TOPIC_ROBOT_MODE         = "/robot_mode"        // monitoring only
+
+    // Control mode for cmd_vel_mux ("nav2" | "vla" | "teleop" | "rl_nav")
+    const val TOPIC_CONTROL_MODE       = "/control_mode"
 
     // Mission / AI orchestration
     const val TOPIC_MISSION_COMMAND    = "/mission/command"   // std_msgs/String
     const val TOPIC_VLA_PROMPT         = "/vla/prompt"        // std_msgs/String
+
+    // LangGraph AI orchestration (requires omnibot_orchestration node running)
+    const val TOPIC_AI_COMMAND         = "/ai/command"        // std_msgs/String
+    const val TOPIC_AI_STATUS          = "/ai/status"         // std_msgs/String
+    const val TOPIC_AI_RESPONSE_NEEDED = "/ai/response_needed" // std_msgs/String
 
     // Dataset recording (handled by a ROS 2 recorder node)
     const val TOPIC_RECORD_START       = "/rosbag_recorder/start"  // std_msgs/String (bag name)

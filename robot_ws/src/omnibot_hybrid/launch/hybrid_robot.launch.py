@@ -56,7 +56,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PythonExpression
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
 
@@ -70,6 +70,8 @@ def generate_launch_description():
     pkg_navigation = get_package_share_directory("omnibot_navigation")
     pkg_description = get_package_share_directory("omnibot_description")
     pkg_rl = get_package_share_directory("omnibot_rl")
+    pkg_lerobot = get_package_share_directory("omnibot_lerobot")
+    pkg_orchestration = get_package_share_directory("omnibot_orchestration")
 
     xacro_file = os.path.join(pkg_description, "urdf", "omnibot.urdf.xacro")
     robot_description = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
@@ -80,10 +82,13 @@ def generate_launch_description():
     use_slam = LaunchConfiguration("use_slam", default="true")
     vla_device = LaunchConfiguration("vla_device", default="cuda")
     vla_4bit = LaunchConfiguration("vla_4bit", default="false")
+    vla_image_topic = LaunchConfiguration("vla_image_topic", default="/camera/front/image_raw")
     use_rosbridge = LaunchConfiguration("use_rosbridge", default="true")
     use_foxglove = LaunchConfiguration("use_foxglove", default="true")
     use_bev = LaunchConfiguration("use_bev", default="true")
     use_rl = LaunchConfiguration("use_rl", default="false")
+    use_smolvla = LaunchConfiguration("use_smolvla", default="false")
+    use_langchain = LaunchConfiguration("use_langchain", default="false")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
     # Remapped: driver reads /cmd_vel/out (mux output) instead of /cmd_vel.
@@ -107,16 +112,57 @@ def generate_launch_description():
         remappings=[("/cmd_vel", "/cmd_vel/out")],
     )
 
+    # ── Arm Command Mux (always required) ────────────────────────────────────
+    # Bridges /arm/joint_commands (SmolVLA / Android) → /arm/joint_commands/out
+    # → arm_driver_node. Also routes /arm/joint_commands/rl from rl_arm_node
+    # when use_rl:=true. Started unconditionally so the arm works in every mode.
+    arm_cmd_mux_node = Node(
+        package="omnibot_rl",
+        executable="arm_cmd_mux",
+        name="arm_cmd_mux",
+        output="screen",
+        parameters=[
+            os.path.join(pkg_rl, "config", "rl_arm_params.yaml"),
+            {"use_sim_time": use_sim_time},
+        ],
+    )
+
     # ── RL Inference nodes (optional, use_rl:=true) ───────────────────────────
-    # Includes: rl_nav_node, rl_arm_node, arm_cmd_mux, rl_object_pose_node.
-    # arm_driver must read /arm/joint_commands/out (arm_cmd_mux output) when
-    # RL is active. The arm_driver_node.py now subscribes to /arm/joint_commands/out
-    # by default, so arm_cmd_mux is always needed when use_rl:=true.
+    # Includes: rl_nav_node, rl_arm_node, rl_object_pose_node.
+    # arm_cmd_mux is already started above, so pass include_arm_mux:=false to
+    # avoid duplicate nodes.
     rl_inference = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_rl, 'launch', 'rl_inference.launch.py')),
         condition=IfCondition(use_rl),
-        launch_arguments={'use_sim_time': use_sim_time}.items(),
+        launch_arguments={
+            'use_sim_time': use_sim_time,
+            'include_arm_mux': 'false',
+        }.items(),
+    )
+
+    # ── SmolVLA mobile manipulation policy (optional, use_smolvla:=true) ──────
+    # Requires BEV stitcher (use_bev:=true) and wrist camera to be running.
+    # arm_cmd_mux above routes its /arm/joint_commands output to the arm driver.
+    smolvla_inference = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_lerobot, "launch", "smolvla_inference.launch.py")
+        ),
+        condition=IfCondition(use_smolvla),
+        launch_arguments={
+            "include_arm_mux": "false",  # arm_cmd_mux already started above
+        }.items(),
+    )
+
+    # ── LangGraph AI orchestration (optional, use_langchain:=true) ───────────
+    # Requires ANTHROPIC_API_KEY env var. Subscribes /ai/command, publishes
+    # to /mission/command (consumed by mission_planner).
+    langchain_agent = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_orchestration, "launch", "langchain_agent.launch.py")
+        ),
+        condition=IfCondition(use_langchain),
+        launch_arguments={"use_sim_time": use_sim_time}.items(),
     )
 
     # ── Robot state publisher ─────────────────────────────────────────────────
@@ -166,6 +212,9 @@ def generate_launch_description():
     )
 
     # ── VLA node (publishes to /cmd_vel/vla) ──────────────────────────────────
+    # Remap /image_raw to the configured camera topic so the node receives
+    # real frames. Without this remap vla_node.py's hardcoded /image_raw
+    # subscription receives nothing.
     vla_node = Node(
         package="omnibot_vla",
         executable="vla_node",
@@ -178,6 +227,9 @@ def generate_launch_description():
                 "load_in_4bit": vla_4bit,
                 "use_sim_time": use_sim_time,
             }
+        ],
+        remappings=[
+            ("/image_raw", vla_image_topic),
         ],
     )
 
@@ -208,14 +260,17 @@ def generate_launch_description():
 
     # ── BEV stitcher (required by SmolVLA) ───────────────────────────────────
     # Publishes /camera/base/bev/image_raw from 4 base-mounted cameras.
-    # Disable only if smolvla_node is not in use.
+    # Enabled when use_bev:=true OR use_smolvla:=true (smolvla always needs it).
+    _bev_enabled = PythonExpression(
+        ["'true' if '", use_bev, "' == 'true' or '", use_smolvla, "' == 'true' else 'false'"]
+    )
     bev_stitcher_node = Node(
         package="omnibot_lerobot",
         executable="bev_stitcher_node",
         name="bev_stitcher_node",
         output="screen",
         parameters=[{"use_sim_time": use_sim_time}],
-        condition=IfCondition(use_bev),
+        condition=IfCondition(_bev_enabled),
     )
 
     # ── ROSBridge WebSocket server ────────────────────────────────────────────
@@ -299,11 +354,32 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "use_rl",
                 default_value="false",
-                description="Start Isaac Lab RL inference nodes (rl_nav, rl_arm, arm_cmd_mux)",
+                description="Start Isaac Lab RL inference nodes (rl_nav, rl_arm)",
+            ),
+            DeclareLaunchArgument(
+                "use_smolvla",
+                default_value="false",
+                description="Start SmolVLA mobile manipulation policy (9-DOF arm+base)",
+            ),
+            DeclareLaunchArgument(
+                "vla_image_topic",
+                default_value="/camera/front/image_raw",
+                description="Camera topic fed into OpenVLA (remapped to /image_raw internally)",
+            ),
+            DeclareLaunchArgument(
+                "use_langchain",
+                default_value="false",
+                description=(
+                    "Start LangGraph AI orchestration node. "
+                    "Requires ANTHROPIC_API_KEY env var."
+                ),
             ),
             # ── Nodes ─────────────────────────────────────────────────────────────
             driver_node,
+            arm_cmd_mux_node,
             rl_inference,
+            smolvla_inference,
+            langchain_agent,
             robot_state_publisher,
             ekf_node,
             slam_toolbox,

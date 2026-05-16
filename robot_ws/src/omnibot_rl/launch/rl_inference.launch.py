@@ -51,6 +51,7 @@ def generate_launch_description():
 
     use_sim_time      = LaunchConfiguration('use_sim_time',      default='false')
     use_object_pose   = LaunchConfiguration('use_object_pose',   default='true')
+    include_arm_mux   = LaunchConfiguration('include_arm_mux',   default='true')
 
     # ── RL Navigation Node ────────────────────────────────────────────────────
     # Subscribes: /odom, /camera/depth/points, /rl_nav/goal, /control_mode/active
@@ -84,6 +85,7 @@ def generate_launch_description():
     # Subscribes: /arm/joint_commands (SmolVLA), /arm/joint_commands/rl, /arm/cmd_mode
     # Publishes:  /arm/joint_commands/out  → arm_driver_node
     # Default mode: "smolvla" — transparent pass-through, no behaviour change.
+    # Skip with include_arm_mux:=false when a parent launch already starts it.
     arm_cmd_mux_node = Node(
         package='omnibot_rl',
         executable='arm_cmd_mux',
@@ -93,6 +95,7 @@ def generate_launch_description():
             arm_params,
             {'use_sim_time': use_sim_time},
         ],
+        condition=IfCondition(include_arm_mux),
     )
 
     # ── Object Pose Node ──────────────────────────────────────────────────────
@@ -118,6 +121,12 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_object_pose', default_value='true',
             description='Launch ArUco-based object pose estimation node'),
+        DeclareLaunchArgument(
+            'include_arm_mux', default_value='true',
+            description=(
+                'Start arm_cmd_mux here. Set false if a parent launch '
+                'already starts it to avoid duplicate nodes.'
+            )),
 
         rl_nav_node,
         rl_arm_node,

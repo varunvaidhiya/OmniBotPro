@@ -40,7 +40,6 @@ Topics
   Subscribed:
     /arm/joint_states      sensor_msgs/JointState
     /rl_arm/target_pose    geometry_msgs/PoseStamped  (base_link frame)
-    /rl_arm/enable         std_msgs/Bool
     /arm/cmd_mode          std_msgs/String
 
   Published:
@@ -54,7 +53,7 @@ import rclpy
 from geometry_msgs.msg import PoseStamped
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Bool, String
+from std_msgs.msg import String
 
 try:
     import onnxruntime as ort
@@ -103,7 +102,6 @@ class RLArmNode(Node):
         n_joints = len(self._joint_names)
 
         # ── State ────────────────────────────────────────────────────────────
-        self._enabled: bool = False
         self._active_mode: str = 'smolvla'
         self._joint_pos: np.ndarray = np.zeros(n_joints)
         self._joint_vel: np.ndarray = np.zeros(n_joints)
@@ -138,7 +136,6 @@ class RLArmNode(Node):
         # ── Subscriptions ────────────────────────────────────────────────────
         self.create_subscription(JointState,  '/arm/joint_states',   self._joint_cb,  10)
         self.create_subscription(PoseStamped, '/rl_arm/target_pose', self._target_cb, 10)
-        self.create_subscription(Bool,        '/rl_arm/enable',      self._enable_cb, 10)
         self.create_subscription(String,      '/arm/cmd_mode',       self._mode_cb,   10)
 
         # ── Publisher ────────────────────────────────────────────────────────
@@ -155,9 +152,6 @@ class RLArmNode(Node):
 
     def _mode_cb(self, msg: String) -> None:
         self._active_mode = msg.data.strip().lower()
-
-    def _enable_cb(self, msg: Bool) -> None:
-        self._enabled = msg.data
 
     def _joint_cb(self, msg: JointState) -> None:
         """Update joint position and estimate velocity numerically."""

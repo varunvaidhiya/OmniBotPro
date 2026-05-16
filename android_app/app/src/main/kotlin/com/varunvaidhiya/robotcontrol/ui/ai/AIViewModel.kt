@@ -33,11 +33,27 @@ class AIViewModel @Inject constructor(
     val messages: StateFlow<List<ChatMessage>> = _messages.asStateFlow()
 
     init {
-        // Listen for mission status updates from the robot
+        // Mission status updates from the robot
         viewModelScope.launch {
             repository.missionStatus.collect { status ->
                 if (status.isNotBlank()) {
                     appendMessage(ChatMessage(status, isUser = false))
+                }
+            }
+        }
+        // AI orchestration status (from langchain_agent_node when running)
+        viewModelScope.launch {
+            repository.aiStatus.collect { status ->
+                if (status.isNotBlank()) {
+                    appendMessage(ChatMessage("[AI] $status", isUser = false))
+                }
+            }
+        }
+        // Clarification requests from the AI agent
+        viewModelScope.launch {
+            repository.aiResponseNeeded.collect { question ->
+                if (question.isNotBlank()) {
+                    appendMessage(ChatMessage("[AI asks] $question", isUser = false))
                 }
             }
         }
@@ -48,21 +64,36 @@ class AIViewModel @Inject constructor(
 
         appendMessage(ChatMessage(text, isUser = true))
 
-        // Route to ROS mission planner — supports "navigate:X,vla:Y" or plain prompt
+        // If the text looks like a structured mission command (contains ":"),
+        // send it directly to /mission/command (mission_planner). Otherwise send
+        // to /ai/command so the LangGraph agent can decompose it. When the
+        // langchain_agent_node is not running, /ai/command is a no-op — in that
+        // case also send the raw text to /mission/command as a fallback.
         val lower = text.lowercase(Locale.getDefault())
-        val rosCommand = when {
-            lower.startsWith("navigate") || lower.startsWith("go to") ->
-                "navigate:${text.substringAfter(" ")}"
-            lower.startsWith("vla:") || lower.startsWith("pick") || lower.startsWith("grab") || lower.startsWith("find") ->
-                "vla:$text"
-            else ->
-                text  // raw mission command
+        val isStructured = lower.startsWith("navigate:") || lower.startsWith("vla:") ||
+            lower.startsWith("rl_nav:") || lower.startsWith("rl_arm:") ||
+            lower.startsWith("go:") || lower.startsWith("stop")
+
+        if (isStructured) {
+            repository.sendMissionCommand(text)
+            appendMessage(ChatMessage("Sent to mission planner: \"$text\"", isUser = false))
+        } else {
+            // Send to AI agent for natural language understanding
+            repository.sendAICommand(text)
+            // Fallback: also build a best-effort structured command
+            val fallback = when {
+                lower.startsWith("navigate") || lower.startsWith("go to") ->
+                    "navigate:${text.substringAfter(" ").trim()}"
+                lower.startsWith("pick") || lower.startsWith("grab") ||
+                lower.startsWith("find") || lower.startsWith("fetch") ->
+                    "vla:$text"
+                else -> null
+            }
+            if (fallback != null) {
+                repository.sendMissionCommand(fallback)
+            }
+            appendMessage(ChatMessage("Got it! Sent to AI agent.", isUser = false))
         }
-
-        repository.sendMissionCommand(rosCommand)
-
-        // Immediate acknowledgement
-        appendMessage(ChatMessage("Got it! Executing: \"$rosCommand\"", isUser = false))
     }
 
     fun toggleRecording(enable: Boolean) {

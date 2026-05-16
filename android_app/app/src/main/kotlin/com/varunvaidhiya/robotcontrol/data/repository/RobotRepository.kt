@@ -54,6 +54,13 @@ class RobotRepository @Inject constructor() {
     private val _missionStatus = MutableStateFlow("")
     val missionStatus: StateFlow<String> = _missionStatus.asStateFlow()
 
+    // ── AI orchestration (/ai/status, /ai/response_needed) ────────────────────
+    private val _aiStatus = MutableStateFlow("")
+    val aiStatus: StateFlow<String> = _aiStatus.asStateFlow()
+
+    private val _aiResponseNeeded = MutableStateFlow("")
+    val aiResponseNeeded: StateFlow<String> = _aiResponseNeeded.asStateFlow()
+
     // ── Point cloud (/camera/depth/points) ────────────────────────────────────
     private val _pointCloud = MutableStateFlow<List<PointCloudView.Point3D>>(emptyList())
     val pointCloud: StateFlow<List<PointCloudView.Point3D>> = _pointCloud.asStateFlow()
@@ -118,13 +125,29 @@ class RobotRepository @Inject constructor() {
         rosManager?.publish(Constants.TOPIC_ARM_ENABLE, mapOf("data" to enabled))
 
     fun sendMode(mode: RobotMode) {
+        // Publish to /robot_mode for external monitoring AND to /control_mode
+        // so cmd_vel_mux switches the active velocity source.
         rosManager?.publish(Constants.TOPIC_ROBOT_MODE, mapOf("data" to mode.name))
+        val muxMode = when (mode) {
+            RobotMode.TELEOP     -> "teleop"
+            RobotMode.AUTONOMOUS -> "nav2"
+            RobotMode.MANUAL     -> "teleop"
+        }
+        rosManager?.publish(Constants.TOPIC_CONTROL_MODE, mapOf("data" to muxMode))
         _robotStatus.value = _robotStatus.value.copy(currentMode = mode)
     }
+
+    /** Set the cmd_vel_mux control mode directly ("nav2"|"vla"|"teleop"|"rl_nav"). */
+    fun sendControlMode(mode: String) =
+        rosManager?.publish(Constants.TOPIC_CONTROL_MODE, mapOf("data" to mode))
 
     /** Send a natural-language / mission command to the mission planner. */
     fun sendMissionCommand(command: String) =
         rosManager?.publish(Constants.TOPIC_MISSION_COMMAND, mapOf("data" to command))
+
+    /** Send a natural-language command to the LangGraph AI orchestration node. */
+    fun sendAICommand(command: String) =
+        rosManager?.publish(Constants.TOPIC_AI_COMMAND, mapOf("data" to command))
 
     /** Start rosbag2 recording (name without extension). */
     fun startRecording(bagName: String) {
@@ -143,34 +166,44 @@ class RobotRepository @Inject constructor() {
 
     private fun subscribeToTopics() {
         rosManager?.apply {
-            subscribe(Constants.TOPIC_ODOM,             "nav_msgs/Odometry")
-            subscribe(Constants.TOPIC_MAP,               "nav_msgs/OccupancyGrid")
-            subscribe(Constants.TOPIC_IMU,               "sensor_msgs/Imu")
-            subscribe(Constants.TOPIC_DIAGNOSTICS,       "diagnostic_msgs/DiagnosticArray")
-            subscribe(Constants.TOPIC_ARM_JOINT_STATES,  "sensor_msgs/JointState")
-            subscribe(Constants.TOPIC_MISSION_STATUS,    "std_msgs/String")
-            subscribe(Constants.TOPIC_POINT_CLOUD,       "sensor_msgs/PointCloud2")
-            subscribe(Constants.TOPIC_ROBOT_STATUS,      "robot_msgs/RobotStatus")
-            subscribe(Constants.TOPIC_WHEEL_SPEEDS,      "robot_msgs/WheelSpeed")
-            subscribe(Constants.TOPIC_MOTOR_PWM,         "robot_msgs/MotorData")
+            subscribe(Constants.TOPIC_ODOM,               "nav_msgs/Odometry")
+            subscribe(Constants.TOPIC_MAP,                 "nav_msgs/OccupancyGrid")
+            subscribe(Constants.TOPIC_IMU,                 "sensor_msgs/Imu")
+            subscribe(Constants.TOPIC_DIAGNOSTICS,         "diagnostic_msgs/DiagnosticArray")
+            subscribe(Constants.TOPIC_ARM_JOINT_STATES,    "sensor_msgs/JointState")
+            subscribe(Constants.TOPIC_MISSION_STATUS,      "std_msgs/String")
+            subscribe(Constants.TOPIC_POINT_CLOUD,         "sensor_msgs/PointCloud2")
+            subscribe(Constants.TOPIC_ROBOT_STATUS,        "robot_msgs/RobotStatus")
+            subscribe(Constants.TOPIC_WHEEL_SPEEDS,        "robot_msgs/WheelSpeed")
+            subscribe(Constants.TOPIC_MOTOR_PWM,           "robot_msgs/MotorData")
+            // AI orchestration feedback (no-ops if langchain_agent_node not running)
+            subscribe(Constants.TOPIC_AI_STATUS,           "std_msgs/String")
+            subscribe(Constants.TOPIC_AI_RESPONSE_NEEDED,  "std_msgs/String")
         }
     }
 
     private fun handleMessage(topic: String, message: Map<String, Any>) {
         try {
             when (topic) {
-                Constants.TOPIC_ODOM             -> parseOdom(message)
-                Constants.TOPIC_MAP              -> parseMap(message)
-                Constants.TOPIC_ARM_JOINT_STATES -> parseArmJointStates(message)
-                Constants.TOPIC_MISSION_STATUS   -> parseMissionStatus(message)
-                Constants.TOPIC_POINT_CLOUD      -> parsePointCloud(message)
-                Constants.TOPIC_ROBOT_STATUS     -> parseRobotStatus(message)
-                Constants.TOPIC_WHEEL_SPEEDS     -> parseWheelSpeeds(message)
-                Constants.TOPIC_MOTOR_PWM        -> parseMotorData(message)
+                Constants.TOPIC_ODOM               -> parseOdom(message)
+                Constants.TOPIC_MAP                -> parseMap(message)
+                Constants.TOPIC_ARM_JOINT_STATES   -> parseArmJointStates(message)
+                Constants.TOPIC_MISSION_STATUS     -> parseMissionStatus(message)
+                Constants.TOPIC_POINT_CLOUD        -> parsePointCloud(message)
+                Constants.TOPIC_ROBOT_STATUS       -> parseRobotStatus(message)
+                Constants.TOPIC_WHEEL_SPEEDS       -> parseWheelSpeeds(message)
+                Constants.TOPIC_MOTOR_PWM          -> parseMotorData(message)
+                Constants.TOPIC_AI_STATUS          -> parseStringTopic(message) { _aiStatus.value = it }
+                Constants.TOPIC_AI_RESPONSE_NEEDED -> parseStringTopic(message) { _aiResponseNeeded.value = it }
             }
         } catch (e: Exception) {
             Timber.e(e, "Error parsing message for topic: $topic")
         }
+    }
+
+    private inline fun parseStringTopic(msg: Map<String, Any>, crossinline update: (String) -> Unit) {
+        val data = msg["data"] as? String ?: return
+        update(data)
     }
 
     // ── Parsers ────────────────────────────────────────────────────────────────

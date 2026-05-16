@@ -8,12 +8,19 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 
-# Install launch files
+# Install launch files and config
 install(DIRECTORY
   launch
   config
   maps
   DESTINATION share/${PROJECT_NAME}/
+)
+
+# Install Python scripts so they are discoverable as ROS 2 executables
+install(PROGRAMS
+  scripts/waypoint_navigator.py
+  scripts/test_autonomous.py
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)

@@ -46,7 +46,8 @@ Mecanum-Wheel-Robot/
 │       ├── omnibot_arm/           # SO-101 arm driver (LeRobot)
 │       ├── omnibot_hybrid/        # cmd_vel mux + mission planner
 │       ├── omnibot_lerobot/       # SmolVLA unified 9-DOF policy
-│       ├── omnibot_rl/            # RL inference nodes (nav + arm)
+│       ├── omnibot_rl/            # RL inference nodes (nav + arm) + arm_cmd_mux
+│       ├── omnibot_orchestration/ # LangGraph AI orchestration (Claude-backed)
 │       └── omnibot_firmware/      # Legacy STM32 (not active)
 ├── packages/
 │   ├── yahboom_ros2/              # Pure-Python Yahboom protocol encoder/decoder
@@ -328,12 +329,16 @@ VLA Desktop (GPU PC)
 | `/rl_nav/goal` | PoseStamped | `mission_planner`, manual pub | `rl_nav_node` |
 | `/rl_arm/target_pose` | PoseStamped | `rl_object_pose_node` | `rl_arm_node` |
 | `/rl_arm/target_detected` | Bool | `rl_object_pose_node` | `rl_arm_node` |
-| `/emergency_stop` | Bool | Android | *(not yet subscribed — known gap)* |
-| `/robot_mode` | String | Android | *(monitored externally)* |
+| `/emergency_stop` | Bool | Android | `yahboom_controller_node` |
+| `/robot_mode` | String | Android | *(monitoring only — does not control mux)* |
+| `/control_mode` | String | Android, `mission_planner`, manual pub | `cmd_vel_mux` |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
-| `/camera/image_raw` | Image | USB camera / Gazebo | `vla_node` |
-| `/camera/wrist/image_raw` | Image | wrist camera | `smolvla_node`, `teleop_recorder_node` |
+| `/camera/front/image_raw` | Image | USB camera / Gazebo | `vla_node` (via `/image_raw` remap), `langchain_agent_node` |
+| `/camera/wrist/image_raw` | Image | wrist camera | `smolvla_node`, `teleop_recorder_node`, `rl_object_pose_node`, `langchain_agent_node` |
 | `/camera/base/bev/image_raw` | Image | `bev_stitcher_node` | `smolvla_node`, `teleop_recorder_node` |
+| `/ai/command` | String | Android, manual pub | `langchain_agent_node` |
+| `/ai/status` | String | `langchain_agent_node` | Android |
+| `/ai/response_needed` | String | `langchain_agent_node` | Android |
 
 **Nav2 action server**: `navigate_to_pose` (NavigateToPose) — used by `mission_planner`.
 
@@ -370,10 +375,8 @@ Publishes `/odom` + broadcasts `odom→base_link` TF.
 
 Launch files only — no Python nodes.
 
-**Known parameter mismatch**: `robot.launch.py` passes `wheel_separation_x` /
-`wheel_separation_y` but `yahboom_controller_node.py` declares
-`wheel_separation_length` / `wheel_separation_width`. These must be kept in
-sync when either file is changed.
+Both `robot.launch.py` and `yahboom_controller_node.py` use `wheel_separation_length` /
+`wheel_separation_width` — keep these in sync when either file is changed.
 
 Xbox teleop defaults (`xbox_teleop.yaml`):
 - Enable: button 5 (RB), Turbo: button 7 (RT)
@@ -419,16 +422,14 @@ SO-101 6-DOF arm via LeRobot's `FeetechMotorsBus`.
 | `publish_rate` | `100.0` Hz |
 | `teleop_mode` | `False` |
 | `ticks_per_rev` | `4096` |
-| `joint_names` | `['shoulder_pan','shoulder_lift','elbow_flex','wrist_flex','wrist_roll','gripper']` |
+| `joint_names` | `['arm_shoulder_pan','arm_shoulder_lift','arm_elbow_flex','arm_wrist_flex','arm_wrist_roll','arm_gripper']` |
 | `motor_ids` | `[1,2,3,4,5,6]` |
 | `home_ticks` | `[2048,2048,2048,2048,2048,2048]` |
 | `joint_min` | `[-3.14,-1.57,-1.57,-1.57,-3.14,-0.1]` |
 | `joint_max` | `[3.14,1.57,1.57,1.57,3.14,0.8]` |
 
-> **Joint name mismatch**: `arm_driver_node.py` defaults use short names
-> (`shoulder_pan`, …) but the URDF and Android app use prefixed names
-> (`arm_shoulder_pan`, …). Always set `joint_names` explicitly in
-> `arm_params.yaml` to the prefixed form.
+Joint names include the `arm_` prefix in both `arm_driver_node.py` defaults and
+`smolvla_node.py` — they are kept in sync. Do not change one without the other.
 
 Falls back to passthrough/simulation mode if `lerobot` is not installed.
 
@@ -762,6 +763,45 @@ RX packets start with `0xFB`. Parse by type code at byte index 3.
 
 ---
 
+## `omnibot_orchestration`
+
+LangGraph AI orchestration layer — converts natural language into structured
+robot missions using Claude. Runs on the AI desktop PC alongside the VLA nodes.
+
+**Node**: `langchain_agent_node` (launch: `langchain_agent.launch.py`)
+
+**Declared parameters**:
+
+| Parameter | Default |
+|---|---|
+| `anthropic_api_key` | `''` (reads `ANTHROPIC_API_KEY` env var) |
+| `vla_serve_url` | `'http://localhost:8000'` |
+| `locations_yaml` | `''` (auto-discovers from `omnibot_hybrid` share) |
+| `entity_memory_path` | `'~/.omnibot/entity_memory.json'` |
+| `use_claude_vision` | `True` |
+| `langchain_tracing_v2` | `False` |
+
+**Subscribes**: `/ai/command` (String), `/mission/status` (String),
+`/camera/front/image_raw`, `/camera/wrist/image_raw`
+
+**Publishes**: `/mission/command` → `mission_planner`, `/mission/cancel`,
+`/ai/status` → Android, `/ai/response_needed` → Android
+
+**Launch**:
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...
+# Standalone (alongside hybrid_robot.launch.py)
+ros2 launch omnibot_orchestration langchain_agent.launch.py
+# Or integrated via hybrid_robot:
+ros2 launch omnibot_hybrid hybrid_robot.launch.py use_langchain:=true
+```
+
+**LangGraph tools**: `navigate_to_location`, `navigate_then_execute`,
+`execute_vla_task`, `get_robot_status`, `cancel_current_mission`,
+`list_available_locations`, `describe_current_scene`, `ask_human_for_clarification`
+
+---
+
 ## Gazebo Simulation
 
 - Simulator: Gazebo Harmonic (`ros_gz_sim` + `ros_gz_bridge`)
@@ -784,12 +824,15 @@ MVVM architecture with Hilt DI, OkHttp3 WebSocket, Kotlin coroutines.
 
 | Topic | Type | Notes |
 |---|---|---|
-| `/cmd_vel` | Twist | rate: 20 Hz, clamped ±1.5 m/s / ±2.0 rad/s |
-| `/emergency_stop` | Bool | published but not yet consumed on robot side |
-| `/robot_mode` | String | |
-| `/arm/joint_commands` | JointState | joint names must be `arm_*` prefixed |
+| `/cmd_vel/teleop` | Twist | rate: 20 Hz, clamped ±1.5 m/s / ±2.0 rad/s. Set `/control_mode` to `"teleop"` first. |
+| `/control_mode` | String | set via `sendMode()` or `sendControlMode()` — drives `cmd_vel_mux` |
+| `/emergency_stop` | Bool | zerors velocity immediately; hold Bool=false to clear |
+| `/robot_mode` | String | monitoring only; does not control `cmd_vel_mux` |
+| `/arm/joint_commands` | JointState | joint names must be `arm_*` prefixed; routes via `arm_cmd_mux` |
 | `/arm/enable` | Bool | |
 | `/vla/prompt` | String | |
+| `/mission/command` | String | structured commands (`navigate:X,vla:Y`) |
+| `/ai/command` | String | natural language → LangGraph agent (requires `use_langchain:=true`) |
 
 **Subscribed topics** (robot → Android):
 
@@ -800,6 +843,9 @@ MVVM architecture with Hilt DI, OkHttp3 WebSocket, Kotlin coroutines.
 | `/imu/data` | Imu |
 | `/diagnostics` | DiagnosticArray |
 | `/arm/joint_states` | JointState |
+| `/mission/status` | String |
+| `/ai/status` | String (from `langchain_agent_node` when running) |
+| `/ai/response_needed` | String (clarification requests from AI agent) |
 
 Arm joint names in `Constants.kt`:
 ```kotlin
@@ -876,30 +922,29 @@ where `lx = wheel_separation_length/2`, `ly = wheel_separation_width/2`.
 
 ## Known Issues & Mismatches
 
-These are tracked bugs — do not silently work around them, fix them properly:
+No open issues. All previously tracked mismatches have been resolved.
 
-1. **`robot.launch.py` parameter names** — passes `wheel_separation_x`/`y`
-   but the node declares `wheel_separation_length`/`width`. Must be aligned.
-
-2. **Arm joint name prefix** — `arm_driver_node.py` default `joint_names`
-   omits the `arm_` prefix (`shoulder_pan` vs `arm_shoulder_pan`). The URDF,
-   Android, and `arm_params.yaml` all use the prefixed form. Always override
-   the default via the YAML config.
-
-3. **Emergency stop not wired** — Android publishes `/emergency_stop` (Bool)
-   but no ROS node subscribes. Adding a subscriber to
-   `yahboom_controller_node.py` is the correct fix.
-
-4. **ROSBridge not in launch files** — `rosbridge_server` on port 9090 is
-   required for the Android app but is not started by any launch file. Start
-   it manually or add it to `robot.launch.py`.
-
-5. **BEV stitcher not in default launch** — `smolvla_node` requires
-   `/camera/base/bev/image_raw`, which comes from `bev_stitcher_node`. It is
-   not included in any default launch file.
-
-6. **Hardcoded debug log path** — `yahboom_controller_node.py` writes to
-   `/home/varunvaidhiya/yahboom_debug.log`. Fails silently on other machines.
+**Fixed (no longer open):**
+- *`robot.launch.py` parameter names* — both `robot.launch.py` and
+  `yahboom_controller_node.py` now use `wheel_separation_length`/`width` consistently.
+- *Emergency stop not wired* — `yahboom_controller_node.py` subscribes to
+  `/emergency_stop` (Bool); activating it zeroes velocity immediately and holds
+  until cleared (Bool=false).
+- *Hardcoded debug log path* — changed from `/home/varunvaidhiya/yahboom_debug.log`
+  to `~/.ros/omnibot_debug.log` (works on any machine).
+- *Arm joint name prefix* — `smolvla_node.py` `JOINT_NAMES` and `arm_driver_node.py`
+  default `joint_names` both now use the `arm_` prefix (`arm_shoulder_pan`, …).
+- *arm_cmd_mux missing from default launches* — now started unconditionally in
+  `hybrid_robot.launch.py`, `mobile_manipulation.launch.py`, and
+  `smolvla_inference.launch.py`.
+- *OpenVLA `/image_raw` subscription* — `vla_desktop.launch.py` and
+  `hybrid_robot.launch.py` now remap `/image_raw` → `/camera/front/image_raw`.
+- *ROSBridge and BEV stitcher not in launch files* — both are included in
+  `robot.launch.py`, `hybrid_robot.launch.py`, and `mobile_manipulation.launch.py`.
+- *Android cmd_vel on wrong topic* — now publishes to `/cmd_vel/teleop` (teleop
+  slot) instead of the nav2 slot. Call `sendControlMode("teleop")` before driving.
+- *Android sendMode not updating cmd_vel_mux* — `sendMode` now also publishes
+  the correct mode string to `/control_mode`.
 
 ---
 
