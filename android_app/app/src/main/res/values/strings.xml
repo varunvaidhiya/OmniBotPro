@@ -3,12 +3,21 @@
     <string name="app_name">OmniBot</string>
 
     <!-- Navigation -->
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_map">Map</string>
+    <string name="title_home">HOME</string>
+    <string name="title_dashboard">DASH</string>
+    <string name="title_map">MAP</string>
     <string name="title_ai">AI</string>
-    <string name="title_controls">Controls</string>
+    <string name="title_controls">CTRL</string>
     <string name="title_logs">Logs</string>
-    <string name="title_settings">Settings</string>
+    <string name="title_settings">SET</string>
+
+    <!-- HUD screen labels (centre of status bar) -->
+    <string name="hud_label_home">HOME SCREEN</string>
+    <string name="hud_label_dashboard">DASHBOARD</string>
+    <string name="hud_label_map">SLAM MAP</string>
+    <string name="hud_label_ai">AI INTERFACE</string>
+    <string name="hud_label_controls">ROBOT CONTROLS</string>
+    <string name="hud_label_settings">SETTINGS</string>
 
     <!-- Connection -->
     <string name="connection_status_connected">Connected</string>

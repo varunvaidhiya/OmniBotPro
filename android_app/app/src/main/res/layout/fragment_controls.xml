@@ -3,27 +3,55 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
-    android:padding="16dp">
+    android:background="@color/hud_bg">
 
-    <!-- Emergency Stop Button -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_emergency_stop"
-        android:layout_width="140dp"
-        android:layout_height="140dp"
-        android:text="@string/emergency_stop"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@color/white"
-        android:backgroundTint="@color/status_error"
-        app:cornerRadius="70dp"
-        app:elevation="8dp"
+    <!-- ── Emergency Stop (top-centre) ─────────────────────────────── -->
+    <FrameLayout
+        android:id="@+id/estop_container"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"/>
+        android:layout_marginTop="16dp">
 
-    <!-- Mode Toggle Group -->
+        <!-- Pulsing glow ring 1 (outer) -->
+        <View
+            android:id="@+id/estop_ring1"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/shape_circle_red"
+            android:layout_gravity="center"
+            android:alpha="0.07" />
+
+        <!-- Pulsing glow ring 2 (inner) -->
+        <View
+            android:id="@+id/estop_ring2"
+            android:layout_width="106dp"
+            android:layout_height="106dp"
+            android:background="@drawable/shape_circle_red"
+            android:layout_gravity="center"
+            android:alpha="0.10" />
+
+        <!-- E-Stop button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_emergency_stop"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_gravity="center"
+            android:text="EMRG&#10;STOP"
+            android:textSize="9.5sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:textColor="@color/hud_err"
+            android:backgroundTint="#1AFF4444"
+            app:strokeColor="@color/hud_err"
+            app:strokeWidth="2.5dp"
+            app:cornerRadius="48dp"
+            android:elevation="0dp" />
+    </FrameLayout>
+
+    <!-- ── Mode toggle ──────────────────────────────────────────────── -->
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:id="@+id/toggle_mode"
         android:layout_width="wrap_content"
@@ -31,53 +59,86 @@
         app:singleSelection="true"
         app:selectionRequired="true"
         app:checkedButton="@id/btn_teleop"
-        app:layout_constraintTop_toBottomOf="@id/btn_emergency_stop"
+        app:layout_constraintTop_toBottomOf="@id/estop_container"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="48dp">
+        android:layout_marginTop="14dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_teleop"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.HUD.ButtonToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/mode_teleop" />
+            android:text="TELEOP" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_autonomous"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.HUD.ButtonToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/mode_autonomous" />
-            
+            android:text="AUTO" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_manual"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.HUD.ButtonToggle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/mode_manual" />
+            android:text="MANUAL" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
-    <!-- Virtual Joystick -->
+    <!-- ── Velocity readout ──────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/readout_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/hud_card_bg"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        app:layout_constraintTop_toBottomOf="@id/toggle_mode"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="14dp">
+
+        <TextView
+            android:id="@+id/text_values"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LIN  +0.00 m/s"
+            android:textColor="@color/hud_accent"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="  |  "
+            android:textColor="@color/hud_muted"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/text_angular_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ANG  +0.00 r/s"
+            android:textColor="@color/hud_warn"
+            android:textSize="9sp"
+            android:fontFamily="monospace" />
+    </LinearLayout>
+
+    <!-- ── Virtual Joystick ─────────────────────────────────────────── -->
     <com.varunvaidhiya.robotcontrol.ui.views.VirtualJoystickView
         android:id="@+id/virtual_joystick"
-        android:layout_width="320dp"
-        android:layout_height="320dp"
+        android:layout_width="206dp"
+        android:layout_height="206dp"
+        app:layout_constraintTop_toBottomOf="@id/readout_container"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="48dp"/>
-
-    <TextView
-        android:id="@+id/text_values"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Linear: 0.00 | Angular: 0.00"
-        android:textColor="@color/text_secondary"
-        android:fontFamily="monospace"
-        app:layout_constraintBottom_toTopOf="@id/virtual_joystick"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="16dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

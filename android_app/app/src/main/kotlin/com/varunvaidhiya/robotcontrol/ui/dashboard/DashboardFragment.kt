@@ -47,17 +47,12 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>() {
     }
 
     private fun setupCameraControls() {
-        // BEV overlay toggle
         binding.btnBevToggle.setOnClickListener {
             bevVisible = !bevVisible
             binding.bevOverlayContainer.visibility = if (bevVisible) View.VISIBLE else View.GONE
-            binding.btnBevToggle.alpha = if (bevVisible) 1f else 0.6f
+            binding.btnBevToggle.alpha = if (bevVisible) 1f else 0.45f
         }
-
-        // Fullscreen camera dialog
-        binding.btnFullscreen.setOnClickListener {
-            showFullscreenCamera()
-        }
+        binding.btnFullscreen.setOnClickListener { showFullscreenCamera() }
     }
 
     private fun showFullscreenCamera() {
@@ -127,17 +122,19 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>() {
     }
 
     private fun setupChart() {
+        val colorCyan = Color.parseColor("#00E5FF")
+        val colorOk   = Color.parseColor("#00FF7F")
+        val colorWarn = Color.parseColor("#FFD700")
+        val muted     = Color.parseColor("#6100E5FF")
+
         val setVx = LineDataSet(ArrayList(), "Vx").apply {
-            color = Color.parseColor("#1976D2")
-            setDrawCircles(false); setDrawValues(false); lineWidth = 1.5f
+            color = colorCyan; setDrawCircles(false); setDrawValues(false); lineWidth = 1.6f
         }
         val setVy = LineDataSet(ArrayList(), "Vy").apply {
-            color = Color.parseColor("#388E3C")
-            setDrawCircles(false); setDrawValues(false); lineWidth = 1.5f
+            color = colorOk;   setDrawCircles(false); setDrawValues(false); lineWidth = 1.6f
         }
         val setVz = LineDataSet(ArrayList(), "ω").apply {
-            color = Color.parseColor("#F57C00")
-            setDrawCircles(false); setDrawValues(false); lineWidth = 1.5f
+            color = colorWarn; setDrawCircles(false); setDrawValues(false); lineWidth = 1.6f
         }
 
         binding.chartVelocity.apply {
@@ -146,8 +143,10 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>() {
             setTouchEnabled(false)
             setDrawGridBackground(false)
             axisRight.isEnabled = false
+            axisLeft.isEnabled = false
             xAxis.setDrawLabels(false)
-            legend.isEnabled = true
+            xAxis.setDrawGridLines(false)
+            legend.isEnabled = false
             setBackgroundColor(Color.TRANSPARENT)
             setVisibleXRangeMaximum(Constants.CHART_MAX_DATA_POINTS.toFloat())
         }
@@ -165,18 +164,28 @@ class DashboardFragment : BaseFragment<FragmentDashboardBinding>() {
     }
 
     private fun updateOdomDisplay(odom: OdomData) {
-        binding.textOdomX.text = "X: %.2f m".format(odom.x)
-        binding.textOdomY.text = "Y: %.2f m".format(odom.y)
+        val sign = { v: Float -> if (v >= 0) "+" else "" }
+        binding.textOdomX.text = "X:${sign(odom.x)}%.2fm".format(odom.x)
+        binding.textOdomY.text = "Y:${sign(odom.y)}%.2fm".format(odom.y)
         val yawDeg = Math.toDegrees(odom.yaw.toDouble()).roundToInt()
-        binding.textOdomYaw.text = "θ: ${yawDeg}°"
+        binding.textOdomYaw.text = "θ:${if (yawDeg >= 0) "+" else ""}${yawDeg}°"
+
+        // Update chart legend
+        binding.legendVx.text = "Vx ${sign(odom.vx)}%.2f".format(odom.vx)
+        binding.legendVy.text = "Vy ${sign(odom.vy)}%.2f".format(odom.vy)
+        binding.legendVw.text = "ω ${sign(odom.vz)}%.2f".format(odom.vz)
     }
 
     private fun updateConnectionStatus(state: ROSBridgeManager.ConnectionState) {
         val (text, colorRes) = when (state) {
-            ROSBridgeManager.ConnectionState.CONNECTED    -> "Connected"    to R.drawable.shape_circle_green
-            ROSBridgeManager.ConnectionState.CONNECTING  -> "Connecting…"  to R.drawable.shape_circle_orange
-            ROSBridgeManager.ConnectionState.DISCONNECTED -> "Disconnected" to R.drawable.shape_circle_red
-            ROSBridgeManager.ConnectionState.ERROR        -> "Error"        to R.drawable.shape_circle_red
+            ROSBridgeManager.ConnectionState.CONNECTED    ->
+                "SYS: ONLINE · ws://${binding.textIpAddress.text}"  to R.drawable.shape_circle_green
+            ROSBridgeManager.ConnectionState.CONNECTING  ->
+                "SYS: CONNECTING…"                                   to R.drawable.shape_circle_orange
+            ROSBridgeManager.ConnectionState.DISCONNECTED ->
+                "SYS: OFFLINE"                                       to R.drawable.shape_circle_red
+            ROSBridgeManager.ConnectionState.ERROR        ->
+                "SYS: ERROR"                                         to R.drawable.shape_circle_red
         }
         binding.textConnectionStatus.text = text
         binding.statusIndicator.setBackgroundResource(colorRes)

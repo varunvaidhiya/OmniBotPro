@@ -1,60 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light"
-    android:padding="24dp">
+    android:background="@color/hud_bg"
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/text_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Connection Settings"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@color/text_primary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
-        
-    <TextView
-        android:id="@+id/text_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Configure your robot's network details"
-        android:textSize="14sp"
-        android:textColor="@color/text_secondary"
-        android:layout_marginTop="4dp"
-        app:layout_constraintTop_toBottomOf="@id/text_title"
-        app:layout_constraintStart_toStartOf="parent"/>
-
-    <com.google.android.material.card.MaterialCardView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        app:cardBackgroundColor="@color/card_background"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp"
-        app:layout_constraintTop_toBottomOf="@id/text_subtitle">
+        android:orientation="vertical"
+        android:padding="16dp">
 
+        <!-- ── Title ──────────────────────────────────────────────────── -->
+        <TextView
+            android:id="@+id/text_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="CONN. SETTINGS"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="@color/hud_accent"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.08" />
+
+        <TextView
+            android:id="@+id/text_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configure robot network parameters."
+            android:textSize="8sp"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:layout_marginTop="3dp" />
+
+        <!-- ── NETWORK card ───────────────────────────────────────────── -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="24dp">
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="16dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="14dp">
+
+            <!-- Top accent border -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_accent"
+                android:alpha="0.6"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="-14dp"
+                android:layout_marginEnd="-14dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NETWORK"
+                android:textSize="7sp"
+                android:textColor="@color/hud_muted"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/layout_ip"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Robot IP Address"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:hintTextColor="@color/hud_muted"
+                app:boxStrokeColor="@color/hud_card_border"
+                app:boxStrokeWidth="1dp"
+                app:boxCornerRadiusTopStart="0dp"
+                app:boxCornerRadiusTopEnd="0dp"
+                app:boxCornerRadiusBottomStart="0dp"
+                app:boxCornerRadiusBottomEnd="0dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_ip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textUri"/>
+                    android:inputType="textUri"
+                    android:textColor="@color/hud_accent"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
@@ -62,25 +95,196 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="ROSBridge Port"
-                android:layout_marginTop="24dp"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+                android:layout_marginTop="10dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:hintTextColor="@color/hud_muted"
+                app:boxStrokeColor="@color/hud_card_border"
+                app:boxStrokeWidth="1dp"
+                app:boxCornerRadiusTopStart="0dp"
+                app:boxCornerRadiusTopEnd="0dp"
+                app:boxCornerRadiusBottomStart="0dp"
+                app:boxCornerRadiusBottomEnd="0dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edit_port"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="number"/>
+                    android:inputType="number"
+                    android:textColor="@color/hud_accent"
+                    android:textSize="11sp"
+                    android:fontFamily="monospace" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/btn_save"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:text="Save Connection"
-                android:layout_marginTop="32dp"
-                android:backgroundTint="@color/primary_color"/>
-                
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- ── CONTROL LIMITS card ────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="10dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="14dp">
+
+            <!-- Top accent border -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_warn"
+                android:alpha="0.5"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="-14dp"
+                android:layout_marginEnd="-14dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CONTROL LIMITS"
+                android:textSize="7sp"
+                android:textColor="@color/hud_muted"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.1"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Max Linear Velocity -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MAX LIN VEL"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/val_max_linear"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:text="0.20 m/s"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seek_max_linear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="40"
+                android:progressTint="@color/hud_accent"
+                android:thumbTint="@color/hud_accent"
+                android:progressBackgroundTint="@color/hud_bar_track"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Max Angular Velocity -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MAX ANG VEL"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/val_max_angular"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:text="1.00 r/s"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seek_max_angular"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="50"
+                android:progressTint="@color/hud_accent"
+                android:thumbTint="@color/hud_accent"
+                android:progressBackgroundTint="@color/hud_bar_track"
+                android:layout_marginBottom="14dp" />
+
+            <!-- Joystick Sensitivity -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="SENSITIVITY"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/val_sensitivity"
+                    android:layout_width="52dp"
+                    android:layout_height="wrap_content"
+                    android:text="×1.0"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seek_sensitivity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="100"
+                android:progress="50"
+                android:progressTint="@color/hud_accent"
+                android:thumbTint="@color/hud_accent"
+                android:progressBackgroundTint="@color/hud_bar_track" />
+
+        </LinearLayout>
+
+        <!-- ── SAVE button ────────────────────────────────────────────── -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="SAVE CONFIG"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.08"
+            android:textColor="@color/hud_accent"
+            android:backgroundTint="#14000000"
+            app:strokeColor="@color/hud_accent"
+            app:strokeWidth="1dp"
+            app:cornerRadius="0dp"
+            android:layout_marginTop="16dp"
+            android:elevation="0dp" />
+
+    </LinearLayout>
+
+</ScrollView>

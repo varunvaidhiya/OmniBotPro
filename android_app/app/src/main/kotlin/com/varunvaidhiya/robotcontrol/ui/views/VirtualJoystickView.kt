@@ -3,122 +3,141 @@ package com.varunvaidhiya.robotcontrol.ui.views
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.graphics.RadialGradient
+import android.graphics.Shader
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.pow
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 class VirtualJoystickView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyleAttr: Int = 0
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : View(context, attrs, defStyleAttr) {
 
-    private var centerX = 0f
-    private var centerY = 0f
-    private var baseRadius = 0f
-    private var hatRadius = 0f
-    
-    private var hatX = 0f
-    private var hatY = 0f
-    
+    private var cx = 0f; private var cy = 0f
+    private var baseR = 0f; private var thumbR = 0f; private var maxR = 0f
+
+    private var thumbX = 0f; private var thumbY = 0f
     private var isTouched = false
-    
-    // Config
-    private val deadzone = 0.1f // 10% deadzone
-    
-    // Public output
+    private val deadzone = 0.1f
+
     var onJoystickMoved: ((x: Float, y: Float) -> Unit)? = null
 
-    private val basePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.LTGRAY
-        style = Paint.Style.STROKE
-        strokeWidth = 5f
-        alpha = 100
-    }
+    private val cyan = Color.parseColor("#00E5FF")
+    private val cyan2 = Color.parseColor("#80F0FF")
 
-    private val hatPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        color = Color.parseColor("#2196F3") // Primary Blue
-        style = Paint.Style.FILL
-        alpha = 200
+    private val outerPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(81, 0, 229, 255); style = Paint.Style.STROKE; strokeWidth = 3f
+    }
+    private val midPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(30, 0, 229, 255); style = Paint.Style.STROKE; strokeWidth = 1.5f
+        pathEffect = DashPathEffect(floatArrayOf(4f, 12f), 0f)
+    }
+    private val crossPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(30, 0, 229, 255); style = Paint.Style.STROKE; strokeWidth = 1.5f
+        pathEffect = DashPathEffect(floatArrayOf(4f, 8f), 0f)
+    }
+    private val thumbStroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(216, 0, 229, 255); style = Paint.Style.STROKE; strokeWidth = 3.5f
+    }
+    private val fillPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val trailPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
+    private val dotPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        color = Color.argb(229, 128, 240, 255); style = Paint.Style.FILL
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        centerX = w / 2f
-        centerY = h / 2f
-        baseRadius = min(w, h) / 2.5f
-        hatRadius = baseRadius / 3f
-        
-        resetJoystick()
+        cx = w / 2f; cy = h / 2f
+        baseR = min(w, h) / 2f - 4f
+        thumbR = baseR * 0.30f
+        maxR   = baseR * 0.62f
+        resetThumb()
     }
 
     override fun onDraw(canvas: Canvas) {
-        super.onDraw(canvas)
-        
-        // Draw Base
-        canvas.drawCircle(centerX, centerY, baseRadius, basePaint)
-        
-        // Draw Hat
-        canvas.drawCircle(hatX, hatY, hatRadius, hatPaint)
+        // Outer ring
+        outerPaint.pathEffect = null
+        canvas.drawCircle(cx, cy, baseR, outerPaint)
+
+        // Inner fill
+        fillPaint.color = Color.argb(8, 0, 229, 255); fillPaint.shader = null
+        canvas.drawCircle(cx, cy, baseR, fillPaint)
+
+        // Mid ring (dashed)
+        canvas.drawCircle(cx, cy, baseR * 0.55f, midPaint)
+
+        // Crosshair lines
+        val gap = 8f
+        canvas.drawLine(cx, cy + gap, cx, cy + baseR * 0.5f, crossPaint)
+        canvas.drawLine(cx, cy - gap, cx, cy - baseR * 0.5f, crossPaint)
+        canvas.drawLine(cx + gap, cy, cx + baseR * 0.5f, cy, crossPaint)
+        canvas.drawLine(cx - gap, cy, cx - baseR * 0.5f, cy, crossPaint)
+
+        val tx = cx + thumbX; val ty = cy + thumbY
+
+        // Velocity trail
+        if (isTouched && (kotlin.math.abs(thumbX) > 2f || kotlin.math.abs(thumbY) > 2f)) {
+            for (i in 8 downTo 1) {
+                val f = i / 8f
+                trailPaint.color = Color.argb((f * 0.08f * 255).toInt(), 0, 229, 255)
+                canvas.drawCircle(cx + thumbX * f * 0.7f, cy + thumbY * f * 0.7f,
+                    thumbR * f * 0.5f, trailPaint)
+            }
+        }
+
+        // Thumb fill (radial gradient)
+        fillPaint.shader = RadialGradient(tx, ty, thumbR,
+            intArrayOf(Color.argb(140, 0, 229, 255), Color.argb(51, 0, 229, 255), Color.argb(12, 0, 229, 255)),
+            floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP)
+        canvas.drawCircle(tx, ty, thumbR, fillPaint)
+
+        // Thumb stroke (glow)
+        canvas.drawCircle(tx, ty, thumbR, thumbStroke)
+
+        // Inner dot
+        canvas.drawCircle(tx, ty, 5f, dotPaint)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
                 isTouched = true
-                val displacementX = event.x - centerX
-                val displacementY = event.y - centerY
-                val distance = sqrt(displacementX.pow(2) + displacementY.pow(2))
-                
-                if (distance < baseRadius) {
-                    hatX = event.x
-                    hatY = event.y
-                } else {
-                    // Capping logic
-                    val ratio = baseRadius / distance
-                    hatX = centerX + displacementX * ratio
-                    hatY = centerY + displacementY * ratio
-                }
-                
-                notifyListener()
-                invalidate()
+                val dx = event.x - cx; val dy = event.y - cy
+                val dist = sqrt(dx.pow(2) + dy.pow(2))
+                if (dist <= maxR) { thumbX = dx; thumbY = dy }
+                else { thumbX = dx / dist * maxR; thumbY = dy / dist * maxR }
+                notifyListener(); invalidate()
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 isTouched = false
-                resetJoystick()
-                notifyListener()
-                invalidate()
+                springBack(); invalidate()
             }
         }
         return true
     }
 
-    private fun resetJoystick() {
-        hatX = centerX
-        hatY = centerY
+    private fun springBack() {
+        post(object : Runnable {
+            override fun run() {
+                thumbX *= 0.72f; thumbY *= 0.72f
+                notifyListener(); invalidate()
+                if (kotlin.math.abs(thumbX) > 0.5f || kotlin.math.abs(thumbY) > 0.5f) post(this)
+                else { thumbX = 0f; thumbY = 0f; notifyListener(); invalidate() }
+            }
+        })
     }
 
     private fun notifyListener() {
-        // Calculate normalized values (-1.0 to 1.0)
-        // Y is inverted because screen Y grows downwards, but robot Y+ is forward/up
-        var normX = (hatX - centerX) / baseRadius
-        var normY = -(hatY - centerY) / baseRadius
-        
-        // Deadzone application
-        val magnitude = sqrt(normX.pow(2) + normY.pow(2))
-        
-        if (magnitude < deadzone) {
-            normX = 0f
-            normY = 0f
-        }
-        
-        onJoystickMoved?.invoke(normX, normY)
+        var nx = thumbX / maxR; var ny = -(thumbY / maxR)
+        val mag = sqrt(nx.pow(2) + ny.pow(2))
+        if (mag < deadzone) { nx = 0f; ny = 0f }
+        onJoystickMoved?.invoke(nx, ny)
     }
+
+    private fun resetThumb() { thumbX = 0f; thumbY = 0f }
 }
