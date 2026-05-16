@@ -2,7 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A">
+    android:background="#020608">
 
     <!-- Full-screen SLAM occupancy grid -->
     <com.varunvaidhiya.robotcontrol.ui.views.SlamMapView
@@ -10,37 +10,65 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Top label -->
+    <!-- Top-centre label pill -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="2D SLAM Map"
-        android:textColor="#FFFFFF"
-        android:textSize="13sp"
-        android:textStyle="bold"
-        android:background="#AA000000"
-        android:padding="6dp"
+        android:text="2D SLAM MAP"
+        android:textColor="@color/hud_accent"
+        android:textSize="8sp"
+        android:fontFamily="monospace"
+        android:letterSpacing="0.1"
+        android:background="@color/hud_card_bg"
+        android:paddingStart="9dp"
+        android:paddingEnd="9dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="12dp" />
 
-    <!-- Robot pose info panel (bottom-left) -->
+    <!-- Zoom hint (fades after interaction in fragment) -->
+    <TextView
+        android:id="@+id/text_zoom_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pinch to zoom · Double-tap to reset"
+        android:textColor="@color/hud_muted"
+        android:textSize="8sp"
+        android:fontFamily="monospace"
+        android:layout_gravity="top|start"
+        android:layout_margin="12dp" />
+
+    <!-- Bottom-left: ROBOT POSE panel -->
     <LinearLayout
         android:id="@+id/panel_pose"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#CC000000"
-        android:padding="10dp"
+        android:background="#E6020608"
+        android:paddingStart="9dp"
+        android:paddingEnd="9dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
         android:layout_gravity="bottom|start"
         android:layout_margin="12dp">
+
+        <!-- HUD card top border line -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/hud_card_border"
+            android:layout_marginBottom="5dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ROBOT POSE"
-            android:textColor="#64B5F6"
-            android:textSize="10sp"
+            android:textColor="@color/hud_accent"
+            android:textSize="8.5sp"
+            android:fontFamily="monospace"
             android:textStyle="bold"
+            android:letterSpacing="0.06"
             android:layout_marginBottom="4dp" />
 
         <TextView
@@ -48,88 +76,86 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="X:    0.00 m"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/hud_text"
             android:fontFamily="monospace"
-            android:textSize="12sp" />
+            android:textSize="10sp" />
 
         <TextView
             android:id="@+id/text_pose_y"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Y:    0.00 m"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/hud_text"
             android:fontFamily="monospace"
-            android:textSize="12sp" />
+            android:textSize="10sp" />
 
         <TextView
             android:id="@+id/text_pose_yaw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="θ:    0°"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/hud_text"
             android:fontFamily="monospace"
-            android:textSize="12sp" />
-
+            android:textSize="10sp" />
     </LinearLayout>
 
-    <!-- Map stats panel (bottom-right) -->
+    <!-- Bottom-right: MAP STATS panel -->
     <LinearLayout
         android:id="@+id/panel_map_stats"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#CC000000"
-        android:padding="10dp"
+        android:background="#E6020608"
+        android:paddingStart="9dp"
+        android:paddingEnd="9dp"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
         android:layout_gravity="bottom|end"
         android:layout_margin="12dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/hud_card_border"
+            android:layout_marginBottom="5dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="MAP STATS"
-            android:textColor="#64B5F6"
-            android:textSize="10sp"
+            android:textColor="@color/hud_accent"
+            android:textSize="8.5sp"
+            android:fontFamily="monospace"
             android:textStyle="bold"
+            android:letterSpacing="0.06"
             android:layout_marginBottom="4dp" />
-
-        <TextView
-            android:id="@+id/text_map_size"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Size: --×-- cells"
-            android:textColor="#FFFFFF"
-            android:fontFamily="monospace"
-            android:textSize="12sp" />
-
-        <TextView
-            android:id="@+id/text_map_res"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Res:  0.05 m/cell"
-            android:textColor="#FFFFFF"
-            android:fontFamily="monospace"
-            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/text_map_explored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Known: --%"
-            android:textColor="#FFFFFF"
+            android:text="--% explored"
+            android:textColor="@color/hud_text"
             android:fontFamily="monospace"
-            android:textSize="12sp" />
+            android:textSize="10sp" />
 
+        <TextView
+            android:id="@+id/text_map_res"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.05 m/cell"
+            android:textColor="@color/hud_text"
+            android:fontFamily="monospace"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/text_map_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--×-- cells"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:textSize="9sp" />
     </LinearLayout>
-
-    <!-- Pinch-to-zoom hint (fades out) -->
-    <TextView
-        android:id="@+id/text_zoom_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Pinch to zoom · Double-tap to reset"
-        android:textColor="#80FFFFFF"
-        android:textSize="11sp"
-        android:layout_gravity="top|start"
-        android:layout_margin="12dp" />
 
 </FrameLayout>

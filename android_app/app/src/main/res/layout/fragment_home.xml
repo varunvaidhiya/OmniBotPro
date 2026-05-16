@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hud_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- ── Connection row ──────────────────────────────────────── -->
+        <LinearLayout
+            android:id="@+id/row_connection"
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="11dp"
+            android:paddingEnd="11dp"
+            android:background="@color/hud_bg">
+
+            <View
+                android:id="@+id/home_status_dot"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/shape_circle_red" />
+
+            <TextView
+                android:id="@+id/home_status_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="7dp"
+                android:text="SYS: OFFLINE"
+                android:textColor="@color/hud_ok"
+                android:textSize="9sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/home_ros_nodes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="-- ROS nodes"
+                android:textColor="@color/hud_muted"
+                android:textSize="8sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- Bottom border -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/hud_card_border"
+            android:alpha="0.5" />
+
+        <!-- ── 3D Robot Viewport ───────────────────────────────────── -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="248dp"
+            android:background="#020810">
+
+            <!-- SceneView fragment container for 3D robot -->
+            <FrameLayout
+                android:id="@+id/robot_3d_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Bottom-left auto-rotate label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|start"
+                android:layout_margin="6dp"
+                android:text="AUTO-ROTATING · ARM TRACKING /joint_states"
+                android:textColor="@color/hud_muted"
+                android:textSize="7sp"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.05" />
+
+            <!-- Top-right joint states overlay -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:layout_margin="6dp"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:padding="6dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="JOINT STATES"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="7sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="2dp" />
+
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:layout_width="32dp" android:layout_height="wrap_content" android:text="BASE" android:textColor="@color/hud_muted" android:textSize="7sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/joint_base" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00r" android:textColor="@color/hud_accent" android:textSize="7sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:layout_width="32dp" android:layout_height="wrap_content" android:text="SHLD" android:textColor="@color/hud_muted" android:textSize="7sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/joint_shld" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00r" android:textColor="@color/hud_accent" android:textSize="7sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:layout_width="32dp" android:layout_height="wrap_content" android:text="ELBW" android:textColor="@color/hud_muted" android:textSize="7sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/joint_elbw" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00r" android:textColor="@color/hud_accent" android:textSize="7sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <TextView android:layout_width="32dp" android:layout_height="wrap_content" android:text="WRST" android:textColor="@color/hud_muted" android:textSize="7sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/joint_wrst" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0.00r" android:textColor="@color/hud_accent" android:textSize="7sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
+
+        <!-- ── Metric cards ───────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <!-- ROBOT BATTERY card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="9dp">
+                    <View android:layout_width="3dp" android:layout_height="9dp" android:background="@color/hud_accent" android:layout_marginEnd="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="ROBOT BATTERY" android:textColor="@color/hud_accent" android:textSize="8.5sp" android:fontFamily="monospace" android:textStyle="bold" android:letterSpacing="0.08"/>
+                </LinearLayout>
+
+                <!-- Main pack bar -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="MAIN PACK  (24V 10Ah)" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_batt_main" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="78.2%" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_batt_main" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="78" android:layout_marginBottom="6dp"/>
+
+                <!-- Arm servos bar -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="ARM SERVOS (7.4V)" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_batt_arm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="91.5%" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_batt_arm" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="91"/>
+            </LinearLayout>
+
+            <!-- RASPBERRY Pi 5 card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="9dp">
+                    <View android:layout_width="3dp" android:layout_height="9dp" android:background="@color/hud_accent" android:layout_marginEnd="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="RASPBERRY Pi 5" android:textColor="@color/hud_accent" android:textSize="8.5sp" android:fontFamily="monospace" android:textStyle="bold" android:letterSpacing="0.08"/>
+                </LinearLayout>
+
+                <!-- CPU cores 2-column grid -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="5dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CORE 1" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                            <TextView android:id="@+id/val_core1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="42%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                        </LinearLayout>
+                        <ProgressBar android:id="@+id/bar_core1" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="42" android:layout_marginBottom="6dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CORE 3" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                            <TextView android:id="@+id/val_core3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="28%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                        </LinearLayout>
+                        <ProgressBar android:id="@+id/bar_core3" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="28"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="5dp">
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CORE 2" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                            <TextView android:id="@+id/val_core2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="58%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                        </LinearLayout>
+                        <ProgressBar android:id="@+id/bar_core2" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="58" android:layout_marginBottom="6dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CORE 4" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                            <TextView android:id="@+id/val_core4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="45%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                        </LinearLayout>
+                        <ProgressBar android:id="@+id/bar_core4" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="45"/>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- RAM -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="6dp" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="RAM" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_rpi_ram" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1.82/4.0 GB" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_rpi_ram" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="46" android:layout_marginBottom="6dp"/>
+
+                <!-- Temperature -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="4dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="TEMPERATURE" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_rpi_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="52.3°C" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace" android:textStyle="bold"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- WORKSTATION COMPUTE card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="9dp">
+                    <View android:layout_width="3dp" android:layout_height="9dp" android:background="@color/hud_accent" android:layout_marginEnd="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="WORKSTATION COMPUTE" android:textColor="@color/hud_accent" android:textSize="8.5sp" android:fontFamily="monospace" android:textStyle="bold" android:letterSpacing="0.08"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="GPU  (RTX 4070)" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_ws_gpu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="68%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_ws_gpu" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="68" android:layout_marginBottom="6dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="VRAM" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_ws_vram" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.2/8.0 GB" android:textColor="@color/hud_accent2" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_ws_vram" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="52" android:layout_marginBottom="6dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="CPU  (i9 16-core)" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_ws_cpu" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="45%" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_ws_cpu" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="45" android:layout_marginBottom="6dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="RAM" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_ws_ram" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="22.4/32 GB" android:textColor="@color/hud_accent" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_ws_ram" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="70" android:layout_marginBottom="6dp"/>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                    <TextView android:id="@+id/val_net_up" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="↑ 1.2 MB/s" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_net_down" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="↓ 0.8 MB/s" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace" android:gravity="end"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- SMOLVLA MODEL card -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:padding="10dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="9dp">
+                    <View android:layout_width="3dp" android:layout_height="9dp" android:background="@color/hud_accent" android:layout_marginEnd="6dp"/>
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SMOLVLA MODEL" android:textColor="@color/hud_accent" android:textSize="8.5sp" android:fontFamily="monospace" android:textStyle="bold" android:letterSpacing="0.08"/>
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginBottom="3dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="INFERENCE LOAD" android:textColor="@color/hud_muted" android:textSize="7.5sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/val_vla_load" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="62%" android:textColor="@color/hud_accent2" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+                <ProgressBar android:id="@+id/bar_vla_load" style="@android:style/Widget.ProgressBar.Horizontal" android:layout_width="match_parent" android:layout_height="4dp" android:progressDrawable="@drawable/hud_progress_bar" android:max="100" android:progress="62" android:layout_marginBottom="5dp"/>
+
+                <!-- Info chips row -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="5dp">
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="POLICY" android:textColor="@color/hud_muted" android:textSize="6.5sp" android:fontFamily="monospace" android:layout_marginBottom="2dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SmolVLA 9D" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="LATENCY" android:textColor="@color/hud_muted" android:textSize="6.5sp" android:fontFamily="monospace" android:layout_marginBottom="2dp"/>
+                        <TextView android:id="@+id/val_vla_latency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="42 ms" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace"/>
+                    </LinearLayout>
+                    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CAMERAS" android:textColor="@color/hud_muted" android:textSize="6.5sp" android:fontFamily="monospace" android:layout_marginBottom="2dp"/>
+                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6/6" android:textColor="@color/hud_ok" android:textSize="8sp" android:fontFamily="monospace"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

@@ -1,267 +1,408 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/hud_bg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="10dp">
 
-        <!-- Connection Status Bar -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_connection"
+        <!-- ── Connection status card ──────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:background="@color/hud_card_bg"
+            android:layout_marginBottom="6dp">
+
+            <!-- HUD corner bracket left -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="┌─"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="4dp" />
+
+            <View
+                android:id="@+id/status_indicator"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                android:background="@drawable/shape_circle_red"
+                android:layout_marginEnd="7dp" />
+
+            <TextView
+                android:id="@+id/text_connection_status"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SYS: OFFLINE · ws://--"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/text_ip_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="--ms"
+                android:textColor="@color/hud_muted"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="4dp" />
+
+            <!-- HUD corner bracket right -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="─┐"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- ── Camera feed card ───────────────────────────────────── -->
+        <FrameLayout
+            android:id="@+id/card_camera"
+            android:layout_width="match_parent"
+            android:layout_height="128dp"
+            android:background="#000208"
+            android:layout_marginBottom="6dp">
+
+            <!-- MJPEG stream -->
+            <com.varunvaidhiya.robotcontrol.ui.views.MjpegView
+                android:id="@+id/mjpeg_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- BEV overlay (mini slam map) -->
+            <FrameLayout
+                android:id="@+id/bev_overlay_container"
+                android:layout_width="90dp"
+                android:layout_height="90dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="6dp"
+                android:background="#CC000000"
+                android:visibility="gone">
+
+                <com.varunvaidhiya.robotcontrol.ui.views.SlamMapView
+                    android:id="@+id/bev_slam_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="BEV"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="7.5sp"
+                    android:fontFamily="monospace"
+                    android:background="#CC000208"
+                    android:padding="2dp"
+                    android:layout_gravity="bottom|start" />
+            </FrameLayout>
+
+            <!-- Camera HUD SVG-style overlays (drawn in CameraOverlayView) -->
+            <com.varunvaidhiya.robotcontrol.ui.views.CameraHudOverlay
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- LIVE badge -->
+            <TextView
+                android:id="@+id/text_live_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="● LIVE"
+                android:textColor="@color/hud_err"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:background="#DD000000"
+                android:padding="3dp"
+                android:layout_gravity="top|start"
+                android:layout_margin="6dp" />
+
+            <!-- REC badge -->
+            <TextView
+                android:id="@+id/text_rec_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⏺ REC"
+                android:textColor="@color/hud_err"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:background="#DD000000"
+                android:padding="3dp"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="28dp"
+                android:visibility="gone" />
+
+            <!-- Top-right: BEV toggle badge -->
+            <TextView
+                android:id="@+id/btn_bev_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="BEV"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:background="#CC000208"
+                android:padding="3dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="6dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Fullscreen button (invisible, kept for binding compat) -->
+            <TextView
+                android:id="@+id/btn_fullscreen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⛶"
+                android:textColor="@color/hud_muted"
+                android:textSize="12sp"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="6dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <!-- Bottom-right label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WRIST-CAM · AR"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="6dp"
+                android:layout_marginBottom="20dp" />
+        </FrameLayout>
+
+        <!-- ── Velocity chart card ────────────────────────────────── -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:padding="7dp"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="VELOCITY_MONITOR · /cmd_vel · 6s WINDOW"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:layout_marginBottom="4dp" />
+
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/chart_velocity"
+                android:layout_width="match_parent"
+                android:layout_height="56dp" />
+
+            <!-- Legend -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
+
+                <TextView
+                    android:id="@+id/legend_vx"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vx +0.00"
+                    android:textColor="@color/chart_vx"
+                    android:textSize="9sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:id="@+id/legend_vy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Vy +0.00"
+                    android:textColor="@color/chart_vy"
+                    android:textSize="9sp"
+                    android:fontFamily="monospace"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:id="@+id/legend_vw"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ω +0.00"
+                    android:textColor="@color/chart_vw"
+                    android:textSize="9sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Motor status card ──────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:padding="7dp"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MOTOR STATUS · MECANUM-4x"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:layout_marginBottom="6dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- FL motor -->
+                <LinearLayout
+                    android:id="@+id/motor_card_fl"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@color/hud_card_bg"
+                    android:padding="5dp"
+                    android:layout_marginEnd="3dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                        <TextView android:id="@+id/motor_fl_id" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="FL" android:textColor="@color/hud_ok" android:textSize="9sp" android:fontFamily="monospace" android:textStyle="bold"/>
+                        <View android:id="@+id/motor_fl_dot" android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/shape_circle_green"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/motor_fl_pwm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PWM 92" android:textColor="@color/hud_text" android:textSize="8sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/motor_fl_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="38°C · OK" android:textColor="@color/hud_muted" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+
+                <!-- FR motor -->
+                <LinearLayout
+                    android:id="@+id/motor_card_fr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@color/hud_card_bg"
+                    android:padding="5dp"
+                    android:layout_marginStart="3dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                        <TextView android:id="@+id/motor_fr_id" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="FR" android:textColor="@color/hud_ok" android:textSize="9sp" android:fontFamily="monospace" android:textStyle="bold"/>
+                        <View android:id="@+id/motor_fr_dot" android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/shape_circle_green"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/motor_fr_pwm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PWM 87" android:textColor="@color/hud_text" android:textSize="8sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/motor_fr_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="41°C · OK" android:textColor="@color/hud_muted" android:textSize="8sp" android:fontFamily="monospace"/>
+                </LinearLayout>
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:padding="14dp"
-                android:gravity="center_vertical">
+                android:layout_marginTop="4dp">
 
-                <View
-                    android:id="@+id/status_indicator"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:background="@drawable/shape_circle_red" />
-
-                <TextView
-                    android:id="@+id/text_connection_status"
+                <!-- BL motor -->
+                <LinearLayout
+                    android:id="@+id/motor_card_bl"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_marginStart="10dp"
-                    android:text="Disconnected"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/text_primary" />
-
-                <TextView
-                    android:id="@+id/text_ip_address"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="IP: --"
-                    android:textSize="13sp"
-                    android:textColor="@color/text_secondary" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Camera Feed Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_camera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardBackgroundColor="#000000"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <!-- MJPEG stream (16:9 ratio) -->
-                <com.varunvaidhiya.robotcontrol.ui.views.MjpegView
-                    android:id="@+id/mjpeg_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="210dp" />
-
-                <!-- BEV overlay (small SLAM mini-map in top-right corner) -->
-                <FrameLayout
-                    android:id="@+id/bev_overlay_container"
-                    android:layout_width="110dp"
-                    android:layout_height="110dp"
-                    android:layout_gravity="top|end"
-                    android:layout_margin="8dp"
-                    android:background="#CC000000"
-                    android:visibility="gone">
-
-                    <com.varunvaidhiya.robotcontrol.ui.views.SlamMapView
-                        android:id="@+id/bev_slam_view"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="BEV"
-                        android:textColor="#FFFFFF"
-                        android:textSize="9sp"
-                        android:layout_gravity="bottom|start"
-                        android:paddingStart="4dp"
-                        android:paddingBottom="2dp" />
-
-                </FrameLayout>
-
-                <!-- "LIVE" indicator top-left -->
-                <TextView
-                    android:id="@+id/text_live_indicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="● LIVE"
-                    android:textColor="#FF4444"
-                    android:textSize="11sp"
-                    android:background="#CC000000"
-                    android:padding="4dp"
-                    android:layout_gravity="top|start"
-                    android:layout_margin="8dp" />
-
-                <!-- REC badge (shown while recording) -->
-                <TextView
-                    android:id="@+id/text_rec_badge"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="⏺ REC"
-                    android:textColor="#FF4444"
-                    android:textSize="11sp"
-                    android:background="#CC000000"
-                    android:padding="4dp"
-                    android:layout_gravity="top|start"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="36dp"
-                    android:visibility="gone" />
-
-                <!-- Camera overlay controls (bottom row) -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="end"
-                    android:layout_gravity="bottom"
-                    android:background="#88000000"
-                    android:padding="4dp">
-
-                    <!-- BEV toggle -->
-                    <ImageButton
-                        android:id="@+id/btn_bev_toggle"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/ic_bev"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Toggle BEV overlay"
-                        android:tint="#FFFFFF"
-                        android:layout_marginEnd="8dp" />
-
-                    <!-- Fullscreen button -->
-                    <ImageButton
-                        android:id="@+id/btn_fullscreen"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:src="@drawable/ic_fullscreen"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="Fullscreen camera"
-                        android:tint="#FFFFFF"
-                        android:layout_marginEnd="4dp" />
-
+                    android:orientation="vertical"
+                    android:background="@color/hud_card_bg"
+                    android:padding="5dp"
+                    android:layout_marginEnd="3dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                        <TextView android:id="@+id/motor_bl_id" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="BL" android:textColor="@color/hud_ok" android:textSize="9sp" android:fontFamily="monospace" android:textStyle="bold"/>
+                        <View android:id="@+id/motor_bl_dot" android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/shape_circle_green"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/motor_bl_pwm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PWM 94" android:textColor="@color/hud_text" android:textSize="8sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/motor_bl_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="39°C · OK" android:textColor="@color/hud_muted" android:textSize="8sp" android:fontFamily="monospace"/>
                 </LinearLayout>
 
-            </FrameLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Velocity Chart Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Velocity"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="4dp" />
-
-                <com.github.mikephil.charting.charts.LineChart
-                    android:id="@+id/chart_velocity"
-                    android:layout_width="match_parent"
-                    android:layout_height="130dp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Odometry Card -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardBackgroundColor="@color/card_background"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="4dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="14dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Odometry"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="12sp"
-                    android:layout_marginBottom="8dp" />
-
+                <!-- BR motor -->
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/motor_card_br"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:id="@+id/text_odom_x"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="X: 0.00 m"
-                        android:textColor="@color/text_primary"
-                        android:fontFamily="monospace"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/text_odom_y"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Y: 0.00 m"
-                        android:textColor="@color/text_primary"
-                        android:fontFamily="monospace"
-                        android:textSize="13sp" />
-
-                    <TextView
-                        android:id="@+id/text_odom_yaw"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="θ: 0.0°"
-                        android:textColor="@color/text_primary"
-                        android:fontFamily="monospace"
-                        android:textSize="13sp" />
-
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:background="@color/hud_card_bg"
+                    android:padding="5dp"
+                    android:layout_marginStart="3dp">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginBottom="3dp">
+                        <TextView android:id="@+id/motor_br_id" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="BR" android:textColor="@color/hud_ok" android:textSize="9sp" android:fontFamily="monospace" android:textStyle="bold"/>
+                        <View android:id="@+id/motor_br_dot" android:layout_width="6dp" android:layout_height="6dp" android:background="@drawable/shape_circle_green"/>
+                    </LinearLayout>
+                    <TextView android:id="@+id/motor_br_pwm" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PWM 85" android:textColor="@color/hud_text" android:textSize="8sp" android:fontFamily="monospace"/>
+                    <TextView android:id="@+id/motor_br_temp" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="43°C · OK" android:textColor="@color/hud_muted" android:textSize="8sp" android:fontFamily="monospace"/>
                 </LinearLayout>
-
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        </LinearLayout>
+
+        <!-- ── Odometry row ───────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/hud_card_bg"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp"
+            android:layout_marginBottom="6dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ODOM"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="12dp" />
+
+            <TextView
+                android:id="@+id/text_odom_x"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="X:+0.00m"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/text_odom_y"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Y:+0.00m"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/text_odom_yaw"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="θ:+0°"
+                android:textColor="@color/hud_accent"
+                android:textSize="10sp"
+                android:fontFamily="monospace" />
+        </LinearLayout>
 
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

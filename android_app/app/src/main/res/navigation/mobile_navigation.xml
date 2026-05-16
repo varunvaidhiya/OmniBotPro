@@ -3,38 +3,42 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_dashboard">
+    app:startDestination="@+id/navigation_home">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.varunvaidhiya.robotcontrol.ui.home.HomeFragment"
+        android:label="@string/hud_label_home"
+        tools:layout="@layout/fragment_home" />
 
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.varunvaidhiya.robotcontrol.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
+        android:label="@string/hud_label_dashboard"
         tools:layout="@layout/fragment_dashboard" />
 
-    <!-- Map: contains SLAM 2D + 3D point cloud tabs -->
     <fragment
         android:id="@+id/navigation_map"
         android:name="com.varunvaidhiya.robotcontrol.ui.mapping.MapFragment"
-        android:label="@string/title_map"
+        android:label="@string/hud_label_map"
         tools:layout="@layout/fragment_map" />
 
-    <!-- AI: natural language robot control -->
     <fragment
         android:id="@+id/navigation_ai"
         android:name="com.varunvaidhiya.robotcontrol.ui.ai.AIFragment"
-        android:label="@string/title_ai"
+        android:label="@string/hud_label_ai"
         tools:layout="@layout/fragment_ai" />
 
     <fragment
         android:id="@+id/navigation_controls"
         android:name="com.varunvaidhiya.robotcontrol.ui.controls.ControlsFragment"
-        android:label="@string/title_controls"
+        android:label="@string/hud_label_controls"
         tools:layout="@layout/fragment_controls" />
 
     <fragment
         android:id="@+id/navigation_settings"
         android:name="com.varunvaidhiya.robotcontrol.ui.settings.SettingsFragment"
-        android:label="@string/title_settings"
+        android:label="@string/hud_label_settings"
         tools:layout="@layout/fragment_settings" />
 
 </navigation>

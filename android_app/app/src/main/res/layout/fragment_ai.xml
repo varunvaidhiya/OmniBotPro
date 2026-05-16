@@ -4,194 +4,305 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/background_light">
+    android:background="@color/hud_bg">
 
-    <!-- Greeting header card -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- ── Top status bar ──────────────────────────────────────────── -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        app:cardBackgroundColor="@color/card_background"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp">
+        android:layout_height="34dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:background="@color/hud_bg">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Status dot + AI state label -->
+        <FrameLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:gravity="center_vertical">
+            android:layout_marginEnd="7dp">
 
-            <!-- Robot avatar -->
-            <ImageView
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_omnibot_logo"
-                android:background="@color/primary_color"
-                android:padding="8dp"
-                android:contentDescription="OmniBot avatar" />
+            <!-- Pulsing halo (animated in fragment) -->
+            <View
+                android:id="@+id/ai_dot_halo"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:background="@drawable/shape_circle_red"
+                android:layout_gravity="center"
+                android:alpha="0" />
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hi Varun,"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="What do you want me to do?"
-                    android:textColor="@color/text_primary"
-                    android:textSize="17sp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <!-- Connection dot -->
             <View
                 android:id="@+id/ai_status_dot"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
-                android:background="@drawable/shape_circle_red" />
+                android:layout_width="8dp"
+                android:layout_height="8dp"
+                android:background="@drawable/shape_circle_red"
+                android:layout_gravity="center" />
+        </FrameLayout>
 
+        <TextView
+            android:id="@+id/text_ai_state_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="OMNIBOT · IDLE"
+            android:textColor="@color/hud_muted"
+            android:textSize="9.5sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.05" />
+
+        <!-- VISUAL / CHAT toggle -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/hud_card_bg">
+
+            <TextView
+                android:id="@+id/btn_view_visual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⊙ VISUAL"
+                android:textColor="@color/hud_bg"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"
+                android:letterSpacing="0.04"
+                android:background="@color/hud_accent"
+                android:paddingStart="9dp"
+                android:paddingEnd="9dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btn_view_chat"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬 CHAT"
+                android:textColor="@color/hud_inactive"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:textStyle="bold"
+                android:letterSpacing="0.04"
+                android:paddingStart="9dp"
+                android:paddingEnd="9dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:clickable="true"
+                android:focusable="true" />
         </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
 
-    <!-- Quick action chips -->
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chip_group_quick"
+    <!-- Bottom border -->
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/hud_card_border" android:alpha="0.5"/>
+
+    <!-- ══ VISUAL mode ═════════════════════════════════════════════ -->
+    <LinearLayout
+        android:id="@+id/layout_visual_mode"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        app:singleLine="true">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingTop="4dp">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_navigate"
-            style="@style/Widget.MaterialComponents.Chip.Action"
+        <!-- JARVIS canvas 262×262dp -->
+        <com.varunvaidhiya.robotcontrol.ui.views.JarvisView
+            android:id="@+id/jarvis_view"
+            android:layout_width="262dp"
+            android:layout_height="262dp" />
+
+        <!-- Speech text -->
+        <TextView
+            android:id="@+id/text_speech"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="OMNIBOT ONLINE.\nAWAITING COMMAND."
+            android:textColor="@color/hud_muted"
+            android:textSize="10sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.07"
+            android:lineSpacingMultiplier="1.8"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp" />
+
+        <!-- Quick action chips -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Navigate home" />
+            android:orientation="horizontal"
+            android:layout_marginTop="2dp">
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_explore"
-            style="@style/Widget.MaterialComponents.Chip.Action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Explore area" />
+            <TextView
+                android:id="@+id/chip_navigate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NAVIGATE HOME"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:background="@color/hud_card_bg"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginEnd="4dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_pick"
-            style="@style/Widget.MaterialComponents.Chip.Action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pick up object" />
+            <TextView
+                android:id="@+id/chip_explore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EXPLORE AREA"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:background="@color/hud_card_bg"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginEnd="4dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/chip_stop"
-            style="@style/Widget.MaterialComponents.Chip.Action"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop" />
+            <TextView
+                android:id="@+id/chip_pick"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PICK UP OBJECT"
+                android:textColor="@color/hud_muted"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:background="@color/hud_card_bg"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:layout_marginEnd="4dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-    </com.google.android.material.chip.ChipGroup>
+            <TextView
+                android:id="@+id/chip_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="STOP"
+                android:textColor="@color/hud_err"
+                android:textSize="7.5sp"
+                android:fontFamily="monospace"
+                android:background="@color/hud_card_bg"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
+    </LinearLayout>
 
-    <!-- Chat message list -->
+    <!-- ══ CHAT mode ═══════════════════════════════════════════════ -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_messages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginHorizontal="16dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+        android:visibility="gone" />
 
-    <!-- Recording row -->
-    <com.google.android.material.card.MaterialCardView
+    <!-- Recording row (hidden in HUD mode — kept for binding compat) -->
+    <LinearLayout
         android:id="@+id/card_recording"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="16dp"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/card_background"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="2dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="12dp"
-            android:gravity="center_vertical">
-
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:src="@drawable/ic_record"
-                android:contentDescription="Record icon" />
-
-            <TextView
-                android:id="@+id/text_recording_status"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="10dp"
-                android:text="Dataset recording: OFF"
-                android:textColor="@color/text_primary"
-                android:textSize="14sp" />
-
-            <com.google.android.material.switchmaterial.SwitchMaterial
-                android:id="@+id/switch_recording"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- Input row -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:orientation="horizontal"
-        android:padding="12dp"
         android:gravity="center_vertical"
-        android:background="@color/card_background">
+        android:padding="12dp"
+        android:visibility="gone">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/input_layout_command"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        <TextView
+            android:id="@+id/text_recording_status"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/ai_input_hint"
-            android:layout_marginEnd="8dp">
+            android:text="Dataset recording: OFF"
+            android:textColor="@color/hud_text"
+            android:textSize="10sp"
+            android:fontFamily="monospace" />
 
-            <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switch_recording"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- ── Input row (always visible) ──────────────────────────────── -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="#B3000C16">
+
+        <!-- Top border -->
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/hud_card_bg"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:layout_marginEnd="7dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CMD>"
+                android:textColor="@color/hud_muted"
+                android:textSize="9sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="6dp" />
+
+            <EditText
                 android:id="@+id/edit_command"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:textColor="@color/hud_accent"
+                android:textColorHint="@color/hud_muted"
+                android:hint="Type a command…"
+                android:textSize="9.5sp"
+                android:fontFamily="monospace"
                 android:imeOptions="actionSend"
-                android:inputType="textMultiLine|textCapSentences"
-                android:maxLines="3" />
+                android:inputType="text"
+                android:singleLine="true"
+                android:letterSpacing="0.03" />
+        </LinearLayout>
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
+        <!-- Send button -->
+        <TextView
             android:id="@+id/btn_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/ic_menu_send"
-            app:fabSize="mini"
-            android:contentDescription="Send command" />
-
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:text="▶"
+            android:textColor="@color/hud_accent"
+            android:textSize="12sp"
+            android:background="@color/hud_card_bg"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
 </LinearLayout>

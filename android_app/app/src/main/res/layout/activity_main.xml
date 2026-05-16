@@ -2,35 +2,84 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/hud_bg">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appBarLayout"
+    <!-- ── HUD Status Bar ──────────────────────────────────────────── -->
+    <LinearLayout
+        android:id="@+id/hud_status_bar"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        android:layout_height="36dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:background="@color/hud_bg"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:paddingStart="4dp">
+        <!-- Left: logo + wordmark -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_weight="0">
 
-            <!-- OmniBot logo icon -->
             <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
                 android:src="@drawable/ic_omnibot_logo"
                 android:contentDescription="OmniBot logo"
-                android:layout_marginEnd="8dp" />
+                android:layout_marginEnd="5dp" />
 
-        </androidx.appcompat.widget.Toolbar>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OMNIBOT"
+                android:textColor="@color/hud_accent"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-condensed"
+                android:letterSpacing="0.08" />
+        </LinearLayout>
 
-    </com.google.android.material.appbar.AppBarLayout>
+        <!-- Centre: current screen title -->
+        <TextView
+            android:id="@+id/text_screen_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="HOME SCREEN"
+            android:textColor="@color/hud_muted"
+            android:textSize="8sp"
+            android:fontFamily="monospace"
+            android:letterSpacing="0.1" />
 
+        <!-- Right: system clock -->
+        <TextView
+            android:id="@+id/text_status_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="00:00"
+            android:textColor="@color/hud_muted"
+            android:textSize="8sp"
+            android:fontFamily="monospace" />
+    </LinearLayout>
+
+    <!-- Bottom border of status bar -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/hud_card_border"
+        android:alpha="0.5"
+        app:layout_constraintTop_toBottomOf="@id/hud_status_bar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- ── Fragment host ───────────────────────────────────────────── -->
     <fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -38,19 +87,24 @@
         android:layout_height="0dp"
         app:defaultNavHost="true"
         app:navGraph="@navigation/mobile_navigation"
-        app:layout_constraintTop_toBottomOf="@id/appBarLayout"
+        app:layout_constraintTop_toBottomOf="@id/hud_status_bar"
         app:layout_constraintBottom_toTopOf="@id/nav_view"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- ── Bottom Navigation ──────────────────────────────────────── -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/nav_view"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
+        android:layout_height="50dp"
+        android:background="@color/hud_bg"
+        app:itemIconTint="@color/bottom_nav_item_color"
+        app:itemTextColor="@color/bottom_nav_item_color"
+        app:itemActiveIndicatorColor="@android:color/transparent"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
