@@ -20,8 +20,4 @@
         android:id="@+id/navigation_controls"
         android:icon="@drawable/ic_gamepad"
         android:title="@string/title_controls" />
-    <item
-        android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="@string/title_settings" />
 </menu>

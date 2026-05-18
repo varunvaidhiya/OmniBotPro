@@ -3,14 +3,14 @@ package com.varunvaidhiya.robotcontrol
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.navigation.findNavController
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.varunvaidhiya.robotcontrol.databinding.ActivityMainBinding
-import com.varunvaidhiya.robotcontrol.ui.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.SimpleDateFormat
@@ -21,51 +21,69 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val mainViewModel: MainViewModel by viewModels()
     private val timeHandler = Handler(Looper.getMainLooper())
     private val timeFmt = SimpleDateFormat("HH:mm", Locale.US)
-
-    private val screenLabels = mapOf(
-        R.id.navigation_home      to "HOME SCREEN",
-        R.id.navigation_dashboard to "DASHBOARD",
-        R.id.navigation_map       to "SLAM MAP",
-        R.id.navigation_ai        to "AI INTERFACE",
-        R.id.navigation_controls  to "ROBOT CONTROLS",
-        R.id.navigation_settings  to "SETTINGS"
-    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         super.onCreate(savedInstanceState)
 
+        // Go edge-to-edge: we will manually pad our views to avoid system bars
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (BuildConfig.DEBUG) {
-            Timber.plant(Timber.DebugTree())
+        // Apply system bar insets precisely to our two edge views
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // Pad the HUD bar so it starts below the system status bar
+            binding.hudStatusBar.apply {
+                setPadding(paddingLeft, bars.top, paddingRight, paddingBottom)
+            }
+
+            // Pad the bottom nav so it doesn't go under the system nav bar
+            binding.navView.apply {
+                setPadding(paddingLeft, paddingTop, paddingRight, bars.bottom)
+            }
+
+            insets
         }
 
-        val navView: BottomNavigationView = binding.navView
-        val navController = findNavController(R.id.nav_host_fragment)
+        val navHostFragment = supportFragmentManager
+            .findFragmentById(R.id.nav_host_fragment) as? NavHostFragment
+        val navController = navHostFragment?.navController
 
-        navView.setupWithNavController(navController)
+        if (navController != null) {
+            binding.navView.setupWithNavController(navController)
+            navController.addOnDestinationChangedListener { _, destination, _ ->
+                val title = when (destination.id) {
+                    R.id.navigation_home      -> "HOME SCREEN"
+                    R.id.navigation_dashboard -> "DASHBOARD"
+                    R.id.navigation_map       -> "SLAM MAP"
+                    R.id.navigation_ai        -> "AI INTERFACE"
+                    R.id.navigation_controls  -> "ROBOT CONTROLS"
+                    R.id.navigation_settings  -> "SETTINGS"
+                    else -> destination.label?.toString() ?: ""
+                }
+                binding.textScreenTitle.text = title
+            }
 
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            binding.textScreenTitle.text = screenLabels[destination.id] ?: destination.label
+            binding.btnSettings.setOnClickListener {
+                navController.navigate(R.id.navigation_settings)
+            }
         }
 
-        startClock()
+        updateTime()
         Timber.i("MainActivity initialized")
     }
 
-    private fun startClock() {
-        val tick = object : Runnable {
-            override fun run() {
-                binding.textStatusTime.text = timeFmt.format(Date())
-                timeHandler.postDelayed(this, 30_000L)
-            }
+    private fun updateTime() {
+        if (!isFinishing && !isDestroyed) {
+            binding.textStatusTime.text = timeFmt.format(Date())
+            timeHandler.postDelayed(::updateTime, 30_000L)
         }
-        tick.run()
     }
 
     override fun onDestroy() {

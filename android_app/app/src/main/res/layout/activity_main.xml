@@ -9,7 +9,7 @@
     <LinearLayout
         android:id="@+id/hud_status_bar"
         android:layout_width="0dp"
-        android:layout_height="36dp"
+        android:layout_height="44dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:paddingStart="10dp"
@@ -58,15 +58,35 @@
             android:fontFamily="monospace"
             android:letterSpacing="0.1" />
 
-        <!-- Right: system clock -->
-        <TextView
-            android:id="@+id/text_status_time"
+        <!-- Right: system clock & settings -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="00:00"
-            android:textColor="@color/hud_muted"
-            android:textSize="8sp"
-            android:fontFamily="monospace" />
+            android:layout_weight="0"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            
+            <TextView
+                android:id="@+id/text_status_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="@color/hud_muted"
+                android:textSize="8sp"
+                android:fontFamily="monospace"
+                android:layout_marginEnd="12dp" />
+
+            <ImageView
+                android:id="@+id/btn_settings"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_settings"
+                android:tint="@color/hud_muted"
+                android:contentDescription="@string/title_settings"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Bottom border of status bar -->
@@ -80,7 +100,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <!-- ── Fragment host ───────────────────────────────────────────── -->
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
         android:layout_width="0dp"
@@ -100,7 +120,6 @@
         android:background="@color/hud_bg"
         app:itemIconTint="@color/bottom_nav_item_color"
         app:itemTextColor="@color/bottom_nav_item_color"
-        app:itemActiveIndicatorColor="@android:color/transparent"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"
         app:layout_constraintBottom_toBottomOf="parent"

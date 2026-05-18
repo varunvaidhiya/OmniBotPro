@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.os.Handler
+import android.os.Looper
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,6 +29,7 @@ class AIFragment : BaseFragment<FragmentAiBinding>() {
 
     private val aiViewModel: AIViewModel by viewModels()
     private val chatAdapter = ChatAdapter()
+    private val uiHandler = Handler(Looper.getMainLooper())
 
     private var isVisualMode = true
     private var currentAiState = JarvisView.AiState.IDLE
@@ -179,9 +182,13 @@ class AIFragment : BaseFragment<FragmentAiBinding>() {
 
         // Auto-advance state simulation
         if (state == JarvisView.AiState.PROCESSING) {
-            binding.root.postDelayed({ transitionToState(JarvisView.AiState.SPEAKING) }, 1600L)
+            uiHandler.postDelayed({
+                if (_binding != null) transitionToState(JarvisView.AiState.SPEAKING)
+            }, 1600L)
         } else if (state == JarvisView.AiState.SPEAKING) {
-            binding.root.postDelayed({ transitionToState(JarvisView.AiState.IDLE) }, 4500L)
+            uiHandler.postDelayed({
+                if (_binding != null) transitionToState(JarvisView.AiState.IDLE)
+            }, 4500L)
         }
     }
 
@@ -197,5 +204,10 @@ class AIFragment : BaseFragment<FragmentAiBinding>() {
         if (currentAiState != JarvisView.AiState.IDLE) return
         binding.editCommand.setText(text)
         binding.editCommand.setSelection(text.length)
+    }
+
+    override fun onDestroyView() {
+        uiHandler.removeCallbacksAndMessages(null)
+        super.onDestroyView()
     }
 }

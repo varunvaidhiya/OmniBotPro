@@ -8,7 +8,7 @@
         <item name="colorOnSecondary">@color/hud_bg</item>
         <item name="colorSurface">@color/hud_bg</item>
         <item name="colorOnSurface">@color/hud_text</item>
-        <item name="colorBackground">@color/hud_bg</item>
+        <item name="android:colorBackground">@color/hud_bg</item>
         <item name="colorOnBackground">@color/hud_text</item>
         <item name="android:statusBarColor">@color/hud_bg</item>
         <item name="android:navigationBarColor">@color/hud_bg</item>
