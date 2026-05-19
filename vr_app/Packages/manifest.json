@@ -1,0 +1,24 @@
+{
+  "dependencies": {
+    "com.unity.xr.openxr": "1.10.0",
+    "com.unity.xr.management": "4.4.0",
+    "com.unity.inputsystem": "1.7.0",
+    "com.unity.textmeshpro": "3.0.9",
+    "com.unity.ugui": "1.0.0",
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.endel.nativewebsocket": "https://github.com/endel/NativeWebSocket.git#upm",
+    "com.meta.xr.sdk.core": "60.0.0",
+    "com.meta.xr.sdk.interaction": "60.0.0",
+    "com.meta.xr.sdk.interaction.ovr": "60.0.0"
+  },
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.meta.xr",
+        "com.endel.nativewebsocket"
+      ]
+    }
+  ]
+}
