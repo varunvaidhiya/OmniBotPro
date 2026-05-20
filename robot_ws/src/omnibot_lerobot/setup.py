@@ -24,12 +24,12 @@ setup(
     zip_safe=True,
     maintainer="varunvaidhiya",
     maintainer_email="varunvaidhiya@todo.todo",
-    description="SmolVLA unified policy for OmniBot mobile manipulation",
+    description="Model-agnostic visuomotor policy node for OmniBot mobile manipulation",
     license="Apache-2.0",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            "smolvla_node = omnibot_lerobot.smolvla_node:main",
+            "policy_node = omnibot_lerobot.policy_node:main",
             "teleop_recorder_node = omnibot_lerobot.teleop_recorder_node:main",
             "bev_stitcher_node = omnibot_lerobot.bev_stitcher_node:main",
         ],

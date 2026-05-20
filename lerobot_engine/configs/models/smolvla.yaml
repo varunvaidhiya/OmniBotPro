@@ -1,0 +1,30 @@
+# SmolVLA fine-tuning configuration for OmniBot.
+#
+# Usage:
+#   python lerobot_engine/train.py \
+#     --model smolvla \
+#     --checkpoint lerobot/smolvla_base \
+#     --dataset-path ~/datasets/mobile_manipulation \
+#     --output-dir ~/checkpoints/smolvla_run1
+
+model:
+  type: smolvla
+  pretrained: "lerobot/smolvla_base"
+  device: cuda
+  policy_hz: 10.0
+  chunk_size: 50
+  # TensorRT vision encoder acceleration (optional — see vla_engine/trt/).
+  # Build: python -m vla_engine.trt.build_engine \
+  #            --checkpoint lerobot/smolvla_base \
+  #            --output engines/vision_fp16.trt
+  use_trt: false
+  trt_engine_path: ""
+
+training:
+  num_epochs: 100
+  batch_size: 8
+  lr: 1.0e-4
+  lr_scheduler: cosine
+  grad_clip_norm: 10.0
+  save_every: 10
+  num_workers: 4

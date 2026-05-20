@@ -1,19 +1,22 @@
-"""TensorRT-accelerated vision encoder for SmolVLA.
+"""TensorRT-accelerated vision encoder for visuomotor policies.
 
-Provides a drop-in replacement for the SmolVLA vision encoder that runs
+Provides a drop-in replacement for any policy's vision encoder that runs
 through a pre-built TRT FP16 engine, giving a 2-3x speedup on the encoder
 forward pass without changing any downstream model behaviour.
+
+Works with any policy whose vision encoder can be located via the
+find_vision_encoder() attribute-path search (SmolVLA, ACT-with-ViT, etc.).
 
 Typical workflow
 ----------------
 1. Build the engine once (offline):
        python -m vla_engine.trt.build_engine \\
            --checkpoint lerobot/smolvla_base \\
-           --output engines/smolvla_vision_fp16.trt
+           --output engines/vision_fp16.trt
 
 2. At runtime, patch the loaded policy:
        from vla_engine.trt import patch_policy_vision_encoder
-       patch_policy_vision_encoder(policy, "engines/smolvla_vision_fp16.trt")
+       patch_policy_vision_encoder(policy, "engines/vision_fp16.trt")
 
 The patch is transparent — policy.select_action() continues to work normally.
 """
@@ -90,7 +93,7 @@ def find_vision_encoder(policy: nn.Module) -> tuple[nn.Module, str]:
 
     raise RuntimeError(
         "Could not locate the vision encoder inside the policy. "
-        "Add its attribute path to _VISION_ENCODER_PATHS in smolvla_encoder.py."
+        "Add its attribute path to _VISION_ENCODER_PATHS in encoder_export.py."
     )
 
 

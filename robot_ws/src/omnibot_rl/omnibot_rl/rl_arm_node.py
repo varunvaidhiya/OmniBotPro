@@ -102,7 +102,7 @@ class RLArmNode(Node):
         n_joints = len(self._joint_names)
 
         # ── State ────────────────────────────────────────────────────────────
-        self._active_mode: str = 'smolvla'
+        self._active_mode: str = 'policy'
         self._joint_pos: np.ndarray = np.zeros(n_joints)
         self._joint_vel: np.ndarray = np.zeros(n_joints)
         self._prev_joint_pos: np.ndarray = np.zeros(n_joints)

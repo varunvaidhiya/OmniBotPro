@@ -1,0 +1,65 @@
+# OmniBot 9-DOF mobile manipulation robot specification.
+#
+# Single source of truth for action/state dimensions, joint names, value
+# ranges, and camera keys. All training, recording, and inference code reads
+# from this file — never hardcode these values elsewhere.
+#
+# Joint names use the arm_ prefix matching arm_driver_node and arm_cmd_mux
+# defaults. Do not change without updating those nodes.
+
+robot:
+  name: omnibot_mobile_manip
+
+  # ── Action & State ─────────────────────────────────────────────────────────
+  action_dim: 9
+  state_dim: 9
+
+  # Column names written to the LeRobot dataset and used by every pipeline.
+  action_names:
+    - arm_shoulder_pan
+    - arm_shoulder_lift
+    - arm_elbow_flex
+    - arm_wrist_flex
+    - arm_wrist_roll
+    - arm_gripper
+    - base_vx
+    - base_vy
+    - base_vz
+
+  state_names:
+    - arm_shoulder_pan
+    - arm_shoulder_lift
+    - arm_elbow_flex
+    - arm_wrist_flex
+    - arm_wrist_roll
+    - arm_gripper
+    - base_vx
+    - base_vy
+    - base_vz
+
+  # Per-dimension [min, max] used for min-max normalisation during training.
+  action_min: [-3.14, -1.57, -1.57, -1.57, -3.14, -0.10, -0.30, -0.30, -1.00]
+  action_max: [ 3.14,  1.57,  1.57,  1.57,  3.14,  0.80,  0.30,  0.30,  1.00]
+  state_min:  [-3.14, -1.57, -1.57, -1.57, -3.14, -0.10, -0.30, -0.30, -1.00]
+  state_max:  [ 3.14,  1.57,  1.57,  1.57,  3.14,  0.80,  0.30,  0.30,  1.00]
+
+  # ── Cameras ────────────────────────────────────────────────────────────────
+  # key:    LeRobot feature key used in obs dicts, dataset columns, and the
+  #         ROS policy_node. Must match across recording, training, inference.
+  # topic:  ROS2 topic name (used by policy_node and teleop_recorder_node).
+  # width/height: native capture resolution (policy adapters resize internally).
+  cameras:
+    - key: observation.images.wrist
+      topic: /camera/wrist/image_raw
+      width: 640
+      height: 480
+    - key: observation.images.bev
+      topic: /camera/base/bev/image_raw
+      width: 800
+      height: 800
+
+  fps: 30
+
+  # ── Safety limits (informational — enforced by yahboom_controller_node) ────
+  max_linear_vel: 0.20   # m/s
+  max_angular_vel: 1.00  # rad/s

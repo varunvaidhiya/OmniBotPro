@@ -1,0 +1,27 @@
+# Diffusion Policy configuration for OmniBot.
+#
+# Strong for smooth, precise manipulation trajectories. Uses DDIM at inference.
+# Not language-conditioned.
+#
+# Usage:
+#   python lerobot_engine/train.py \
+#     --model diffusion \
+#     --checkpoint lerobot/diffusion_pusht \
+#     --dataset-path ~/datasets/mobile_manipulation \
+#     --output-dir ~/checkpoints/diffusion_run1
+
+model:
+  type: diffusion
+  pretrained: "lerobot/diffusion_pusht"
+  device: cuda
+  policy_hz: 10.0
+  num_inference_steps: 10  # DDIM steps: 10 = fast (robot), 100 = high quality (eval)
+
+training:
+  num_epochs: 150
+  batch_size: 64
+  lr: 1.0e-4
+  lr_scheduler: cosine
+  grad_clip_norm: 1.0
+  save_every: 15
+  num_workers: 4
