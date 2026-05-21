@@ -25,6 +25,10 @@ install(PROGRAMS
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+  # Skip copyright and cpplint checks — launch files / configs have no
+  # copyright headers (consistent with omnibot_bringup / omnibot_description).
+  set(ament_cmake_copyright_FOUND TRUE)
+  set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
