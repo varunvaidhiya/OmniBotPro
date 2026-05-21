@@ -55,12 +55,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-pip
-          pip3 install "numpy<2.0" torch opencv-python accelerate transformers \
+          pip3 install "numpy<2.0" \
                        pytest pytest-cov pytest-timeout coverage \
                        prometheus_client>=0.20 \
-                       prometheus-fastapi-instrumentator>=6.1 \
-                       opentelemetry-sdk>=1.24.0 \
-                       opentelemetry-exporter-otlp-proto-grpc>=1.24.0 \
                        --break-system-packages
 
           rosdep update
