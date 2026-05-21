@@ -1,0 +1,27 @@
+# ACT (Action Chunking Transformer) configuration for OmniBot.
+#
+# Faster than SmolVLA (~20 Hz vs 10 Hz). Not language-conditioned.
+# Good for: ablation baseline, precise pick-and-place, lower-VRAM machines.
+#
+# Usage:
+#   python lerobot_engine/train.py \
+#     --model act \
+#     --checkpoint lerobot/act_base \
+#     --dataset-path ~/datasets/mobile_manipulation \
+#     --output-dir ~/checkpoints/act_run1
+
+model:
+  type: act
+  pretrained: "lerobot/act_base"
+  device: cuda
+  policy_hz: 20.0
+  chunk_size: 100
+
+training:
+  num_epochs: 200
+  batch_size: 16
+  lr: 1.0e-4
+  lr_scheduler: cosine
+  grad_clip_norm: 10.0
+  save_every: 20
+  num_workers: 4

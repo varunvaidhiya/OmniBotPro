@@ -87,7 +87,9 @@ def generate_launch_description():
     use_foxglove = LaunchConfiguration("use_foxglove", default="true")
     use_bev = LaunchConfiguration("use_bev", default="true")
     use_rl = LaunchConfiguration("use_rl", default="false")
-    use_smolvla = LaunchConfiguration("use_smolvla", default="false")
+    use_policy = LaunchConfiguration("use_policy", default="false")
+    policy_model_type = LaunchConfiguration("policy_model_type", default="smolvla")
+    policy_checkpoint = LaunchConfiguration("policy_checkpoint", default="lerobot/smolvla_base")
     use_langchain = LaunchConfiguration("use_langchain", default="false")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
@@ -141,15 +143,17 @@ def generate_launch_description():
         }.items(),
     )
 
-    # ── SmolVLA mobile manipulation policy (optional, use_smolvla:=true) ──────
-    # Requires BEV stitcher (use_bev:=true) and wrist camera to be running.
-    # arm_cmd_mux above routes its /arm/joint_commands output to the arm driver.
-    smolvla_inference = IncludeLaunchDescription(
+    # ── Visuomotor policy (optional, use_policy:=true) ────────────────────────
+    # Model selected via policy_model_type. Requires BEV stitcher and wrist camera.
+    # arm_cmd_mux above routes /arm/joint_commands to the arm driver.
+    policy_inference = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_lerobot, "launch", "smolvla_inference.launch.py")
+            os.path.join(pkg_lerobot, "launch", "policy_inference.launch.py")
         ),
-        condition=IfCondition(use_smolvla),
+        condition=IfCondition(use_policy),
         launch_arguments={
+            "model_type": policy_model_type,
+            "checkpoint": policy_checkpoint,
             "include_arm_mux": "false",  # arm_cmd_mux already started above
         }.items(),
     )
@@ -258,11 +262,11 @@ def generate_launch_description():
         parameters=[{"use_sim_time": use_sim_time}],
     )
 
-    # ── BEV stitcher (required by SmolVLA) ───────────────────────────────────
+    # ── BEV stitcher (required by policy_node) ───────────────────────────────
     # Publishes /camera/base/bev/image_raw from 4 base-mounted cameras.
-    # Enabled when use_bev:=true OR use_smolvla:=true (smolvla always needs it).
+    # Enabled when use_bev:=true OR use_policy:=true.
     _bev_enabled = PythonExpression(
-        ["'true' if '", use_bev, "' == 'true' or '", use_smolvla, "' == 'true' else 'false'"]
+        ["'true' if '", use_bev, "' == 'true' or '", use_policy, "' == 'true' else 'false'"]
     )
     bev_stitcher_node = Node(
         package="omnibot_lerobot",
@@ -357,9 +361,19 @@ def generate_launch_description():
                 description="Start Isaac Lab RL inference nodes (rl_nav, rl_arm)",
             ),
             DeclareLaunchArgument(
-                "use_smolvla",
+                "use_policy",
                 default_value="false",
-                description="Start SmolVLA mobile manipulation policy (9-DOF arm+base)",
+                description="Start visuomotor policy node (9-DOF arm+base). Set policy_model_type to choose model.",
+            ),
+            DeclareLaunchArgument(
+                "policy_model_type",
+                default_value="smolvla",
+                description="Policy model type: smolvla | act | diffusion | openvla",
+            ),
+            DeclareLaunchArgument(
+                "policy_checkpoint",
+                default_value="lerobot/smolvla_base",
+                description="HuggingFace hub ID or local checkpoint path for the policy model",
             ),
             DeclareLaunchArgument(
                 "vla_image_topic",
@@ -378,7 +392,7 @@ def generate_launch_description():
             driver_node,
             arm_cmd_mux_node,
             rl_inference,
-            smolvla_inference,
+            policy_inference,
             langchain_agent,
             robot_state_publisher,
             ekf_node,

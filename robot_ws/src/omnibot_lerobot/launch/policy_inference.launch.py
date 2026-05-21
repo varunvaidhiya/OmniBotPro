@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""
-SmolVLA inference launch for OmniBot mobile manipulation.
+"""Policy inference launch for OmniBot mobile manipulation.
 
-Remappings applied here so smolvla_node.py stays hardware-agnostic:
-  /cmd_vel          → /cmd_vel/vla     (cmd_vel_mux selects this in "vla" mode)
-  /arm/joint_commands stays as-is     (arm_cmd_mux routes to /arm/joint_commands/out)
+Starts the model-agnostic policy_node and (optionally) the arm_cmd_mux.
+Swap the model by passing model_type:=act, model_type:=diffusion, etc.
 
-Also starts arm_cmd_mux so SmolVLA arm commands reach arm_driver_node even
-when rl_inference.launch.py is not running. Pass include_arm_mux:=false if
-arm_cmd_mux is already started by a parent launch.
+Remappings applied:
+  /cmd_vel → /cmd_vel/vla   (cmd_vel_mux routes this in "vla" mode)
 
-Usage:
-    ros2 launch omnibot_lerobot smolvla_inference.launch.py
-    ros2 launch omnibot_lerobot smolvla_inference.launch.py checkpoint:=lerobot/smolvla_base
+Usage
+-----
+ros2 launch omnibot_lerobot policy_inference.launch.py
+ros2 launch omnibot_lerobot policy_inference.launch.py model_type:=act checkpoint:=lerobot/act_base
+ros2 launch omnibot_lerobot policy_inference.launch.py model_type:=smolvla checkpoint:=~/checkpoints/smolvla_run1/best
+ros2 launch omnibot_lerobot policy_inference.launch.py include_arm_mux:=false
 """
 
 import os
@@ -28,31 +28,32 @@ from launch_ros.actions import Node
 def generate_launch_description():
     pkg_lerobot = get_package_share_directory("omnibot_lerobot")
     pkg_rl = get_package_share_directory("omnibot_rl")
-    smolvla_params = os.path.join(pkg_lerobot, "config", "smolvla_params.yaml")
+    policy_params = os.path.join(pkg_lerobot, "config", "policy_params.yaml")
     arm_params = os.path.join(pkg_rl, "config", "rl_arm_params.yaml")
 
+    model_type = LaunchConfiguration("model_type")
     checkpoint = LaunchConfiguration("checkpoint")
     device = LaunchConfiguration("device")
     include_arm_mux = LaunchConfiguration("include_arm_mux")
 
-    smolvla_node = Node(
+    policy_node = Node(
         package="omnibot_lerobot",
-        executable="smolvla_node",
-        name="smolvla_node",
+        executable="policy_node",
+        name="policy_node",
         output="screen",
         parameters=[
-            smolvla_params,
-            {"checkpoint_path": checkpoint, "device": device},
+            policy_params,
+            {
+                "model_type": model_type,
+                "checkpoint_path": checkpoint,
+                "device": device,
+            },
         ],
         remappings=[
-            # Route base velocity into the cmd_vel_mux "vla" slot
             ("/cmd_vel", "/cmd_vel/vla"),
         ],
     )
 
-    # arm_cmd_mux: bridges /arm/joint_commands (SmolVLA) → /arm/joint_commands/out
-    # → arm_driver_node. Skip with include_arm_mux:=false when a parent launch
-    # already starts this node.
     arm_cmd_mux_node = Node(
         package="omnibot_rl",
         executable="arm_cmd_mux",
@@ -65,24 +66,26 @@ def generate_launch_description():
     return LaunchDescription(
         [
             DeclareLaunchArgument(
+                "model_type",
+                default_value="smolvla",
+                description="Policy model type: smolvla | act | diffusion | openvla",
+            ),
+            DeclareLaunchArgument(
                 "checkpoint",
                 default_value="lerobot/smolvla_base",
-                description="HuggingFace model ID or local path for SmolVLA checkpoint",
+                description="HuggingFace hub ID or local path to the model checkpoint",
             ),
             DeclareLaunchArgument(
                 "device",
                 default_value="cuda",
-                description="PyTorch device: cuda or cpu",
+                description="Inference device: cuda | cpu",
             ),
             DeclareLaunchArgument(
                 "include_arm_mux",
                 default_value="true",
-                description=(
-                    "Start arm_cmd_mux here. Set false if a parent launch "
-                    "already starts it."
-                ),
+                description="Start arm_cmd_mux here. Set false if a parent launch already starts it.",
             ),
-            smolvla_node,
+            policy_node,
             arm_cmd_mux_node,
         ]
     )

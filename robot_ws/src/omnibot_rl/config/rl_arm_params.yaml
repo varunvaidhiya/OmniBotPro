@@ -31,7 +31,7 @@ rl_arm_node:
 
 arm_cmd_mux:
   ros__parameters:
-    default_mode: "smolvla"     # Start in SmolVLA pass-through mode
+    default_mode: "policy"     # Start in policy pass-through mode
 
 rl_object_pose_node:
   ros__parameters:

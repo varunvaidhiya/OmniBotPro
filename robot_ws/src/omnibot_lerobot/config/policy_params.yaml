@@ -1,0 +1,30 @@
+policy_node:
+  ros__parameters:
+    # Model selection — change model_type to swap backends without editing code.
+    # Registered types: smolvla | act | diffusion | openvla
+    model_type: "smolvla"
+    checkpoint_path: "lerobot/smolvla_base"
+    device: "cuda"
+    policy_hz: 10.0
+    state_dim: 9
+    action_dim: 9
+    image_width: 320
+    image_height: 240
+    task_description: "pick up the object and place it in the bin"
+    base_vel_scale: 0.3
+    # TensorRT vision encoder acceleration (optional).
+    # Build: python -m vla_engine.trt.build_engine \
+    #            --checkpoint lerobot/smolvla_base \
+    #            --output engines/vision_fp16.trt
+    use_trt: false
+    trt_engine_path: ""
+    publish_diagnostics: false
+
+teleop_recorder_node:
+  ros__parameters:
+    output_dir: "~/datasets/mobile_manipulation"
+    repo_id: "local/mobile_manipulation"
+    record_hz: 30.0
+    episode_timeout_s: 60.0
+    joy_record_button: 7   # Xbox RB
+    joy_discard_button: 6  # Xbox LB

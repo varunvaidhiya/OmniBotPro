@@ -1,262 +1,219 @@
 #!/usr/bin/env python3
-"""
-Standalone teleoperation recorder for mobile manipulation.
+"""Standalone dataset recording — gamepad + webcams, no ROS required.
 
-Uses LeRobot's native pipeline:
-  - Leader arm (SO-101) → follower arm mirroring
-  - Xbox controller → base velocity commands (logged only; base control handled via ROS)
-  - Records episodes in LeRobot HF dataset format
+For the full ROS-integrated recording workflow (leader arm + base + ROS topics),
+use the teleop_recorder_node instead:
+    ros2 launch omnibot_lerobot teleop_record.launch.py
 
-Usage:
-  python record.py --task "pick up the red cube" --num-episodes 20 \\
-                   --output-dir ~/datasets/mobile_manipulation
+This script is useful when:
+  - You want to record quickly without a ROS stack running
+  - You are testing on a workstation without the robot connected
+  - You want to collect data from webcams only (no leader arm)
+
+Controls (Xbox controller via pygame or /dev/input, fallback keyboard)
+----------------------------------------------------------------------
+  RB (button 5) — start / stop recording
+  LB (button 4) — discard current episode
+  Left stick     — base velocity (vx, vy)
+  Right stick X  — base angular (vz)
+  Keyboard: SPACE=record, D=discard, Q=quit (fallback when no gamepad)
+
+Usage
+-----
+python lerobot_engine/record.py \\
+    --output-dir ~/datasets/mobile_manipulation \\
+    --repo-id local/mobile_manipulation \\
+    --task "pick up the red cube" \\
+    --record-hz 30 \\
+    --wrist-camera 0 \\
+    --bev-camera 1
 """
 
 import argparse
+import os
 import time
-import numpy as np
 from pathlib import Path
-import json
-from datetime import datetime
 
-# ---------------------------------------------------------------------------
-# Optional LeRobot imports
-# ---------------------------------------------------------------------------
+import numpy as np
+
 try:
-    from lerobot.common.robot_devices.motors.feetech import FeetechMotorsBus
+    import cv2
+
+    CV2_AVAILABLE = True
+except ImportError:
+    CV2_AVAILABLE = False
+
+try:
+    import pygame
+
+    PYGAME_AVAILABLE = True
+except ImportError:
+    PYGAME_AVAILABLE = False
+
+try:
     from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 
     LEROBOT_AVAILABLE = True
 except ImportError:
     LEROBOT_AVAILABLE = False
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
-JOINT_NAMES = [
-    "shoulder_pan",
-    "shoulder_lift",
-    "elbow_flex",
-    "wrist_flex",
-    "wrist_roll",
-    "gripper",
+# Canonical names matching arm_driver_node and the robot schema
+ARM_JOINT_NAMES = [
+    "arm_shoulder_pan",
+    "arm_shoulder_lift",
+    "arm_elbow_flex",
+    "arm_wrist_flex",
+    "arm_wrist_roll",
+    "arm_gripper",
 ]
-NUM_JOINTS = len(JOINT_NAMES)
-MOTOR_IDS = [1, 2, 3, 4, 5, 6]
-HOME_TICKS = [2048, 2048, 2048, 2048, 2048, 2048]
-TICKS_PER_REV = 4096
-
-DATASET_FEATURES = {
-    "observation.state": {
-        "dtype": "float32",
-        "shape": (9,),
-        "names": {"joints": JOINT_NAMES + ["base_vx", "base_vy", "base_vz"]},
-    },
-    "action": {
-        "dtype": "float32",
-        "shape": (9,),
-        "names": {"joints": JOINT_NAMES + ["base_vx", "base_vy", "base_vz"]},
-    },
-    "observation.images.wrist": {
-        "dtype": "video",
-        "shape": (3, 240, 320),
-        "names": ["channels", "height", "width"],
-    },
-    "observation.images.front": {
-        "dtype": "video",
-        "shape": (3, 240, 320),
-        "names": ["channels", "height", "width"],
-    },
-}
+STATE_NAMES = ARM_JOINT_NAMES + ["base_vx", "base_vy", "base_vz"]
+ACTION_NAMES = STATE_NAMES
+IMAGE_W, IMAGE_H = 320, 240
+MAX_LINEAR = 0.2   # m/s
+MAX_ANGULAR = 1.0  # rad/s
 
 
 # ---------------------------------------------------------------------------
-# Tick <-> radian conversion
+# Args
 # ---------------------------------------------------------------------------
 
 
-def ticks_to_radians(ticks: list) -> np.ndarray:
-    ticks_per_rad = TICKS_PER_REV / (2.0 * np.pi)
-    return np.array(
-        [(t - h) / ticks_per_rad for t, h in zip(ticks, HOME_TICKS)], dtype=np.float32
-    )
-
-
-def radians_to_ticks(rads: np.ndarray) -> list:
-    ticks_per_rad = TICKS_PER_REV / (2.0 * np.pi)
-    return [int(round(r * ticks_per_rad + h)) for r, h in zip(rads, HOME_TICKS)]
-
-
-# ---------------------------------------------------------------------------
-# Bus helpers
-# ---------------------------------------------------------------------------
-
-
-def build_motors_dict():
-    return {name: (mid, "sts3215") for name, mid in zip(JOINT_NAMES, MOTOR_IDS)}
-
-
-def read_positions(bus) -> np.ndarray:
-    ticks_dict = bus.read("Present_Position")
-    ticks = [ticks_dict[name] for name in JOINT_NAMES]
-    return ticks_to_radians(ticks)
-
-
-def write_positions(bus, rads: np.ndarray):
-    ticks = radians_to_ticks(rads)
-    values_dict = {name: tick for name, tick in zip(JOINT_NAMES, ticks)}
-    bus.write("Goal_Position", values_dict)
+def parse_args():
+    parser = argparse.ArgumentParser(description="Standalone dataset recording.")
+    parser.add_argument("--output-dir", type=str,
+                        default="~/datasets/mobile_manipulation")
+    parser.add_argument("--repo-id", type=str, default="local/mobile_manipulation")
+    parser.add_argument("--task", type=str, default="mobile manipulation task")
+    parser.add_argument("--record-hz", type=float, default=30.0)
+    parser.add_argument("--episode-timeout", type=float, default=60.0,
+                        help="Auto-save after this many seconds.")
+    parser.add_argument("--wrist-camera", type=int, default=0,
+                        help="OpenCV camera index for the wrist camera.")
+    parser.add_argument("--bev-camera", type=int, default=-1,
+                        help="OpenCV camera index for BEV camera. -1 = dummy frame.")
+    return parser.parse_args()
 
 
 # ---------------------------------------------------------------------------
-# Dummy image placeholder (no cameras in standalone mode)
+# Gamepad
 # ---------------------------------------------------------------------------
 
 
-def dummy_image() -> np.ndarray:
-    return np.zeros((240, 320, 3), dtype=np.uint8)
+def init_gamepad():
+    if not PYGAME_AVAILABLE:
+        return None
+    pygame.init()
+    pygame.joystick.init()
+    if pygame.joystick.get_count() == 0:
+        return None
+    joy = pygame.joystick.Joystick(0)
+    joy.init()
+    print(f"  Gamepad: {joy.get_name()}")
+    return joy
+
+
+def read_gamepad(joy) -> tuple[np.ndarray, bool, bool]:
+    """Returns (base_vel_3d, record_pressed, discard_pressed)."""
+    pygame.event.pump()
+    vx = float(joy.get_axis(1)) * MAX_LINEAR
+    vy = float(joy.get_axis(0)) * MAX_LINEAR
+    vz = float(joy.get_axis(3)) * MAX_ANGULAR
+    record = bool(joy.get_button(5))   # RB
+    discard = bool(joy.get_button(4))  # LB
+    return np.array([vx, vy, vz], dtype=np.float32), record, discard
 
 
 # ---------------------------------------------------------------------------
-# Episode recording
+# Camera
 # ---------------------------------------------------------------------------
 
 
-def record_episode(
-    follower_bus,
-    leader_bus,
-    dataset,
-    episode_idx: int,
-    fps: float,
-    episode_time_s: float,
+def open_camera(idx: int):
+    if not CV2_AVAILABLE or idx < 0:
+        return None
+    cap = cv2.VideoCapture(idx)
+    return cap if cap.isOpened() else None
+
+
+def read_frame(cap, w: int = IMAGE_W, h: int = IMAGE_H) -> np.ndarray:
+    if cap is None:
+        return np.zeros((h, w, 3), dtype=np.uint8)
+    ret, frame = cap.read()
+    if not ret or frame is None:
+        return np.zeros((h, w, 3), dtype=np.uint8)
+    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    return cv2.resize(rgb, (w, h), interpolation=cv2.INTER_LINEAR)
+
+
+# ---------------------------------------------------------------------------
+# Save episode
+# ---------------------------------------------------------------------------
+
+
+def save_episode_lerobot(
+    frames: list[dict],
+    output_dir: str,
+    repo_id: str,
+    record_hz: float,
     task: str,
-) -> int:
-    """
-    Record one episode of leader→follower mirroring.
+):
+    features = {
+        "observation.state": {
+            "dtype": "float32",
+            "shape": (9,),
+            "names": {"joints": STATE_NAMES},
+        },
+        "action": {
+            "dtype": "float32",
+            "shape": (9,),
+            "names": {"joints": ACTION_NAMES},
+        },
+        "observation.images.wrist": {
+            "dtype": "video",
+            "shape": (3, IMAGE_H, IMAGE_W),
+            "names": ["channels", "height", "width"],
+        },
+        "observation.images.bev": {
+            "dtype": "video",
+            "shape": (3, IMAGE_H, IMAGE_W),
+            "names": ["channels", "height", "width"],
+        },
+    }
 
-    Returns number of frames recorded.
-    """
-    print(
-        f"\n  Episode {episode_idx}: Recording for up to {episode_time_s:.0f}s "
-        f"at {fps:.0f} Hz. Press Ctrl+C to finish early.\n"
+    dataset = LeRobotDataset.create(
+        repo_id=repo_id,
+        fps=int(record_hz),
+        root=output_dir,
+        features=features,
+        image_writer_threads=4,
     )
 
-    tick_period = 1.0 / fps
-    frame_count = 0
-    start_time = time.time()
-
-    try:
-        while (time.time() - start_time) < episode_time_s:
-            t0 = time.perf_counter()
-
-            # Read leader → write to follower
-            leader_pos = read_positions(leader_bus)
-            write_positions(follower_bus, leader_pos)
-
-            # Observation: follower positions
-            follower_pos = read_positions(follower_bus)
-
-            # 9D state/action (base velocity = 0 in arm-only mode)
-            base_zeros = np.zeros(3, dtype=np.float32)
-            state = np.concatenate([follower_pos, base_zeros])
-            action = np.concatenate([leader_pos, base_zeros])
-
-            # Placeholder images
-            wrist_img = dummy_image()
-            front_img = dummy_image()
-
-            dataset.add_frame(
-                {
-                    "observation.state": state,
-                    "action": action,
-                    "observation.images.wrist": wrist_img,
-                    "observation.images.front": front_img,
-                }
-            )
-
-            frame_count += 1
-
-            # Pace to fps
-            elapsed = time.perf_counter() - t0
-            sleep_time = tick_period - elapsed
-            if sleep_time > 0:
-                time.sleep(sleep_time)
-
-    except KeyboardInterrupt:
-        print("\n  Ctrl+C detected — finishing episode early.")
-
+    for f in frames:
+        dataset.add_frame(
+            {
+                "observation.state": f["state"],
+                "action": f["action"],
+                "observation.images.wrist": f["wrist_image"],
+                "observation.images.bev": f["bev_image"],
+            }
+        )
     dataset.save_episode(task=task)
-    duration = time.time() - start_time
-    print(
-        f"  Episode {episode_idx}: {frame_count} frames in {duration:.1f}s "
-        f"({frame_count / duration:.1f} fps actual)."
-    )
-    return frame_count
 
 
-# ---------------------------------------------------------------------------
-# Numpy fallback recording
-# ---------------------------------------------------------------------------
-
-
-def record_episode_numpy(
-    follower_bus,
-    leader_bus,
-    output_dir: Path,
-    episode_idx: int,
-    fps: float,
-    episode_time_s: float,
-    task: str,
-) -> int:
-    """Fallback recording to .npz when lerobot is not available."""
-    tick_period = 1.0 / fps
-    frames = []
-    start_time = time.time()
-
-    print(f"\n  Episode {episode_idx} (numpy fallback): Recording ...\n")
-
-    try:
-        while (time.time() - start_time) < episode_time_s:
-            t0 = time.perf_counter()
-
-            leader_pos = read_positions(leader_bus)
-            write_positions(follower_bus, leader_pos)
-            follower_pos = read_positions(follower_bus)
-
-            base_zeros = np.zeros(3, dtype=np.float32)
-            frames.append(
-                {
-                    "state": np.concatenate([follower_pos, base_zeros]),
-                    "action": np.concatenate([leader_pos, base_zeros]),
-                    "timestamp": time.time(),
-                }
-            )
-
-            elapsed = time.perf_counter() - t0
-            if tick_period - elapsed > 0:
-                time.sleep(tick_period - elapsed)
-
-    except KeyboardInterrupt:
-        print("\n  Ctrl+C — finishing early.")
-
-    ep_dir = output_dir / f"episode_{episode_idx:05d}"
+def save_episode_numpy(frames: list[dict], output_dir: str, episode_idx: int):
+    ep_dir = Path(output_dir) / f"episode_{episode_idx:05d}"
     ep_dir.mkdir(parents=True, exist_ok=True)
-
-    states = np.stack([f["state"] for f in frames])
-    actions = np.stack([f["action"] for f in frames])
-    timestamps = np.array([f["timestamp"] for f in frames])
-
     np.savez_compressed(
         ep_dir / "data.npz",
-        states=states,
-        actions=actions,
-        timestamps=timestamps,
-        joint_names=np.array(JOINT_NAMES),
-        task=np.array([task]),
-        fps=np.array([fps]),
+        states=np.stack([f["state"] for f in frames]),
+        actions=np.stack([f["action"] for f in frames]),
+        wrist_images=np.stack([f["wrist_image"] for f in frames]),
+        bev_images=np.stack([f["bev_image"] for f in frames]),
+        timestamps=np.array([f["timestamp"] for f in frames]),
+        state_names=np.array(STATE_NAMES),
+        action_names=np.array(ACTION_NAMES),
     )
-    print(f"  Saved {len(frames)} frames to {ep_dir}/data.npz")
-    return len(frames)
+    print(f"  Saved numpy episode to {ep_dir}/data.npz")
 
 
 # ---------------------------------------------------------------------------
@@ -264,212 +221,149 @@ def record_episode_numpy(
 # ---------------------------------------------------------------------------
 
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Standalone teleoperation recorder for mobile manipulation."
-    )
-    parser.add_argument(
-        "--task",
-        type=str,
-        default="pick up the object and place it",
-        help="Natural language task description for this recording session.",
-    )
-    parser.add_argument(
-        "--num-episodes", type=int, default=10, help="Number of episodes to record."
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="~/datasets/mobile_manipulation",
-        help="Directory to save the dataset.",
-    )
-    parser.add_argument(
-        "--fps", type=float, default=30.0, help="Recording frequency in Hz."
-    )
-    parser.add_argument(
-        "--follower-port",
-        type=str,
-        default="/dev/ttyACM0",
-        help="Serial port for the follower arm.",
-    )
-    parser.add_argument(
-        "--leader-port",
-        type=str,
-        default="/dev/ttyACM1",
-        help="Serial port for the leader arm.",
-    )
-    parser.add_argument(
-        "--episode-time-s",
-        type=float,
-        default=30.0,
-        help="Maximum duration of each episode in seconds.",
-    )
-    parser.add_argument(
-        "--warmup-time-s",
-        type=float,
-        default=3.0,
-        help="Warmup duration before recording starts (seconds).",
-    )
-    parser.add_argument(
-        "--repo-id",
-        type=str,
-        default="local/mobile_manipulation",
-        help="LeRobot dataset repo ID (used for HF format).",
-    )
-    return parser.parse_args()
-
-
 def main():
     args = parse_args()
-    output_dir = Path(args.output_dir).expanduser()
-    output_dir.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.expanduser(args.output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
-    print("=" * 60)
-    print("  OmniBot Mobile Manipulation — Teleoperation Recorder")
-    print("=" * 60)
-    print(f"  Task:         {args.task}")
-    print(f"  Episodes:     {args.num_episodes}")
-    print(f"  FPS:          {args.fps}")
-    print(f"  Episode time: {args.episode_time_s}s")
-    print(f"  Output:       {output_dir}")
-    print(
-        f"  LeRobot:      {'available' if LEROBOT_AVAILABLE else 'NOT available (numpy fallback)'}"
-    )
-    print("=" * 60)
+    if not CV2_AVAILABLE:
+        print("[ERROR] opencv-python is required: pip install opencv-python")
+        return
 
-    if not LEROBOT_AVAILABLE:
-        print(
-            "\n[WARNING] lerobot is not installed.\n"
-            "  Install it with:\n"
-            '    pip install "lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git"\n'
-            "  Falling back to numpy .npz format.\n"
-        )
+    joy = init_gamepad()
+    if joy is None:
+        print("  No gamepad found. Keyboard fallback: SPACE=record, D=discard, Q=quit.")
 
-    # Connect hardware
-    print("\nConnecting to arm hardware...")
-    motors_dict = build_motors_dict()
+    wrist_cap = open_camera(args.wrist_camera)
+    bev_cap = open_camera(args.bev_camera)
 
-    follower_bus = None
-    leader_bus = None
+    if wrist_cap is None:
+        print(f"[WARNING] Wrist camera {args.wrist_camera} not available — using dummy frames.")
+    if bev_cap is None and args.bev_camera >= 0:
+        print(f"[WARNING] BEV camera {args.bev_camera} not available — using dummy frames.")
+
+    print(f"\nRecording to: {output_dir}")
+    print(f"Task: {args.task}")
+    print(f"Rate: {args.record_hz:.0f} Hz")
+    if joy:
+        print("RB = start/stop, LB = discard")
+    else:
+        print("SPACE = start/stop, D = discard, Q = quit")
+
+    episode_idx = 0
+    recording = False
+    buffer: list[dict] = []
+    t_start = 0.0
+    tick = 1.0 / args.record_hz
+
+    prev_record_btn = False
+    prev_discard_btn = False
+
+    cv2.namedWindow("Recording — OmniBot", cv2.WINDOW_NORMAL)
 
     try:
-        if LEROBOT_AVAILABLE:
-            follower_bus = FeetechMotorsBus(port=args.follower_port, motors=motors_dict)
-            follower_bus.connect()
-            print(f"  Follower connected on {args.follower_port}")
+        while True:
+            t0 = time.perf_counter()
 
-            leader_bus = FeetechMotorsBus(port=args.leader_port, motors=motors_dict)
-            leader_bus.connect()
-            print(f"  Leader connected on {args.leader_port}")
-        else:
-            print("[ERROR] lerobot is required for hardware access. Exiting.")
-            print(
-                '  Install: pip install "lerobot[feetech] @ git+https://github.com/huggingface/lerobot.git"'
-            )
-            return
+            # Read inputs
+            if joy is not None:
+                base_vel, record_btn, discard_btn = read_gamepad(joy)
+            else:
+                base_vel = np.zeros(3, dtype=np.float32)
+                record_btn = False
+                discard_btn = False
 
-        # Warmup
-        print(f"\nWarmup for {args.warmup_time_s}s — move leader arm to start pose...")
-        warmup_end = time.time() + args.warmup_time_s
-        while time.time() < warmup_end:
-            leader_pos = read_positions(leader_bus)
-            write_positions(follower_bus, leader_pos)
-            time.sleep(1.0 / args.fps)
-        print("Warmup done.")
-
-        # Create dataset (LeRobot format)
-        dataset = None
-        if LEROBOT_AVAILABLE:
-            print("\nInitializing LeRobot dataset...")
-            dataset = LeRobotDataset.create(
-                repo_id=args.repo_id,
-                fps=int(args.fps),
-                root=str(output_dir),
-                features=DATASET_FEATURES,
-                image_writer_threads=4,
-            )
-
-        # Recording loop
-        total_frames = 0
-        session_start = datetime.now().isoformat(timespec="seconds")
-
-        for ep_idx in range(args.num_episodes):
-            print(
-                f"\n[{ep_idx + 1}/{args.num_episodes}] Ready. "
-                "Move to start pose, then press Enter to begin episode..."
-            )
-            try:
-                input()
-            except EOFError:
-                pass
-
-            try:
-                if dataset is not None:
-                    frames = record_episode(
-                        follower_bus,
-                        leader_bus,
-                        dataset,
-                        ep_idx,
-                        args.fps,
-                        args.episode_time_s,
-                        args.task,
-                    )
-                else:
-                    frames = record_episode_numpy(
-                        follower_bus,
-                        leader_bus,
-                        output_dir,
-                        ep_idx,
-                        args.fps,
-                        args.episode_time_s,
-                        args.task,
-                    )
-                total_frames += frames
-
-            except KeyboardInterrupt:
-                print("\nRecording interrupted by user.")
+            # Keyboard fallback
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord("q"):
                 break
+            if key == ord(" "):
+                record_btn = True
+            if key == ord("d"):
+                discard_btn = True
 
-        # Session summary
-        print("\n" + "=" * 60)
-        print("  Recording session complete.")
-        print(f"  Episodes recorded: {ep_idx + 1}")
-        print(f"  Total frames:      {total_frames}")
-        print(f"  Total duration:    ~{total_frames / args.fps:.1f}s")
-        print(f"  Started at:        {session_start}")
-        print(f"  Output dir:        {output_dir}")
-        print("=" * 60)
+            # Button edge detection
+            record_press = record_btn and not prev_record_btn
+            discard_press = discard_btn and not prev_discard_btn
+            prev_record_btn = record_btn
+            prev_discard_btn = discard_btn
 
-        # Save session metadata
-        metadata = {
-            "task": args.task,
-            "num_episodes": ep_idx + 1,
-            "total_frames": total_frames,
-            "fps": args.fps,
-            "session_start": session_start,
-            "session_end": datetime.now().isoformat(timespec="seconds"),
-            "joint_names": JOINT_NAMES,
-            "state_dim": 9,
-            "action_dim": 9,
-            "note": "base velocity = 0 (arm-only recording; use ROS teleop_recorder_node for full mobile manipulation)",
-        }
-        with open(output_dir / "session_metadata.json", "w") as f:
-            json.dump(metadata, f, indent=2)
-        print(f"\nMetadata saved to {output_dir}/session_metadata.json")
+            if record_press:
+                if not recording:
+                    buffer = []
+                    t_start = time.time()
+                    recording = True
+                    print(f"\nRecording episode {episode_idx}...")
+                else:
+                    recording = False
+                    print(f"  Saving {len(buffer)} frames...")
+                    try:
+                        if LEROBOT_AVAILABLE:
+                            save_episode_lerobot(buffer, output_dir, args.repo_id,
+                                                 args.record_hz, args.task)
+                        else:
+                            save_episode_numpy(buffer, output_dir, episode_idx)
+                        print(f"  Episode {episode_idx} saved.")
+                        episode_idx += 1
+                    except Exception as exc:
+                        print(f"  [ERROR] Save failed: {exc}")
+                    buffer = []
+
+            if discard_press and recording:
+                print(f"  Discarding episode {episode_idx} ({len(buffer)} frames).")
+                buffer = []
+                recording = False
+
+            # Timeout
+            if recording and (time.time() - t_start) > args.episode_timeout:
+                print(f"  Timeout — auto-saving {len(buffer)} frames.")
+                recording = False
+                try:
+                    if LEROBOT_AVAILABLE:
+                        save_episode_lerobot(buffer, output_dir, args.repo_id,
+                                             args.record_hz, args.task)
+                    else:
+                        save_episode_numpy(buffer, output_dir, episode_idx)
+                    episode_idx += 1
+                except Exception as exc:
+                    print(f"  [ERROR] Save failed: {exc}")
+                buffer = []
+
+            # Capture
+            wrist_img = read_frame(wrist_cap)
+            bev_img = read_frame(bev_cap)
+            state = np.zeros(9, dtype=np.float32)
+            state[6:9] = base_vel
+            action = state.copy()
+
+            if recording:
+                buffer.append({
+                    "state": state.copy(),
+                    "action": action.copy(),
+                    "wrist_image": wrist_img.copy(),
+                    "bev_image": bev_img.copy(),
+                    "timestamp": time.time(),
+                })
+
+            # Display
+            status = f"REC {len(buffer)}fr" if recording else f"IDLE ep={episode_idx}"
+            display = cv2.resize(cv2.cvtColor(wrist_img, cv2.COLOR_RGB2BGR), (640, 480))
+            cv2.putText(display, status, (8, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                        (0, 0, 255) if recording else (0, 255, 0), 2)
+            cv2.imshow("Recording — OmniBot", display)
+
+            elapsed = time.perf_counter() - t0
+            if elapsed < tick:
+                time.sleep(tick - elapsed)
 
     finally:
-        if follower_bus is not None:
-            try:
-                follower_bus.disconnect()
-                print("Follower bus disconnected.")
-            except Exception:
-                pass
-        if leader_bus is not None:
-            try:
-                leader_bus.disconnect()
-                print("Leader bus disconnected.")
-            except Exception:
-                pass
+        if wrist_cap:
+            wrist_cap.release()
+        if bev_cap:
+            bev_cap.release()
+        cv2.destroyAllWindows()
+        if PYGAME_AVAILABLE:
+            pygame.quit()
 
 
 if __name__ == "__main__":

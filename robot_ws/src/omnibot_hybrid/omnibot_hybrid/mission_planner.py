@@ -32,7 +32,7 @@ Published topics
   /vla/prompt       std_msgs/String  — task description forwarded to VLA node
   /mission/status   std_msgs/String  — human-readable status string
   /rl_nav/goal      geometry_msgs/PoseStamped  — goal for RL nav node
-  /arm/cmd_mode     std_msgs/String  — "smolvla" | "rl_arm"
+  /arm/cmd_mode     std_msgs/String  — "policy" | "rl_arm"
 
 Subscribed topics
 ─────────────────
@@ -96,9 +96,9 @@ class MissionPlanner(Node):
         self._status_pub = self.create_publisher(String, "/mission/status", 10)
         self._rl_goal_pub = self.create_publisher(PoseStamped, "/rl_nav/goal", 10)
         self._arm_mode_pub = self.create_publisher(String, "/arm/cmd_mode", 10)
-        # SmolVLA-specific: task description and enable/disable
-        self._smolvla_task_pub = self.create_publisher(String, "/smolvla/task", 10)
-        self._smolvla_enable_pub = self.create_publisher(Bool, "/smolvla/enable", 10)
+        # Policy task description and enable/disable (model-agnostic topics)
+        self._policy_task_pub = self.create_publisher(String, "/policy/task", 10)
+        self._policy_enable_pub = self.create_publisher(Bool, "/policy/enable", 10)
 
         # ── Subscribers ───────────────────────────────────────────────────────
         self.create_subscription(
@@ -227,7 +227,7 @@ class MissionPlanner(Node):
         self._mission = None
         self._rl_nav_goal = None
         self._set_mode("nav2")        # return base control to Nav2
-        self._set_arm_mode("smolvla")  # return arm control to SmolVLA
+        self._set_arm_mode("policy")  # return arm control to SmolVLA
         self._publish_status()
 
     def _odom_cb(self, msg) -> None:
@@ -394,17 +394,17 @@ class MissionPlanner(Node):
         self.get_logger().info(f'[Phase 2/2] Starting VLA task — "{task}"')
         self._phase = "vla"
         self._set_mode("vla")
-        self._set_arm_mode("smolvla")
+        self._set_arm_mode("policy")
         self._publish_status()
 
         # SmolVLA: set task description then enable inference
         task_msg = String()
         task_msg.data = task
-        self._smolvla_task_pub.publish(task_msg)
+        self._policy_task_pub.publish(task_msg)
 
         enable_msg = Bool()
         enable_msg.data = True
-        self._smolvla_enable_pub.publish(enable_msg)
+        self._policy_enable_pub.publish(enable_msg)
 
         # OpenVLA (legacy): also publish to /vla/prompt for backward compatibility
         prompt = String()
@@ -423,7 +423,7 @@ class MissionPlanner(Node):
         if mode != "vla":
             disable = Bool()
             disable.data = False
-            self._smolvla_enable_pub.publish(disable)
+            self._policy_enable_pub.publish(disable)
         self.get_logger().info(f"[MissionPlanner] Control mode → {mode}")
 
     def _set_arm_mode(self, mode: str) -> None:

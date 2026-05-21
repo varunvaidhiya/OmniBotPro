@@ -6,14 +6,14 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     pkg_omnibot_lerobot = get_package_share_directory("omnibot_lerobot")
-    smolvla_params = os.path.join(pkg_omnibot_lerobot, "config", "smolvla_params.yaml")
+    policy_params = os.path.join(pkg_omnibot_lerobot, "config", "policy_params.yaml")
 
     teleop_recorder_node = Node(
         package="omnibot_lerobot",
         executable="teleop_recorder_node",
         name="teleop_recorder_node",
         output="screen",
-        parameters=[smolvla_params],
+        parameters=[policy_params],
     )
 
     return LaunchDescription(

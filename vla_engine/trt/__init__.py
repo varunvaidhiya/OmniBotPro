@@ -1,6 +1,6 @@
-"""TensorRT acceleration for OmniBot VLA inference."""
+"""TensorRT acceleration for OmniBot visuomotor policy inference."""
 
-from vla_engine.trt.smolvla_encoder import (
+from vla_engine.trt.encoder_export import (
     TRTVisionEncoderModule,
     export_vision_encoder,
     build_trt_engine,

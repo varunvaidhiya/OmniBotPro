@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 """
-Arm Command Multiplexer for OmniBot RL integration.
+Arm Command Multiplexer for OmniBot.
 
-Mirrors the design of cmd_vel_mux.py exactly, selecting one arm joint command
-source and forwarding it to /arm/joint_commands/out.
-
-arm_driver_node subscribes to /arm/joint_commands/out (remapped from the
-original /arm/joint_commands).
+Selects one arm joint command source and forwards it to /arm/joint_commands/out.
+arm_driver_node subscribes to /arm/joint_commands/out.
 
 Topic routing
 ─────────────
   Inputs (one active at a time):
-    /arm/joint_commands        ← SmolVLA / Android / teleop_recorder
+    /arm/joint_commands        ← policy_node / Android / teleop_recorder
     /arm/joint_commands/rl     ← RL arm policy (rl_arm_node)
 
   Mode control:
-    /arm/cmd_mode  ← std_msgs/String  "smolvla" | "rl_arm"
+    /arm/cmd_mode  ← std_msgs/String  "policy" | "rl_arm"
 
   Output:
     /arm/joint_commands/out  → arm_driver_node
@@ -28,11 +25,11 @@ Usage
   # Switch to RL arm control
   ros2 topic pub /arm/cmd_mode std_msgs/msg/String "data: 'rl_arm'"
 
-  # Return to SmolVLA
-  ros2 topic pub /arm/cmd_mode std_msgs/msg/String "data: 'smolvla'"
+  # Return to policy pass-through (default)
+  ros2 topic pub /arm/cmd_mode std_msgs/msg/String "data: 'policy'"
 
-When mode is "smolvla" (default), this node is a transparent pass-through —
-SmolVLA and the Android app continue to work without any changes.
+When mode is "policy" (default), this node is a transparent pass-through —
+the active visuomotor policy and the Android app work without any changes.
 """
 
 import rclpy
@@ -48,24 +45,24 @@ class ArmCmdMux(Node):
     Parameters
     ----------
     default_mode : str
-        Starting mode. One of "smolvla" (default) or "rl_arm".
+        Starting mode. One of "policy" (default) or "rl_arm".
     """
 
-    VALID_MODES = ('smolvla', 'rl_arm')
+    VALID_MODES = ('policy', 'rl_arm')
 
     def __init__(self):
         super().__init__('arm_cmd_mux')
 
-        self.declare_parameter('default_mode', 'smolvla')
+        self.declare_parameter('default_mode', 'policy')
         self._active_mode: str = self.get_parameter('default_mode').value
 
         # ── Inputs ────────────────────────────────────────────────────────────
         self.create_subscription(
-            JointState, '/arm/joint_commands',    self._smolvla_cb, 10)
+            JointState, '/arm/joint_commands',    self._policy_cb, 10)
         self.create_subscription(
-            JointState, '/arm/joint_commands/rl', self._rl_arm_cb,  10)
+            JointState, '/arm/joint_commands/rl', self._rl_arm_cb, 10)
         self.create_subscription(
-            String, '/arm/cmd_mode',              self._mode_cb,    10)
+            String, '/arm/cmd_mode',              self._mode_cb,   10)
 
         # ── Output ────────────────────────────────────────────────────────────
         self._out_pub = self.create_publisher(
@@ -73,7 +70,6 @@ class ArmCmdMux(Node):
         self._active_mode_pub = self.create_publisher(
             String, '/arm/cmd_mode/active', 10)
 
-        # Publish active mode at 1 Hz
         self.create_timer(1.0, self._publish_active_mode)
 
         self.get_logger().info(
@@ -90,14 +86,14 @@ class ArmCmdMux(Node):
             return
         if mode != self._active_mode:
             self.get_logger().info(
-                f'[ArmCmdMux] Mode switch: {self._active_mode} → {mode}')
+                f'[ArmCmdMux] Mode: {self._active_mode} → {mode}')
             self._active_mode = mode
             self._publish_active_mode()
 
     # ── Source callbacks ──────────────────────────────────────────────────────
 
-    def _smolvla_cb(self, msg: JointState) -> None:
-        if self._active_mode == 'smolvla':
+    def _policy_cb(self, msg: JointState) -> None:
+        if self._active_mode == 'policy':
             self._out_pub.publish(msg)
 
     def _rl_arm_cb(self, msg: JointState) -> None:
