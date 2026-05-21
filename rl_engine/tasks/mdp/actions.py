@@ -11,8 +11,6 @@ ArmJointDeltaActionTerm
   from the current joint state. Clips to URDF joint limits.
 """
 
-import math
-
 import torch
 from isaaclab.envs import ManagerBasedRLEnv
 from isaaclab.managers import ActionTerm, ActionTermCfg
@@ -24,21 +22,21 @@ if TYPE_CHECKING:
 
 
 # ── OmniBot mechanical constants (from CLAUDE.md) ────────────────────────────
-WHEEL_RADIUS        = 0.040   # m — all 4 wheels
-WHEEL_SEP_LENGTH    = 0.165   # m — front to rear (lx = 0.0825)
-WHEEL_SEP_WIDTH     = 0.215   # m — left to right (ly = 0.1075)
+WHEEL_RADIUS = 0.040  # m — all 4 wheels
+WHEEL_SEP_LENGTH = 0.165  # m — front to rear (lx = 0.0825)
+WHEEL_SEP_WIDTH = 0.215  # m — left to right (ly = 0.1075)
 LX = WHEEL_SEP_LENGTH / 2.0  # 0.0825 m
-LY = WHEEL_SEP_WIDTH  / 2.0  # 0.1075 m
-L  = LX + LY                  # 0.19 m (used in inverse kinematics)
-R  = WHEEL_RADIUS
+LY = WHEEL_SEP_WIDTH / 2.0  # 0.1075 m
+L = LX + LY  # 0.19 m (used in inverse kinematics)
+R = WHEEL_RADIUS
 
-MAX_LIN_VEL = 0.20   # m/s   — hardware limit
-MAX_ANG_VEL = 1.00   # rad/s — hardware limit
-MAX_DELTA   = 0.05   # m/s per step — mirrors Yahboom ramp limiter at 20 Hz
+MAX_LIN_VEL = 0.20  # m/s   — hardware limit
+MAX_ANG_VEL = 1.00  # rad/s — hardware limit
+MAX_DELTA = 0.05  # m/s per step — mirrors Yahboom ramp limiter at 20 Hz
 
 # SO-101 joint limits (rad) — from arm_params.yaml / URDF
 ARM_JOINT_MIN = torch.tensor([-3.14, -1.57, -1.69, -1.66, -2.74, -0.17])
-ARM_JOINT_MAX = torch.tensor([ 3.14,  1.57,  1.69,  1.66,  2.84,  1.75])
+ARM_JOINT_MAX = torch.tensor([3.14, 1.57, 1.69, 1.66, 2.84, 1.75])
 ARM_MAX_DELTA = 0.05  # rad/step
 
 
@@ -57,18 +55,18 @@ class MecanumWheelActionTerm(ActionTerm):
       ω_RR = (vx - vy + L*ω) / R
     """
 
-    cfg: 'MecanumWheelActionTermCfg'
+    cfg: "MecanumWheelActionTermCfg"
 
-    def __init__(self, cfg: 'MecanumWheelActionTermCfg', env: ManagerBasedRLEnv):
+    def __init__(self, cfg: "MecanumWheelActionTermCfg", env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
         self._num_envs = env.num_envs
-        self._device   = env.device
+        self._device = env.device
         # Accumulated body velocity per environment
         self._vel_accum = torch.zeros(self._num_envs, 3, device=self._device)
 
     @property
     def action_dim(self) -> int:
-        return 3   # [Δvx, Δvy, Δω]
+        return 3  # [Δvx, Δvy, Δω]
 
     def process_actions(self, actions: torch.Tensor) -> None:
         """Accumulate velocity deltas, clip to hardware limits."""
@@ -79,8 +77,8 @@ class MecanumWheelActionTerm(ActionTerm):
 
     def apply_actions(self) -> None:
         """Convert accumulated body velocity to wheel velocities and write to articulation."""
-        vx    = self._vel_accum[:, 0]
-        vy    = self._vel_accum[:, 1]
+        vx = self._vel_accum[:, 0]
+        vy = self._vel_accum[:, 1]
         omega = self._vel_accum[:, 2]
 
         # OmniBot inverse kinematics (exact constants)
@@ -94,7 +92,8 @@ class MecanumWheelActionTerm(ActionTerm):
 
         # Write velocity targets to articulation (joint indices set by env)
         self._asset.set_joint_velocity_target(
-            wheel_vels, joint_ids=self.cfg.wheel_joint_ids)
+            wheel_vels, joint_ids=self.cfg.wheel_joint_ids
+        )
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         if env_ids is None:
@@ -106,6 +105,7 @@ class MecanumWheelActionTerm(ActionTerm):
 @dataclass
 class MecanumWheelActionTermCfg(ActionTermCfg):
     """Configuration for MecanumWheelActionTerm."""
+
     class_type: type = MecanumWheelActionTerm
     # Joint IDs in the articulation corresponding to [FL, FR, RL, RR] wheels
     # Set these to match your USD articulation joint ordering.
@@ -113,6 +113,7 @@ class MecanumWheelActionTermCfg(ActionTermCfg):
 
 
 # ── Arm Joint Delta Action Term ───────────────────────────────────────────────
+
 
 class ArmJointDeltaActionTerm(ActionTerm):
     """
@@ -122,12 +123,12 @@ class ArmJointDeltaActionTerm(ActionTerm):
     URDF joint limits per step. Maps directly to STS3215 Goal_Position commands.
     """
 
-    cfg: 'ArmJointDeltaActionTermCfg'
+    cfg: "ArmJointDeltaActionTermCfg"
 
-    def __init__(self, cfg: 'ArmJointDeltaActionTermCfg', env: ManagerBasedRLEnv):
+    def __init__(self, cfg: "ArmJointDeltaActionTermCfg", env: ManagerBasedRLEnv):
         super().__init__(cfg, env)
-        self._num_envs  = env.num_envs
-        self._device    = env.device
+        self._num_envs = env.num_envs
+        self._device = env.device
         self._joint_min = ARM_JOINT_MIN.to(self._device)
         self._joint_max = ARM_JOINT_MAX.to(self._device)
         # Accumulated joint targets (initialised from current state on reset)
@@ -135,20 +136,21 @@ class ArmJointDeltaActionTerm(ActionTerm):
 
     @property
     def action_dim(self) -> int:
-        return 6   # [Δq0 … Δq5]
+        return 6  # [Δq0 … Δq5]
 
     def process_actions(self, actions: torch.Tensor) -> None:
         """Clip delta and accumulate joint targets, enforcing limits."""
         delta = actions.clamp(-ARM_MAX_DELTA, ARM_MAX_DELTA)
         self._joint_targets += delta
         self._joint_targets.clamp_(
-            self._joint_min.unsqueeze(0),
-            self._joint_max.unsqueeze(0))
+            self._joint_min.unsqueeze(0), self._joint_max.unsqueeze(0)
+        )
 
     def apply_actions(self) -> None:
         """Write position targets to arm articulation."""
         self._asset.set_joint_position_target(
-            self._joint_targets, joint_ids=self.cfg.arm_joint_ids)
+            self._joint_targets, joint_ids=self.cfg.arm_joint_ids
+        )
 
     def reset(self, env_ids: torch.Tensor | None = None) -> None:
         """Initialise targets from current joint state on episode reset."""
@@ -156,14 +158,15 @@ class ArmJointDeltaActionTerm(ActionTerm):
             env_ids = torch.arange(self._num_envs, device=self._device)
         current_pos = self._asset.data.joint_pos[env_ids]
         if current_pos.shape[-1] >= 6:
-            self._joint_targets[env_ids] = current_pos[
-                :, self.cfg.arm_joint_ids].clamp(
-                self._joint_min, self._joint_max)
+            self._joint_targets[env_ids] = current_pos[:, self.cfg.arm_joint_ids].clamp(
+                self._joint_min, self._joint_max
+            )
 
 
 @dataclass
 class ArmJointDeltaActionTermCfg(ActionTermCfg):
     """Configuration for ArmJointDeltaActionTerm."""
+
     class_type: type = ArmJointDeltaActionTerm
     # Joint IDs in the articulation for the 6 arm joints
     arm_joint_ids: list[int] = field(default_factory=lambda: [4, 5, 6, 7, 8, 9])

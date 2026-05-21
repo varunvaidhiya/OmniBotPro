@@ -22,7 +22,6 @@ HTTP API (aiohttp, port 8765 by default):
 
 import asyncio
 import json
-import os
 import threading
 import time
 from pathlib import Path
@@ -39,6 +38,7 @@ from geometry_msgs.msg import Twist
 try:
     import aiohttp
     from aiohttp import web
+
     _AIOHTTP_AVAILABLE = True
 except ImportError:
     _AIOHTTP_AVAILABLE = False
@@ -51,19 +51,23 @@ class VRRecordingBridgeNode(Node):
     """
 
     def __init__(self):
-        super().__init__('vr_recording_bridge')
+        super().__init__("vr_recording_bridge")
 
         # ── Declare parameters ───────────────────────────────────────────────
-        self.declare_parameter('upload_dir', '~/datasets/vr_episodes')
-        self.declare_parameter('http_port',  8765)
+        self.declare_parameter("upload_dir", "~/datasets/vr_episodes")
+        self.declare_parameter("http_port", 8765)
 
-        upload_dir_raw = self.get_parameter('upload_dir').get_parameter_value().string_value
+        upload_dir_raw = (
+            self.get_parameter("upload_dir").get_parameter_value().string_value
+        )
         self._upload_dir = Path(upload_dir_raw).expanduser()
-        self._http_port  = self.get_parameter('http_port').get_parameter_value().integer_value
+        self._http_port = (
+            self.get_parameter("http_port").get_parameter_value().integer_value
+        )
 
         # Ensure upload directory exists
         self._upload_dir.mkdir(parents=True, exist_ok=True)
-        self.get_logger().info(f'Episode upload directory: {self._upload_dir}')
+        self.get_logger().info(f"Episode upload directory: {self._upload_dir}")
 
         # ── QoS ───────────────────────────────────────────────────────────────
         qos = QoSProfile(depth=10)
@@ -74,66 +78,68 @@ class VRRecordingBridgeNode(Node):
 
         # ── Subscribers — VR signals ─────────────────────────────────────────
         self._sub_record_start = self.create_subscription(
-            String, '/vr/record_start',
-            self._on_record_start, reliable_qos)
+            String, "/vr/record_start", self._on_record_start, reliable_qos
+        )
 
         self._sub_record_stop = self.create_subscription(
-            Bool, '/vr/record_stop',
-            self._on_record_stop, reliable_qos)
+            Bool, "/vr/record_stop", self._on_record_stop, reliable_qos
+        )
 
         # ── Subscribers — robot observations (for /vr/obs mirror) ───────────
         self._sub_joint_states = self.create_subscription(
-            JointState, '/arm/joint_states',
-            self._on_joint_states, qos)
+            JointState, "/arm/joint_states", self._on_joint_states, qos
+        )
 
-        self._sub_odom = self.create_subscription(
-            Odometry, '/odom',
-            self._on_odom, qos)
+        self._sub_odom = self.create_subscription(Odometry, "/odom", self._on_odom, qos)
 
         self._sub_cmd_vel = self.create_subscription(
-            Twist, '/cmd_vel/teleop',
-            self._on_cmd_vel, qos)
+            Twist, "/cmd_vel/teleop", self._on_cmd_vel, qos
+        )
 
         # ── Publisher — record trigger (republish start signal) ──────────────
         # Publishes the episode name so other nodes (e.g. teleop_recorder_node)
         # can pick up recording events.
         self._pub_record_trigger = self.create_publisher(
-            String, '/vr/record_trigger', reliable_qos)
+            String, "/vr/record_trigger", reliable_qos
+        )
 
         # ── Publisher — /vr/obs (JSON mirror for monitoring tools) ───────────
-        self._pub_vr_obs = self.create_publisher(String, '/vr/obs', qos)
+        self._pub_vr_obs = self.create_publisher(String, "/vr/obs", qos)
 
         # ── Cached state ──────────────────────────────────────────────────────
         self._latest_joint_states: dict = {}
-        self._latest_odom: dict         = {}
-        self._latest_cmd_vel: dict      = {}
+        self._latest_odom: dict = {}
+        self._latest_cmd_vel: dict = {}
 
         self._recording_active = False
-        self._current_episode  = ''
+        self._current_episode = ""
 
         # ── Start aiohttp server in background thread ─────────────────────────
         if _AIOHTTP_AVAILABLE:
             self._http_thread = threading.Thread(
-                target=self._run_http_server, daemon=True)
+                target=self._run_http_server, daemon=True
+            )
             self._http_thread.start()
             self.get_logger().info(
-                f'HTTP episode upload server starting on port {self._http_port}')
+                f"HTTP episode upload server starting on port {self._http_port}"
+            )
         else:
             self.get_logger().warn(
-                'aiohttp not installed — HTTP upload server disabled. '
-                'Install with: pip install aiohttp')
+                "aiohttp not installed — HTTP upload server disabled. "
+                "Install with: pip install aiohttp"
+            )
 
-        self.get_logger().info('VRRecordingBridgeNode ready.')
+        self.get_logger().info("VRRecordingBridgeNode ready.")
 
     # ── VR recording signal handlers ─────────────────────────────────────────
 
     def _on_record_start(self, msg: String):
-        episode_name = msg.data.strip() if msg.data else ''
+        episode_name = msg.data.strip() if msg.data else ""
         if not episode_name:
-            episode_name = f'ep_{int(time.time())}'
+            episode_name = f"ep_{int(time.time())}"
 
         self._recording_active = True
-        self._current_episode  = episode_name
+        self._current_episode = episode_name
 
         self.get_logger().info(f'Recording START: episode="{episode_name}"')
 
@@ -147,7 +153,9 @@ class VRRecordingBridgeNode(Node):
         episode = self._current_episode
 
         if not self._recording_active:
-            self.get_logger().warn('Received /vr/record_stop but not recording — ignoring.')
+            self.get_logger().warn(
+                "Received /vr/record_stop but not recording — ignoring."
+            )
             return
 
         self._recording_active = False
@@ -157,16 +165,16 @@ class VRRecordingBridgeNode(Node):
         else:
             self.get_logger().info(f'Recording STOP (discard): episode="{episode}"')
 
-        self._current_episode = ''
+        self._current_episode = ""
 
     # ── Robot observation subscribers ────────────────────────────────────────
 
     def _on_joint_states(self, msg: JointState):
         self._latest_joint_states = {
-            'name':     list(msg.name),
-            'position': list(msg.position),
-            'velocity': list(msg.velocity),
-            'effort':   list(msg.effort),
+            "name": list(msg.name),
+            "position": list(msg.position),
+            "velocity": list(msg.velocity),
+            "effort": list(msg.effort),
         }
         self._publish_vr_obs()
 
@@ -176,30 +184,30 @@ class VRRecordingBridgeNode(Node):
         v = msg.twist.twist.linear
         w = msg.twist.twist.angular
         self._latest_odom = {
-            'pos':     {'x': p.x, 'y': p.y, 'z': p.z},
-            'orient':  {'x': q.x, 'y': q.y, 'z': q.z, 'w': q.w},
-            'lin_vel': {'x': v.x, 'y': v.y, 'z': v.z},
-            'ang_vel': {'x': w.x, 'y': w.y, 'z': w.z},
+            "pos": {"x": p.x, "y": p.y, "z": p.z},
+            "orient": {"x": q.x, "y": q.y, "z": q.z, "w": q.w},
+            "lin_vel": {"x": v.x, "y": v.y, "z": v.z},
+            "ang_vel": {"x": w.x, "y": w.y, "z": w.z},
         }
 
     def _on_cmd_vel(self, msg: Twist):
         self._latest_cmd_vel = {
-            'linear':  {'x': msg.linear.x,  'y': msg.linear.y,  'z': msg.linear.z},
-            'angular': {'x': msg.angular.x, 'y': msg.angular.y, 'z': msg.angular.z},
+            "linear": {"x": msg.linear.x, "y": msg.linear.y, "z": msg.linear.z},
+            "angular": {"x": msg.angular.x, "y": msg.angular.y, "z": msg.angular.z},
         }
 
     def _publish_vr_obs(self):
         """Publishes a merged observation snapshot to /vr/obs (JSON string)."""
         obs = {
-            't':          time.time(),
-            'joint':      self._latest_joint_states,
-            'odom':       self._latest_odom,
-            'cmd_vel':    self._latest_cmd_vel,
-            'recording':  self._recording_active,
-            'episode':    self._current_episode,
+            "t": time.time(),
+            "joint": self._latest_joint_states,
+            "odom": self._latest_odom,
+            "cmd_vel": self._latest_cmd_vel,
+            "recording": self._recording_active,
+            "episode": self._current_episode,
         }
         out = String()
-        out.data = json.dumps(obs, separators=(',', ':'))
+        out.data = json.dumps(obs, separators=(",", ":"))
         self._pub_vr_obs.publish(out)
 
     # ── HTTP server (aiohttp) ─────────────────────────────────────────────────
@@ -210,23 +218,24 @@ class VRRecordingBridgeNode(Node):
         asyncio.set_event_loop(loop)
 
         app = web.Application(client_max_size=100 * 1024 * 1024)  # 100 MB max upload
-        app.router.add_get('/health',          self._handle_health)
-        app.router.add_post('/upload_episode', self._handle_upload)
+        app.router.add_get("/health", self._handle_health)
+        app.router.add_post("/upload_episode", self._handle_upload)
 
         runner = web.AppRunner(app)
         loop.run_until_complete(runner.setup())
-        site = web.TCPSite(runner, '0.0.0.0', self._http_port)
+        site = web.TCPSite(runner, "0.0.0.0", self._http_port)
         loop.run_until_complete(site.start())
 
         self.get_logger().info(
-            f'HTTP server listening on http://0.0.0.0:{self._http_port}')
+            f"HTTP server listening on http://0.0.0.0:{self._http_port}"
+        )
         loop.run_forever()
 
-    async def _handle_health(self, request: 'web.Request') -> 'web.Response':
+    async def _handle_health(self, request: "web.Request") -> "web.Response":
         """GET /health → 200 OK"""
-        return web.Response(text='ok', status=200)
+        return web.Response(text="ok", status=200)
 
-    async def _handle_upload(self, request: 'web.Request') -> 'web.Response':
+    async def _handle_upload(self, request: "web.Request") -> "web.Response":
         """
         POST /upload_episode
         Receives a multipart/form-data request with a 'file' field containing
@@ -235,48 +244,51 @@ class VRRecordingBridgeNode(Node):
         try:
             reader = await request.multipart()
         except Exception as exc:
-            self.get_logger().error(f'Upload: failed to read multipart: {exc}')
-            return web.Response(text=f'Bad request: {exc}', status=400)
+            self.get_logger().error(f"Upload: failed to read multipart: {exc}")
+            return web.Response(text=f"Bad request: {exc}", status=400)
 
         saved_files = []
 
         async for part in reader:
-            if part.name != 'file':
+            if part.name != "file":
                 # Drain and skip unknown fields
                 await part.read()
                 continue
 
-            filename = part.filename or f'episode_{int(time.time())}.jsonl'
+            filename = part.filename or f"episode_{int(time.time())}.jsonl"
             # Sanitise filename: keep only safe characters
-            safe_name = ''.join(c for c in filename if c.isalnum() or c in ('_', '-', '.'))
-            if not safe_name.endswith('.jsonl'):
-                safe_name += '.jsonl'
+            safe_name = "".join(
+                c for c in filename if c.isalnum() or c in ("_", "-", ".")
+            )
+            if not safe_name.endswith(".jsonl"):
+                safe_name += ".jsonl"
 
             dest_path = self._upload_dir / safe_name
 
             data = await part.read()
             if not data:
-                self.get_logger().warn(f'Upload: empty file received for {safe_name}')
+                self.get_logger().warn(f"Upload: empty file received for {safe_name}")
                 continue
 
             dest_path.write_bytes(data)
 
             # Count frames (lines) for logging
             try:
-                line_count = data.count(b'\n')
+                line_count = data.count(b"\n")
                 self.get_logger().info(
-                    f'Upload: saved {safe_name} '
-                    f'({len(data)} bytes, ~{line_count} frames) '
-                    f'→ {dest_path}')
+                    f"Upload: saved {safe_name} "
+                    f"({len(data)} bytes, ~{line_count} frames) "
+                    f"→ {dest_path}"
+                )
             except Exception:
-                self.get_logger().info(f'Upload: saved {safe_name} ({len(data)} bytes)')
+                self.get_logger().info(f"Upload: saved {safe_name} ({len(data)} bytes)")
 
             saved_files.append(safe_name)
 
         if saved_files:
-            return web.json_response({'status': 'ok', 'saved': saved_files})
+            return web.json_response({"status": "ok", "saved": saved_files})
         else:
-            return web.Response(text='No file part found in request.', status=400)
+            return web.Response(text="No file part found in request.", status=400)
 
 
 def main(args=None):
@@ -292,5 +304,5 @@ def main(args=None):
             rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -38,9 +38,9 @@ from benchmarks.conftest import TimingHarness, check_slo, print_stats, write_res
 # Production-matching constants (from bev_stitcher_node.py)
 # ---------------------------------------------------------------------------
 
-CANVAS_SIZE = 800   # pixels — square compositing canvas
-SRC_W, SRC_H = 640, 480   # input camera resolution
-OUT_W, OUT_H = 800, 800   # output resolution (default same as canvas)
+CANVAS_SIZE = 800  # pixels — square compositing canvas
+SRC_W, SRC_H = 640, 480  # input camera resolution
+OUT_W, OUT_H = 800, 800  # output resolution (default same as canvas)
 NUM_CAMERAS = 4
 
 # Homography matrices — identity-based tiled layout (worst case for warping,
@@ -75,8 +75,7 @@ _CAMERA_IMGS = [
 # Pre-compute blend weights (done once at init in production)
 _src_ones = np.ones((SRC_H, SRC_W), dtype=np.float32)
 _BLEND_WEIGHTS = [
-    cv2.warpPerspective(_src_ones, H, (CANVAS_SIZE, CANVAS_SIZE))
-    for H in HOMOGRAPHIES
+    cv2.warpPerspective(_src_ones, H, (CANVAS_SIZE, CANVAS_SIZE)) for H in HOMOGRAPHIES
 ]
 
 
@@ -168,7 +167,9 @@ def test_bench_masked_division():
     mask = w_sum[:, :, 0] > 0  # all True in this synthetic case
 
     h = TimingHarness()
-    stats = h.run(lambda: canvas.__setitem__(mask, canvas[mask] / w_sum[mask]), n=1000, warmup=50)
+    stats = h.run(
+        lambda: canvas.__setitem__(mask, canvas[mask] / w_sum[mask]), n=1000, warmup=50
+    )
     print_stats("bev_masked_div_ms (canvas[mask] /= w_sum[mask])", stats)
     return stats
 
@@ -257,7 +258,9 @@ def test_bench_pre_resize_optimization():
         n=2000,
         warmup=50,
     )
-    print_stats("bev_smolvla_resize_ms (800×800 → 320×240 at SmolVLA side)", stats_resize)
+    print_stats(
+        "bev_smolvla_resize_ms (800×800 → 320×240 at SmolVLA side)", stats_resize
+    )
     print(
         "  INFO  Pre-resizing at stitcher output (320×240) would save this resize "
         "cost per SmolVLA inference. See bench_smolvla_preprocess.py for full analysis."
@@ -308,7 +311,9 @@ def test_bench_gpu_warp_perspective():
 if __name__ == "__main__":
     print("\n" + "=" * 70)
     print("OmniBot — BEV Stitcher Vision Benchmarks")
-    print(f"Canvas: {CANVAS_SIZE}×{CANVAS_SIZE}  Input: {SRC_W}×{SRC_H}  Cameras: {NUM_CAMERAS}")
+    print(
+        f"Canvas: {CANVAS_SIZE}×{CANVAS_SIZE}  Input: {SRC_W}×{SRC_H}  Cameras: {NUM_CAMERAS}"
+    )
     print("=" * 70)
 
     all_results: dict[str, dict] = {}

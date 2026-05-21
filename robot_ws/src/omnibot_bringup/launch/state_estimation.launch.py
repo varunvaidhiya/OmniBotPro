@@ -50,7 +50,8 @@ def generate_launch_description():
     ekf_config = os.path.join(pkg_nav, "config", "robot_localization.yaml")
 
     declare_use_sim_time = DeclareLaunchArgument(
-        "use_sim_time", default_value="false",
+        "use_sim_time",
+        default_value="false",
         description="Use simulation clock",
     )
 
@@ -70,7 +71,9 @@ def generate_launch_description():
         ],
     )
 
-    return LaunchDescription([
-        declare_use_sim_time,
-        ekf_node,
-    ])
+    return LaunchDescription(
+        [
+            declare_use_sim_time,
+            ekf_node,
+        ]
+    )

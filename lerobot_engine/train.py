@@ -114,10 +114,14 @@ def parse_args():
 # ---------------------------------------------------------------------------
 
 _MODEL_DEFAULTS = {
-    "smolvla":   {"checkpoint": "lerobot/smolvla_base",    "lr": 1e-4, "batch_size": 8},
-    "act":       {"checkpoint": "lerobot/act_base",        "lr": 1e-4, "batch_size": 16},
-    "diffusion": {"checkpoint": "lerobot/diffusion_pusht", "lr": 1e-4, "batch_size": 64},
-    "openvla":   {"checkpoint": "openvla/openvla-7b",      "lr": 2e-5, "batch_size": 4},
+    "smolvla": {"checkpoint": "lerobot/smolvla_base", "lr": 1e-4, "batch_size": 8},
+    "act": {"checkpoint": "lerobot/act_base", "lr": 1e-4, "batch_size": 16},
+    "diffusion": {
+        "checkpoint": "lerobot/diffusion_pusht",
+        "lr": 1e-4,
+        "batch_size": 64,
+    },
+    "openvla": {"checkpoint": "openvla/openvla-7b", "lr": 2e-5, "batch_size": 4},
 }
 
 
@@ -162,7 +166,9 @@ def compute_eval_loss(policy_model, dataloader, device) -> float:
     total, n = 0.0, 0
     with torch.no_grad():
         for batch in dataloader:
-            batch = {k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()}
+            batch = {
+                k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()
+            }
             out = policy_model.forward(batch)
             loss = out["loss"] if isinstance(out, dict) else out
             total += loss.item()
@@ -189,7 +195,9 @@ def main():
 
     if not LEROBOT_AVAILABLE:
         print("[ERROR] lerobot is required:")
-        print('  pip install "lerobot @ git+https://github.com/huggingface/lerobot.git"')
+        print(
+            '  pip install "lerobot @ git+https://github.com/huggingface/lerobot.git"'
+        )
         return
 
     if args.dataset_path is None:
@@ -209,7 +217,7 @@ def main():
     device = get_device(args.device)
 
     print("=" * 60)
-    print(f"  OmniBot — Policy Training")
+    print("  OmniBot — Policy Training")
     print("=" * 60)
     print(f"  Model:       {args.model}")
     print(f"  Checkpoint:  {checkpoint}")
@@ -243,7 +251,9 @@ def main():
         num_workers=args.num_workers,
         pin_memory=(device.type == "cuda"),
     )
-    print(f"  Train: {split} | Eval: {len(dataset) - split} | Batches/epoch: {len(train_loader)}")
+    print(
+        f"  Train: {split} | Eval: {len(dataset) - split} | Batches/epoch: {len(train_loader)}"
+    )
 
     # Load policy via registry
     print(f'\nLoading {args.model} from "{checkpoint}"...')
@@ -258,7 +268,9 @@ def main():
     print(f"  Trainable params: {n_params:,}")
 
     optimizer = AdamW(policy_model.parameters(), lr=args.lr, weight_decay=1e-4)
-    scheduler = CosineAnnealingLR(optimizer, T_max=args.num_epochs, eta_min=args.lr * 0.01)
+    scheduler = CosineAnnealingLR(
+        optimizer, T_max=args.num_epochs, eta_min=args.lr * 0.01
+    )
 
     print("\nStarting training...\n")
     best_eval_loss = float("inf")
@@ -268,7 +280,9 @@ def main():
         epoch_loss, n_batches = 0.0, 0
 
         for batch_idx, batch in enumerate(train_loader):
-            batch = {k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()}
+            batch = {
+                k: v.to(device) if hasattr(v, "to") else v for k, v in batch.items()
+            }
             optimizer.zero_grad()
             out = policy_model.forward(batch)
             loss = out["loss"] if isinstance(out, dict) else out
@@ -287,7 +301,11 @@ def main():
 
         scheduler.step()
         avg_loss = epoch_loss / max(n_batches, 1)
-        eval_loss = compute_eval_loss(policy_model, eval_loader, device) if eval_loader else float("nan")
+        eval_loss = (
+            compute_eval_loss(policy_model, eval_loader, device)
+            if eval_loader
+            else float("nan")
+        )
         is_best = eval_loss < best_eval_loss
 
         if is_best:
@@ -301,7 +319,9 @@ def main():
         )
 
         if epoch % args.save_every == 0 or epoch == args.num_epochs:
-            save_checkpoint(policy_model, optimizer, scheduler, epoch, avg_loss, output_dir)
+            save_checkpoint(
+                policy_model, optimizer, scheduler, epoch, avg_loss, output_dir
+            )
 
         if is_best:
             best_dir = output_dir / "best"

@@ -41,7 +41,6 @@ Topics published
 """
 
 import collections
-import statistics as _stats
 import time
 import numpy as np
 import rclpy
@@ -53,30 +52,35 @@ from std_msgs.msg import String, Bool
 
 try:
     from cv_bridge import CvBridge
+
     CV_BRIDGE_AVAILABLE = True
 except ImportError:
     CV_BRIDGE_AVAILABLE = False
 
 try:
     import cv2
+
     CV2_AVAILABLE = True
 except ImportError:
     CV2_AVAILABLE = False
 
 try:
     import torch
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
 
 try:
     from lerobot_engine.models import make_policy
+
     REGISTRY_AVAILABLE = True
 except ImportError:
     REGISTRY_AVAILABLE = False
 
 try:
     from vla_engine.trt import patch_policy_vision_encoder
+
     TRT_PATCH_AVAILABLE = True
 except ImportError:
     TRT_PATCH_AVAILABLE = False
@@ -95,15 +99,18 @@ ARM_JOINT_NAMES = [
 # Fallback when lerobot_engine.models is not on PYTHONPATH
 # ---------------------------------------------------------------------------
 
+
 class _DummyAdapter:
     """Zero-action fallback when no model backend is available."""
+
     image_keys = ["observation.images.wrist", "observation.images.bev"]
     state_key = "observation.state"
     task_key = "task"
     action_dim = 9
     image_size = (320, 240)
 
-    def reset(self): pass
+    def reset(self):
+        pass
 
     def select_action(self, obs):
         return np.zeros(9, dtype=np.float32)
@@ -112,6 +119,7 @@ class _DummyAdapter:
 # ---------------------------------------------------------------------------
 # Node
 # ---------------------------------------------------------------------------
+
 
 class PolicyNode(Node):
     """Model-agnostic VLA inference node."""
@@ -182,7 +190,9 @@ class PolicyNode(Node):
         self.adapter = self._load_adapter(model_type, checkpoint, device_str)
 
         # Publishers
-        self.joint_cmd_pub = self.create_publisher(JointState, "/arm/joint_commands", 10)
+        self.joint_cmd_pub = self.create_publisher(
+            JointState, "/arm/joint_commands", 10
+        )
         self.cmd_vel_pub = self.create_publisher(Twist, "/cmd_vel", 10)
 
         # Camera subscribers — driven by adapter.image_keys so any model works
@@ -191,7 +201,8 @@ class PolicyNode(Node):
             topic = self._key_to_topic(key)
             self.camera_images[key] = None
             self.create_subscription(
-                Image, topic,
+                Image,
+                topic,
                 lambda msg, k=key: self._image_cb(msg, k),
                 10,
             )
@@ -201,7 +212,9 @@ class PolicyNode(Node):
                 Image, "/camera/depth/image_raw", self._depth_cb, 10
             )
 
-        self.create_subscription(JointState, "/arm/joint_states", self._arm_state_cb, 10)
+        self.create_subscription(
+            JointState, "/arm/joint_states", self._arm_state_cb, 10
+        )
         self.create_subscription(Odometry, "/odom", self._odom_cb, 10)
         self.create_subscription(String, "/policy/task", self._task_cb, 10)
         self.create_subscription(Bool, "/policy/enable", self._enable_cb, 10)
@@ -211,6 +224,7 @@ class PolicyNode(Node):
 
         if self._diag_enabled:
             from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
             self._DiagArray = DiagnosticArray
             self._DiagStatus = DiagnosticStatus
             self._KeyValue = KeyValue
@@ -270,7 +284,7 @@ class PolicyNode(Node):
     def _key_to_topic(self, key: str) -> str:
         _MAP = {
             "observation.images.wrist": "/camera/wrist/image_raw",
-            "observation.images.bev":   "/camera/base/bev/image_raw",
+            "observation.images.bev": "/camera/base/bev/image_raw",
             "observation.images.front": "/camera/front/image_raw",
             "observation.images.depth": "/camera/depth/image_raw",
         }
@@ -283,9 +297,14 @@ class PolicyNode(Node):
     def _ros_image_to_numpy(self, msg: Image) -> np.ndarray:
         if self.bridge is not None:
             try:
-                return np.array(self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8"), dtype=np.uint8)
+                return np.array(
+                    self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8"),
+                    dtype=np.uint8,
+                )
             except Exception as exc:
-                self.get_logger().warn(f"cv_bridge error: {exc}", throttle_duration_sec=5.0)
+                self.get_logger().warn(
+                    f"cv_bridge error: {exc}", throttle_duration_sec=5.0
+                )
         return np.zeros((self.image_height, self.image_width, 3), dtype=np.uint8)
 
     def _numpy_to_tensor(self, img_np: np.ndarray):
@@ -321,9 +340,11 @@ class PolicyNode(Node):
 
     def _odom_cb(self, msg: Odometry) -> None:
         self.base_vel = np.array(
-            [msg.twist.twist.linear.x,
-             msg.twist.twist.linear.y,
-             msg.twist.twist.angular.z],
+            [
+                msg.twist.twist.linear.x,
+                msg.twist.twist.linear.y,
+                msg.twist.twist.angular.z,
+            ],
             dtype=np.float32,
         )
 
@@ -347,7 +368,9 @@ class PolicyNode(Node):
         if not self.enabled:
             return
 
-        missing = [k for k in self.adapter.image_keys if self.camera_images.get(k) is None]
+        missing = [
+            k for k in self.adapter.image_keys if self.camera_images.get(k) is None
+        ]
         if missing:
             self.get_logger().warn(
                 f"Waiting for images: {missing}", throttle_duration_sec=2.0
@@ -380,7 +403,10 @@ class PolicyNode(Node):
             t2 = time.perf_counter() if self._diag_enabled else None
 
             if self._diag_enabled and t0 is not None:
-                ms = lambda a, b: (b - a) * 1000.0
+
+                def ms(a, b):
+                    return (b - a) * 1000.0
+
                 self._t_preprocess.append(ms(t0, t1))
                 self._t_inference.append(ms(t1, t2))
                 self._t_total.append(ms(t0, t2))
@@ -389,7 +415,9 @@ class PolicyNode(Node):
             self._publish_base(action[6:9])
 
         except Exception as exc:
-            self.get_logger().error(f"Inference error: {exc}", throttle_duration_sec=5.0)
+            self.get_logger().error(
+                f"Inference error: {exc}", throttle_duration_sec=5.0
+            )
 
     def _publish_arm(self, arm_action: np.ndarray) -> None:
         msg = JointState()
@@ -420,12 +448,18 @@ class PolicyNode(Node):
             p95 = s[max(0, int(0.95 * len(s)) - 1)]
             budget = 1000.0 / self.policy_hz
             st.level = (
-                self._DiagStatus.ERROR if p95 > budget
-                else self._DiagStatus.WARN if p95 > budget * 0.8
+                self._DiagStatus.ERROR
+                if p95 > budget
+                else self._DiagStatus.WARN
+                if p95 > budget * 0.8
                 else self._DiagStatus.OK
             )
             st.message = f"p95={p95:.1f}ms (budget={budget:.0f}ms)"
-            for k, v in [("mean_ms", sum(s) / len(s)), ("p95_ms", p95), ("max_ms", s[-1])]:
+            for k, v in [
+                ("mean_ms", sum(s) / len(s)),
+                ("p95_ms", p95),
+                ("max_ms", s[-1]),
+            ]:
                 kv = self._KeyValue()
                 kv.key = k
                 kv.value = f"{v:.3f}"

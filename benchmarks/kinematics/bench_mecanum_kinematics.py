@@ -27,7 +27,6 @@ from mecanum_drive_ros2.kinematics import (
 )
 from benchmarks.conftest import TimingHarness, check_slo, print_stats, write_results
 
-import pytest
 
 # ---------------------------------------------------------------------------
 # Robot geometry — matches production hardware constants

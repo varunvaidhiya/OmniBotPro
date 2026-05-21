@@ -10,8 +10,6 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
 
-
-
 def generate_launch_description():
     # Get the launch directory
     bringup_dir = get_package_share_directory("omnibot_navigation")

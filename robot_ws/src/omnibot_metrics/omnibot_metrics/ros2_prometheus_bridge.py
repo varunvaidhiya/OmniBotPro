@@ -15,17 +15,13 @@ Usage:
       -p machine_label:=raspberry_pi
 """
 
-import collections
 import threading
-import time
-from typing import Optional
 
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, DurabilityPolicy
 
 from diagnostic_msgs.msg import DiagnosticArray
-from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 from std_msgs.msg import Bool, String
@@ -34,11 +30,10 @@ try:
     from prometheus_client import (
         Counter,
         Gauge,
-        Histogram,
         Info,
         start_http_server,
-        REGISTRY,
     )
+
     _PROMETHEUS_AVAILABLE = True
 except ImportError:
     _PROMETHEUS_AVAILABLE = False
@@ -119,8 +114,7 @@ class ROS2PrometheusBridge(Node):
 
         if not _PROMETHEUS_AVAILABLE:
             self.get_logger().fatal(
-                "prometheus_client is not installed. "
-                "Run: pip install prometheus_client"
+                "prometheus_client is not installed. Run: pip install prometheus_client"
             )
             return
 
@@ -151,9 +145,7 @@ class ROS2PrometheusBridge(Node):
         )
 
         # Odometry (best-effort — published at 20 Hz, don't block on drops)
-        self.create_subscription(
-            Odometry, "/odom", self._on_odom, best_effort_qos
-        )
+        self.create_subscription(Odometry, "/odom", self._on_odom, best_effort_qos)
 
         # Control mode feedback
         self.create_subscription(
@@ -169,9 +161,7 @@ class ROS2PrometheusBridge(Node):
         )
 
         # Safety
-        self.create_subscription(
-            Bool, "/emergency_stop", self._on_estop, reliable_qos
-        )
+        self.create_subscription(Bool, "/emergency_stop", self._on_estop, reliable_qos)
 
         # Arm joints (best-effort — 100 Hz)
         self.create_subscription(

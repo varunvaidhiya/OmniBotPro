@@ -19,7 +19,6 @@ import struct
 import sys
 import threading
 import time
-from collections import deque
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -28,7 +27,13 @@ import pytest
 _REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_REPO))
 
-from benchmarks.conftest import TimingHarness, check_slo, print_stats, skip_if_no_ros, write_results
+from benchmarks.conftest import (
+    TimingHarness,
+    check_slo,
+    print_stats,
+    skip_if_no_ros,
+    write_results,
+)
 
 pytestmark = pytest.mark.ros
 skip_if_no_ros()
@@ -210,8 +215,10 @@ def test_bench_cmd_vel_mux_routing():
     mux = CmdVelMux()
     stop = threading.Event()
     t = threading.Thread(
-        target=lambda: [rclpy.spin_once(mux, timeout_sec=0.005)
-                        for _ in iter(lambda: stop.is_set(), True)],
+        target=lambda: [
+            rclpy.spin_once(mux, timeout_sec=0.005)
+            for _ in iter(lambda: stop.is_set(), True)
+        ],
         daemon=True,
     )
     t.start()
@@ -230,8 +237,10 @@ def test_bench_cmd_vel_mux_routing():
 
     stop_probe = threading.Event()
     t_probe = threading.Thread(
-        target=lambda: [rclpy.spin_once(probe, timeout_sec=0.005)
-                        for _ in iter(lambda: stop_probe.is_set(), True)],
+        target=lambda: [
+            rclpy.spin_once(probe, timeout_sec=0.005)
+            for _ in iter(lambda: stop_probe.is_set(), True)
+        ],
         daemon=True,
     )
     t_probe.start()

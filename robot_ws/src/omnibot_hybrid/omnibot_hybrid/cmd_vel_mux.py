@@ -107,7 +107,7 @@ class CmdVelMux(Node):
             self._out_pub.publish(msg)
 
     def _rl_nav_cb(self, msg: Twist) -> None:
-        if self._active_mode == 'rl_nav':
+        if self._active_mode == "rl_nav":
             self._out_pub.publish(msg)
 
     # ── Periodic feedback ─────────────────────────────────────────────────────

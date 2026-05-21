@@ -66,7 +66,6 @@ from launch_ros.descriptions import ParameterValue
 
 
 def generate_launch_description():
-    pkg_hybrid = get_package_share_directory("omnibot_hybrid")
     pkg_navigation = get_package_share_directory("omnibot_navigation")
     pkg_description = get_package_share_directory("omnibot_description")
     pkg_rl = get_package_share_directory("omnibot_rl")
@@ -82,14 +81,18 @@ def generate_launch_description():
     use_slam = LaunchConfiguration("use_slam", default="true")
     vla_device = LaunchConfiguration("vla_device", default="cuda")
     vla_4bit = LaunchConfiguration("vla_4bit", default="false")
-    vla_image_topic = LaunchConfiguration("vla_image_topic", default="/camera/front/image_raw")
+    vla_image_topic = LaunchConfiguration(
+        "vla_image_topic", default="/camera/front/image_raw"
+    )
     use_rosbridge = LaunchConfiguration("use_rosbridge", default="true")
     use_foxglove = LaunchConfiguration("use_foxglove", default="true")
     use_bev = LaunchConfiguration("use_bev", default="true")
     use_rl = LaunchConfiguration("use_rl", default="false")
     use_policy = LaunchConfiguration("use_policy", default="false")
     policy_model_type = LaunchConfiguration("policy_model_type", default="smolvla")
-    policy_checkpoint = LaunchConfiguration("policy_checkpoint", default="lerobot/smolvla_base")
+    policy_checkpoint = LaunchConfiguration(
+        "policy_checkpoint", default="lerobot/smolvla_base"
+    )
     use_langchain = LaunchConfiguration("use_langchain", default="false")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
@@ -135,11 +138,12 @@ def generate_launch_description():
     # avoid duplicate nodes.
     rl_inference = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(pkg_rl, 'launch', 'rl_inference.launch.py')),
+            os.path.join(pkg_rl, "launch", "rl_inference.launch.py")
+        ),
         condition=IfCondition(use_rl),
         launch_arguments={
-            'use_sim_time': use_sim_time,
-            'include_arm_mux': 'false',
+            "use_sim_time": use_sim_time,
+            "include_arm_mux": "false",
         }.items(),
     )
 
@@ -266,7 +270,13 @@ def generate_launch_description():
     # Publishes /camera/base/bev/image_raw from 4 base-mounted cameras.
     # Enabled when use_bev:=true OR use_policy:=true.
     _bev_enabled = PythonExpression(
-        ["'true' if '", use_bev, "' == 'true' or '", use_policy, "' == 'true' else 'false'"]
+        [
+            "'true' if '",
+            use_bev,
+            "' == 'true' or '",
+            use_policy,
+            "' == 'true' else 'false'",
+        ]
     )
     bev_stitcher_node = Node(
         package="omnibot_lerobot",

@@ -130,9 +130,7 @@ class LangchainAgentNode(Node):
             resource = Resource.create({"service.name": "omnibot.orchestration"})
             provider = TracerProvider(resource=resource)
             provider.add_span_processor(
-                BatchSpanProcessor(
-                    OTLPSpanExporter(endpoint=endpoint, insecure=True)
-                )
+                BatchSpanProcessor(OTLPSpanExporter(endpoint=endpoint, insecure=True))
             )
             trace.set_tracer_provider(provider)
             self._tracer = trace.get_tracer("omnibot.orchestration")

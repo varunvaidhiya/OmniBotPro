@@ -113,9 +113,9 @@ class ArmDriverNode(Node):
         # Subscribers
         # ------------------------------------------------------------------
         self.create_subscription(
-            JointState, '/arm/joint_commands/out', self.joint_command_cb, 10)
-        self.create_subscription(
-            Bool, '/arm/enable', self.enable_cb, 10)
+            JointState, "/arm/joint_commands/out", self.joint_command_cb, 10
+        )
+        self.create_subscription(Bool, "/arm/enable", self.enable_cb, 10)
 
         # ------------------------------------------------------------------
         # Connect hardware
@@ -138,6 +138,7 @@ class ArmDriverNode(Node):
 
         if self._diag_enabled:
             from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
             self._DiagnosticArray = DiagnosticArray
             self._DiagnosticStatus = DiagnosticStatus
             self._KeyValue = KeyValue
@@ -296,8 +297,10 @@ class ArmDriverNode(Node):
             n = len(s)
             p95 = s[max(0, int(0.95 * n) - 1)]
             st.level = (
-                self._DiagnosticStatus.ERROR if p95 > err_ms
-                else self._DiagnosticStatus.WARN if p95 > warn_ms
+                self._DiagnosticStatus.ERROR
+                if p95 > err_ms
+                else self._DiagnosticStatus.WARN
+                if p95 > warn_ms
                 else self._DiagnosticStatus.OK
             )
             st.message = f"p95={p95:.2f}ms"

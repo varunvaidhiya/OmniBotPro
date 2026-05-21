@@ -40,8 +40,10 @@ def generate_launch_description():
         ],
     )
 
-    return LaunchDescription([
-        declare_port,
-        declare_machine,
-        metrics_bridge,
-    ])
+    return LaunchDescription(
+        [
+            declare_port,
+            declare_machine,
+            metrics_bridge,
+        ]
+    )

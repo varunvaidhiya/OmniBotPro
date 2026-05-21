@@ -20,15 +20,15 @@ import time
 import struct
 import serial
 
-PORT    = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyUSB0"
-BAUD    = 115200
+PORT = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyUSB0"
+BAUD = 115200
 TIMEOUT = 1.0
 
 # ── protocol constants ──────────────────────────────────────────────────────
-HEAD_TX   = 0xFF
+HEAD_TX = 0xFF
 DEVICE_ID = 0xFC
-HEAD_RX   = 0xFB
-_COMPL    = 257 - DEVICE_ID  # = 5
+HEAD_RX = 0xFB
+_COMPL = 257 - DEVICE_ID  # = 5
 
 
 def _checksum(packet):
@@ -45,12 +45,17 @@ def build_packet(func_id, payload: bytes) -> bytes:
 def pkt_set_car_type(car_type=1):
     return build_packet(0x15, struct.pack("<b", car_type))
 
+
 def pkt_beep(ms):
     return build_packet(0x02, struct.pack("<h", ms))
 
+
 def pkt_motion(vx, vy, vz, car_type=1):
-    return build_packet(0x12, struct.pack("<bhhh", car_type,
-                                          int(vx*1000), int(vy*1000), int(vz*1000)))
+    return build_packet(
+        0x12,
+        struct.pack("<bhhh", car_type, int(vx * 1000), int(vy * 1000), int(vz * 1000)),
+    )
+
 
 def pkt_stop():
     return pkt_motion(0, 0, 0)
@@ -77,30 +82,38 @@ def read_packets(ser, duration=2.0):
         # scan for 0xFF 0xFB headers
         i = 0
         while i < len(buf) - 3:
-            if buf[i] == HEAD_TX and buf[i+1] == HEAD_RX:
-                length = buf[i+2]
-                total  = 2 + length
+            if buf[i] == HEAD_TX and buf[i + 1] == HEAD_RX:
+                length = buf[i + 2]
+                total = 2 + length
                 if i + total > len(buf):
                     break
-                pkt     = buf[i:i+total]
+                pkt = buf[i : i + total]
                 pkt_type = pkt[3]
-                payload  = pkt[4:-1]
+                payload = pkt[4:-1]
 
                 if pkt_type == 0x0C and len(payload) >= 6:
                     vx, vy, vz = struct.unpack_from("<hhh", payload)
-                    print(f"  RX VEL  vx={vx/1000:.3f} vy={vy/1000:.3f} vz={vz/1000:.3f} m/s")
+                    print(
+                        f"  RX VEL  vx={vx / 1000:.3f} vy={vy / 1000:.3f} vz={vz / 1000:.3f} m/s"
+                    )
                     seen["vel"] = True
                 elif pkt_type == 0x61 and len(payload) >= 6:
                     ax, ay, az = struct.unpack_from("<hhh", payload)
-                    print(f"  RX ACCEL ax={ax/100:.2f} ay={ay/100:.2f} az={az/100:.2f} (raw×0.01)")
+                    print(
+                        f"  RX ACCEL ax={ax / 100:.2f} ay={ay / 100:.2f} az={az / 100:.2f} (raw×0.01)"
+                    )
                     seen["accel"] = True
                 elif pkt_type == 0x62 and len(payload) >= 6:
                     gx, gy, gz = struct.unpack_from("<hhh", payload)
-                    print(f"  RX GYRO  gx={gx/1000:.3f} gy={gy/1000:.3f} gz={gz/1000:.3f} rad/s")
+                    print(
+                        f"  RX GYRO  gx={gx / 1000:.3f} gy={gy / 1000:.3f} gz={gz / 1000:.3f} rad/s"
+                    )
                     seen["gyro"] = True
                 elif pkt_type == 0x63 and len(payload) >= 6:
                     r, p, y = struct.unpack_from("<hhh", payload)
-                    print(f"  RX ATT   roll={r/100:.1f}° pitch={p/100:.1f}° yaw={y/100:.1f}°")
+                    print(
+                        f"  RX ATT   roll={r / 100:.1f}° pitch={p / 100:.1f}° yaw={y / 100:.1f}°"
+                    )
                     seen["att"] = True
                 else:
                     hex_payload = " ".join(f"{b:02X}" for b in payload)
@@ -118,21 +131,23 @@ def main():
     results = {}
 
     # ── 1. Open serial port ──────────────────────────────────────────────────
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(f" Yahboom Hardware Diagnostic  —  {PORT} @ {BAUD}")
-    print(f"{'='*60}\n")
+    print(f"{'=' * 60}\n")
 
     print(f"[1] Opening {PORT} ...")
     try:
         ser = serial.Serial(port=PORT, baudrate=BAUD, timeout=TIMEOUT)
-        print(f"    OK — port open")
+        print("    OK — port open")
         results["serial_open"] = True
     except serial.SerialException as e:
         print(f"    FAIL: {e}")
         print("\n  Possible causes:")
         print("    • Board not plugged in / USB cable fault")
         print("    • Wrong port — try: ls /dev/ttyUSB*")
-        print("    • Permissions — run: sudo usermod -aG dialout $USER  (then re-login)")
+        print(
+            "    • Permissions — run: sudo usermod -aG dialout $USER  (then re-login)"
+        )
         return
 
     # ── 2. SET_CAR_TYPE ──────────────────────────────────────────────────────
@@ -160,12 +175,16 @@ def main():
     print("\n[4] Reading RX packets for 3 s (board should stream IMU + velocity) ...")
     seen = read_packets(ser, duration=3.0)
     results["rx_velocity"] = seen["vel"]
-    results["rx_imu"]      = seen["accel"] or seen["gyro"] or seen["att"]
+    results["rx_imu"] = seen["accel"] or seen["gyro"] or seen["att"]
 
     if not any(seen.values()):
-        print("    WARNING: no valid RX packets received — board may be off or wrong port")
+        print(
+            "    WARNING: no valid RX packets received — board may be off or wrong port"
+        )
     else:
-        print(f"    Received: vel={seen['vel']} accel={seen['accel']} gyro={seen['gyro']} att={seen['att']}")
+        print(
+            f"    Received: vel={seen['vel']} accel={seen['accel']} gyro={seen['gyro']} att={seen['att']}"
+        )
 
     # ── 5. Motion test ───────────────────────────────────────────────────────
     print("\n[5] Motion test — sending vx=0.10 m/s forward for 1 s ...")
@@ -192,16 +211,16 @@ def main():
     ser.close()
 
     # ── Summary ──────────────────────────────────────────────────────────────
-    print(f"\n{'='*60}")
+    print(f"\n{'=' * 60}")
     print(" SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     checks = [
-        ("serial_open",    "Serial port opens"),
-        ("car_type_sent",  "SET_CAR_TYPE sent"),
-        ("beep",           "Buzzer heard"),
-        ("rx_velocity",    "Velocity RX packets received"),
-        ("rx_imu",         "IMU RX packets received"),
-        ("motion",         "Robot moves on motion command"),
+        ("serial_open", "Serial port opens"),
+        ("car_type_sent", "SET_CAR_TYPE sent"),
+        ("beep", "Buzzer heard"),
+        ("rx_velocity", "Velocity RX packets received"),
+        ("rx_imu", "IMU RX packets received"),
+        ("motion", "Robot moves on motion command"),
     ]
     for key, label in checks:
         val = results.get(key)
@@ -217,12 +236,16 @@ def main():
     if not results.get("serial_open"):
         print("→ Fix serial port first (check USB cable, port, permissions).")
     elif not results.get("beep"):
-        print("→ Board reachable but no beep: check board power (12V supply), fuse, or firmware.")
+        print(
+            "→ Board reachable but no beep: check board power (12V supply), fuse, or firmware."
+        )
     elif not results.get("rx_velocity") and not results.get("rx_imu"):
         print("→ TX works but no RX: board may need SET_CAR_TYPE to start streaming.")
         print("  Try power-cycling the board and running this script again.")
     elif not results.get("motion"):
-        print("→ Serial and IMU OK but no motion: check motor connectors, E-stop switch,")
+        print(
+            "→ Serial and IMU OK but no motion: check motor connectors, E-stop switch,"
+        )
         print("  and that CAR_TYPE=1 (Mecanum X3) is accepted by the firmware version.")
     else:
         print("→ All checks passed — hardware appears healthy.")

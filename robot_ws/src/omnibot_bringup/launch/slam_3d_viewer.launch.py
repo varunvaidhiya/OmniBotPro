@@ -51,7 +51,9 @@ def generate_launch_description():
         arguments=["-d", LaunchConfiguration("rviz_config")],
     )
 
-    return LaunchDescription([
-        declare_rviz_config,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            declare_rviz_config,
+            rviz,
+        ]
+    )

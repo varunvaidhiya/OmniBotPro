@@ -60,27 +60,33 @@ def generate_launch_description():
 
     # ── Launch arguments ──────────────────────────────────────────────────────
     declare_rviz = DeclareLaunchArgument(
-        "rviz", default_value="true",
+        "rviz",
+        default_value="true",
         description="Launch RViz2 for SLAM + 3-D mapping visualisation",
     )
     declare_slam2d = DeclareLaunchArgument(
-        "slam2d", default_value="true",
+        "slam2d",
+        default_value="true",
         description="Run slam_toolbox for 2-D occupancy map + odometry correction",
     )
     declare_slam3d = DeclareLaunchArgument(
-        "slam3d", default_value="true",
+        "slam3d",
+        default_value="true",
         description="Run RTAB-Map + octomap_server for 3-D voxel map",
     )
     declare_use_sim_time = DeclareLaunchArgument(
-        "use_sim_time", default_value="false",
+        "use_sim_time",
+        default_value="false",
         description="Use simulation clock (Gazebo / Isaac Sim)",
     )
     declare_slam_mode = DeclareLaunchArgument(
-        "slam_mode", default_value="mapping",
+        "slam_mode",
+        default_value="mapping",
         description="slam_toolbox mode: 'mapping' or 'localization'",
     )
     declare_map_file = DeclareLaunchArgument(
-        "map_file", default_value="omnibot_map",
+        "map_file",
+        default_value="omnibot_map",
         description="Map file path for localization mode",
     )
 
@@ -164,15 +170,17 @@ def generate_launch_description():
         arguments=["-d", rviz_config],
     )
 
-    return LaunchDescription([
-        declare_rviz,
-        declare_slam2d,
-        declare_slam3d,
-        declare_use_sim_time,
-        declare_slam_mode,
-        declare_map_file,
-        slam_toolbox,
-        rtabmap,
-        octomap_server,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            declare_rviz,
+            declare_slam2d,
+            declare_slam3d,
+            declare_use_sim_time,
+            declare_slam_mode,
+            declare_map_file,
+            slam_toolbox,
+            rtabmap,
+            octomap_server,
+            rviz,
+        ]
+    )

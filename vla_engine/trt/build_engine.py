@@ -46,6 +46,7 @@ logger = logging.getLogger("build_engine")
 # INT8 calibrator
 # ---------------------------------------------------------------------------
 
+
 def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
     """Build a simple image-folder INT8 entropy calibrator."""
     try:
@@ -56,7 +57,6 @@ def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
     import torch
     import cv2
     import numpy as np
-    import os
 
     class _ImageFolderCalibrator(trt.IInt8EntropyCalibrator2):
         """Feeds images from a directory to the TRT INT8 calibrator."""
@@ -77,12 +77,13 @@ def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
                 raise ValueError(f"No images found in calibration dir: {image_dir}")
 
             self._idx = 0
-            nbytes = batch_size * 3 * image_h * image_w * 4  # float32
             self._device_input = torch.zeros(
                 batch_size, 3, image_h, image_w, dtype=torch.float32, device="cuda"
             )
             self._cache_file = Path(image_dir) / "trt_int8_cache.bin"
-            logger.info("INT8 calibrator: %d images from %s", len(self.image_paths), image_dir)
+            logger.info(
+                "INT8 calibrator: %d images from %s", len(self.image_paths), image_dir
+            )
 
         def get_batch_size(self):
             return self.batch_size
@@ -99,7 +100,9 @@ def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
                 img = cv2.imread(path)
                 if img is None:
                     img = np.zeros((self.image_h, self.image_w, 3), dtype=np.uint8)
-                img = cv2.resize(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), (self.image_w, self.image_h))
+                img = cv2.resize(
+                    cv2.cvtColor(img, cv2.COLOR_BGR2RGB), (self.image_w, self.image_h)
+                )
                 arr = img.astype(np.float32) / 255.0
                 imgs.append(arr.transpose(2, 0, 1))
 
@@ -123,6 +126,7 @@ def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
 # ---------------------------------------------------------------------------
 # Sanity check
 # ---------------------------------------------------------------------------
+
 
 def _sanity_check(policy, engine_path: Path, image_h: int, image_w: int) -> bool:
     """Compare TRT output vs PyTorch output on a random input. Returns True if close."""
@@ -154,7 +158,9 @@ def _sanity_check(policy, engine_path: Path, image_h: int, image_w: int) -> bool
         # FP16 typically has <0.01 mean error on vision encoders
         threshold = 0.05
         if mean_diff < threshold:
-            logger.info("Sanity check PASSED (mean diff %.6f < %.4f)", mean_diff, threshold)
+            logger.info(
+                "Sanity check PASSED (mean diff %.6f < %.4f)", mean_diff, threshold
+            )
             return True
         else:
             logger.warning(
@@ -171,6 +177,7 @@ def _sanity_check(policy, engine_path: Path, image_h: int, image_w: int) -> bool
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -265,7 +272,9 @@ def main():
     # Device
     # ------------------------------------------------------------------
     if args.device == "cuda" and not torch.cuda.is_available():
-        logger.warning("CUDA not available — falling back to CPU. TRT build will still target GPU.")
+        logger.warning(
+            "CUDA not available — falling back to CPU. TRT build will still target GPU."
+        )
         device = torch.device("cpu")
     else:
         device = torch.device(args.device)

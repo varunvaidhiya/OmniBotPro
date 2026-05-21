@@ -80,10 +80,13 @@ class VLANode(Node):
 
         if self._diag_enabled:
             from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
             self._DiagnosticArray = DiagnosticArray
             self._DiagnosticStatus = DiagnosticStatus
             self._KeyValue = KeyValue
-            self._diag_pub_vla = self.create_publisher(DiagnosticArray, "/diagnostics", 10)
+            self._diag_pub_vla = self.create_publisher(
+                DiagnosticArray, "/diagnostics", 10
+            )
             self.create_timer(1.0, self._publish_diagnostics)
 
     def image_callback(self, msg):
@@ -139,7 +142,6 @@ class VLANode(Node):
         except Exception as e:
             self.get_logger().error(f"Inference failed: {e}")
 
-
     def _publish_diagnostics(self) -> None:
         msg = self._DiagnosticArray()
         msg.header.stamp = self.get_clock().now().to_msg()
@@ -155,8 +157,10 @@ class VLANode(Node):
             n = len(s)
             p95 = s[max(0, int(0.95 * n) - 1)]
             st.level = (
-                self._DiagnosticStatus.ERROR if p95 > err_ms
-                else self._DiagnosticStatus.WARN if p95 > warn_ms
+                self._DiagnosticStatus.ERROR
+                if p95 > err_ms
+                else self._DiagnosticStatus.WARN
+                if p95 > warn_ms
                 else self._DiagnosticStatus.OK
             )
             st.message = f"p95={p95:.0f}ms"
