@@ -68,15 +68,28 @@ jobs:
 
       - name: Install ROS dependencies
         run: |
-          # Skip simulation/visualization packages that need extra apt repos
-          # (ros_gz_* requires OSRF Gazebo repo) or are runtime-only deps not
-          # needed for the build or unit tests.
-          # ament_pep8 was removed from ROS 2 Jazzy (not in jazzy/distribution.yaml).
-          # NOTE: --skip-keys takes separate arguments, not a quoted string.
+          # Skip packages that either need extra apt repos not configured by
+          # setup-ros (ros_gz_*, foxglove_bridge, rosbridge_server) or are
+          # runtime/launch-file-only deps not needed for colcon build or test:
+          #   - nav2 nodes: omnibot_navigation only lists them; it is
+          #     ament_python with no code, so no cmake/import resolution at
+          #     build time.  nav2_msgs is kept because Python code imports it.
+          #   - slam_toolbox, robot_localization: same — launch-file-only.
+          #   - rviz2, joint_state_publisher_gui: GUI / visualization tools
+          #     not needed on a headless CI runner.
+          # ament_pep8 was removed from ROS 2 Jazzy (not in distribution.yaml).
+          # NOTE: --skip-keys takes separate shell arguments (nargs='+').
           rosdep install --from-paths robot_ws/src --ignore-src -y --rosdistro jazzy \
-            --skip-keys ros_gz_sim ros_gz_bridge foxglove_bridge rosbridge_server \
+            --skip-keys \
+              ros_gz_sim ros_gz_bridge foxglove_bridge rosbridge_server \
               depthimage_to_laserscan rtabmap_ros octomap_server pcl_ros octomap_msgs \
-              ament_pep8
+              ament_pep8 \
+              slam_toolbox robot_localization \
+              rviz2 joint_state_publisher_gui \
+              nav2_bringup nav2_common nav2_util nav2_controller nav2_planner \
+              nav2_behaviors nav2_bt_navigator nav2_waypoint_follower \
+              nav2_velocity_smoother nav2_costmap_2d nav2_map_server nav2_amcl \
+              nav2_lifecycle_manager
 
       - name: Build Workspace
         working-directory: robot_ws
