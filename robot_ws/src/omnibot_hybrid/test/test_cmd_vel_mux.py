@@ -24,18 +24,26 @@ def ros_context():
     rclpy.shutdown()
 
 
-@pytest.fixture()
-def mux():
-    """Return a CmdVelMux with mocked output publishers.
+@pytest.fixture(scope="module")
+def mux(ros_context):
+    """Single CmdVelMux node shared across the whole module.
 
-    The node is never spun — callbacks are exercised by direct invocation.
-    This avoids all DDS discovery and timing non-determinism.
+    Creating one node avoids repeated DDS entity teardown/creation without
+    an executor spinning, which can cause race conditions in CI.
     """
     node = CmdVelMux()
     node._out_pub = MagicMock()
     node._active_mode_pub = MagicMock()
     yield node
     node.destroy_node()
+
+
+@pytest.fixture(autouse=True)
+def reset_mux(mux):
+    """Reset mock call counts and active mode to defaults before each test."""
+    mux._out_pub.reset_mock()
+    mux._active_mode_pub.reset_mock()
+    mux._active_mode = "nav2"
 
 
 # ── Helpers ──────────────────────────────────────────────────────────────────
