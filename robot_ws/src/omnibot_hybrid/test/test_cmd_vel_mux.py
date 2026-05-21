@@ -35,10 +35,10 @@ def mux_node():
 # ── Helpers ─────────────────────────────────────────────────────────────────
 
 
-def _pub_mode(node, mode: str, *, wait: float = 0.1):
+def _pub_mode(node, mode: str, *, wait: float = 0.3):
     """Publish a control_mode message and wait for the callback."""
     pub = node.create_publisher(String, "/control_mode", 10)
-    time.sleep(0.1)  # Allow DDS to match publisher against the node's subscription
+    time.sleep(0.2)  # Allow DDS to match publisher against the node's subscription
     msg = String()
     msg.data = mode
     pub.publish(msg)
@@ -96,10 +96,10 @@ class TestForwarding:
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
         pub = mux_node.create_publisher(Twist, "/cmd_vel", 10)
-        time.sleep(0.2)  # Allow DDS to match new pub and sub against the mux node
+        time.sleep(0.5)  # Allow DDS to match new pub and sub against the mux node
 
         pub.publish(_make_twist(0.5))
-        time.sleep(0.3)
+        time.sleep(0.5)
 
         sub.destroy()
         pub.destroy()
@@ -111,10 +111,10 @@ class TestForwarding:
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
-        time.sleep(0.2)  # Allow DDS discovery
+        time.sleep(0.5)  # Allow DDS discovery
 
         pub.publish(_make_twist(0.7))
-        time.sleep(0.3)
+        time.sleep(0.5)
 
         sub.destroy()
         pub.destroy()
@@ -125,10 +125,10 @@ class TestForwarding:
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
         pub = mux_node.create_publisher(Twist, "/cmd_vel/vla", 10)
-        time.sleep(0.2)  # Allow DDS discovery
+        time.sleep(0.5)  # Allow DDS discovery
 
         pub.publish(_make_twist(0.3))
-        time.sleep(0.3)
+        time.sleep(0.5)
 
         sub.destroy()
         pub.destroy()
@@ -140,10 +140,10 @@ class TestForwarding:
         received: list[Twist] = []
         sub = mux_node.create_subscription(Twist, "/cmd_vel/out", received.append, 10)
         pub = mux_node.create_publisher(Twist, "/cmd_vel/teleop", 10)
-        time.sleep(0.2)  # Allow DDS discovery
+        time.sleep(0.5)  # Allow DDS discovery
 
         pub.publish(_make_twist(0.1))
-        time.sleep(0.3)
+        time.sleep(0.5)
 
         sub.destroy()
         pub.destroy()
@@ -157,7 +157,7 @@ class TestActiveModePublisher:
         sub = mux_node.create_subscription(
             String, "/control_mode/active", received.append, 10
         )
-        time.sleep(1.2)  # 1 Hz timer fires at least once
+        time.sleep(2.0)  # 1 Hz timer fires at least once
 
         sub.destroy()
         assert any(m.data == "vla" for m in received)

@@ -1,7 +1,13 @@
 import operator
 from typing import Annotated, List, Optional
 
-from langchain_core.messages import BaseMessage
+try:
+    from langchain_core.messages import BaseMessage
+except ImportError as _e:
+    raise ImportError(
+        "langchain_core is required for MissionState. "
+        "Install with: pip install langchain-core"
+    ) from _e
 from typing_extensions import TypedDict
 
 

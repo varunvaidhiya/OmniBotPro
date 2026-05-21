@@ -51,8 +51,14 @@ except ImportError:
 
 from omnibot_orchestration.memory.entity_memory import EntityMemory
 from omnibot_orchestration.vision.scene_describer import SceneDescriber
-from omnibot_orchestration.graph.mission_graph import build_mission_graph
-from omnibot_orchestration.graph.state import initial_state
+
+try:
+    from omnibot_orchestration.graph.mission_graph import build_mission_graph
+    from omnibot_orchestration.graph.state import initial_state
+
+    _LANGGRAPH_AVAILABLE = True
+except ImportError:
+    _LANGGRAPH_AVAILABLE = False
 
 
 class LangchainAgentNode(Node):
@@ -221,6 +227,13 @@ class LangchainAgentNode(Node):
     # ── Graph construction ─────────────────────────────────────────────────
 
     def _build_langchain_agent(self) -> None:
+        if not _LANGGRAPH_AVAILABLE:
+            self.get_logger().fatal(
+                "langgraph / langchain_core not installed — agent disabled. "
+                "Run: pip install langgraph langchain-core langchain-anthropic"
+            )
+            self._graph = None
+            return
         try:
             self._graph = build_mission_graph(ros_node=self)
             self.get_logger().info("LangGraph mission graph built successfully.")

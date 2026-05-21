@@ -15,8 +15,14 @@ can publish to ROS topics without holding a global reference.
 
 from typing import Any, Literal
 
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.graph import END, StateGraph
+try:
+    from langgraph.checkpoint.memory import MemorySaver
+    from langgraph.graph import END, StateGraph
+except ImportError as _e:
+    raise ImportError(
+        "langgraph is required for the mission graph. "
+        "Install with: pip install langgraph"
+    ) from _e
 
 from .nodes import (
     execute_vla_node,
