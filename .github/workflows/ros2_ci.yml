@@ -63,33 +63,34 @@ jobs:
                        prometheus_client>=0.20 \
                        --break-system-packages
 
-      - name: Update rosdep
-        run: rosdep update
-
       - name: Install ROS dependencies
         run: |
-          # Skip packages that either need extra apt repos not configured by
-          # setup-ros (ros_gz_*, foxglove_bridge, rosbridge_server) or are
-          # runtime/launch-file-only deps not needed for colcon build or test:
-          #   - nav2 nodes: omnibot_navigation only lists them; it is
-          #     ament_python with no code, so no cmake/import resolution at
-          #     build time.  nav2_msgs is kept because Python code imports it.
-          #   - slam_toolbox, robot_localization: same — launch-file-only.
-          #   - rviz2, joint_state_publisher_gui: GUI / visualization tools
-          #     not needed on a headless CI runner.
-          # ament_pep8 was removed from ROS 2 Jazzy (not in distribution.yaml).
-          # NOTE: --skip-keys takes separate shell arguments (nargs='+').
-          rosdep install --from-paths robot_ws/src --ignore-src -y --rosdistro jazzy \
-            --skip-keys \
-              ros_gz_sim ros_gz_bridge foxglove_bridge rosbridge_server \
-              depthimage_to_laserscan rtabmap_ros octomap_server pcl_ros octomap_msgs \
-              ament_pep8 \
-              slam_toolbox robot_localization \
-              rviz2 joint_state_publisher_gui \
-              nav2_bringup nav2_common nav2_util nav2_controller nav2_planner \
-              nav2_behaviors nav2_bt_navigator nav2_waypoint_follower \
-              nav2_velocity_smoother nav2_costmap_2d nav2_map_server nav2_amcl \
-              nav2_lifecycle_manager
+          # Replace rosdep with an explicit apt-get install of exactly what
+          # colcon build and test need.  rosdep was failing because:
+          #   - 'serial' has no rosdep key (source-only package); --ignore-src
+          #     should handle it but is unreliable in CI environments.
+          #   - 'boost' maps to libboost-all-dev (~1.5 GB meta-package) which
+          #     can exhaust disk space or hit apt conflicts.
+          # Only packages not already provided by ros-jazzy-ros-base are listed.
+          sudo apt-get install -y \
+            ros-jazzy-cv-bridge \
+            ros-jazzy-tf-transformations \
+            ros-jazzy-tf2-ros \
+            ros-jazzy-tf2-geometry-msgs \
+            ros-jazzy-nav2-msgs \
+            ros-jazzy-xacro \
+            ros-jazzy-robot-state-publisher \
+            ros-jazzy-joint-state-publisher \
+            ros-jazzy-joy \
+            ros-jazzy-teleop-twist-joy \
+            ros-jazzy-ament-cmake-pytest \
+            ros-jazzy-ament-copyright \
+            ros-jazzy-ament-lint-auto \
+            ros-jazzy-ament-lint-common \
+            python3-serial \
+            python3-aiohttp \
+            python3-transforms3d \
+            libboost-dev
 
       - name: Build Workspace
         working-directory: robot_ws
