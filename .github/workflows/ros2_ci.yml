@@ -67,7 +67,10 @@ jobs:
           # Skip simulation/visualization packages that need extra apt repos
           # (ros_gz_* requires OSRF Gazebo repo) or are runtime-only deps not
           # needed for the build or unit tests.
-          rosdep install --from-paths robot_ws/src --ignore-src -y --rosdistro jazzy --skip-keys "ros_gz_sim ros_gz_bridge foxglove_bridge rosbridge_server depthimage_to_laserscan rtabmap_ros octomap_server pcl_ros octomap_msgs"
+          # NOTE: --skip-keys takes separate arguments, not a quoted string.
+          rosdep install --from-paths robot_ws/src --ignore-src -y --rosdistro jazzy \
+            --skip-keys ros_gz_sim ros_gz_bridge foxglove_bridge rosbridge_server \
+              depthimage_to_laserscan rtabmap_ros octomap_server pcl_ros octomap_msgs
 
       - name: Build Workspace
         working-directory: robot_ws
