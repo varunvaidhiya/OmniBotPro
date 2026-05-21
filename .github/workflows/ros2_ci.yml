@@ -51,16 +51,23 @@ jobs:
         run: |
           git clone https://github.com/RoverRobotics-forks/serial-ros2.git robot_ws/src/serial
 
-      - name: Install Dependencies
+      - name: Install system tools
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-colcon-common-extensions python3-rosdep python3-pip
+
+      - name: Install Python test dependencies
+        run: |
           pip3 install "numpy<2.0" \
                        pytest pytest-cov pytest-timeout coverage \
                        prometheus_client>=0.20 \
                        --break-system-packages
 
-          rosdep update
+      - name: Update rosdep
+        run: rosdep update
+
+      - name: Install ROS dependencies
+        run: |
           # Skip simulation/visualization packages that need extra apt repos
           # (ros_gz_* requires OSRF Gazebo repo) or are runtime-only deps not
           # needed for the build or unit tests.
