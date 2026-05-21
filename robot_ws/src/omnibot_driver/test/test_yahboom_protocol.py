@@ -101,16 +101,18 @@ class TestTxPacket:
 
 
 class TestOdometryParsing:
-    def test_velocity_packet_updates_state(self, node, mock_serial):
-        pkt = build_velocity_packet(500, 200, 100)  # mm/s, mm/s, mrad/s
+    def test_0x0C_feedback_not_used_for_current_vx(self, node, mock_serial):
+        # 0x0C velocity feedback is intentionally ignored — odometry is dead-reckoned
+        # from commanded velocity (cmd_vx) to avoid unsigned-magnitude sign errors.
+        pkt = build_velocity_packet(500, 200, 100)  # mm/s values never read
         mock_serial.in_waiting = len(pkt)
         mock_serial.read.return_value = pkt
 
         node.read_yahboom_odometry()
 
-        assert node.current_vx == pytest.approx(0.5)
-        assert node.current_vy == pytest.approx(0.2)
-        assert node.current_vz == pytest.approx(0.1)
+        # current_vx reflects cmd_vx (=0.0 — no motion command issued)
+        assert node.current_vx == pytest.approx(0.0)
+        assert node.current_vy == pytest.approx(0.0)
 
     def test_zero_velocity_packet(self, node, mock_serial):
         pkt = build_velocity_packet(0, 0, 0)
@@ -122,26 +124,33 @@ class TestOdometryParsing:
         assert node.current_vx == pytest.approx(0.0)
         assert node.current_vy == pytest.approx(0.0)
 
-    def test_dead_band_suppresses_noise(self, node, mock_serial):
-        # Values below 0.005 m/s should be zeroed out
-        pkt = build_velocity_packet(3, 3, 3)  # 0.003 m/s — below dead-band
+    def test_current_vx_reflects_commanded_velocity(self, node, mock_serial):
+        # current_vx is updated from cmd_vx (commanded), not board feedback.
+        # Issue a motion command so cmd_vx advances one ramp step.
+        from geometry_msgs.msg import Twist
+
+        msg = Twist()
+        msg.linear.x = 0.2  # at max — cmd_vx advances by RAMP_STEP=0.025
+        node.current_twist = msg
+        node.send_motion_command()  # cmd_vx = 0.025
+
+        pkt = build_velocity_packet(0, 0, 0)  # board feedback irrelevant
         mock_serial.in_waiting = len(pkt)
         mock_serial.read.return_value = pkt
-
         node.read_yahboom_odometry()
 
-        assert node.current_vx == pytest.approx(0.0)
-        assert node.current_vy == pytest.approx(0.0)
+        assert node.current_vx == pytest.approx(0.025)
 
-    def test_multiple_packets_uses_last(self, node, mock_serial):
-        pkt1 = build_velocity_packet(100, 0, 0)
-        pkt2 = build_velocity_packet(800, 0, 0)
+    def test_multiple_imu_packets_last_wins(self, node, mock_serial):
+        # Multiple packets in one read burst are all parsed; last value wins.
+        pkt1 = build_rx_packet(0x62, struct.pack("<hhh", 0, 0, 1000))  # gz=1 rad/s
+        pkt2 = build_rx_packet(0x62, struct.pack("<hhh", 0, 0, 2000))  # gz=2 rad/s
         mock_serial.in_waiting = len(pkt1) + len(pkt2)
         mock_serial.read.return_value = pkt1 + pkt2
 
         node.read_yahboom_odometry()
 
-        assert node.current_vx == pytest.approx(0.8)
+        assert node.imu_gyro[2] == pytest.approx(2.0)
 
 
 # ── IMU packet parsing ────────────────────────────────────────────────────────
