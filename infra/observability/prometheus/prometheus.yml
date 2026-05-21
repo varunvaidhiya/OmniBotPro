@@ -1,0 +1,69 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+  external_labels:
+    project: omnibot
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
+rule_files:
+  - /etc/prometheus/alerts/*.yml
+
+scrape_configs:
+
+  # ── OmniBot ROS 2 metrics bridge — Raspberry Pi ───────────────────────────
+  # ros2_prometheus_bridge node exposes /metrics on port 8888.
+  # Set PI_IP in your environment or replace with the actual Pi IP.
+  - job_name: omnibot_ros2_pi
+    static_configs:
+      - targets: ["${PI_IP:-192.168.1.101}:8888"]
+        labels:
+          machine: raspberry_pi
+          layer: robot
+
+  # ── OmniBot ROS 2 metrics bridge — GPU Desktop (VLA + RL nodes) ──────────
+  - job_name: omnibot_ros2_gpu
+    static_configs:
+      - targets: ["localhost:8889"]
+        labels:
+          machine: gpu_desktop
+          layer: ai
+
+  # ── VLA FastAPI server — /metrics (prometheus-fastapi-instrumentator) ──────
+  - job_name: vla_serve
+    static_configs:
+      - targets: ["localhost:8000"]
+        labels:
+          machine: gpu_desktop
+          layer: inference
+    metrics_path: /metrics
+
+  # ── Node Exporter — Raspberry Pi system resources ─────────────────────────
+  - job_name: node_exporter_pi
+    static_configs:
+      - targets: ["${PI_IP:-192.168.1.101}:9100"]
+        labels:
+          machine: raspberry_pi
+
+  # ── Node Exporter — GPU Desktop system resources ──────────────────────────
+  - job_name: node_exporter_gpu
+    static_configs:
+      - targets: ["localhost:9100"]
+        labels:
+          machine: gpu_desktop
+
+  # ── DCGM Exporter — NVIDIA GPU metrics ────────────────────────────────────
+  - job_name: dcgm_gpu
+    static_configs:
+      - targets: ["localhost:9400"]
+        labels:
+          machine: gpu_desktop
+          layer: gpu
+
+  # ── Prometheus self-monitoring ────────────────────────────────────────────
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]

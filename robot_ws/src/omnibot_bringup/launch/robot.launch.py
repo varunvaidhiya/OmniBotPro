@@ -32,10 +32,20 @@ def generate_launch_description():
         "ekf", default_value="true",
         description="Run robot_localization EKF (fuses /odom + /imu/data → /odometry/filtered)",
     )
+    declare_use_metrics = DeclareLaunchArgument(
+        "use_metrics", default_value="false",
+        description="Start Prometheus metrics bridge (port 8888) for Grafana observability",
+    )
+    declare_metrics_port = DeclareLaunchArgument(
+        "metrics_port", default_value="8888",
+        description="HTTP port the Prometheus metrics bridge listens on",
+    )
 
     use_rosbridge = LaunchConfiguration("use_rosbridge")
     use_foxglove = LaunchConfiguration("use_foxglove")
     use_ekf = LaunchConfiguration("ekf")
+    use_metrics = LaunchConfiguration("use_metrics")
+    metrics_port = LaunchConfiguration("metrics_port")
 
     # ── Yahboom driver ────────────────────────────────────────────────────────
     # publish_tf is disabled when EKF is running — the EKF owns odom→base_link.
@@ -110,14 +120,32 @@ def generate_launch_description():
         condition=IfCondition(use_foxglove),
     )
 
+    # ── Prometheus metrics bridge — Grafana observability ─────────────────────
+    # Exposes /metrics on <metrics_port> for Prometheus to scrape.
+    # Enable with: ros2 launch omnibot_bringup robot.launch.py use_metrics:=true
+    metrics_bridge_node = Node(
+        package="omnibot_metrics",
+        executable="metrics_bridge",
+        name="ros2_prometheus_bridge",
+        output="screen",
+        parameters=[{
+            "metrics_port": metrics_port,
+            "machine_label": "raspberry_pi",
+        }],
+        condition=IfCondition(use_metrics),
+    )
+
     return LaunchDescription([
         declare_use_rosbridge,
         declare_use_foxglove,
         declare_ekf,
+        declare_use_metrics,
+        declare_metrics_port,
         driver_with_ekf,
         driver_without_ekf,
         robot_state_publisher,
         ekf,
         rosbridge_node,
         foxglove_node,
+        metrics_bridge_node,
     ])

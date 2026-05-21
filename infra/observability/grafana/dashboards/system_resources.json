@@ -1,0 +1,201 @@
+{
+  "__inputs": [],
+  "__requires": [
+    {"type": "grafana", "id": "grafana", "name": "Grafana", "version": "11.1.0"},
+    {"type": "datasource", "id": "prometheus", "name": "Prometheus", "version": "1.0.0"}
+  ],
+  "annotations": {"list": []},
+  "description": "OmniBot system resources: Raspberry Pi 5 and GPU Desktop CPU, RAM, disk, GPU VRAM, and temperature.",
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 0},
+      "id": 100,
+      "title": "Raspberry Pi 5 — Robot Brain",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 1},
+      "id": 1,
+      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "title": "Pi CPU Usage",
+      "type": "gauge",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\", machine=\"raspberry_pi\"}[2m])) * 100)", "legendFormat": "CPU %", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 80}, {"color": "red", "value": 90}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 1},
+      "id": 2,
+      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "title": "Pi RAM Usage",
+      "type": "gauge",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_memory_MemAvailable_bytes{machine=\"raspberry_pi\"} / node_memory_MemTotal_bytes{machine=\"raspberry_pi\"})) * 100", "legendFormat": "RAM %", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 1},
+      "id": 3,
+      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "title": "Pi Disk Usage (/)",
+      "type": "gauge",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_filesystem_avail_bytes{machine=\"raspberry_pi\", mountpoint=\"/\"} / node_filesystem_size_bytes{machine=\"raspberry_pi\", mountpoint=\"/\"})) * 100", "legendFormat": "Disk %", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "percent",
+          "min": 0, "max": 100
+        }
+      },
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 6},
+      "id": 10,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "Raspberry Pi CPU History (per core)",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "100 - (rate(node_cpu_seconds_total{mode=\"idle\", machine=\"raspberry_pi\"}[1m]) * 100)", "legendFormat": "CPU {{cpu}}", "refId": "A"}
+      ]
+    },
+    {
+      "collapsed": false,
+      "gridPos": {"h": 1, "w": 24, "x": 0, "y": 14},
+      "id": 101,
+      "title": "GPU Desktop — AI Brain (VLA + RL Inference)",
+      "type": "row"
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 80}, {"color": "red", "value": 95}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 15},
+      "id": 30,
+      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "title": "GPU VRAM Usage (16 GB limit)",
+      "type": "gauge",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL) * 100", "legendFormat": "VRAM %", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "percent",
+          "min": 0, "max": 100,
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 85}, {"color": "red", "value": 95}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 6, "y": 15},
+      "id": 31,
+      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "title": "GPU Utilization",
+      "type": "gauge",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "DCGM_FI_DEV_GPU_UTIL", "legendFormat": "GPU Util %", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "thresholds"},
+          "unit": "celsius",
+          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 85}]}
+        }
+      },
+      "gridPos": {"h": 5, "w": 6, "x": 12, "y": 15},
+      "id": 32,
+      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "title": "GPU Temperature",
+      "type": "stat",
+      "targets": [{"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "DCGM_FI_DEV_GPU_TEMP", "legendFormat": "GPU Temp °C", "refId": "A"}]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "decmbytes"
+        },
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "VRAM Used"}, "properties": [{"id": "color", "value": {"fixedColor": "blue", "mode": "fixed"}}]},
+          {"matcher": {"id": "byName", "options": "VRAM Total"}, "properties": [{"id": "color", "value": {"fixedColor": "gray", "mode": "fixed"}}, {"id": "custom.lineStyle", "value": {"dash": [5, 5], "fill": "dash"}}]}
+        ]
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20},
+      "id": 40,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "GPU VRAM Over Time",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "DCGM_FI_DEV_FB_USED / 1024", "legendFormat": "VRAM Used", "refId": "A"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "DCGM_FI_DEV_FB_TOTAL / 1024", "legendFormat": "VRAM Total", "refId": "B"}
+      ]
+    },
+    {
+      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "fieldConfig": {
+        "defaults": {
+          "color": {"mode": "palette-classic"},
+          "custom": {"lineWidth": 2, "fillOpacity": 10},
+          "unit": "percent",
+          "min": 0, "max": 100
+        }
+      },
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20},
+      "id": 41,
+      "options": {"tooltip": {"mode": "multi"}, "legend": {"displayMode": "list", "placement": "bottom"}},
+      "title": "GPU Desktop CPU & RAM",
+      "type": "timeseries",
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{mode=\"idle\", machine=\"gpu_desktop\"}[2m])) * 100)", "legendFormat": "CPU %", "refId": "A"},
+        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "expr": "(1 - (node_memory_MemAvailable_bytes{machine=\"gpu_desktop\"} / node_memory_MemTotal_bytes{machine=\"gpu_desktop\"})) * 100", "legendFormat": "RAM %", "refId": "B"}
+      ]
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["omnibot", "system", "gpu", "pi"],
+  "time": {"from": "now-1h", "to": "now"},
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "OmniBot — System Resources",
+  "uid": "omnibot-system-resources",
+  "version": 1
+}

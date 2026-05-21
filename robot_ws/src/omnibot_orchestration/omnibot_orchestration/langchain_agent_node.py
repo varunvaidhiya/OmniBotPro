@@ -21,6 +21,7 @@ Usage:
 import concurrent.futures
 import os
 import threading
+import time
 from typing import Any, Dict, Optional
 
 import numpy as np
@@ -28,6 +29,17 @@ import rclpy
 import yaml
 from rclpy.node import Node
 from std_msgs.msg import String
+
+try:
+    from opentelemetry import trace
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    from opentelemetry.sdk.resources import Resource
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+    _OTEL_AVAILABLE = True
+except ImportError:
+    _OTEL_AVAILABLE = False
 
 try:
     from sensor_msgs.msg import Image
@@ -63,6 +75,16 @@ class LangchainAgentNode(Node):
             os.environ["LANGCHAIN_TRACING_V2"] = "true"
             os.environ["LANGCHAIN_API_KEY"] = p("langchain_api_key").value
             os.environ["LANGCHAIN_PROJECT"] = p("langchain_project").value
+
+        # ── OpenTelemetry tracing → Grafana Tempo ──────────────────────────
+        self._tracer: Optional[Any] = None
+        if _OTEL_AVAILABLE and p("otel_enabled").value:
+            self._setup_otel(p("otel_endpoint").value)
+        elif not _OTEL_AVAILABLE:
+            self.get_logger().info(
+                "opentelemetry packages not installed — distributed tracing disabled. "
+                "Run: pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-grpc"
+            )
 
         # ── Thread-shared state ────────────────────────────────────────────
         self._image_lock = threading.Lock()
@@ -101,6 +123,26 @@ class LangchainAgentNode(Node):
             "LangGraph mission agent ready. Listening on /ai/command."
         )
 
+    # ── OpenTelemetry setup ────────────────────────────────────────────────
+
+    def _setup_otel(self, endpoint: str) -> None:
+        try:
+            resource = Resource.create({"service.name": "omnibot.orchestration"})
+            provider = TracerProvider(resource=resource)
+            provider.add_span_processor(
+                BatchSpanProcessor(
+                    OTLPSpanExporter(endpoint=endpoint, insecure=True)
+                )
+            )
+            trace.set_tracer_provider(provider)
+            self._tracer = trace.get_tracer("omnibot.orchestration")
+            self.get_logger().info(
+                f"OpenTelemetry tracing enabled — exporting to {endpoint}"
+            )
+        except Exception as e:
+            self.get_logger().warn(f"Failed to initialise OpenTelemetry: {e}")
+            self._tracer = None
+
     # ── Parameter declarations ─────────────────────────────────────────────
 
     def _declare_parameters(self) -> None:
@@ -114,6 +156,9 @@ class LangchainAgentNode(Node):
         self.declare_parameter("langchain_tracing_v2", False)
         self.declare_parameter("langchain_api_key", "")
         self.declare_parameter("langchain_project", "omnibot")
+        # OpenTelemetry tracing → Grafana Tempo
+        self.declare_parameter("otel_endpoint", "http://localhost:4317")
+        self.declare_parameter("otel_enabled", True)
 
     # ── ROS setup ──────────────────────────────────────────────────────────
 
@@ -243,24 +288,46 @@ class LangchainAgentNode(Node):
     # ── Agent execution (runs in thread pool) ──────────────────────────────
 
     def _run_agent(self, text: str) -> None:
-        try:
-            result = self._graph.invoke(
-                initial_state(text),
-                config={
-                    "configurable": {
-                        "thread_id": "omnibot",
-                        "ros_node": self,
-                    }
+        ctx = (
+            self._tracer.start_as_current_span(
+                "langchain.execute_mission",
+                attributes={
+                    "mission.command": text,
+                    "mission.command_length": len(text),
                 },
             )
-            output = result.get("response") or "Mission complete."
-            self.get_logger().info(f"[AI] Mission result: {output}")
-            # finalize_node publishes DONE: to /ai/status directly;
-            # human_checkpoint suspends the graph and publishes its question.
-        except Exception as e:
-            msg = f"Agent error: {e}"
-            self.get_logger().error(msg)
-            self._publish_ai_status(f"ERROR: {msg}")
+            if self._tracer
+            else _NullSpan()
+        )
+        t0 = time.monotonic()
+        with ctx as span:
+            try:
+                result = self._graph.invoke(
+                    initial_state(text),
+                    config={
+                        "configurable": {
+                            "thread_id": "omnibot",
+                            "ros_node": self,
+                        }
+                    },
+                )
+                output = result.get("response") or "Mission complete."
+                duration_ms = (time.monotonic() - t0) * 1000
+                self.get_logger().info(
+                    f"[AI] Mission result: {output} ({duration_ms:.0f} ms)"
+                )
+                if self._tracer and hasattr(span, "set_attribute"):
+                    span.set_attribute("mission.result", "success")
+                    span.set_attribute("mission.duration_ms", round(duration_ms))
+                # finalize_node publishes DONE: to /ai/status directly;
+                # human_checkpoint suspends the graph and publishes its question.
+            except Exception as e:
+                msg = f"Agent error: {e}"
+                self.get_logger().error(msg)
+                self._publish_ai_status(f"ERROR: {msg}")
+                if self._tracer and hasattr(span, "set_attribute"):
+                    span.set_attribute("mission.result", "error")
+                    span.set_attribute("error.message", str(e))
 
     # ── Publisher helpers (called from graph nodes via ros_node reference) ─
 
@@ -285,7 +352,22 @@ class LangchainAgentNode(Node):
 
     def destroy_node(self) -> None:
         self._executor.shutdown(wait=False)
+        # Flush any pending OTEL spans before shutdown
+        if _OTEL_AVAILABLE:
+            provider = trace.get_tracer_provider()
+            if hasattr(provider, "force_flush"):
+                provider.force_flush(timeout_millis=3000)
         super().destroy_node()
+
+
+class _NullSpan:
+    """No-op context manager used when OpenTelemetry is not available."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        pass
 
 
 def main(args=None):

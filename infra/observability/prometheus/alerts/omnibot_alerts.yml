@@ -1,0 +1,176 @@
+groups:
+
+  # ── Control loop health ────────────────────────────────────────────────────
+  - name: omnibot_control_loop
+    rules:
+      - alert: ControlLoopSlow
+        expr: omnibot_node_cycle_p95_ms{node=~".*yahboom.*"} > 55
+        for: 10s
+        labels:
+          severity: warning
+          component: driver
+        annotations:
+          summary: "Control loop P95 > 55 ms on {{ $labels.machine }}"
+          description: >
+            The Yahboom controller node P95 cycle time is {{ $value | printf "%.1f" }} ms,
+            approaching the 50 ms (20 Hz) deadline. Robot motion may become jerky.
+
+      - alert: ControlLoopCritical
+        expr: omnibot_node_cycle_p95_ms{node=~".*yahboom.*"} > 100
+        for: 5s
+        labels:
+          severity: critical
+          component: driver
+        annotations:
+          summary: "Control loop P95 > 100 ms — deadline MISSED on {{ $labels.machine }}"
+          description: >
+            P95 cycle time is {{ $value | printf "%.1f" }} ms. The 20 Hz control loop
+            is missing deadlines. Check CPU load and serial port health.
+
+      - alert: EmergencyStopActive
+        expr: omnibot_estop_active == 1
+        for: 0s
+        labels:
+          severity: critical
+          component: safety
+        annotations:
+          summary: "EMERGENCY STOP ACTIVE on OmniBot"
+          description: "The /emergency_stop topic is true. Robot is halted."
+
+  # ── AI / VLA inference ─────────────────────────────────────────────────────
+  - name: omnibot_ai
+    rules:
+      - alert: VLAInferenceSlow
+        expr: omnibot_vla_inference_ms > 2000
+        for: 30s
+        labels:
+          severity: warning
+          component: vla
+        annotations:
+          summary: "VLA inference > 2 s (currently {{ $value | printf \"%.0f\" }} ms)"
+          description: >
+            OpenVLA inference latency has exceeded 2 seconds. The 1 Hz policy loop
+            may be falling behind. Check GPU VRAM and CPU/GPU contention.
+
+      - alert: VLAInferenceCritical
+        expr: omnibot_vla_inference_ms > 5000
+        for: 10s
+        labels:
+          severity: critical
+          component: vla
+        annotations:
+          summary: "VLA inference > 5 s — policy effectively stopped"
+          description: >
+            VLA inference latency is {{ $value | printf "%.0f" }} ms.
+            The robot is operating without VLA guidance.
+
+      - alert: GPUVRAMCritical
+        expr: >
+          DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL > 0.95
+        for: 60s
+        labels:
+          severity: critical
+          component: gpu
+        annotations:
+          summary: "GPU VRAM > 95% — OOM crash risk for VLA models"
+          description: >
+            VRAM usage is {{ $value | humanizePercentage }}. The 16 GB limit is nearly
+            exhausted. SmolVLA or OpenVLA may OOM-crash. Consider 4-bit quantization.
+
+      - alert: GPUVRAMHigh
+        expr: >
+          DCGM_FI_DEV_FB_USED / DCGM_FI_DEV_FB_TOTAL > 0.85
+        for: 120s
+        labels:
+          severity: warning
+          component: gpu
+        annotations:
+          summary: "GPU VRAM > 85% on {{ $labels.machine }}"
+          description: "VRAM at {{ $value | humanizePercentage }}. Monitor for OOM risk."
+
+  # ── System resources ───────────────────────────────────────────────────────
+  - name: omnibot_system
+    rules:
+      - alert: PiCPUHigh
+        expr: >
+          100 - (avg by (instance) (
+            rate(node_cpu_seconds_total{mode="idle", machine="raspberry_pi"}[2m])
+          ) * 100) > 85
+        for: 1m
+        labels:
+          severity: warning
+          component: pi
+        annotations:
+          summary: "Raspberry Pi CPU > 85% ({{ $value | printf \"%.0f\" }}%)"
+          description: >
+            High CPU on the Pi may cause the 20 Hz driver + Nav2 + SLAM stack to miss
+            deadlines. Consider disabling non-critical nodes or reducing SLAM frequency.
+
+      - alert: PiCPUCritical
+        expr: >
+          100 - (avg by (instance) (
+            rate(node_cpu_seconds_total{mode="idle", machine="raspberry_pi"}[2m])
+          ) * 100) > 95
+        for: 30s
+        labels:
+          severity: critical
+          component: pi
+        annotations:
+          summary: "Raspberry Pi CPU at {{ $value | printf \"%.0f\" }}% — system overloaded"
+
+      - alert: PiDiskFull
+        expr: >
+          (node_filesystem_avail_bytes{machine="raspberry_pi", mountpoint="/"} /
+           node_filesystem_size_bytes{machine="raspberry_pi", mountpoint="/"}) < 0.10
+        for: 5m
+        labels:
+          severity: warning
+          component: pi
+        annotations:
+          summary: "Pi disk < 10% free — ROS logs may fill storage"
+          description: >
+            Only {{ $value | humanizePercentage }} disk space remaining on Pi root.
+            ROS 2 log rotation may not keep up. Run: ros2 run rcl_logging_spdlog cleanup
+
+      - alert: PiMemoryHigh
+        expr: >
+          (1 - (node_memory_MemAvailable_bytes{machine="raspberry_pi"} /
+                node_memory_MemTotal_bytes{machine="raspberry_pi"})) > 0.88
+        for: 2m
+        labels:
+          severity: warning
+          component: pi
+        annotations:
+          summary: "Pi RAM > 88% used"
+          description: >
+            Available RAM on the Raspberry Pi 5 is low. Nav2 + SLAM + driver together
+            can exceed 6 GB. Consider disabling the 3D SLAM (rtabmap) if not needed.
+
+  # ── Mission outcomes ───────────────────────────────────────────────────────
+  - name: omnibot_missions
+    rules:
+      - alert: MissionFailureRateHigh
+        expr: >
+          (rate(omnibot_missions_done_total{result="failed"}[10m]) /
+           rate(omnibot_missions_total[10m])) > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          component: mission
+        annotations:
+          summary: "Mission failure rate > 30% in the last 10 minutes"
+          description: >
+            {{ $value | humanizePercentage }} of missions are failing. Check Nav2 costmap
+            health, VLA prompt quality, and RL policy confidence scores.
+
+      - alert: MetricsBridgeDown
+        expr: up{job=~"omnibot_ros2.*"} == 0
+        for: 30s
+        labels:
+          severity: warning
+          component: observability
+        annotations:
+          summary: "OmniBot metrics bridge is DOWN on {{ $labels.machine }}"
+          description: >
+            Prometheus cannot reach the ros2_prometheus_bridge on {{ $labels.instance }}.
+            ROS 2 node metrics are unavailable. Check if the metrics_bridge node is running.

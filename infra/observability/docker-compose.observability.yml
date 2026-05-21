@@ -1,0 +1,182 @@
+# OmniBot Observability Stack
+#
+# Adds Prometheus + Loki + Tempo + Grafana + Alertmanager to the OmniBot platform.
+#
+# Usage (run on the GPU desktop PC — it has the most resources):
+#   cd /path/to/OmniBot
+#   PI_IP=192.168.1.101 docker compose \
+#     -f docker-compose.yml \
+#     -f infra/observability/docker-compose.observability.yml \
+#     up -d
+#
+# Grafana: http://localhost:3000   (admin / omnibot)
+# Prometheus: http://localhost:9090
+# AlertManager: http://localhost:9093
+#
+# Pi-side agents (run on Raspberry Pi 5 directly — no Docker needed):
+#   On Pi:  pip install prometheus_client && ros2 run omnibot_metrics metrics_bridge
+#   On Pi:  promtail -config.file=infra/observability/promtail/promtail-config.yml
+#   On Pi:  ./infra/observability/node_exporter  (download binary, no root needed)
+
+version: "3.9"
+
+x-loki-url: &loki-url
+  LOKI_URL: "http://loki:3100"
+
+services:
+
+  # ── Prometheus — metrics time-series database ─────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: omnibot_prometheus
+    volumes:
+      - ./infra/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/observability/prometheus/alerts/:/etc/prometheus/alerts/:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+      - "--web.enable-admin-api"
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ── Loki — log aggregation ────────────────────────────────────────────────
+  loki:
+    image: grafana/loki:3.1.0
+    container_name: omnibot_loki
+    user: "0"
+    volumes:
+      - ./infra/observability/loki/loki-config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - "3100:3100"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Tempo — distributed tracing ───────────────────────────────────────────
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: omnibot_tempo
+    user: "0"
+    volumes:
+      - ./infra/observability/tempo/tempo-config.yml:/etc/tempo/config.yml:ro
+      - tempo_data:/var/tempo
+    command: -config.file=/etc/tempo/config.yml
+    ports:
+      - "4317:4317"   # OTLP gRPC  (used by langchain_agent_node)
+      - "4318:4318"   # OTLP HTTP
+      - "3200:3200"   # Tempo query HTTP
+    restart: unless-stopped
+
+  # ── Grafana — dashboards and alerting UI ──────────────────────────────────
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: omnibot_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: omnibot
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor traceToMetrics
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SERVER_ROOT_URL: "http://localhost:3000"
+    volumes:
+      - ./infra/observability/grafana/provisioning/:/etc/grafana/provisioning/:ro
+      - ./infra/observability/grafana/dashboards/:/var/lib/grafana/dashboards/:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── AlertManager — alert routing ──────────────────────────────────────────
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: omnibot_alertmanager
+    volumes:
+      - ./infra/observability/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    ports:
+      - "9093:9093"
+    restart: unless-stopped
+
+  # ── Node Exporter — GPU desktop system metrics ────────────────────────────
+  node_exporter_gpu:
+    image: prom/node-exporter:v1.8.1
+    container_name: omnibot_node_exporter_gpu
+    pid: host
+    network_mode: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+    restart: unless-stopped
+
+  # ── DCGM Exporter — NVIDIA GPU metrics (VRAM, utilization, temperature) ──
+  dcgm_exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.6-3.4.2-ubuntu22.04
+    container_name: omnibot_dcgm
+    environment:
+      DCGM_EXPORTER_LISTEN: ":9400"
+      DCGM_EXPORTER_KUBERNETES: "false"
+    ports:
+      - "9400:9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # ── Promtail (GPU desktop) — scrapes ROS logs from ~/.ros/log ─────────────
+  promtail_gpu:
+    image: grafana/promtail:3.1.0
+    container_name: omnibot_promtail_gpu
+    volumes:
+      - ./infra/observability/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /home/${USER:-ros}/.ros/log:/var/log/ros:ro
+    environment:
+      MACHINE_LABEL: gpu_desktop
+      LOKI_URL: http://loki:3100
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      loki:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+  alertmanager_data:

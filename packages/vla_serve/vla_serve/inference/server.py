@@ -28,6 +28,24 @@ from .schema import InferenceRequest, InferenceResponse
 from ..utils.image import decode_base64_image
 from ..models.base import VLAModel
 
+try:
+    from prometheus_fastapi_instrumentator import Instrumentator
+    from prometheus_client import Histogram
+
+    _PROM_AVAILABLE = True
+    VLA_INFERENCE_HIST = Histogram(
+        "vla_inference_seconds",
+        "VLA model inference duration in seconds",
+        buckets=[0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0],
+    )
+    VLA_PREPROCESS_HIST = Histogram(
+        "vla_preprocess_seconds",
+        "VLA image preprocess duration in seconds",
+        buckets=[0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0],
+    )
+except ImportError:
+    _PROM_AVAILABLE = False
+
 logger = logging.getLogger("vla_serve")
 
 logging.basicConfig(
@@ -131,6 +149,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Instrument all HTTP routes with Prometheus metrics (/metrics endpoint).
+# Exposes: http_requests_total, http_request_duration_seconds, etc.
+if _PROM_AVAILABLE:
+    Instrumentator(
+        should_group_status_codes=True,
+        should_ignore_untemplated=True,
+        excluded_handlers=["/metrics", "/health"],
+    ).instrument(app).expose(app, include_in_schema=False)
+
 
 @app.get("/health")
 def health():
@@ -170,10 +197,21 @@ def predict(
         )
     try:
         t0 = time.time()
+
+        t_pre = time.time()
         image = decode_base64_image(request.image_base64)
+        preprocess_s = time.time() - t_pre
+        if _PROM_AVAILABLE:
+            VLA_PREPROCESS_HIST.observe(preprocess_s)
+
+        t_inf = time.time()
         result = _model.predict_action(
             image, request.instruction, **(request.config or {})
         )
+        inference_s = time.time() - t_inf
+        if _PROM_AVAILABLE:
+            VLA_INFERENCE_HIST.observe(inference_s)
+
         latency = (time.time() - t0) * 1000.0
         logger.debug(
             "inference latency=%.1f ms instruction=%r", latency, request.instruction
