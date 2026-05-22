@@ -27,3 +27,6 @@ rl_nav_node:
     # Lidar sector synthesis from /camera/depth/points
     lidar_min: 0.30             # metres — ignore points closer than this
     lidar_max: 3.00             # metres — observation clip range
+
+    # W&B runtime monitoring (leave empty string to disable)
+    wandb_project: ""           # e.g. "omnibot_nav" to stream metrics at 5 s intervals

@@ -49,6 +49,12 @@ try:
         "--resume", type=str, default=None, help="Path to run directory to resume from"
     )
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="omnibot_nav",
+        help="W&B project name. Pass empty string to use TensorBoard instead.",
+    )
     args = parser.parse_args()
 
     app_launcher = AppLauncher(args)
@@ -94,15 +100,16 @@ def main():
     env = RslRlVecEnvWrapper(env)
 
     # ── RSL-RL runner config ───────────────────────────────────────────────
+    _logger = "wandb" if args.wandb_project else "tensorboard"
     runner_cfg = RslRlOnPolicyRunnerCfg(
         num_steps_per_env=24,
         max_iterations=args.max_iterations,
         save_interval=train_cfg["training"]["save_interval"],
         experiment_name="omnibot_nav",
         run_name="",
-        logger="tensorboard",
+        logger=_logger,
         neptune_project="omnibot/nav-rl",
-        wandb_project="omnibot_nav",
+        wandb_project=args.wandb_project,
         resume=args.resume is not None,
         load_run=args.resume or "",
         load_checkpoint="",
@@ -147,6 +154,22 @@ def main():
 
     if args.resume:
         runner.load(args.resume)
+
+    if args.wandb_project:
+        try:
+            import wandb
+
+            wandb.config.update(
+                {
+                    "num_envs": args.num_envs,
+                    "max_iterations": args.max_iterations,
+                    "seed": args.seed,
+                    **ppo_cfg,
+                    **{f"net_{k}": v for k, v in net_cfg.items()},
+                }
+            )
+        except ImportError:
+            pass
 
     print(
         f"Starting navigation policy training: {args.max_iterations} iterations, "

@@ -174,6 +174,18 @@ def main():
     parser.add_argument(
         "--both", action="store_true", help="Export both ONNX and TorchScript formats"
     )
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="",
+        help="W&B project name for artifact tracking. Leave empty to skip.",
+    )
+    parser.add_argument(
+        "--wandb_source_run",
+        type=str,
+        default="",
+        help="W&B run ID of the training run that produced this checkpoint.",
+    )
     args = parser.parse_args()
 
     checkpoint = os.path.expanduser(args.checkpoint)
@@ -191,14 +203,45 @@ def main():
     model = load_policy(checkpoint, obs_dim)
     model.eval()
 
+    onnx_path = None
     if args.both:
-        export_onnx(model, obs_dim, output + ".onnx")
+        onnx_path = output + ".onnx"
+        export_onnx(model, obs_dim, onnx_path)
         export_torchscript(model, obs_dim, output + ".pt")
     elif output.endswith(".pt"):
         export_torchscript(model, obs_dim, output)
     else:
         onnx_path = output if output.endswith(".onnx") else output + ".onnx"
         export_onnx(model, obs_dim, onnx_path)
+
+    if args.wandb_project and onnx_path and os.path.exists(onnx_path):
+        try:
+            import wandb
+
+            tags = ["export", args.type]
+            init_kwargs = dict(project=args.wandb_project, job_type="export", tags=tags)
+            if args.wandb_source_run:
+                init_kwargs["id"] = None  # new run, but linked via artifact lineage
+            run = wandb.init(**init_kwargs)
+            artifact = wandb.Artifact(
+                f"omnibot-{args.type}-onnx",
+                type="model",
+                metadata={
+                    "checkpoint": checkpoint,
+                    "obs_dim": obs_dim,
+                    "action_dim": action_dim,
+                    "opset": 17,
+                },
+            )
+            artifact.add_file(onnx_path)
+            aliases = ["latest", f"{args.type}-onnx"]
+            if args.wandb_source_run:
+                aliases.append(f"from-{args.wandb_source_run[:8]}")
+            run.log_artifact(artifact, aliases=aliases)
+            run.finish()
+            print(f"  W&B artifact logged to project '{args.wandb_project}'")
+        except ImportError:
+            print("  (wandb not installed, skipping artifact tracking)")
 
 
 if __name__ == "__main__":
