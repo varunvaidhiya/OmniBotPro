@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/hud_bg">
+
+    <!-- Project selector -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PROJECT:"
+            android:textSize="7sp"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:layout_marginEnd="8dp" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/group_project"
+            android:layout_width="0dp"
+            android:layout_height="28dp"
+            android:layout_weight="1"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proj_smolvla"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="SmolVLA" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proj_rl_nav"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="RL NAV" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_proj_rl_arm"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="RL ARM" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <!-- Refresh button -->
+        <TextView
+            android:id="@+id/btn_refresh_runs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" ↺"
+            android:textSize="14sp"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/hud_card_border" />
+
+    <!-- No credentials warning -->
+    <LinearLayout
+        android:id="@+id/layout_no_creds"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/hud_card_bg"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:visibility="gone"
+        android:layout_margin="10dp">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            android:background="@color/hud_warn" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Configure W&amp;B API Key and Entity in Settings"
+            android:textSize="8sp"
+            android:textColor="@color/hud_warn"
+            android:fontFamily="monospace"
+            android:layout_marginStart="10dp" />
+    </LinearLayout>
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <!-- Runs list -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginBottom="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="14dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="18dp"
+                        android:background="@color/hud_accent" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="RECENT RUNS"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace"
+                        android:layout_marginStart="8dp" />
+
+                    <TextView
+                        android:id="@+id/text_loading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="LOADING…"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace"
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_runs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp" />
+            </LinearLayout>
+
+            <!-- Selected run summary card -->
+            <LinearLayout
+                android:id="@+id/card_run_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:layout_marginBottom="6dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="14dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="18dp"
+                        android:background="@color/hud_ok" />
+
+                    <TextView
+                        android:id="@+id/text_run_title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="RUN DETAIL"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace"
+                        android:layout_marginStart="8dp" />
+
+                    <TextView
+                        android:id="@+id/text_run_state_detail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="FINISHED"
+                        android:textSize="8sp"
+                        android:textColor="@color/hud_ok"
+                        android:textStyle="bold"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+
+                <!-- Key metrics grid -->
+                <LinearLayout
+                    android:id="@+id/layout_summary_metrics"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp" />
+
+            </LinearLayout>
+
+            <!-- Metrics chart -->
+            <LinearLayout
+                android:id="@+id/card_chart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@color/hud_card_bg"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="14dp"
+                    android:layout_marginBottom="8dp">
+
+                    <View
+                        android:layout_width="3dp"
+                        android:layout_height="18dp"
+                        android:background="@color/chart_vw" />
+
+                    <TextView
+                        android:id="@+id/text_chart_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="TRAINING METRICS"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace"
+                        android:layout_marginStart="8dp" />
+                </LinearLayout>
+
+                <com.github.mikephil.charting.charts.LineChart
+                    android:id="@+id/chart_metrics"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="14dp" />
+
+                <!-- Chart legend -->
+                <LinearLayout
+                    android:id="@+id/layout_chart_legend"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingStart="14dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp" />
+            </LinearLayout>
+
+            <View android:layout_width="match_parent" android:layout_height="8dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+</LinearLayout>

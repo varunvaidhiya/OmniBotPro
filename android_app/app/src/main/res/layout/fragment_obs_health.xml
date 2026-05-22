@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hud_bg"
+    android:fillViewport="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <!-- ── Last update + targets row ────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/hud_card_bg"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp">
+
+            <TextView
+                android:id="@+id/text_update_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="LAST UPDATE: --:--:--"
+                android:textSize="7sp"
+                android:textColor="@color/hud_muted"
+                android:fontFamily="monospace" />
+
+            <TextView
+                android:id="@+id/text_targets_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TARGETS: --/--"
+                android:textSize="7sp"
+                android:textColor="@color/hud_muted"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- ── E-STOP + Control Mode ─────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="6dp"
+            android:weightSum="2">
+
+            <!-- E-Stop card -->
+            <LinearLayout
+                android:id="@+id/card_estop"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:background="@color/hud_card_bg"
+                android:gravity="center_vertical"
+                android:paddingStart="0dp"
+                android:paddingEnd="10dp"
+                android:layout_marginEnd="3dp">
+
+                <View
+                    android:id="@+id/accent_estop"
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/hud_ok" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="E-STOP"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/text_estop_state"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CLEAR"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/hud_ok"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Control Mode card -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:background="@color/hud_card_bg"
+                android:gravity="center_vertical"
+                android:paddingEnd="10dp"
+                android:layout_marginStart="3dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/hud_accent" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:paddingStart="10dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CTRL MODE"
+                        android:textSize="7sp"
+                        android:textColor="@color/hud_muted"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/text_control_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/hud_accent"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Alert summary banner (hidden when no alerts) ──────────────── -->
+        <LinearLayout
+            android:id="@+id/card_alert_banner"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/hud_card_bg"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:layout_marginTop="6dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:background="@color/hud_err" />
+
+            <TextView
+                android:id="@+id/text_alert_summary"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="10dp"
+                android:text="2 CRITICAL · 1 WARNING — TAP ALERTS TAB"
+                android:textSize="8sp"
+                android:textColor="@color/hud_err"
+                android:fontFamily="monospace" />
+        </LinearLayout>
+
+        <!-- ── Pi System Resources ───────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="6dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="12dp">
+
+            <!-- Header row with left accent bar -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="18dp"
+                    android:background="@color/hud_accent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="RASPBERRY PI 5"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- CPU -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="CPU"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <ProgressBar
+                    android:id="@+id/bar_pi_cpu"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/hud_progress_bar"
+                    android:progressTint="@color/hud_accent"
+                    android:progressBackgroundTint="@color/hud_bar_track" />
+
+                <TextView
+                    android:id="@+id/text_pi_cpu"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- RAM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="RAM"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <ProgressBar
+                    android:id="@+id/bar_pi_ram"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/hud_progress_bar"
+                    android:progressTint="@color/hud_accent"
+                    android:progressBackgroundTint="@color/hud_bar_track" />
+
+                <TextView
+                    android:id="@+id/text_pi_ram"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- Disk -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp">
+
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="DISK"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <ProgressBar
+                    android:id="@+id/bar_pi_disk"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/hud_progress_bar"
+                    android:progressTint="@color/hud_accent"
+                    android:progressBackgroundTint="@color/hud_bar_track" />
+
+                <TextView
+                    android:id="@+id/text_pi_disk"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── GPU Resources ─────────────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="6dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="10dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="18dp"
+                    android:background="#80FF80" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="GPU DESKTOP"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp" />
+
+                <TextView
+                    android:id="@+id/text_gpu_temp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="--°C"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <!-- GPU Utilization -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="6dp">
+
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="GPU UTIL"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <ProgressBar
+                    android:id="@+id/bar_gpu_util"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/hud_progress_bar"
+                    android:progressTint="#80FF80"
+                    android:progressBackgroundTint="@color/hud_bar_track" />
+
+                <TextView
+                    android:id="@+id/text_gpu_util"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="8sp"
+                    android:textColor="#80FF80"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- VRAM -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="14dp">
+
+                <TextView
+                    android:layout_width="60dp"
+                    android:layout_height="wrap_content"
+                    android:text="VRAM"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <ProgressBar
+                    android:id="@+id/bar_gpu_vram"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="0dp"
+                    android:layout_height="6dp"
+                    android:layout_weight="1"
+                    android:max="100"
+                    android:progress="0"
+                    android:progressDrawable="@drawable/hud_progress_bar"
+                    android:progressTint="#80FF80"
+                    android:progressBackgroundTint="@color/hud_bar_track" />
+
+                <TextView
+                    android:id="@+id/text_gpu_vram"
+                    android:layout_width="38dp"
+                    android:layout_height="wrap_content"
+                    android:text="0%"
+                    android:textSize="8sp"
+                    android:textColor="#80FF80"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── ROS Node Timing ───────────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="6dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="12dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="18dp"
+                    android:background="@color/hud_warn" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="NODE TIMING · 20Hz TARGET"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.1"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Header row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="NODE"
+                    android:textSize="6sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="P50"
+                    android:textSize="6sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="P95"
+                    android:textSize="6sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="MAX"
+                    android:textSize="6sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- Driver row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="DRIVER"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_driver_p50"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+
+                <TextView
+                    android:id="@+id/text_driver_p95"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+
+                <TextView
+                    android:id="@+id/text_driver_max"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- VLA row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="VLA INF"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_vla_ms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <!-- RL rows -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:layout_marginBottom="4dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="RL NAV"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_rl_nav_ms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:text="RL ARM"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_text"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_rl_arm_ms"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:text="--ms"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:gravity="end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Robot Velocity ────────────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginTop="6dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="0dp"
+                android:paddingEnd="14dp"
+                android:layout_marginBottom="8dp">
+
+                <View
+                    android:layout_width="3dp"
+                    android:layout_height="18dp"
+                    android:background="@color/chart_vx" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ROBOT VELOCITY · /odom"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:layout_marginStart="8dp" />
+            </LinearLayout>
+
+            <!-- Velocity values row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp"
+                android:layout_marginBottom="8dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vx"
+                        android:textSize="7sp"
+                        android:textColor="@color/chart_vx"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/text_robot_vx"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.000"
+                        android:textSize="11sp"
+                        android:textColor="@color/chart_vx"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vy"
+                        android:textSize="7sp"
+                        android:textColor="@color/chart_vy"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/text_robot_vy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.000"
+                        android:textSize="11sp"
+                        android:textColor="@color/chart_vy"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="ω"
+                        android:textSize="7sp"
+                        android:textColor="@color/chart_vw"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/text_robot_omega"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.000"
+                        android:textSize="11sp"
+                        android:textColor="@color/chart_vw"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── Mission Stats ─────────────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:orientation="horizontal"
+            android:background="@color/hud_card_bg"
+            android:gravity="center_vertical"
+            android:layout_marginTop="6dp"
+            android:paddingEnd="14dp">
+
+            <View
+                android:layout_width="3dp"
+                android:layout_height="match_parent"
+                android:background="@color/hud_ok" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingStart="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="MISSION SUCCESS RATE · 5 min"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_mission_rate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="-- %"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/hud_ok"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- bottom spacer -->
+        <View android:layout_width="match_parent" android:layout_height="8dp" />
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

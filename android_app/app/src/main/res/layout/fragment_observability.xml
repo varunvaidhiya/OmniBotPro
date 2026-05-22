@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/hud_bg">
+
+    <!-- ── Tab strip ────────────────────────────────────────────────────── -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:scrollbars="none"
+        android:background="@color/hud_bg">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/tab_group"
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tab_health"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="HEALTH" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tab_alerts"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="ALERTS" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tab_logs"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="LOGS" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/tab_training"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="TRAIN" />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+    </HorizontalScrollView>
+
+    <!-- ── 1dp separator ────────────────────────────────────────────────── -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/hud_card_border" />
+
+    <!-- ── Page host ─────────────────────────────────────────────────────── -->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+</LinearLayout>

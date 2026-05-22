@@ -74,7 +74,19 @@
                 android:textColor="@color/hud_muted"
                 android:textSize="8sp"
                 android:fontFamily="monospace"
-                android:layout_marginEnd="12dp" />
+                android:layout_marginEnd="10dp" />
+
+            <ImageView
+                android:id="@+id/btn_observe"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@drawable/ic_monitor"
+                android:tint="@color/hud_muted"
+                android:contentDescription="Observability"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:layout_marginEnd="10dp" />
 
             <ImageView
                 android:id="@+id/btn_settings"

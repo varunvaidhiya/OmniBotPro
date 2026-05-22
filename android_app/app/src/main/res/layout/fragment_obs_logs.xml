@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/hud_bg">
+
+    <!-- Filter strip -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="6dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Machine filter group -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/group_machine"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:layout_marginEnd="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_machine_all"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="ALL" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_machine_pi"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="PI" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_machine_gpu"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="GPU" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Severity filter group -->
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/group_severity"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:layout_marginEnd="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_sev_all"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="ALL" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_sev_err"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="ERR" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_sev_warn"
+                    style="@style/Widget.HUD.ButtonToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:text="WARN" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <!-- Live toggle -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_live"
+                style="@style/Widget.HUD.ButtonToggle"
+                android:layout_width="wrap_content"
+                android:layout_height="28dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="● LIVE" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <!-- Separator -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/hud_card_border" />
+
+    <!-- Log list -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_logs"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="@color/hud_bg"
+        android:clipToPadding="false"
+        android:paddingBottom="4dp" />
+
+    <!-- Auto-scroll toggle -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="28dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@color/hud_card_bg"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp">
+
+        <TextView
+            android:id="@+id/text_log_count"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0 entries"
+            android:textSize="7sp"
+            android:textColor="@color/hud_inactive"
+            android:fontFamily="monospace" />
+
+        <TextView
+            android:id="@+id/btn_auto_scroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="AUTO-SCROLL ✓"
+            android:textSize="7sp"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+</LinearLayout>

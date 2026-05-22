@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@color/hud_card_bg"
+    android:layout_marginBottom="4dp">
+
+    <!-- Severity accent bar -->
+    <View
+        android:id="@+id/accent_bar"
+        android:layout_width="3dp"
+        android:layout_height="match_parent"
+        android:background="@color/hud_err" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <!-- Name + severity chip -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/text_alert_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="AlertName"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:textColor="@color/hud_text"
+                android:fontFamily="monospace" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_severity"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:text="CRITICAL"
+                android:textSize="7sp"
+                android:fontFamily="monospace"
+                app:chipBackgroundColor="#14FF4444"
+                app:chipStrokeColor="@color/hud_err"
+                app:chipStrokeWidth="1dp"
+                app:chipCornerRadius="2dp"
+                android:textColor="@color/hud_err"
+                style="@style/Widget.MaterialComponents.Chip.Choice" />
+        </LinearLayout>
+
+        <!-- Summary -->
+        <TextView
+            android:id="@+id/text_alert_summary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alert summary goes here"
+            android:textSize="8sp"
+            android:textColor="@color/hud_muted"
+            android:fontFamily="monospace"
+            android:layout_marginBottom="6dp" />
+
+        <!-- Since + silence button -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/text_alert_since"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="SINCE: 00:00"
+                android:textSize="7sp"
+                android:textColor="@color/hud_inactive"
+                android:fontFamily="monospace" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_silence"
+                android:layout_width="wrap_content"
+                android:layout_height="26dp"
+                android:text="SILENCE 4H"
+                android:textSize="7sp"
+                android:fontFamily="monospace"
+                android:textColor="@color/hud_muted"
+                android:backgroundTint="#14000000"
+                app:strokeColor="@color/hud_card_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="0dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:elevation="0dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

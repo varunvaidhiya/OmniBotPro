@@ -41,4 +41,10 @@
         android:label="@string/hud_label_settings"
         tools:layout="@layout/fragment_settings" />
 
+    <fragment
+        android:id="@+id/navigation_observability"
+        android:name="com.varunvaidhiya.robotcontrol.ui.observability.ObservabilityFragment"
+        android:label="OBSERVABILITY"
+        tools:layout="@layout/fragment_observability" />
+
 </navigation>

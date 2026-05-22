@@ -59,19 +59,31 @@ class MainActivity : AppCompatActivity() {
             binding.navView.setupWithNavController(navController)
             navController.addOnDestinationChangedListener { _, destination, _ ->
                 val title = when (destination.id) {
-                    R.id.navigation_home      -> "HOME SCREEN"
-                    R.id.navigation_dashboard -> "DASHBOARD"
-                    R.id.navigation_map       -> "SLAM MAP"
-                    R.id.navigation_ai        -> "AI INTERFACE"
-                    R.id.navigation_controls  -> "ROBOT CONTROLS"
-                    R.id.navigation_settings  -> "SETTINGS"
+                    R.id.navigation_home         -> "HOME SCREEN"
+                    R.id.navigation_dashboard    -> "DASHBOARD"
+                    R.id.navigation_map          -> "SLAM MAP"
+                    R.id.navigation_ai           -> "AI INTERFACE"
+                    R.id.navigation_controls     -> "ROBOT CONTROLS"
+                    R.id.navigation_settings     -> "SETTINGS"
+                    R.id.navigation_observability-> "OBSERVABILITY"
                     else -> destination.label?.toString() ?: ""
                 }
                 binding.textScreenTitle.text = title
+
+                // Highlight the observe button when on the observability screen
+                val onObserve = destination.id == R.id.navigation_observability
+                binding.btnObserve.setColorFilter(
+                    if (onObserve) android.graphics.Color.parseColor("#00E5FF")
+                    else android.graphics.Color.parseColor("#6100E5FF")
+                )
             }
 
             binding.btnSettings.setOnClickListener {
                 navController.navigate(R.id.navigation_settings)
+            }
+
+            binding.btnObserve.setOnClickListener {
+                navController.navigate(R.id.navigation_observability)
             }
         }
 
