@@ -127,7 +127,7 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add test_failures.txt
           git commit -m "chore: upload test logs [skip ci]" || true
-          git push
+          git push origin HEAD:claude/add-observability-integration-HuqId
 
       - name: Upload Test Logs
         if: always()
