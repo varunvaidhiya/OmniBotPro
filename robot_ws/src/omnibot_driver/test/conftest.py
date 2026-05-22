@@ -19,6 +19,3 @@ def mock_serial(monkeypatch):
 
     with patch("serial.Serial", return_value=ser):
         yield ser
-
-
-
