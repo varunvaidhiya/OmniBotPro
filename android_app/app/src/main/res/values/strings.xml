@@ -55,6 +55,10 @@
     <string name="map_tab_slam">2D SLAM</string>
     <string name="map_tab_3d">3D Cloud</string>
 
+    <!-- Observability -->
+    <string name="title_observability">OBSV</string>
+    <string name="hud_label_observability">OBSERVABILITY</string>
+
     <!-- Settings -->
     <string name="settings_connection">Connection Settings</string>
     <string name="settings_control">Control Settings</string>

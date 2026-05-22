@@ -64,7 +64,8 @@ class MainActivity : AppCompatActivity() {
                     R.id.navigation_map       -> "SLAM MAP"
                     R.id.navigation_ai        -> "AI INTERFACE"
                     R.id.navigation_controls  -> "ROBOT CONTROLS"
-                    R.id.navigation_settings  -> "SETTINGS"
+                    R.id.navigation_settings       -> "SETTINGS"
+                    R.id.navigation_observability  -> "OBSERVABILITY"
                     else -> destination.label?.toString() ?: ""
                 }
                 binding.textScreenTitle.text = title
@@ -72,6 +73,10 @@ class MainActivity : AppCompatActivity() {
 
             binding.btnSettings.setOnClickListener {
                 navController.navigate(R.id.navigation_settings)
+            }
+
+            binding.btnObservability.setOnClickListener {
+                navController.navigate(R.id.navigation_observability)
             }
         }
 

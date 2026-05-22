@@ -76,6 +76,36 @@
                 android:fontFamily="monospace"
                 android:layout_marginEnd="12dp" />
 
+            <!-- Observability button (icon + label, visually matches bottom nav weight) -->
+            <LinearLayout
+                android:id="@+id/btn_observability"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal"
+                android:layout_marginEnd="10dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true"
+                android:padding="2dp">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_monitoring"
+                    android:tint="@color/hud_muted"
+                    android:contentDescription="Observability" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="OBSV"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="5.5sp"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.05" />
+            </LinearLayout>
+
             <ImageView
                 android:id="@+id/btn_settings"
                 android:layout_width="18dp"

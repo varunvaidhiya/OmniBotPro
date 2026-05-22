@@ -1,0 +1,666 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/hud_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="10dp">
+
+        <!-- ── Page header + refresh ─────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="10dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OBSERVABILITY"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@color/hud_accent"
+                android:fontFamily="monospace"
+                android:letterSpacing="0.08" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:text="↺  REFRESH"
+                android:textSize="9sp"
+                android:textColor="@color/hud_accent"
+                android:fontFamily="monospace"
+                android:backgroundTint="#14000000"
+                app:strokeColor="@color/hud_card_border"
+                app:strokeWidth="1dp"
+                app:cornerRadius="0dp"
+                android:elevation="0dp" />
+        </LinearLayout>
+
+        <!-- ── ROBOT HEALTH card ──────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_accent"
+                android:alpha="0.6" />
+
+            <LinearLayout
+                android:id="@+id/header_health"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ROBOT HEALTH"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/hud_accent"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:id="@+id/text_health_error"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_err"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/chevron_health"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_health"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp">
+
+                <!-- E-stop -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <View
+                        android:id="@+id/dot_estop"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:background="@drawable/shape_circle_green"
+                        android:layout_marginEnd="8dp" />
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="EMERGENCY STOP"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_estop"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="CLEAR"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_ok"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Control mode -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="CONTROL MODE"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_control_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_accent"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/hud_card_border"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Velocity -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VELOCITY  (m/s  ·  rad/s)"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="4dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="6dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vx"
+                            android:textSize="7sp"
+                            android:textColor="@color/hud_muted"
+                            android:fontFamily="monospace" />
+
+                        <TextView
+                            android:id="@+id/val_vx"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0.000"
+                            android:textSize="11sp"
+                            android:textColor="@color/chart_vx"
+                            android:fontFamily="monospace" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Vy"
+                            android:textSize="7sp"
+                            android:textColor="@color/hud_muted"
+                            android:fontFamily="monospace" />
+
+                        <TextView
+                            android:id="@+id/val_vy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0.000"
+                            android:textSize="11sp"
+                            android:textColor="@color/chart_vy"
+                            android:fontFamily="monospace" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:gravity="center_horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="ω"
+                            android:textSize="7sp"
+                            android:textColor="@color/hud_muted"
+                            android:fontFamily="monospace" />
+
+                        <TextView
+                            android:id="@+id/val_omega"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="+0.000"
+                            android:textSize="11sp"
+                            android:textColor="@color/chart_vw"
+                            android:fontFamily="monospace" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/hud_card_border"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Driver cycle P95 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="DRIVER CYCLE P95"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_cycle_p95"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--ms"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_ok"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Missions -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="MISSIONS TOTAL"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_missions_total"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_accent"
+                        android:fontFamily="monospace" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SUCCESS RATE"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_mission_success"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0%"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_ok"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── AI PERFORMANCE card ────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_warn"
+                android:alpha="0.6" />
+
+            <LinearLayout
+                android:id="@+id/header_ai"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="AI PERFORMANCE"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/hud_warn"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:id="@+id/text_wandb_error"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_err"
+                    android:fontFamily="monospace"
+                    android:gravity="center"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/chevron_ai"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_ai"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp">
+
+                <!-- VLA inference latency -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="28dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="4dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="VLA INFERENCE"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_text"
+                        android:fontFamily="monospace" />
+
+                    <TextView
+                        android:id="@+id/val_vla_ms"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="--"
+                        android:textSize="9sp"
+                        android:textColor="@color/hud_ok"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/hud_card_border"
+                    android:layout_marginBottom="8dp" />
+
+                <!-- W&B header -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="WEIGHTS &amp; BIASES  ·  RECENT RUNS"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_muted"
+                    android:fontFamily="monospace"
+                    android:layout_marginBottom="6dp" />
+
+                <TextView
+                    android:id="@+id/text_no_wandb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No runs — configure W&amp;B in Settings"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace"
+                    android:visibility="visible" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_wandb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── SYSTEM ALERTS card ─────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_err"
+                android:alpha="0.6" />
+
+            <LinearLayout
+                android:id="@+id/header_alerts"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SYSTEM ALERTS"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/hud_err"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:id="@+id/badge_alerts_count"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=" [OK]"
+                    android:textSize="9sp"
+                    android:textColor="@color/hud_ok"
+                    android:fontFamily="monospace" />
+
+                <TextView
+                    android:id="@+id/text_alerts_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_err"
+                    android:fontFamily="monospace"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/chevron_alerts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_alerts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/text_no_alerts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All systems nominal"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_ok"
+                    android:fontFamily="monospace"
+                    android:visibility="gone" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_alerts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ── ROS LOGS card ──────────────────────────────────────────── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/hud_card_bg"
+            android:layout_marginBottom="8dp">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/hud_accent2"
+                android:alpha="0.4" />
+
+            <LinearLayout
+                android:id="@+id/header_logs"
+                android:layout_width="match_parent"
+                android:layout_height="36dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="ROS LOGS  ·  LOKI"
+                    android:textSize="10sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/hud_accent2"
+                    android:fontFamily="monospace"
+                    android:letterSpacing="0.08" />
+
+                <TextView
+                    android:id="@+id/text_logs_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="7sp"
+                    android:textColor="@color/hud_err"
+                    android:fontFamily="monospace"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/chevron_logs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="▼"
+                    android:textColor="@color/hud_muted"
+                    android:textSize="10sp"
+                    android:fontFamily="monospace" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/content_logs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/text_no_logs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No logs — configure Loki URL in Settings"
+                    android:textSize="8sp"
+                    android:textColor="@color/hud_inactive"
+                    android:fontFamily="monospace"
+                    android:visibility="visible" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recycler_logs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

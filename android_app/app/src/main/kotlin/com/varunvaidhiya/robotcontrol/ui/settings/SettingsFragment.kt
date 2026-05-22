@@ -54,6 +54,36 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
                         if (binding.editPort.text.isNullOrEmpty()) binding.editPort.setText(port.toString())
                     }
                 }
+                launch {
+                    viewModel.prometheusBase.collectLatest { v ->
+                        if (binding.editPrometheus.text.isNullOrEmpty()) binding.editPrometheus.setText(v)
+                    }
+                }
+                launch {
+                    viewModel.alertManagerBase.collectLatest { v ->
+                        if (binding.editAlertmanager.text.isNullOrEmpty()) binding.editAlertmanager.setText(v)
+                    }
+                }
+                launch {
+                    viewModel.lokiBase.collectLatest { v ->
+                        if (binding.editLoki.text.isNullOrEmpty()) binding.editLoki.setText(v)
+                    }
+                }
+                launch {
+                    viewModel.wandbEntity.collectLatest { v ->
+                        if (binding.editWandbEntity.text.isNullOrEmpty()) binding.editWandbEntity.setText(v)
+                    }
+                }
+                launch {
+                    viewModel.wandbProject.collectLatest { v ->
+                        if (binding.editWandbProject.text.isNullOrEmpty()) binding.editWandbProject.setText(v)
+                    }
+                }
+                launch {
+                    viewModel.wandbApiKey.collectLatest { v ->
+                        if (binding.editWandbKey.text.isNullOrEmpty()) binding.editWandbKey.setText(v)
+                    }
+                }
             }
         }
     }
@@ -104,6 +134,16 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
             binding.layoutPort.error = null
 
             viewModel.saveConnectionSettings(ip, port)
+
+            viewModel.saveObservabilitySettings(
+                prometheusBase  = binding.editPrometheus.text.toString(),
+                alertManagerBase = binding.editAlertmanager.text.toString(),
+                lokiBase        = binding.editLoki.text.toString(),
+                wandbEntity     = binding.editWandbEntity.text.toString(),
+                wandbProject    = binding.editWandbProject.text.toString(),
+                wandbApiKey     = binding.editWandbKey.text.toString()
+            )
+
             flashSaved()
         }
     }
