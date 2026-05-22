@@ -21,8 +21,19 @@ import rclpy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Bool
 
-from conftest import build_velocity_packet, build_rx_packet
+def build_rx_packet(pkt_type: int, payload: bytes) -> bytes:
+    """Helper: build a valid Yahboom RX packet."""
+    length = 3 + len(payload)
+    header = bytes([0xFF, 0xFB, length, pkt_type])
+    body = header[2:] + payload
+    checksum = sum(body) & 0xFF
+    return header + payload + bytes([checksum])
 
+
+def build_velocity_packet(vx_mms: int, vy_mms: int, vz_mrads: int) -> bytes:
+    """Build a TYPE=0x0C velocity feedback packet."""
+    payload = struct.pack("<hhh", vx_mms, vy_mms, vz_mrads)
+    return build_rx_packet(0x0C, payload)
 
 @pytest.fixture(scope="module", autouse=True)
 def ros_context():
