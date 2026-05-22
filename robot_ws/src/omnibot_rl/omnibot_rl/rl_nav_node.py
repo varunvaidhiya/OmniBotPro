@@ -37,6 +37,7 @@ Topics
 """
 
 import math
+import time
 
 import numpy as np
 import rclpy
@@ -59,6 +60,13 @@ try:
     _STRUCT_AVAILABLE = True
 except ImportError:
     _STRUCT_AVAILABLE = False
+
+try:
+    from omnibot_rl.wandb_runtime_logger import WandbRuntimeLogger
+
+    _WANDB_LOGGER_AVAILABLE = True
+except ImportError:
+    _WANDB_LOGGER_AVAILABLE = False
 
 
 # ── Constants matching training env ─────────────────────────────────────────
@@ -95,6 +103,7 @@ class RLNavNode(Node):
         self.declare_parameter("max_ang_vel", MAX_ANG_VEL)
         self.declare_parameter("lidar_min", LIDAR_MIN)
         self.declare_parameter("lidar_max", LIDAR_MAX)
+        self.declare_parameter("wandb_project", "")
 
         policy_path = self.get_parameter("policy_path").value
         hz = self.get_parameter("policy_hz").value
@@ -103,6 +112,25 @@ class RLNavNode(Node):
         self._max_ang = self.get_parameter("max_ang_vel").value
         self._lidar_min = self.get_parameter("lidar_min").value
         self._lidar_max = self.get_parameter("lidar_max").value
+        wandb_project = self.get_parameter("wandb_project").value
+
+        # ── W&B runtime logger ───────────────────────────────────────────────
+        self._wandb: WandbRuntimeLogger | None = None
+        if _WANDB_LOGGER_AVAILABLE and wandb_project:
+            self._wandb = WandbRuntimeLogger(
+                project=wandb_project,
+                run_name=f"rl_nav_{self.get_clock().now().nanoseconds // 1_000_000_000}",
+                flush_interval_s=5.0,
+                tags=["runtime", "deployed", "nav"],
+                config={
+                    "policy_hz": hz,
+                    "goal_tolerance": self._goal_tol,
+                    "max_lin_vel": self._max_lin,
+                    "max_ang_vel": self._max_ang,
+                    "lidar_min": self._lidar_min,
+                    "lidar_max": self._lidar_max,
+                },
+            )
 
         # ── State ────────────────────────────────────────────────────────────
         self._active_mode: str = "nav2"
@@ -206,6 +234,7 @@ class RLNavNode(Node):
             return
 
         # Run policy
+        t0 = time.monotonic()
         if self._session is not None:
             try:
                 obs_np = obs.astype(np.float32).reshape(1, OBS_DIM)
@@ -218,6 +247,7 @@ class RLNavNode(Node):
                 delta_action = np.zeros(ACTION_DIM)
         else:
             delta_action = np.zeros(ACTION_DIM)
+        inference_ms = (time.monotonic() - t0) * 1e3
 
         # Clip delta and accumulate velocity (mirrors Yahboom ramp limiter)
         delta_action = np.clip(delta_action, -MAX_DELTA, MAX_DELTA)
@@ -233,10 +263,31 @@ class RLNavNode(Node):
         # Check goal reached — stop publishing
         if self._goal_reached():
             self.get_logger().info("[RLNav] Goal reached.")
+            if self._wandb is not None:
+                self._wandb.log_event("goal_reached")
             self._goal = None
             self._cmd_vel_accum[:] = 0.0
             self._publish_twist(0.0, 0.0, 0.0)
             return
+
+        if self._wandb is not None:
+            dist = 0.0
+            if self._goal is not None and self._odom is not None:
+                rx = self._odom.pose.pose.position.x
+                ry = self._odom.pose.pose.position.y
+                gx = self._goal.pose.position.x
+                gy = self._goal.pose.position.y
+                dist = math.sqrt((gx - rx) ** 2 + (gy - ry) ** 2)
+            self._wandb.log(
+                {
+                    "inference_ms": inference_ms,
+                    "min_lidar_dist": float(np.min(self._lidar_sectors)),
+                    "cmd_vx": float(self._cmd_vel_accum[0]),
+                    "cmd_vy": float(self._cmd_vel_accum[1]),
+                    "cmd_omega": float(self._cmd_vel_accum[2]),
+                    "dist_to_goal": dist,
+                }
+            )
 
         self._publish_twist(
             self._cmd_vel_accum[0], self._cmd_vel_accum[1], self._cmd_vel_accum[2]
@@ -389,9 +440,13 @@ def _pointcloud_to_sectors(
 def main(args=None):
     rclpy.init(args=args)
     node = RLNavNode()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        rclpy.spin(node)
+    finally:
+        if node._wandb is not None:
+            node._wandb.finish()
+        node.destroy_node()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":

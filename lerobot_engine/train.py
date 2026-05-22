@@ -8,7 +8,9 @@ python lerobot_engine/train.py \\
     --model smolvla \\
     --checkpoint lerobot/smolvla_base \\
     --dataset-path ~/datasets/mobile_manipulation \\
-    --output-dir ~/checkpoints/smolvla_run1
+    --output-dir ~/checkpoints/smolvla_run1 \\
+    --wandb-project omnibot_smolvla \\
+    --wandb-run-name "smolvla-lr1e-4-bs8"
 
 # ACT baseline
 python lerobot_engine/train.py \\
@@ -53,6 +55,13 @@ except ImportError:
         from data_engine.loader.dataset import LeRobotDatasetLite as LeRobotDataset
     except ImportError:
         LeRobotDataset = None
+
+try:
+    import wandb
+
+    WANDB_AVAILABLE = True
+except ImportError:
+    WANDB_AVAILABLE = False
 
 from lerobot_engine.models import list_models, make_policy
 
@@ -106,6 +115,19 @@ def parse_args():
     parser.add_argument("--save-every", type=int, default=10)
     parser.add_argument("--grad-clip-norm", type=float, default=10.0)
     parser.add_argument("--num-workers", type=int, default=4)
+    # W&B
+    parser.add_argument(
+        "--wandb-project",
+        type=str,
+        default="",
+        help="W&B project name. Leave empty to disable W&B logging.",
+    )
+    parser.add_argument(
+        "--wandb-run-name",
+        type=str,
+        default=None,
+        help="W&B run name (auto-generated when omitted).",
+    )
     return parser.parse_args()
 
 
@@ -159,6 +181,7 @@ def save_checkpoint(policy_model, optimizer, scheduler, epoch, loss, output_dir)
         ckpt_dir / "train_state.pt",
     )
     print(f"  Checkpoint saved → {ckpt_dir}")
+    return ckpt_dir
 
 
 def compute_eval_loss(policy_model, dataloader, device) -> float:
@@ -229,6 +252,27 @@ def main():
     print(f"  Device:      {device}")
     print("=" * 60)
 
+    # ── W&B initialisation ─────────────────────────────────────────────────
+    wandb_run = None
+    if args.wandb_project and WANDB_AVAILABLE:
+        wandb_run = wandb.init(
+            project=args.wandb_project,
+            name=args.wandb_run_name,
+            config={
+                "model": args.model,
+                "checkpoint": checkpoint,
+                "num_epochs": args.num_epochs,
+                "batch_size": args.batch_size,
+                "lr": args.lr,
+                "chunk_size": args.chunk_size,
+                "grad_clip_norm": args.grad_clip_norm,
+                "device": str(device),
+            },
+        )
+        print(f"  W&B run: {wandb_run.url}")
+    elif args.wandb_project and not WANDB_AVAILABLE:
+        print("[WARNING] --wandb-project set but wandb is not installed. Skipping.")
+
     # Load dataset
     print("\nLoading dataset...")
     if LeRobotDataset is None:
@@ -274,6 +318,7 @@ def main():
 
     print("\nStarting training...\n")
     best_eval_loss = float("inf")
+    global_step = 0
 
     for epoch in range(1, args.num_epochs + 1):
         policy_model.train()
@@ -287,10 +332,13 @@ def main():
             out = policy_model.forward(batch)
             loss = out["loss"] if isinstance(out, dict) else out
             loss.backward()
-            nn.utils.clip_grad_norm_(policy_model.parameters(), args.grad_clip_norm)
+            grad_norm = nn.utils.clip_grad_norm_(
+                policy_model.parameters(), args.grad_clip_norm
+            )
             optimizer.step()
             epoch_loss += loss.item()
             n_batches += 1
+            global_step += 1
 
             if batch_idx % 50 == 0:
                 print(
@@ -298,6 +346,15 @@ def main():
                     f"Batch {batch_idx:4d}/{len(train_loader)} | "
                     f"Loss: {loss.item():.6f}"
                 )
+                if wandb_run is not None:
+                    wandb.log(
+                        {
+                            "train/step_loss": loss.item(),
+                            "train/grad_norm": float(grad_norm),
+                            "train/step": global_step,
+                        },
+                        step=global_step,
+                    )
 
         scheduler.step()
         avg_loss = epoch_loss / max(n_batches, 1)
@@ -318,19 +375,53 @@ def main():
             + (" [BEST]" if is_best else "")
         )
 
+        if wandb_run is not None:
+            wandb.log(
+                {
+                    "train/epoch_loss": avg_loss,
+                    "eval/loss": eval_loss,
+                    "train/lr": optimizer.param_groups[0]["lr"],
+                    "eval/is_best": int(is_best),
+                    "epoch": epoch,
+                },
+                step=global_step,
+            )
+
         if epoch % args.save_every == 0 or epoch == args.num_epochs:
-            save_checkpoint(
+            ckpt_dir = save_checkpoint(
                 policy_model, optimizer, scheduler, epoch, avg_loss, output_dir
             )
+            if wandb_run is not None:
+                artifact = wandb.Artifact(
+                    f"omnibot-{args.model}-ckpt",
+                    type="model",
+                    metadata={"epoch": epoch, "eval_loss": eval_loss},
+                )
+                artifact.add_dir(str(ckpt_dir))
+                wandb_run.log_artifact(artifact, aliases=[f"epoch-{epoch:04d}"])
 
         if is_best:
             best_dir = output_dir / "best"
             best_dir.mkdir(parents=True, exist_ok=True)
             if hasattr(policy_model, "save_pretrained"):
                 policy_model.save_pretrained(str(best_dir))
+            if wandb_run is not None:
+                best_artifact = wandb.Artifact(
+                    f"omnibot-{args.model}-best",
+                    type="model",
+                    metadata={"epoch": epoch, "eval_loss": eval_loss},
+                )
+                best_artifact.add_dir(str(best_dir))
+                wandb_run.log_artifact(
+                    best_artifact, aliases=["best", f"epoch-{epoch:04d}"]
+                )
 
     print(f"\nTraining complete. Best eval loss: {best_eval_loss:.6f}")
     print(f"  Best checkpoint: {output_dir / 'best'}")
+
+    if wandb_run is not None:
+        wandb.summary["best_eval_loss"] = best_eval_loss
+        wandb_run.finish()
 
 
 if __name__ == "__main__":

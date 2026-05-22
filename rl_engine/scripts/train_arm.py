@@ -36,6 +36,12 @@ try:
     parser.add_argument("--log_dir", type=str, default="~/logs/omnibot_arm")
     parser.add_argument("--resume", type=str, default=None)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="omnibot_arm",
+        help="W&B project name. Pass empty string to use TensorBoard instead.",
+    )
     args = parser.parse_args()
 
     app_launcher = AppLauncher(args)
@@ -79,11 +85,14 @@ def main():
     env = RslRlVecEnvWrapper(env)
 
     # ── Runner ─────────────────────────────────────────────────────────────
+    _logger = "wandb" if args.wandb_project else "tensorboard"
     runner_cfg = RslRlOnPolicyRunnerCfg(
         num_steps_per_env=24,
         max_iterations=args.max_iterations,
         save_interval=train_cfg["training"]["save_interval"],
         experiment_name="omnibot_arm",
+        logger=_logger,
+        wandb_project=args.wandb_project,
         log_dir=os.path.expanduser(args.log_dir),
         resume=args.resume is not None,
         load_run=args.resume or "",
@@ -130,6 +139,22 @@ def main():
 
     if args.resume:
         runner.load(args.resume)
+
+    if args.wandb_project:
+        try:
+            import wandb
+
+            wandb.config.update(
+                {
+                    "num_envs": args.num_envs,
+                    "max_iterations": args.max_iterations,
+                    "seed": args.seed,
+                    **ppo_cfg,
+                    **{f"net_{k}": v for k, v in net_cfg.items()},
+                }
+            )
+        except ImportError:
+            pass
 
     print(
         f"Starting arm policy training: {args.max_iterations} iterations, "

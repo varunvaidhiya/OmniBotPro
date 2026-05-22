@@ -11,6 +11,9 @@ pyserial>=3.5
 Pillow>=10.0.0
 einops>=0.7.0
 
+# Experiment tracking
+wandb>=0.16.0
+
 # TensorRT acceleration (optional — install separately from NVIDIA)
 # tensorrt>=8.6.0        # pip install tensorrt  (requires CUDA 11.8+)
 # onnx>=1.14.0           # pip install onnx

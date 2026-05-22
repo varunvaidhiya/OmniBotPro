@@ -27,6 +27,7 @@ scipy>=1.10.0               # used for domain randomization sampling
 pyyaml>=6.0
 tqdm>=4.65.0
 tensorboard>=2.13.0         # training curve visualization
+wandb>=0.16.0               # experiment tracking (optional — set --wandb_project to enable)
 
 # For export/testing without full Isaac Lab install
 # (lightweight inference only)

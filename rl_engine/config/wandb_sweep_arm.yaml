@@ -1,0 +1,42 @@
+program: rl_engine/scripts/train_arm.py
+method: bayes
+metric:
+  name: Train/mean_reward
+  goal: maximize
+early_terminate:
+  type: hyperband
+  min_iter: 300
+  eta: 3
+parameters:
+  learning_rate:
+    distribution: log_uniform_values
+    min: 5e-6
+    max: 5e-4
+  clip_param:
+    values: [0.1, 0.2, 0.3]
+  entropy_coef:
+    distribution: log_uniform_values
+    min: 1e-4
+    max: 5e-3
+  num_learning_epochs:
+    values: [4, 6, 8]
+  num_mini_batches:
+    values: [4, 8]
+  gamma:
+    values: [0.97, 0.99]
+  lam:
+    values: [0.90, 0.95]
+  value_loss_coef:
+    distribution: uniform
+    min: 0.5
+    max: 2.0
+  desired_kl:
+    values: [0.005, 0.01]
+  max_grad_norm:
+    values: [0.5, 1.0]
+  num_envs:
+    value: 256
+  max_iterations:
+    value: 1500
+  wandb_project:
+    value: omnibot_arm
