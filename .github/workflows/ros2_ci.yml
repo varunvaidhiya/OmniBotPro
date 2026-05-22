@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   lint:
@@ -118,16 +119,17 @@ jobs:
         run: |
           colcon test-result --verbose
 
-      - name: Push Test Results
+      - name: Create Issue with Test Results
         if: failure()
         working-directory: robot_ws
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           colcon test-result --verbose > test_failures.txt || true
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add test_failures.txt
-          git commit -m "chore: upload test logs [skip ci]" || true
-          git push origin HEAD:claude/add-observability-integration-HuqId
+          # Only create an issue if the file isn't empty
+          if [ -s test_failures.txt ]; then
+            gh issue create --title "CI Test Failures $GITHUB_SHA" --body-file test_failures.txt
+          fi
 
       - name: Upload Test Logs
         if: always()
