@@ -115,6 +115,13 @@ jobs:
         run: |
           colcon test-result --verbose
 
+      - name: Upload Test Logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: colcon-test-logs
+          path: robot_ws/log/
+
       - name: Run Python Package Tests with Coverage
         run: |
           pip3 install -e packages/yahboom_ros2 -e packages/vla_serve \
