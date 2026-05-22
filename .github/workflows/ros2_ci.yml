@@ -61,6 +61,7 @@ jobs:
           pip3 install "numpy<2.0" \
                        pytest pytest-cov pytest-timeout coverage \
                        prometheus_client>=0.20 \
+                       httpx \
                        --break-system-packages
 
       - name: Install ROS dependencies
