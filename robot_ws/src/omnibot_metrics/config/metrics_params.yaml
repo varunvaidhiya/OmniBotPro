@@ -1,0 +1,6 @@
+ros2_prometheus_bridge:
+  ros__parameters:
+    # Port that Prometheus scrapes. Pi uses 8888, GPU desktop uses 8889.
+    metrics_port: 8888
+    # Label applied to all metrics — matches the machine label in prometheus.yml.
+    machine_label: raspberry_pi

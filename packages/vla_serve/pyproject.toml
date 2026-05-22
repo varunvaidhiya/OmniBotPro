@@ -16,6 +16,8 @@ dependencies = [
     "pydantic>=2.0",
     "pillow>=10.0",
     "numpy<2.0",
+    "prometheus-fastapi-instrumentator>=6.1",
+    "prometheus_client>=0.20",
 ]
 
 [project.optional-dependencies]

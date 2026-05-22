@@ -1,0 +1,25 @@
+[tool.ruff]
+exclude = [
+    "robot_ws/src/omnibot_firmware",
+    ".git",
+    "__pycache__",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Benchmark files must do sys.path.insert() before project imports — E402 is intentional.
+# F841: timing benchmarks intentionally assign tensors without using them (measuring alloc cost).
+"benchmarks/**/*.py"  = ["E402", "F841"]
+# Root-level hardware debug / protocol-reverse-engineering scripts.
+# These are one-off scripts, not part of the ROS build — style is intentionally terse.
+"fuzz_*.py"           = ["E401", "E402", "E501", "E701", "E702"]
+"scan_*.py"           = ["E401", "E402", "E501", "E701", "E702"]
+"test_*.py"           = ["E401", "E402", "E501", "E701", "E702"]
+"analyze_*.py"        = ["E401", "E402", "E501", "E701", "E702"]
+"decode_*.py"         = ["E401", "E402", "E501", "E701", "E702"]
+"confirmed_protocol.py" = ["E402", "E501"]
+# aiohttp is imported inside a try block for optional dependency detection;
+# the import itself is used only for the availability flag.
+"robot_ws/src/omnibot_vr/omnibot_vr/vr_recording_bridge.py" = ["F401"]

@@ -57,6 +57,7 @@ from std_msgs.msg import String
 
 try:
     import onnxruntime as ort
+
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
@@ -64,17 +65,21 @@ except ImportError:
 
 # ── Constants from arm_params.yaml / URDF ────────────────────────────────────
 JOINT_NAMES = [
-    'arm_shoulder_pan', 'arm_shoulder_lift', 'arm_elbow_flex',
-    'arm_wrist_flex', 'arm_wrist_roll', 'arm_gripper',
+    "arm_shoulder_pan",
+    "arm_shoulder_lift",
+    "arm_elbow_flex",
+    "arm_wrist_flex",
+    "arm_wrist_roll",
+    "arm_gripper",
 ]
 JOINT_MIN = np.array([-3.14, -1.57, -1.69, -1.66, -2.74, -0.17])
-JOINT_MAX = np.array([ 3.14,  1.57,  1.69,  1.66,  2.84,  1.75])
-JOINT_HOME = np.zeros(6)   # radians (home = 2048 ticks = 0 rad offset)
+JOINT_MAX = np.array([3.14, 1.57, 1.69, 1.66, 2.84, 1.75])
+JOINT_HOME = np.zeros(6)  # radians (home = 2048 ticks = 0 rad offset)
 
-OBS_DIM    = 30
+OBS_DIM = 30
 ACTION_DIM = 6
-MAX_DELTA  = 0.05   # rad/step — safe delta matching training env
-POLICY_HZ  = 20.0
+MAX_DELTA = 0.05  # rad/step — safe delta matching training env
+POLICY_HZ = 20.0
 
 
 class RLArmNode(Node):
@@ -86,28 +91,28 @@ class RLArmNode(Node):
     """
 
     def __init__(self):
-        super().__init__('rl_arm_node')
+        super().__init__("rl_arm_node")
 
         # ── Parameters ───────────────────────────────────────────────────────
-        self.declare_parameter('policy_path', '~/models/omnibot_arm_policy.onnx')
-        self.declare_parameter('policy_hz',   POLICY_HZ)
-        self.declare_parameter('max_delta',   MAX_DELTA)
-        self.declare_parameter('joint_names', JOINT_NAMES)
+        self.declare_parameter("policy_path", "~/models/omnibot_arm_policy.onnx")
+        self.declare_parameter("policy_hz", POLICY_HZ)
+        self.declare_parameter("max_delta", MAX_DELTA)
+        self.declare_parameter("joint_names", JOINT_NAMES)
 
-        policy_path  = self.get_parameter('policy_path').value
-        hz           = self.get_parameter('policy_hz').value
-        self._max_delta = self.get_parameter('max_delta').value
-        joint_names_param = self.get_parameter('joint_names').value
+        policy_path = self.get_parameter("policy_path").value
+        hz = self.get_parameter("policy_hz").value
+        self._max_delta = self.get_parameter("max_delta").value
+        joint_names_param = self.get_parameter("joint_names").value
         self._joint_names = list(joint_names_param)
         n_joints = len(self._joint_names)
 
         # ── State ────────────────────────────────────────────────────────────
-        self._active_mode: str = 'policy'
+        self._active_mode: str = "policy"
         self._joint_pos: np.ndarray = np.zeros(n_joints)
         self._joint_vel: np.ndarray = np.zeros(n_joints)
         self._prev_joint_pos: np.ndarray = np.zeros(n_joints)
         self._prev_action: np.ndarray = np.zeros(ACTION_DIM)
-        self._target_pos: np.ndarray = np.zeros(3)   # base_link frame
+        self._target_pos: np.ndarray = np.zeros(3)  # base_link frame
         self._accum_pos: np.ndarray = np.zeros(n_joints)  # accumulated joint targets
         self._has_joint_state: bool = False
         self._dt: float = 1.0 / hz
@@ -116,37 +121,44 @@ class RLArmNode(Node):
         self._session = None
         if ONNX_AVAILABLE:
             import os
+
             path = os.path.expanduser(policy_path)
             if os.path.exists(path):
                 try:
                     self._session = ort.InferenceSession(
                         path,
-                        providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
-                    self.get_logger().info(f'Loaded arm policy: {path}')
+                        providers=["CUDAExecutionProvider", "CPUExecutionProvider"],
+                    )
+                    self.get_logger().info(f"Loaded arm policy: {path}")
                 except Exception as exc:
-                    self.get_logger().error(f'Failed to load arm policy: {exc}')
+                    self.get_logger().error(f"Failed to load arm policy: {exc}")
             else:
                 self.get_logger().warn(
-                    f'Arm policy not found at {path}. '
-                    'Node will hold current joint positions until a policy is loaded.')
+                    f"Arm policy not found at {path}. "
+                    "Node will hold current joint positions until a policy is loaded."
+                )
         else:
             self.get_logger().warn(
-                'onnxruntime not installed. Install with: pip install onnxruntime-gpu')
+                "onnxruntime not installed. Install with: pip install onnxruntime-gpu"
+            )
 
         # ── Subscriptions ────────────────────────────────────────────────────
-        self.create_subscription(JointState,  '/arm/joint_states',   self._joint_cb,  10)
-        self.create_subscription(PoseStamped, '/rl_arm/target_pose', self._target_cb, 10)
-        self.create_subscription(String,      '/arm/cmd_mode',       self._mode_cb,   10)
+        self.create_subscription(JointState, "/arm/joint_states", self._joint_cb, 10)
+        self.create_subscription(
+            PoseStamped, "/rl_arm/target_pose", self._target_cb, 10
+        )
+        self.create_subscription(String, "/arm/cmd_mode", self._mode_cb, 10)
 
         # ── Publisher ────────────────────────────────────────────────────────
-        self._cmd_pub = self.create_publisher(JointState, '/arm/joint_commands/rl', 10)
+        self._cmd_pub = self.create_publisher(JointState, "/arm/joint_commands/rl", 10)
 
         # ── Inference timer ──────────────────────────────────────────────────
         self.create_timer(1.0 / hz, self._inference_step)
 
         self.get_logger().info(
-            f'RLArmNode ready. Policy Hz: {hz}. '
-            'Publishes to /arm/joint_commands/rl when arm/cmd_mode="rl_arm".')
+            f"RLArmNode ready. Policy Hz: {hz}. "
+            'Publishes to /arm/joint_commands/rl when arm/cmd_mode="rl_arm".'
+        )
 
     # ── Callbacks ────────────────────────────────────────────────────────────
 
@@ -171,11 +183,13 @@ class RLArmNode(Node):
         self._joint_pos = pos
 
     def _target_cb(self, msg: PoseStamped) -> None:
-        self._target_pos = np.array([
-            msg.pose.position.x,
-            msg.pose.position.y,
-            msg.pose.position.z,
-        ])
+        self._target_pos = np.array(
+            [
+                msg.pose.position.x,
+                msg.pose.position.y,
+                msg.pose.position.z,
+            ]
+        )
 
     # ── Inference ────────────────────────────────────────────────────────────
 
@@ -188,14 +202,15 @@ class RLArmNode(Node):
         if obs is None:
             return
 
-        if self._session is not None and self._active_mode == 'rl_arm':
+        if self._session is not None and self._active_mode == "rl_arm":
             try:
                 obs_np = obs.astype(np.float32).reshape(1, OBS_DIM)
-                raw = self._session.run(None, {'obs': obs_np})[0]
+                raw = self._session.run(None, {"obs": obs_np})[0]
                 delta = np.array(raw).flatten()[:ACTION_DIM]
             except Exception as exc:
-                self.get_logger().error(f'Arm policy inference error: {exc}',
-                                        throttle_duration_sec=5.0)
+                self.get_logger().error(
+                    f"Arm policy inference error: {exc}", throttle_duration_sec=5.0
+                )
                 delta = np.zeros(ACTION_DIM)
         else:
             # When not in rl_arm mode, output nothing (arm_cmd_mux won't
@@ -233,18 +248,21 @@ class RLArmNode(Node):
 
         # Gripper opening normalized [0, 1]
         gripper_norm = (self._joint_pos[5] - JOINT_MIN[5]) / (
-            JOINT_MAX[5] - JOINT_MIN[5] + 1e-8)
+            JOINT_MAX[5] - JOINT_MIN[5] + 1e-8
+        )
         gripper_norm = float(np.clip(gripper_norm, 0.0, 1.0))
 
-        obs = np.concatenate([
-            joint_pos_norm,      # [0:6]
-            arm_vel,             # [6:11]
-            ee_pos,              # [11:14]
-            ee_rot_6d,           # [14:20]
-            self._target_pos,    # [20:23]
-            [gripper_norm],      # [23]
-            self._prev_action,   # [24:30]
-        ])
+        obs = np.concatenate(
+            [
+                joint_pos_norm,  # [0:6]
+                arm_vel,  # [6:11]
+                ee_pos,  # [11:14]
+                ee_rot_6d,  # [14:20]
+                self._target_pos,  # [20:23]
+                [gripper_norm],  # [23]
+                self._prev_action,  # [24:30]
+            ]
+        )
         return obs.astype(np.float32)
 
     def _publish_joint_cmd(self, positions: np.ndarray) -> None:
@@ -256,6 +274,7 @@ class RLArmNode(Node):
 
 
 # ── Simplified FK helpers ─────────────────────────────────────────────────────
+
 
 def _approx_ee_position(q: np.ndarray) -> np.ndarray:
     """
@@ -287,7 +306,7 @@ def _approx_ee_position(q: np.ndarray) -> np.ndarray:
     cos_pan = math.cos(q0)
     sin_pan = math.sin(q0)
     ee_x = base_x + cos_pan * x2d
-    ee_y =          sin_pan * x2d
+    ee_y = sin_pan * x2d
     ee_z = y2d  # vertical
 
     return np.array([ee_x, ee_y, ee_z], dtype=np.float32)
@@ -315,5 +334,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

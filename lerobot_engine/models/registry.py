@@ -60,8 +60,7 @@ def make_policy(
     """
     if model_type not in _REGISTRY:
         raise ValueError(
-            f"Unknown model type '{model_type}'. "
-            f"Registered: {list_models()}"
+            f"Unknown model type '{model_type}'. Registered: {list_models()}"
         )
     adapter = _REGISTRY[model_type]()
     adapter.load(checkpoint, device)

@@ -48,33 +48,33 @@ class ArmCmdMux(Node):
         Starting mode. One of "policy" (default) or "rl_arm".
     """
 
-    VALID_MODES = ('policy', 'rl_arm')
+    VALID_MODES = ("policy", "rl_arm")
 
     def __init__(self):
-        super().__init__('arm_cmd_mux')
+        super().__init__("arm_cmd_mux")
 
-        self.declare_parameter('default_mode', 'policy')
-        self._active_mode: str = self.get_parameter('default_mode').value
+        self.declare_parameter("default_mode", "policy")
+        self._active_mode: str = self.get_parameter("default_mode").value
 
         # ── Inputs ────────────────────────────────────────────────────────────
+        self.create_subscription(JointState, "/arm/joint_commands", self._policy_cb, 10)
         self.create_subscription(
-            JointState, '/arm/joint_commands',    self._policy_cb, 10)
-        self.create_subscription(
-            JointState, '/arm/joint_commands/rl', self._rl_arm_cb, 10)
-        self.create_subscription(
-            String, '/arm/cmd_mode',              self._mode_cb,   10)
+            JointState, "/arm/joint_commands/rl", self._rl_arm_cb, 10
+        )
+        self.create_subscription(String, "/arm/cmd_mode", self._mode_cb, 10)
 
         # ── Output ────────────────────────────────────────────────────────────
-        self._out_pub = self.create_publisher(
-            JointState, '/arm/joint_commands/out', 10)
+        self._out_pub = self.create_publisher(JointState, "/arm/joint_commands/out", 10)
         self._active_mode_pub = self.create_publisher(
-            String, '/arm/cmd_mode/active', 10)
+            String, "/arm/cmd_mode/active", 10
+        )
 
         self.create_timer(1.0, self._publish_active_mode)
 
         self.get_logger().info(
             f'ArmCmdMux ready. Default mode: "{self._active_mode}". '
-            f'Valid modes: {self.VALID_MODES}')
+            f"Valid modes: {self.VALID_MODES}"
+        )
 
     # ── Mode switch ───────────────────────────────────────────────────────────
 
@@ -82,22 +82,22 @@ class ArmCmdMux(Node):
         mode = msg.data.strip().lower()
         if mode not in self.VALID_MODES:
             self.get_logger().warn(
-                f'Unknown arm mode "{mode}" ignored. Valid: {self.VALID_MODES}')
+                f'Unknown arm mode "{mode}" ignored. Valid: {self.VALID_MODES}'
+            )
             return
         if mode != self._active_mode:
-            self.get_logger().info(
-                f'[ArmCmdMux] Mode: {self._active_mode} → {mode}')
+            self.get_logger().info(f"[ArmCmdMux] Mode: {self._active_mode} → {mode}")
             self._active_mode = mode
             self._publish_active_mode()
 
     # ── Source callbacks ──────────────────────────────────────────────────────
 
     def _policy_cb(self, msg: JointState) -> None:
-        if self._active_mode == 'policy':
+        if self._active_mode == "policy":
             self._out_pub.publish(msg)
 
     def _rl_arm_cb(self, msg: JointState) -> None:
-        if self._active_mode == 'rl_arm':
+        if self._active_mode == "rl_arm":
             self._out_pub.publish(msg)
 
     # ── Periodic feedback ─────────────────────────────────────────────────────
@@ -116,5 +116,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

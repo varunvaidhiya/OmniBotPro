@@ -52,10 +52,10 @@ except ImportError:
 # Default pretrained checkpoints for each registered model
 # ---------------------------------------------------------------------------
 _CHECKPOINTS = {
-    "smolvla":   "lerobot/smolvla_base",
-    "act":       "lerobot/act_base",
+    "smolvla": "lerobot/smolvla_base",
+    "act": "lerobot/act_base",
     "diffusion": "lerobot/diffusion_pusht",
-    "openvla":   "openvla/openvla-7b",
+    "openvla": "openvla/openvla-7b",
 }
 
 
@@ -63,13 +63,16 @@ _CHECKPOINTS = {
 # Observation factory — reads schema from the adapter itself
 # ---------------------------------------------------------------------------
 
+
 def make_obs(adapter, device: "torch.device") -> dict:
     """Build a synthetic observation dict matching the adapter's expected schema."""
     w, h = adapter.image_size
     obs = {}
     for key in adapter.image_keys:
         obs[key] = torch.rand(1, 3, h, w, dtype=torch.float32, device=device)
-    obs[adapter.state_key] = torch.rand(1, adapter.action_dim, dtype=torch.float32, device=device)
+    obs[adapter.state_key] = torch.rand(
+        1, adapter.action_dim, dtype=torch.float32, device=device
+    )
     if adapter.task_key:
         obs[adapter.task_key] = "pick up the object and place it"
     return obs
@@ -78,6 +81,7 @@ def make_obs(adapter, device: "torch.device") -> dict:
 # ---------------------------------------------------------------------------
 # Benchmark helpers
 # ---------------------------------------------------------------------------
+
 
 def _load_adapter(model_type: str):
     checkpoint = _CHECKPOINTS.get(model_type)
@@ -138,8 +142,12 @@ def _bench_model(model_type: str) -> dict:
     with torch.no_grad():
         action = adapter.select_action(obs)
     assert isinstance(action, np.ndarray), "select_action must return np.ndarray"
-    assert action.shape == (adapter.action_dim,), f"Expected ({adapter.action_dim},), got {action.shape}"
-    print(f"  [{model_type}] action_shape: {action.shape}  (expected ({adapter.action_dim},))")
+    assert action.shape == (adapter.action_dim,), (
+        f"Expected ({adapter.action_dim},), got {action.shape}"
+    )
+    print(
+        f"  [{model_type}] action_shape: {action.shape}  (expected ({adapter.action_dim},))"
+    )
 
     return results
 
@@ -147,6 +155,7 @@ def _bench_model(model_type: str) -> dict:
 # ---------------------------------------------------------------------------
 # Pytest test functions (one per model via parametrize)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.parametrize("model_type", list_models() if REGISTRY_AVAILABLE else [])
 def test_bench_policy_load(model_type):
@@ -185,12 +194,13 @@ def test_bench_policy_action_shape(model_type):
 # Standalone runner
 # ---------------------------------------------------------------------------
 
+
 def _parse():
     p = argparse.ArgumentParser()
-    p.add_argument("--model", default="smolvla",
-                   help="Model type to benchmark.")
-    p.add_argument("--all", action="store_true",
-                   help="Benchmark all registered models.")
+    p.add_argument("--model", default="smolvla", help="Model type to benchmark.")
+    p.add_argument(
+        "--all", action="store_true", help="Benchmark all registered models."
+    )
     return p.parse_args()
 
 
@@ -204,9 +214,9 @@ if __name__ == "__main__":
 
     all_results = {}
     for m in models:
-        print(f"\n{'─'*40}")
+        print(f"\n{'─' * 40}")
         print(f" Model: {m}")
-        print(f"{'─'*40}")
+        print(f"{'─' * 40}")
         try:
             all_results[m] = _bench_model(m)
         except Exception as exc:

@@ -176,6 +176,7 @@ class BevStitcherNode(Node):
 
         if self._diag_enabled:
             from diagnostic_msgs.msg import DiagnosticArray, DiagnosticStatus, KeyValue
+
             self._DiagnosticArray = DiagnosticArray
             self._DiagnosticStatus = DiagnosticStatus
             self._KeyValue = KeyValue
@@ -281,7 +282,6 @@ class BevStitcherNode(Node):
         except Exception as exc:
             self.get_logger().error(f"Publish error: {exc}", throttle_duration_sec=5.0)
 
-
     # ── Diagnostics helper ───────────────────────────────────────────────────
 
     def _publish_diagnostics(self) -> None:
@@ -300,8 +300,10 @@ class BevStitcherNode(Node):
             n = len(s)
             p95 = s[max(0, int(0.95 * n) - 1)]
             st.level = (
-                self._DiagnosticStatus.ERROR if p95 > 50.0
-                else self._DiagnosticStatus.WARN if p95 > 33.0
+                self._DiagnosticStatus.ERROR
+                if p95 > 50.0
+                else self._DiagnosticStatus.WARN
+                if p95 > 33.0
                 else self._DiagnosticStatus.OK
             )
             st.message = f"p95={p95:.2f}ms"
@@ -319,7 +321,9 @@ class BevStitcherNode(Node):
 
         statuses.append(_make("bev_stitcher/total_stitch_ms", self._t_stitch_total))
         for name in self._names:
-            statuses.append(_make(f"bev_stitcher/warp_{name}_ms", self._t_per_cam[name]))
+            statuses.append(
+                _make(f"bev_stitcher/warp_{name}_ms", self._t_per_cam[name])
+            )
         msg.status = statuses
         self._diag_pub.publish(msg)
 

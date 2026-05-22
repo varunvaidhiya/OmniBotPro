@@ -44,7 +44,7 @@ except ImportError:
     TORCH_AVAILABLE = False
     DEVICE = None
 
-from benchmarks.conftest import TimingHarness, check_slo, print_stats, write_results
+from benchmarks.conftest import TimingHarness, print_stats, write_results
 
 # ---------------------------------------------------------------------------
 # Production constants
@@ -74,8 +74,7 @@ def _tiled_homographies() -> list[np.ndarray]:
 HOMOGRAPHIES = _tiled_homographies()
 _src_ones = np.ones((SRC_H, SRC_W), dtype=np.float32)
 BLEND_WEIGHTS = [
-    cv2.warpPerspective(_src_ones, H, (CANVAS_SIZE, CANVAS_SIZE))
-    for H in HOMOGRAPHIES
+    cv2.warpPerspective(_src_ones, H, (CANVAS_SIZE, CANVAS_SIZE)) for H in HOMOGRAPHIES
 ]
 CAMERA_IMGS = [
     np.random.randint(0, 256, (SRC_H, SRC_W, 3), dtype=np.uint8)
@@ -94,7 +93,9 @@ def bev_stitch(camera_imgs: list[np.ndarray]) -> np.ndarray:
     canvas = np.zeros((CANVAS_SIZE, CANVAS_SIZE, 3), dtype=np.float32)
     w_sum = np.zeros((CANVAS_SIZE, CANVAS_SIZE, 1), dtype=np.float32)
     for img, H, bw in zip(camera_imgs, HOMOGRAPHIES, BLEND_WEIGHTS):
-        warped = cv2.warpPerspective(img.astype(np.float32), H, (CANVAS_SIZE, CANVAS_SIZE))
+        warped = cv2.warpPerspective(
+            img.astype(np.float32), H, (CANVAS_SIZE, CANVAS_SIZE)
+        )
         w = bw[:, :, np.newaxis]
         canvas += warped * w
         w_sum += w
@@ -257,7 +258,9 @@ def test_bench_optimized_pipeline():
         canvas = np.zeros((CANVAS_SIZE, CANVAS_SIZE, 3), dtype=np.float32)
         w_sum = np.zeros((CANVAS_SIZE, CANVAS_SIZE, 1), dtype=np.float32)
         for img, H, bw in zip(CAMERA_IMGS, HOMOGRAPHIES, BLEND_WEIGHTS):
-            warped = cv2.warpPerspective(img.astype(np.float32), H, (CANVAS_SIZE, CANVAS_SIZE))
+            warped = cv2.warpPerspective(
+                img.astype(np.float32), H, (CANVAS_SIZE, CANVAS_SIZE)
+            )
             w = bw[:, :, np.newaxis]
             canvas += warped * w
             w_sum += w
@@ -284,7 +287,9 @@ def test_bench_optimized_pipeline():
         return wrist_t, bev_t
 
     stats_opt = h.run(_opt_pipeline, n=100, warmup=5)
-    stats_orig = h.run(test_bench_full_pipeline_no_inference, n=1, warmup=0)  # single run
+    stats_orig = h.run(
+        test_bench_full_pipeline_no_inference, n=1, warmup=0
+    )  # single run
 
     print_stats("full_pipeline_optimized_ms (pre-resize BEV at stitcher)", stats_opt)
 

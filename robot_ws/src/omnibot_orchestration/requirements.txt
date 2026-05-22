@@ -11,3 +11,7 @@ requests>=2.31.0
 pillow>=10.0.0
 numpy<2.0
 pyyaml>=6.0
+# OpenTelemetry — distributed tracing to Grafana Tempo
+opentelemetry-sdk>=1.24.0
+opentelemetry-exporter-otlp-proto-grpc>=1.24.0
+opentelemetry-instrumentation-anthropic>=0.28.0

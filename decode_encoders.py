@@ -11,15 +11,21 @@ Usage:
     python3 decode_encoders.py /dev/ttyUSB1
 """
 
-import sys, time, struct, serial, statistics
+import sys
+import time
+import struct
+import serial
+import statistics
 
-PORT  = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyUSB0"
-BAUD  = 115200
+PORT = sys.argv[1] if len(sys.argv) > 1 else "/dev/ttyUSB0"
+BAUD = 115200
 
 HEAD_TX, DEVICE_ID, HEAD_RX = 0xFF, 0xFC, 0xFB
 
+
 def _cksum(pkt):
     return (sum(pkt) + (257 - DEVICE_ID)) & 0xFF
+
 
 def build(func, payload):
     pkt = [HEAD_TX, DEVICE_ID, 0, func] + list(payload)
@@ -27,16 +33,21 @@ def build(func, payload):
     pkt.append(_cksum(pkt))
     return bytes(pkt)
 
+
 def send(ser, pkt):
     ser.write(pkt)
     time.sleep(0.005)
 
-PKT_STOP       = build(0x12, struct.pack('<bhhh', 1, 0, 0, 0))
-PKT_CAR_TYPE   = build(0x15, struct.pack('<b', 1))
+
+PKT_STOP = build(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
+PKT_CAR_TYPE = build(0x15, struct.pack("<b", 1))
+
 
 def motion(vx, vy, vz):
-    return build(0x12, struct.pack('<bhhh', 1,
-                                   int(vx*1000), int(vy*1000), int(vz*1000)))
+    return build(
+        0x12, struct.pack("<bhhh", 1, int(vx * 1000), int(vy * 1000), int(vz * 1000))
+    )
+
 
 # ── read 0x0E packets from serial for `duration` seconds ────────────────────
 def collect_0x0E(ser, duration):
@@ -48,14 +59,14 @@ def collect_0x0E(ser, duration):
         buf += chunk
         i = 0
         while i < len(buf) - 3:
-            if buf[i] == HEAD_TX and buf[i+1] == HEAD_RX:
-                ln  = buf[i+2]
+            if buf[i] == HEAD_TX and buf[i + 1] == HEAD_RX:
+                ln = buf[i + 2]
                 tot = 2 + ln
                 if i + tot > len(buf):
                     break
-                pkt     = buf[i:i+tot]
+                pkt = buf[i : i + tot]
                 pkt_type = pkt[3]
-                payload  = pkt[4:-1]
+                payload = pkt[4:-1]
                 if pkt_type == 0x0E and len(payload) >= 8:
                     pkts.append(payload)
                 i += tot
@@ -77,10 +88,13 @@ def stats(pkts, byte_pairs):
         vals = []
         for p in pkts:
             if len(p) >= offset + 2:
-                v = struct.unpack_from('<h', p, offset)[0]
+                v = struct.unpack_from("<h", p, offset)[0]
                 vals.append(v)
         if vals:
-            result[label] = (statistics.mean(vals), statistics.stdev(vals) if len(vals)>1 else 0)
+            result[label] = (
+                statistics.mean(vals),
+                statistics.stdev(vals) if len(vals) > 1 else 0,
+            )
     return result
 
 
@@ -91,9 +105,9 @@ def print_stats(label, s):
 
 
 # ── main ─────────────────────────────────────────────────────────────────────
-print(f"\n{'='*60}")
+print(f"\n{'=' * 60}")
 print(f" Yahboom 0x0E Encoder Decoder  —  {PORT}")
-print(f"{'='*60}")
+print(f"{'=' * 60}")
 
 ser = serial.Serial(port=PORT, baudrate=BAUD, timeout=0.1)
 
@@ -116,36 +130,39 @@ ser.reset_input_buffer()
 
 # Fields: label → byte offset in payload (each field = int16 LE)
 # 18-byte payload → 9 possible int16 fields at offsets 0,2,4,6,8,10,12,14,16
-FIELDS = [(f"b{i*2:02d}", i*2) for i in range(9)]
+FIELDS = [(f"b{i * 2:02d}", i * 2) for i in range(9)]
 
 # ── Baseline (stationary) ─────────────────────────────────────────────────────
 print("\n[2] Recording baseline (stationary, 3 s) ...")
 pkts_rest = collect_0x0E(ser, 3.0)
-s_rest    = stats(pkts_rest, FIELDS)
+s_rest = stats(pkts_rest, FIELDS)
 print_stats(f"REST  ({len(pkts_rest)} pkts)", s_rest)
-print("\n  Raw sample:", " ".join(f"{b:02X}" for b in pkts_rest[0]) if pkts_rest else "none")
+print(
+    "\n  Raw sample:",
+    " ".join(f"{b:02X}" for b in pkts_rest[0]) if pkts_rest else "none",
+)
 
 
 def run_motion_test(ser, label, vx, vy, vz, duration=1.5, settle=1.5):
     print(f"\n[*] {label} (vx={vx} vy={vy} vz={vz}) for {duration}s ...")
     ser.reset_input_buffer()
     t_end = time.time() + duration
-    pkts  = []
+    pkts = []
     while time.time() < t_end:
         send(ser, motion(vx, vy, vz))
         time.sleep(0.05)
         chunk = ser.read(ser.in_waiting or 0)
-        buf   = chunk
+        buf = chunk
         i = 0
         while i < len(buf) - 3:
-            if buf[i] == HEAD_TX and buf[i+1] == HEAD_RX:
-                ln  = buf[i+2]
+            if buf[i] == HEAD_TX and buf[i + 1] == HEAD_RX:
+                ln = buf[i + 2]
                 tot = 2 + ln
                 if i + tot > len(buf):
                     break
-                pkt      = buf[i:i+tot]
+                pkt = buf[i : i + tot]
                 pkt_type = pkt[3]
-                payload  = pkt[4:-1]
+                payload = pkt[4:-1]
                 if pkt_type == 0x0E and len(payload) >= 8:
                     pkts.append(payload)
                 i += tot
@@ -166,27 +183,29 @@ def run_motion_test(ser, label, vx, vy, vz, duration=1.5, settle=1.5):
 
 
 # ── Motion tests ──────────────────────────────────────────────────────────────
-s_fwd,  p_fwd  = run_motion_test(ser, "FORWARD  vx=+0.10",  0.10, 0.00, 0.00)
+s_fwd, p_fwd = run_motion_test(ser, "FORWARD  vx=+0.10", 0.10, 0.00, 0.00)
 s_back, p_back = run_motion_test(ser, "BACKWARD vx=-0.10", -0.10, 0.00, 0.00)
-s_rotL, p_rotL = run_motion_test(ser, "ROTATE_L vz=+0.40",  0.00, 0.00, 0.40)
-s_rotR, p_rotR = run_motion_test(ser, "ROTATE_R vz=-0.40",  0.00, 0.00,-0.40)
-s_strL, p_strL = run_motion_test(ser, "STRAFE_L vy=+0.10",  0.00, 0.10, 0.00)
+s_rotL, p_rotL = run_motion_test(ser, "ROTATE_L vz=+0.40", 0.00, 0.00, 0.40)
+s_rotR, p_rotR = run_motion_test(ser, "ROTATE_R vz=-0.40", 0.00, 0.00, -0.40)
+s_strL, p_strL = run_motion_test(ser, "STRAFE_L vy=+0.10", 0.00, 0.10, 0.00)
 
 ser.close()
 
 # ── Analysis ──────────────────────────────────────────────────────────────────
-print(f"\n{'='*60}")
+print(f"\n{'=' * 60}")
 print(" ANALYSIS — which bytes respond to which motion")
-print(f"{'='*60}")
-print(f"  {'Field':6s}  {'Rest':>8s}  {'Fwd':>8s}  {'Back':>8s}  {'RotL':>8s}  {'StrafeL':>8s}  Notes")
-print("  " + "-"*75)
+print(f"{'=' * 60}")
+print(
+    f"  {'Field':6s}  {'Rest':>8s}  {'Fwd':>8s}  {'Back':>8s}  {'RotL':>8s}  {'StrafeL':>8s}  Notes"
+)
+print("  " + "-" * 75)
 
 for field, offset in FIELDS:
-    r  = s_rest .get(field, (0,0))[0]
-    f  = s_fwd  .get(field, (0,0))[0]
-    b  = s_back .get(field, (0,0))[0]
-    rl = s_rotL .get(field, (0,0))[0]
-    sl = s_strL .get(field, (0,0))[0]
+    r = s_rest.get(field, (0, 0))[0]
+    f = s_fwd.get(field, (0, 0))[0]
+    b = s_back.get(field, (0, 0))[0]
+    rl = s_rotL.get(field, (0, 0))[0]
+    sl = s_strL.get(field, (0, 0))[0]
 
     fwd_delta = abs(f - r)
     rot_delta = abs(rl - r)
@@ -210,7 +229,9 @@ for field, offset in FIELDS:
     if abs(f) > 20 and abs(b) > 20 and f * b < 0:
         notes.append("sign-flips-on-reverse ✓")
 
-    print(f"  {field:6s}  {r:8.1f}  {f:8.1f}  {b:8.1f}  {rl:8.1f}  {sl:8.1f}  {', '.join(notes)}")
+    print(
+        f"  {field:6s}  {r:8.1f}  {f:8.1f}  {b:8.1f}  {rl:8.1f}  {sl:8.1f}  {', '.join(notes)}"
+    )
 
 print()
 print("Fields where forward+backward flip sign AND magnitude is consistent")

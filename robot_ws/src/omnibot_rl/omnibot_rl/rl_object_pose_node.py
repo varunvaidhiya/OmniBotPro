@@ -46,7 +46,6 @@ Notes
     known pose (held for up to 0.5 s, then zeroed).
 """
 
-import math
 import time
 
 import numpy as np
@@ -59,12 +58,14 @@ from std_msgs.msg import Bool
 try:
     import cv2
     import cv2.aruco as aruco
+
     CV2_AVAILABLE = True
 except ImportError:
     CV2_AVAILABLE = False
 
 try:
     from cv_bridge import CvBridge
+
     CV_BRIDGE_AVAILABLE = True
 except ImportError:
     CV_BRIDGE_AVAILABLE = False
@@ -72,6 +73,7 @@ except ImportError:
 try:
     from tf2_ros import Buffer, TransformListener
     import tf2_geometry_msgs  # noqa: F401 — needed for do_transform_pose
+
     TF2_AVAILABLE = True
 except ImportError:
     TF2_AVAILABLE = False
@@ -84,53 +86,55 @@ class RLObjectPoseNode(Node):
     """
 
     def __init__(self):
-        super().__init__('rl_object_pose_node')
+        super().__init__("rl_object_pose_node")
 
         # ── Parameters ───────────────────────────────────────────────────────
-        self.declare_parameter('aruco_dict_id',  4)      # DICT_4X4_50
-        self.declare_parameter('marker_id',      0)
-        self.declare_parameter('marker_size_m',  0.05)   # 50 mm
-        self.declare_parameter('camera_frame',   'wrist_camera_link')
-        self.declare_parameter('base_frame',     'base_link')
-        self.declare_parameter('fx',             250.0)  # fallback intrinsics
-        self.declare_parameter('fy',             250.0)
-        self.declare_parameter('cx',             160.0)
-        self.declare_parameter('cy',             120.0)
-        self.declare_parameter('depth_scale_mm', 1.0)
-        self.declare_parameter('publish_hz',     20.0)
-        self.declare_parameter('pose_hold_s',    0.5)
+        self.declare_parameter("aruco_dict_id", 4)  # DICT_4X4_50
+        self.declare_parameter("marker_id", 0)
+        self.declare_parameter("marker_size_m", 0.05)  # 50 mm
+        self.declare_parameter("camera_frame", "wrist_camera_link")
+        self.declare_parameter("base_frame", "base_link")
+        self.declare_parameter("fx", 250.0)  # fallback intrinsics
+        self.declare_parameter("fy", 250.0)
+        self.declare_parameter("cx", 160.0)
+        self.declare_parameter("cy", 120.0)
+        self.declare_parameter("depth_scale_mm", 1.0)
+        self.declare_parameter("publish_hz", 20.0)
+        self.declare_parameter("pose_hold_s", 0.5)
 
-        self._marker_id   = self.get_parameter('marker_id').value
-        self._marker_size = self.get_parameter('marker_size_m').value
-        self._cam_frame   = self.get_parameter('camera_frame').value
-        self._base_frame  = self.get_parameter('base_frame').value
-        self._depth_scale = self.get_parameter('depth_scale_mm').value
-        self._pose_hold   = self.get_parameter('pose_hold_s').value
-        hz                = self.get_parameter('publish_hz').value
+        self._marker_id = self.get_parameter("marker_id").value
+        self._marker_size = self.get_parameter("marker_size_m").value
+        self._cam_frame = self.get_parameter("camera_frame").value
+        self._base_frame = self.get_parameter("base_frame").value
+        self._depth_scale = self.get_parameter("depth_scale_mm").value
+        self._pose_hold = self.get_parameter("pose_hold_s").value
+        hz = self.get_parameter("publish_hz").value
 
         # Camera intrinsics (updated from CameraInfo if available)
-        self._fx = self.get_parameter('fx').value
-        self._fy = self.get_parameter('fy').value
-        self._cx = self.get_parameter('cx').value
-        self._cy = self.get_parameter('cy').value
+        self._fx = self.get_parameter("fx").value
+        self._fy = self.get_parameter("fy").value
+        self._cx = self.get_parameter("cx").value
+        self._cy = self.get_parameter("cy").value
 
         # ArUco setup
         self._aruco_detector = None
         if CV2_AVAILABLE:
-            dict_id = self.get_parameter('aruco_dict_id').value
+            dict_id = self.get_parameter("aruco_dict_id").value
             try:
                 aruco_dict = aruco.getPredefinedDictionary(dict_id)
                 aruco_params = aruco.DetectorParameters()
                 self._aruco_detector = aruco.ArucoDetector(aruco_dict, aruco_params)
                 self.get_logger().info(
-                    f'ArUco detector ready. dict_id={dict_id}, '
-                    f'marker_id={self._marker_id}, '
-                    f'marker_size={self._marker_size*100:.0f} cm')
+                    f"ArUco detector ready. dict_id={dict_id}, "
+                    f"marker_id={self._marker_id}, "
+                    f"marker_size={self._marker_size * 100:.0f} cm"
+                )
             except Exception as exc:
-                self.get_logger().error(f'Failed to init ArUco detector: {exc}')
+                self.get_logger().error(f"Failed to init ArUco detector: {exc}")
         else:
             self.get_logger().warn(
-                'OpenCV not available. Install: pip install opencv-contrib-python')
+                "OpenCV not available. Install: pip install opencv-contrib-python"
+            )
 
         self._bridge = CvBridge() if CV_BRIDGE_AVAILABLE else None
 
@@ -148,18 +152,20 @@ class RLObjectPoseNode(Node):
         self._depth_img: np.ndarray | None = None
 
         # ── Subscriptions ────────────────────────────────────────────────────
-        self.create_subscription(Image,      '/camera/wrist/image_raw',   self._rgb_cb,   10)
-        self.create_subscription(Image,      '/camera/depth/image_raw',   self._depth_cb, 10)
-        self.create_subscription(CameraInfo, '/camera/wrist/camera_info', self._info_cb,  10)
+        self.create_subscription(Image, "/camera/wrist/image_raw", self._rgb_cb, 10)
+        self.create_subscription(Image, "/camera/depth/image_raw", self._depth_cb, 10)
+        self.create_subscription(
+            CameraInfo, "/camera/wrist/camera_info", self._info_cb, 10
+        )
 
         # ── Publishers ───────────────────────────────────────────────────────
-        self._pose_pub     = self.create_publisher(PoseStamped, '/rl_arm/target_pose',     10)
-        self._detected_pub = self.create_publisher(Bool,        '/rl_arm/target_detected', 10)
+        self._pose_pub = self.create_publisher(PoseStamped, "/rl_arm/target_pose", 10)
+        self._detected_pub = self.create_publisher(Bool, "/rl_arm/target_detected", 10)
 
         # ── Timer ────────────────────────────────────────────────────────────
         self.create_timer(1.0 / hz, self._detect_and_publish)
 
-        self.get_logger().info('RLObjectPoseNode ready. Publishes /rl_arm/target_pose.')
+        self.get_logger().info("RLObjectPoseNode ready. Publishes /rl_arm/target_pose.")
 
     # ── Callbacks ────────────────────────────────────────────────────────────
 
@@ -175,7 +181,7 @@ class RLObjectPoseNode(Node):
         if self._bridge is None:
             return
         try:
-            self._rgb_img = self._bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            self._rgb_img = self._bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         except Exception:
             pass
 
@@ -183,7 +189,9 @@ class RLObjectPoseNode(Node):
         if self._bridge is None:
             return
         try:
-            self._depth_img = self._bridge.imgmsg_to_cv2(msg, desired_encoding='passthrough')
+            self._depth_img = self._bridge.imgmsg_to_cv2(
+                msg, desired_encoding="passthrough"
+            )
         except Exception:
             pass
 
@@ -193,8 +201,11 @@ class RLObjectPoseNode(Node):
         detected = False
         pose_cam: np.ndarray | None = None  # 3D position in camera frame
 
-        if (CV2_AVAILABLE and self._aruco_detector is not None
-                and self._rgb_img is not None):
+        if (
+            CV2_AVAILABLE
+            and self._aruco_detector is not None
+            and self._rgb_img is not None
+        ):
             pose_cam = self._detect_aruco(self._rgb_img)
             if pose_cam is not None:
                 detected = True
@@ -237,24 +248,34 @@ class RLObjectPoseNode(Node):
                 continue
 
             # Estimate pose via solvePnP
-            obj_pts = np.array([
-                [-self._marker_size / 2,  self._marker_size / 2, 0],
-                [ self._marker_size / 2,  self._marker_size / 2, 0],
-                [ self._marker_size / 2, -self._marker_size / 2, 0],
-                [-self._marker_size / 2, -self._marker_size / 2, 0],
-            ], dtype=np.float32)
+            obj_pts = np.array(
+                [
+                    [-self._marker_size / 2, self._marker_size / 2, 0],
+                    [self._marker_size / 2, self._marker_size / 2, 0],
+                    [self._marker_size / 2, -self._marker_size / 2, 0],
+                    [-self._marker_size / 2, -self._marker_size / 2, 0],
+                ],
+                dtype=np.float32,
+            )
 
-            cam_matrix = np.array([
-                [self._fx, 0,        self._cx],
-                [0,        self._fy, self._cy],
-                [0,        0,        1       ],
-            ], dtype=np.float32)
+            cam_matrix = np.array(
+                [
+                    [self._fx, 0, self._cx],
+                    [0, self._fy, self._cy],
+                    [0, 0, 1],
+                ],
+                dtype=np.float32,
+            )
             dist_coeffs = np.zeros(5, dtype=np.float32)
 
             img_pts = corners[i].reshape(4, 2).astype(np.float32)
             ok, rvec, tvec = cv2.solvePnP(
-                obj_pts, img_pts, cam_matrix, dist_coeffs,
-                flags=cv2.SOLVEPNP_IPPE_SQUARE)
+                obj_pts,
+                img_pts,
+                cam_matrix,
+                dist_coeffs,
+                flags=cv2.SOLVEPNP_IPPE_SQUARE,
+            )
 
             if not ok:
                 return None
@@ -269,7 +290,8 @@ class RLObjectPoseNode(Node):
         return None
 
     def _refine_z_from_depth(
-            self, img_pts: np.ndarray, pos_cam: np.ndarray) -> np.ndarray:
+        self, img_pts: np.ndarray, pos_cam: np.ndarray
+    ) -> np.ndarray:
         """Replace Z estimate from solvePnP with depth image sample at marker centre."""
         cx = float(np.mean(img_pts[:, 0]))
         cy = float(np.mean(img_pts[:, 1]))
@@ -303,15 +325,17 @@ class RLObjectPoseNode(Node):
                 self._base_frame,
                 self._cam_frame,
                 rclpy.time.Time(),
-                timeout=rclpy.duration.Duration(seconds=0.1))
+                timeout=rclpy.duration.Duration(seconds=0.1),
+            )
             import tf2_geometry_msgs
-            pose_base = tf2_geometry_msgs.do_transform_pose_stamped(
-                pose_cam, transform)
+
+            pose_base = tf2_geometry_msgs.do_transform_pose_stamped(pose_cam, transform)
             return pose_base
         except Exception as exc:
             self.get_logger().warn(
-                f'TF lookup {self._cam_frame}→{self._base_frame} failed: {exc}',
-                throttle_duration_sec=5.0)
+                f"TF lookup {self._cam_frame}→{self._base_frame} failed: {exc}",
+                throttle_duration_sec=5.0,
+            )
             return None
 
 
@@ -323,5 +347,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

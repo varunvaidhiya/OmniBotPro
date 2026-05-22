@@ -34,7 +34,6 @@ skip_if_no_ros()
 
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image, JointState
 from std_msgs.msg import String
@@ -91,7 +90,9 @@ class RoundTripNode(Node):
     Divide by 2 for approximate one-way latency.
     """
 
-    def __init__(self, ping_topic: str = "/bench/ping", pong_topic: str = "/bench/pong"):
+    def __init__(
+        self, ping_topic: str = "/bench/ping", pong_topic: str = "/bench/pong"
+    ):
         super().__init__("round_trip_timer")
         self._send_time: Optional[float] = None
         self.round_trip_ms: list[float] = []
@@ -116,7 +117,9 @@ class RelayNode(Node):
     def __init__(self):
         super().__init__("bench_relay")
         self._pub = self.create_publisher(String, "/bench/pong", 10)
-        self.create_subscription(String, "/bench/ping", lambda m: self._pub.publish(m), 10)
+        self.create_subscription(
+            String, "/bench/ping", lambda m: self._pub.publish(m), 10
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -160,7 +163,9 @@ def test_bench_odometry_stamp_latency():
     probe.destroy_node()
 
     if len(probe.latencies_ms) < 5:
-        pytest.skip("Not enough /odom messages received — is yahboom_controller_node running?")
+        pytest.skip(
+            "Not enough /odom messages received — is yahboom_controller_node running?"
+        )
 
     samples = probe.latencies_ms
     p95 = _rolling_p95(samples)
@@ -195,7 +200,9 @@ def test_bench_joint_state_stamp_latency():
     probe.destroy_node()
 
     if len(probe.latencies_ms) < 5:
-        pytest.skip("Not enough /arm/joint_states messages — is arm_driver_node running?")
+        pytest.skip(
+            "Not enough /arm/joint_states messages — is arm_driver_node running?"
+        )
 
     samples = probe.latencies_ms
     p95 = _rolling_p95(samples)

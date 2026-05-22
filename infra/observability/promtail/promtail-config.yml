@@ -1,0 +1,57 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/promtail_positions.yaml
+
+clients:
+  - url: ${LOKI_URL:-http://localhost:3100}/loki/api/v1/push
+
+scrape_configs:
+
+  # ── ROS 2 log files from ~/.ros/log/ ──────────────────────────────────────
+  # ROS 2 Jazzy rotates logs under ~/.ros/log/<session-id>/*.log
+  - job_name: ros2_logs
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: ros2
+          machine: ${MACHINE_LABEL:-unknown}
+          __path__: /var/log/ros/**/*.log
+
+    pipeline_stages:
+      # Parse the standard ROS 2 console log format:
+      # [1716300000.123] [node_name]: [INFO] message text
+      - regex:
+          expression: '^\[(?P<ros_time>[0-9.]+)\] \[(?P<node>[^\]]+)\]: \[(?P<severity>[A-Z]+)\] (?P<message>.+)$'
+
+      - labels:
+          node:
+          severity:
+
+      - timestamp:
+          source: ros_time
+          format: Unix
+
+      # Drop DEBUG lines in production to reduce log volume.
+      # Remove this stage if you want full verbosity.
+      - drop:
+          expression: '.*\[DEBUG\].*'
+          drop_counter_reason: debug_filtered
+
+  # ── ROS 2 launch output (stdout captured by systemd or screen) ───────────
+  - job_name: ros2_launch
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: ros2_launch
+          machine: ${MACHINE_LABEL:-unknown}
+          __path__: /var/log/ros_tmp/*.log
+
+    pipeline_stages:
+      - regex:
+          expression: '^\[(?P<severity>INFO|WARN|ERROR|FATAL)\] \[(?P<timestamp>[0-9.]+)\] \[(?P<node>[^\]]+)\]: (?P<message>.+)$'
+      - labels:
+          node:
+          severity:

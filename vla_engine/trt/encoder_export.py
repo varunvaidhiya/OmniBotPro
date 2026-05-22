@@ -28,7 +28,6 @@ import os
 from pathlib import Path
 from typing import Optional
 
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -139,7 +138,10 @@ def export_vision_encoder(
     dummy_input = torch.zeros(1, 3, image_h, image_w, device=device)
 
     logger.info(
-        "Exporting vision encoder to ONNX: %s  (input %dx%d)", output_path, image_h, image_w
+        "Exporting vision encoder to ONNX: %s  (input %dx%d)",
+        output_path,
+        image_h,
+        image_w,
     )
 
     with torch.no_grad():
@@ -205,9 +207,7 @@ def build_trt_engine(
             raise RuntimeError("ONNX parse failed:\n" + "\n".join(errors))
 
     config = builder.create_builder_config()
-    config.set_memory_pool_limit(
-        trt.MemoryPoolType.WORKSPACE, workspace_gb * (1 << 30)
-    )
+    config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, workspace_gb * (1 << 30))
 
     if precision == "fp16":
         if not builder.platform_has_fast_fp16:
@@ -235,7 +235,10 @@ def build_trt_engine(
     profile.set_shape(input_name, min_shape, opt_shape, max_shape)
     config.add_optimization_profile(profile)
 
-    logger.info("Building TRT engine (precision=%s) — this may take several minutes …", precision)
+    logger.info(
+        "Building TRT engine (precision=%s) — this may take several minutes …",
+        precision,
+    )
     serialized = builder.build_serialized_network(network, config)
     if serialized is None:
         raise RuntimeError("TRT engine build failed. Check ONNX model and GPU support.")

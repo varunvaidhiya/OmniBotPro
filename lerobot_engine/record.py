@@ -69,7 +69,7 @@ ARM_JOINT_NAMES = [
 STATE_NAMES = ARM_JOINT_NAMES + ["base_vx", "base_vy", "base_vz"]
 ACTION_NAMES = STATE_NAMES
 IMAGE_W, IMAGE_H = 320, 240
-MAX_LINEAR = 0.2   # m/s
+MAX_LINEAR = 0.2  # m/s
 MAX_ANGULAR = 1.0  # rad/s
 
 
@@ -80,17 +80,30 @@ MAX_ANGULAR = 1.0  # rad/s
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Standalone dataset recording.")
-    parser.add_argument("--output-dir", type=str,
-                        default="~/datasets/mobile_manipulation")
+    parser.add_argument(
+        "--output-dir", type=str, default="~/datasets/mobile_manipulation"
+    )
     parser.add_argument("--repo-id", type=str, default="local/mobile_manipulation")
     parser.add_argument("--task", type=str, default="mobile manipulation task")
     parser.add_argument("--record-hz", type=float, default=30.0)
-    parser.add_argument("--episode-timeout", type=float, default=60.0,
-                        help="Auto-save after this many seconds.")
-    parser.add_argument("--wrist-camera", type=int, default=0,
-                        help="OpenCV camera index for the wrist camera.")
-    parser.add_argument("--bev-camera", type=int, default=-1,
-                        help="OpenCV camera index for BEV camera. -1 = dummy frame.")
+    parser.add_argument(
+        "--episode-timeout",
+        type=float,
+        default=60.0,
+        help="Auto-save after this many seconds.",
+    )
+    parser.add_argument(
+        "--wrist-camera",
+        type=int,
+        default=0,
+        help="OpenCV camera index for the wrist camera.",
+    )
+    parser.add_argument(
+        "--bev-camera",
+        type=int,
+        default=-1,
+        help="OpenCV camera index for BEV camera. -1 = dummy frame.",
+    )
     return parser.parse_args()
 
 
@@ -118,7 +131,7 @@ def read_gamepad(joy) -> tuple[np.ndarray, bool, bool]:
     vx = float(joy.get_axis(1)) * MAX_LINEAR
     vy = float(joy.get_axis(0)) * MAX_LINEAR
     vz = float(joy.get_axis(3)) * MAX_ANGULAR
-    record = bool(joy.get_button(5))   # RB
+    record = bool(joy.get_button(5))  # RB
     discard = bool(joy.get_button(4))  # LB
     return np.array([vx, vy, vz], dtype=np.float32), record, discard
 
@@ -238,9 +251,13 @@ def main():
     bev_cap = open_camera(args.bev_camera)
 
     if wrist_cap is None:
-        print(f"[WARNING] Wrist camera {args.wrist_camera} not available — using dummy frames.")
+        print(
+            f"[WARNING] Wrist camera {args.wrist_camera} not available — using dummy frames."
+        )
     if bev_cap is None and args.bev_camera >= 0:
-        print(f"[WARNING] BEV camera {args.bev_camera} not available — using dummy frames.")
+        print(
+            f"[WARNING] BEV camera {args.bev_camera} not available — using dummy frames."
+        )
 
     print(f"\nRecording to: {output_dir}")
     print(f"Task: {args.task}")
@@ -299,8 +316,13 @@ def main():
                     print(f"  Saving {len(buffer)} frames...")
                     try:
                         if LEROBOT_AVAILABLE:
-                            save_episode_lerobot(buffer, output_dir, args.repo_id,
-                                                 args.record_hz, args.task)
+                            save_episode_lerobot(
+                                buffer,
+                                output_dir,
+                                args.repo_id,
+                                args.record_hz,
+                                args.task,
+                            )
                         else:
                             save_episode_numpy(buffer, output_dir, episode_idx)
                         print(f"  Episode {episode_idx} saved.")
@@ -320,8 +342,9 @@ def main():
                 recording = False
                 try:
                     if LEROBOT_AVAILABLE:
-                        save_episode_lerobot(buffer, output_dir, args.repo_id,
-                                             args.record_hz, args.task)
+                        save_episode_lerobot(
+                            buffer, output_dir, args.repo_id, args.record_hz, args.task
+                        )
                     else:
                         save_episode_numpy(buffer, output_dir, episode_idx)
                     episode_idx += 1
@@ -337,19 +360,28 @@ def main():
             action = state.copy()
 
             if recording:
-                buffer.append({
-                    "state": state.copy(),
-                    "action": action.copy(),
-                    "wrist_image": wrist_img.copy(),
-                    "bev_image": bev_img.copy(),
-                    "timestamp": time.time(),
-                })
+                buffer.append(
+                    {
+                        "state": state.copy(),
+                        "action": action.copy(),
+                        "wrist_image": wrist_img.copy(),
+                        "bev_image": bev_img.copy(),
+                        "timestamp": time.time(),
+                    }
+                )
 
             # Display
             status = f"REC {len(buffer)}fr" if recording else f"IDLE ep={episode_idx}"
             display = cv2.resize(cv2.cvtColor(wrist_img, cv2.COLOR_RGB2BGR), (640, 480))
-            cv2.putText(display, status, (8, 24), cv2.FONT_HERSHEY_SIMPLEX, 0.7,
-                        (0, 0, 255) if recording else (0, 255, 0), 2)
+            cv2.putText(
+                display,
+                status,
+                (8, 24),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.7,
+                (0, 0, 255) if recording else (0, 255, 0),
+                2,
+            )
             cv2.imshow("Recording — OmniBot", display)
 
             elapsed = time.perf_counter() - t0

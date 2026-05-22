@@ -21,7 +21,7 @@ parameters, or conventions.
 | `rl_engine/` | Isaac Lab RL training + ONNX export for sim-to-real |
 | `digital_twin/` | Contributor simulation environment (Gazebo, Isaac Sim, Foxglove) |
 | `android_app/` | Kotlin MVVM Android controller (ROSBridge WebSocket) |
-| `infra/` | Docker, DevContainers, CI/CD scripts |
+| `infra/` | Docker, DevContainers, CI/CD scripts, observability stack |
 
 Hardware platform:
 - **Robot brain**: Raspberry Pi 5 8 GB (runs all ROS 2 nodes except VLA)
@@ -917,6 +917,109 @@ vy    = (r/4)           × (−fl + fr + rl − rr)
 omega = r/(4×(lx+ly))  × (−fl + fr − rl + rr)
 ```
 where `lx = wheel_separation_length/2`, `ly = wheel_separation_width/2`.
+
+---
+
+## Observability Stack
+
+Grafana + Prometheus + Loki + Tempo — deployed on the GPU desktop via Docker Compose.
+
+### Quick start (GPU Desktop)
+
+```bash
+# Start the full observability stack
+docker compose --profile observability up -d
+
+# Grafana dashboards: http://localhost:3000  (admin / omnibot)
+# Prometheus:         http://localhost:9090
+# AlertManager:       http://localhost:9093
+```
+
+### Pi setup (one-time)
+
+```bash
+GPU_DESKTOP_IP=192.168.1.100 bash infra/observability/setup_pi_agents.sh
+# Then after building the workspace:
+sudo systemctl enable --now omnibot-metrics-bridge
+```
+
+### Enable metrics bridge in launch files
+
+```bash
+# Pi (alongside the robot stack)
+ros2 launch omnibot_bringup robot.launch.py use_metrics:=true
+
+# GPU Desktop (alongside VLA nodes — uses port 8889)
+ros2 launch omnibot_metrics metrics.launch.py machine:=gpu_desktop port:=8889
+```
+
+### Architecture
+
+| Component | Runs on | Port | Purpose |
+|---|---|---|---|
+| `ros2_prometheus_bridge` | Pi + GPU Desktop | 8888 / 8889 | Converts ROS 2 topics → Prometheus metrics |
+| `prometheus_fastapi_instrumentator` | GPU Desktop (VLA FastAPI) | 8000/metrics | HTTP request metrics for vla_serve |
+| `node_exporter` | Pi + GPU Desktop | 9100 | CPU, RAM, disk metrics |
+| `dcgm_exporter` | GPU Desktop | 9400 | GPU VRAM, utilization, temperature |
+| `promtail` | Pi + GPU Desktop | — | Ships `~/.ros/log/**` to Loki |
+| `Prometheus` | GPU Desktop | 9090 | Scrapes all exporters, 30-day retention |
+| `Loki` | GPU Desktop | 3100 | Log aggregation from all machines |
+| `Tempo` | GPU Desktop | 4317 (OTLP) | Distributed traces from LangGraph agent |
+| `Grafana` | GPU Desktop | 3000 | Dashboards + alerting UI |
+| `AlertManager` | GPU Desktop | 9093 | Alert routing (email/Slack) |
+
+### Metrics exposed by `ros2_prometheus_bridge`
+
+| Metric | Source |
+|---|---|
+| `omnibot_node_cycle_p50/p95/max_ms{node, machine}` | `/diagnostics` (all nodes) |
+| `omnibot_vla_inference_ms` | `/diagnostics` (vla_node) |
+| `omnibot_vla_preprocess_ms` | `/diagnostics` (vla_node) |
+| `omnibot_rl_inference_ms{policy}` | `/diagnostics` (rl_nav/arm nodes) |
+| `omnibot_robot_vx/vy/omega` | `/odom` |
+| `omnibot_arm_joint_pos_rad{joint}` | `/arm/joint_states` |
+| `omnibot_arm_joint_vel_rads{joint}` | `/arm/joint_states` |
+| `omnibot_missions_total{type}` | `/mission/command` |
+| `omnibot_missions_done_total{type, result}` | `/mission/status` |
+| `omnibot_estop_active` | `/emergency_stop` |
+| `omnibot_control_mode_info{mode}` | `/control_mode/active` |
+| `omnibot_ai_commands_total` | `/ai/command` |
+
+### Dashboards (auto-provisioned)
+
+| Dashboard UID | Title | Key panels |
+|---|---|---|
+| `omnibot-robot-health` | OmniBot — Robot Health | E-stop, control mode, driver cycle times, velocity, arm joints |
+| `omnibot-ai-performance` | OmniBot — AI Performance | VLA latency, mission success rate, LangGraph traces, agent logs |
+| `omnibot-system-resources` | OmniBot — System Resources | Pi CPU/RAM/disk, GPU VRAM/utilization/temperature |
+
+### Alert rules (`infra/observability/prometheus/alerts/omnibot_alerts.yml`)
+
+- `ControlLoopSlow` — driver P95 > 55 ms (warning)
+- `ControlLoopCritical` — driver P95 > 100 ms (critical)
+- `EmergencyStopActive` — `/emergency_stop` is true (critical, immediate)
+- `VLAInferenceSlow` — VLA > 2 s (warning)
+- `VLAInferenceCritical` — VLA > 5 s (critical)
+- `GPUVRAMCritical` — VRAM > 95% (critical)
+- `GPUVRAMHigh` — VRAM > 85% (warning)
+- `PiCPUHigh` / `PiCPUCritical` — Pi CPU > 85% / 95%
+- `PiDiskFull` — Pi root disk < 10% free
+- `MissionFailureRateHigh` — > 30% failure rate over 10 min
+- `MetricsBridgeDown` — bridge unreachable
+
+### Key files
+
+| File | Purpose |
+|---|---|
+| `infra/observability/docker-compose.observability.yml` | Standalone compose for observability services only |
+| `infra/observability/prometheus/prometheus.yml` | Scrape targets (Pi :8888, GPU :8889, VLA :8000, DCGM :9400) |
+| `infra/observability/prometheus/alerts/omnibot_alerts.yml` | Alert rules |
+| `infra/observability/grafana/dashboards/*.json` | Pre-built dashboards (auto-provisioned) |
+| `infra/observability/alertmanager/alertmanager.yml` | Alert routing — add email/Slack config here |
+| `infra/observability/setup_pi_agents.sh` | One-time Pi setup (node_exporter + promtail + metrics bridge) |
+| `robot_ws/src/omnibot_metrics/` | `ros2_prometheus_bridge` ROS 2 package |
+| `packages/vla_serve/vla_serve/inference/server.py` | Exposes `/metrics` via prometheus-fastapi-instrumentator |
+| `robot_ws/src/omnibot_orchestration/omnibot_orchestration/langchain_agent_node.py` | OTEL traces exported to Tempo via gRPC :4317 |
 
 ---
 

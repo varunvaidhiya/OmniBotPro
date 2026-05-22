@@ -47,10 +47,12 @@ _BASELINES_DIR = Path(__file__).parent / "baselines"
 
 def _machine_type() -> str:
     import os
+
     if os.environ.get("OMNIBOT_MACHINE"):
         return os.environ["OMNIBOT_MACHINE"].lower()
     try:
         import torch
+
         if torch.cuda.is_available():
             return "gpu"
     except ImportError:
@@ -133,9 +135,7 @@ def compare(
 
         # SLO check
         if p95 > slo_max:
-            failures.append(
-                f"  FAIL  {name}: p95={p95:.2f}ms > SLO max={slo_max}ms"
-            )
+            failures.append(f"  FAIL  {name}: p95={p95:.2f}ms > SLO max={slo_max}ms")
         elif p95 > slo_target:
             warnings.append(
                 f"  WARN  {name}: p95={p95:.2f}ms > SLO target={slo_target}ms "
@@ -151,12 +151,12 @@ def compare(
                 if change > threshold:
                     failures.append(
                         f"  REGR  {name}: p95={p95:.2f}ms vs baseline={b_p95:.2f}ms "
-                        f"(+{change*100:.0f}% > threshold {threshold*100:.0f}%)"
+                        f"(+{change * 100:.0f}% > threshold {threshold * 100:.0f}%)"
                     )
                 elif change < -0.10:
                     improvements.append(
                         f"  IMPR  {name}: p95={p95:.2f}ms vs baseline={b_p95:.2f}ms "
-                        f"({change*100:.0f}%)"
+                        f"({change * 100:.0f}%)"
                     )
 
     return failures, warnings, improvements
@@ -191,21 +191,30 @@ def write_baseline(current: dict[str, dict], path: Path) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Compare benchmark results vs baseline")
+    parser = argparse.ArgumentParser(
+        description="Compare benchmark results vs baseline"
+    )
     parser.add_argument(
-        "--results", type=Path, default=_RESULTS_DIR,
+        "--results",
+        type=Path,
+        default=_RESULTS_DIR,
         help="Directory with benchmark result JSON files",
     )
     parser.add_argument(
-        "--baseline", type=Path, default=None,
+        "--baseline",
+        type=Path,
+        default=None,
         help="Baseline JSON path (default: baselines/baseline_<machine>.json)",
     )
     parser.add_argument(
-        "--threshold", type=float, default=0.20,
+        "--threshold",
+        type=float,
+        default=0.20,
         help="Regression threshold as fraction (default: 0.20 = 20%%)",
     )
     parser.add_argument(
-        "--update-baseline", action="store_true",
+        "--update-baseline",
+        action="store_true",
         help="Write current results as new baseline and exit",
     )
     args = parser.parse_args()
@@ -233,7 +242,7 @@ def main() -> int:
     print(f"OmniBot Performance Comparison ({_machine_type()})")
     print(f"Results:  {args.results}")
     print(f"Baseline: {baseline_path}")
-    print(f"Regression threshold: {args.threshold*100:.0f}%")
+    print(f"Regression threshold: {args.threshold * 100:.0f}%")
     print("=" * 70)
 
     failures, warnings, improvements = compare(current, baseline, args.threshold)
@@ -255,7 +264,9 @@ def main() -> int:
         print(f"\n{len(failures)} failure(s) detected. Fix before merging.\n")
         return 1
 
-    print(f"\nAll checks passed. ({len(warnings)} warnings, {len(improvements)} improvements)\n")
+    print(
+        f"\nAll checks passed. ({len(warnings)} warnings, {len(improvements)} improvements)\n"
+    )
     return 0
 
 

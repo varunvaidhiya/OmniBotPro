@@ -35,7 +35,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
@@ -52,41 +52,50 @@ def generate_launch_description():
 
     # ── Launch arguments ──────────────────────────────────────────────────────
     declare_rviz = DeclareLaunchArgument(
-        "rviz", default_value="false",
+        "rviz",
+        default_value="false",
         description="Launch RViz2 locally (set true if Pi has a display)",
     )
     declare_foxglove = DeclareLaunchArgument(
-        "foxglove", default_value="true",
+        "foxglove",
+        default_value="true",
         description="Foxglove WebSocket bridge (ws://pi-ip:8765)",
     )
     declare_depth_camera = DeclareLaunchArgument(
-        "depth_camera", default_value="true",
+        "depth_camera",
+        default_value="true",
         description="Start Orbbec Astra Pro RGB-D driver",
     )
     declare_bev = DeclareLaunchArgument(
-        "bev", default_value="true",
+        "bev",
+        default_value="true",
         description="Start BEV stitcher (requires all 4 base cameras)",
     )
 
     # Camera device paths — override for your hardware
     declare_cam_front = DeclareLaunchArgument(
-        "cam_front", default_value="/dev/video0",
+        "cam_front",
+        default_value="/dev/video0",
         description="Front base camera V4L2 device",
     )
     declare_cam_rear = DeclareLaunchArgument(
-        "cam_rear", default_value="/dev/video2",
+        "cam_rear",
+        default_value="/dev/video2",
         description="Rear base camera V4L2 device",
     )
     declare_cam_left = DeclareLaunchArgument(
-        "cam_left", default_value="/dev/video4",
+        "cam_left",
+        default_value="/dev/video4",
         description="Left base camera V4L2 device",
     )
     declare_cam_right = DeclareLaunchArgument(
-        "cam_right", default_value="/dev/video6",
+        "cam_right",
+        default_value="/dev/video6",
         description="Right base camera V4L2 device",
     )
     declare_cam_wrist = DeclareLaunchArgument(
-        "cam_wrist", default_value="/dev/video8",
+        "cam_wrist",
+        default_value="/dev/video8",
         description="Wrist camera V4L2 device",
     )
 
@@ -116,10 +125,14 @@ def generate_launch_description():
         name="usb_cam_front",
         namespace="camera/front",
         output="screen",
-        parameters=[{**_cam_params,
-                     "video_device": LaunchConfiguration("cam_front"),
-                     "camera_name": "front",
-                     "camera_frame_id": "camera_front_optical_frame"}],
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_front"),
+                "camera_name": "front",
+                "camera_frame_id": "camera_front_optical_frame",
+            }
+        ],
     )
     cam_rear = Node(
         package="usb_cam",
@@ -127,10 +140,14 @@ def generate_launch_description():
         name="usb_cam_rear",
         namespace="camera/rear",
         output="screen",
-        parameters=[{**_cam_params,
-                     "video_device": LaunchConfiguration("cam_rear"),
-                     "camera_name": "rear",
-                     "camera_frame_id": "camera_rear_optical_frame"}],
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_rear"),
+                "camera_name": "rear",
+                "camera_frame_id": "camera_rear_optical_frame",
+            }
+        ],
     )
     cam_left = Node(
         package="usb_cam",
@@ -138,10 +155,14 @@ def generate_launch_description():
         name="usb_cam_left",
         namespace="camera/left",
         output="screen",
-        parameters=[{**_cam_params,
-                     "video_device": LaunchConfiguration("cam_left"),
-                     "camera_name": "left",
-                     "camera_frame_id": "camera_left_optical_frame"}],
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_left"),
+                "camera_name": "left",
+                "camera_frame_id": "camera_left_optical_frame",
+            }
+        ],
     )
     cam_right = Node(
         package="usb_cam",
@@ -149,10 +170,14 @@ def generate_launch_description():
         name="usb_cam_right",
         namespace="camera/right",
         output="screen",
-        parameters=[{**_cam_params,
-                     "video_device": LaunchConfiguration("cam_right"),
-                     "camera_name": "right",
-                     "camera_frame_id": "camera_right_optical_frame"}],
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_right"),
+                "camera_name": "right",
+                "camera_frame_id": "camera_right_optical_frame",
+            }
+        ],
     )
 
     # ── 3. Wrist camera ───────────────────────────────────────────────────────
@@ -162,10 +187,14 @@ def generate_launch_description():
         name="usb_cam_wrist",
         namespace="camera/wrist",
         output="screen",
-        parameters=[{**_cam_params,
-                     "video_device": LaunchConfiguration("cam_wrist"),
-                     "camera_name": "wrist",
-                     "camera_frame_id": "camera_wrist_optical_frame"}],
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_wrist"),
+                "camera_name": "wrist",
+                "camera_frame_id": "camera_wrist_optical_frame",
+            }
+        ],
     )
 
     # ── 4. Orbbec Astra Pro (RGB-D) ───────────────────────────────────────────
@@ -182,18 +211,20 @@ def generate_launch_description():
         namespace="camera",
         output="screen",
         condition=IfCondition(LaunchConfiguration("depth_camera")),
-        parameters=[{
-            "depth_registration": True,
-            "camera_name": "camera",
-            "color_width": 640,
-            "color_height": 480,
-            "color_fps": 30,
-            "depth_width": 640,
-            "depth_height": 480,
-            "depth_fps": 30,
-            "enable_point_cloud": True,
-            "enable_colored_point_cloud": False,
-        }],
+        parameters=[
+            {
+                "depth_registration": True,
+                "camera_name": "camera",
+                "color_width": 640,
+                "color_height": 480,
+                "color_fps": 30,
+                "depth_width": 640,
+                "depth_height": 480,
+                "depth_fps": 30,
+                "enable_point_cloud": True,
+                "enable_colored_point_cloud": False,
+            }
+        ],
     )
 
     # ── 5. depth → /scan (required by SLAM toolbox) ───────────────────────────
@@ -203,12 +234,14 @@ def generate_launch_description():
         name="depthimage_to_laserscan",
         output="screen",
         condition=IfCondition(LaunchConfiguration("depth_camera")),
-        parameters=[{
-            "scan_height": 1,
-            "range_min": 0.3,
-            "range_max": 8.0,
-            "output_frame": "depth_camera_optical_frame",
-        }],
+        parameters=[
+            {
+                "scan_height": 1,
+                "range_min": 0.3,
+                "range_max": 8.0,
+                "output_frame": "depth_camera_optical_frame",
+            }
+        ],
         remappings=[
             ("depth", "/camera/depth/image_raw"),
             ("depth_camera_info", "/camera/depth/camera_info"),
@@ -248,25 +281,27 @@ def generate_launch_description():
         arguments=["-d", rviz_config],
     )
 
-    return LaunchDescription([
-        declare_rviz,
-        declare_foxglove,
-        declare_depth_camera,
-        declare_bev,
-        declare_cam_front,
-        declare_cam_rear,
-        declare_cam_left,
-        declare_cam_right,
-        declare_cam_wrist,
-        robot_state_publisher,
-        cam_front,
-        cam_rear,
-        cam_left,
-        cam_right,
-        cam_wrist,
-        astra_camera,
-        depth_to_scan,
-        bev_stitcher,
-        foxglove_bridge,
-        rviz,
-    ])
+    return LaunchDescription(
+        [
+            declare_rviz,
+            declare_foxglove,
+            declare_depth_camera,
+            declare_bev,
+            declare_cam_front,
+            declare_cam_rear,
+            declare_cam_left,
+            declare_cam_right,
+            declare_cam_wrist,
+            robot_state_publisher,
+            cam_front,
+            cam_rear,
+            cam_left,
+            cam_right,
+            cam_wrist,
+            astra_camera,
+            depth_to_scan,
+            bev_stitcher,
+            foxglove_bridge,
+            rviz,
+        ]
+    )

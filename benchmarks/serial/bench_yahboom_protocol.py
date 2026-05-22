@@ -23,9 +23,7 @@ sys.path.insert(0, str(_REPO / "packages" / "mecanum_drive_ros2"))
 sys.path.insert(0, str(_REPO))
 
 from yahboom_ros2.protocol import (
-    FUNC_BEEP,
     FUNC_MOTION,
-    FUNC_MOTOR,
     TYPE_ACCEL,
     TYPE_ATTITUDE,
     TYPE_GYRO,
@@ -38,7 +36,6 @@ from yahboom_ros2.protocol import (
 from mecanum_drive_ros2.kinematics import RobotGeometry, integrate_pose
 from benchmarks.conftest import TimingHarness, check_slo, print_stats, write_results
 
-import pytest
 
 # ---------------------------------------------------------------------------
 # Test data setup
@@ -89,7 +86,9 @@ _BUF_MIXED = _BUF_SINGLE + _ACCEL_BUF + _GYRO_BUF + _ATT_BUF
 def test_bench_build_packet_motion():
     """build_packet with FUNC_MOTION 7-byte payload."""
     h = TimingHarness()
-    stats = h.run(lambda: build_packet(FUNC_MOTION, _MOTION_PAYLOAD), n=10000, warmup=200)
+    stats = h.run(
+        lambda: build_packet(FUNC_MOTION, _MOTION_PAYLOAD), n=10000, warmup=200
+    )
     print_stats("yahboom_tx_packet_ms (build_packet MOTION)", stats)
     assert check_slo("yahboom_tx_packet_ms", stats["p95_ms"])
     return stats

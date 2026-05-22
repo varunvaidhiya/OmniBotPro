@@ -44,26 +44,26 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    pkg_rl = get_package_share_directory('omnibot_rl')
+    pkg_rl = get_package_share_directory("omnibot_rl")
 
-    nav_params  = os.path.join(pkg_rl, 'config', 'rl_nav_params.yaml')
-    arm_params  = os.path.join(pkg_rl, 'config', 'rl_arm_params.yaml')
+    nav_params = os.path.join(pkg_rl, "config", "rl_nav_params.yaml")
+    arm_params = os.path.join(pkg_rl, "config", "rl_arm_params.yaml")
 
-    use_sim_time      = LaunchConfiguration('use_sim_time',      default='false')
-    use_object_pose   = LaunchConfiguration('use_object_pose',   default='true')
-    include_arm_mux   = LaunchConfiguration('include_arm_mux',   default='true')
+    use_sim_time = LaunchConfiguration("use_sim_time", default="false")
+    use_object_pose = LaunchConfiguration("use_object_pose", default="true")
+    include_arm_mux = LaunchConfiguration("include_arm_mux", default="true")
 
     # ── RL Navigation Node ────────────────────────────────────────────────────
     # Subscribes: /odom, /camera/depth/points, /rl_nav/goal, /control_mode/active
     # Publishes:  /cmd_vel/rl  (forwarded by cmd_vel_mux when mode="rl_nav")
     rl_nav_node = Node(
-        package='omnibot_rl',
-        executable='rl_nav_node',
-        name='rl_nav_node',
-        output='screen',
+        package="omnibot_rl",
+        executable="rl_nav_node",
+        name="rl_nav_node",
+        output="screen",
         parameters=[
             nav_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
     )
 
@@ -71,13 +71,13 @@ def generate_launch_description():
     # Subscribes: /arm/joint_states, /rl_arm/target_pose, /rl_arm/enable, /arm/cmd_mode
     # Publishes:  /arm/joint_commands/rl  (forwarded by arm_cmd_mux when mode="rl_arm")
     rl_arm_node = Node(
-        package='omnibot_rl',
-        executable='rl_arm_node',
-        name='rl_arm_node',
-        output='screen',
+        package="omnibot_rl",
+        executable="rl_arm_node",
+        name="rl_arm_node",
+        output="screen",
         parameters=[
             arm_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
     )
 
@@ -87,13 +87,13 @@ def generate_launch_description():
     # Default mode: "smolvla" — transparent pass-through, no behaviour change.
     # Skip with include_arm_mux:=false when a parent launch already starts it.
     arm_cmd_mux_node = Node(
-        package='omnibot_rl',
-        executable='arm_cmd_mux',
-        name='arm_cmd_mux',
-        output='screen',
+        package="omnibot_rl",
+        executable="arm_cmd_mux",
+        name="arm_cmd_mux",
+        output="screen",
         parameters=[
             arm_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
         condition=IfCondition(include_arm_mux),
     )
@@ -103,33 +103,40 @@ def generate_launch_description():
     #             /camera/wrist/camera_info
     # Publishes:  /rl_arm/target_pose, /rl_arm/target_detected
     rl_object_pose_node = Node(
-        package='omnibot_rl',
-        executable='rl_object_pose_node',
-        name='rl_object_pose_node',
-        output='screen',
+        package="omnibot_rl",
+        executable="rl_object_pose_node",
+        name="rl_object_pose_node",
+        output="screen",
         condition=IfCondition(use_object_pose),
         parameters=[
             arm_params,
-            {'use_sim_time': use_sim_time},
+            {"use_sim_time": use_sim_time},
         ],
     )
 
-    return LaunchDescription([
-        DeclareLaunchArgument(
-            'use_sim_time', default_value='false',
-            description='Use simulation clock'),
-        DeclareLaunchArgument(
-            'use_object_pose', default_value='true',
-            description='Launch ArUco-based object pose estimation node'),
-        DeclareLaunchArgument(
-            'include_arm_mux', default_value='true',
-            description=(
-                'Start arm_cmd_mux here. Set false if a parent launch '
-                'already starts it to avoid duplicate nodes.'
-            )),
-
-        rl_nav_node,
-        rl_arm_node,
-        arm_cmd_mux_node,
-        rl_object_pose_node,
-    ])
+    return LaunchDescription(
+        [
+            DeclareLaunchArgument(
+                "use_sim_time",
+                default_value="false",
+                description="Use simulation clock",
+            ),
+            DeclareLaunchArgument(
+                "use_object_pose",
+                default_value="true",
+                description="Launch ArUco-based object pose estimation node",
+            ),
+            DeclareLaunchArgument(
+                "include_arm_mux",
+                default_value="true",
+                description=(
+                    "Start arm_cmd_mux here. Set false if a parent launch "
+                    "already starts it to avoid duplicate nodes."
+                ),
+            ),
+            rl_nav_node,
+            rl_arm_node,
+            arm_cmd_mux_node,
+            rl_object_pose_node,
+        ]
+    )

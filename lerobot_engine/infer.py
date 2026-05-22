@@ -107,7 +107,8 @@ def overlay_action(frame_bgr: np.ndarray, action: np.ndarray, fps: float) -> np.
     arm, base = action[:6], action[6:9]
     lines = [
         f"FPS: {fps:.1f}",
-        "Arm (rad): " + "  ".join(f"{n[4:8]}:{v:+.3f}" for n, v in zip(ARM_JOINT_NAMES, arm)),
+        "Arm (rad): "
+        + "  ".join(f"{n[4:8]}:{v:+.3f}" for n, v in zip(ARM_JOINT_NAMES, arm)),
         f"Base:  vx={base[0]:+.3f}  vy={base[1]:+.3f}  vz={base[2]:+.3f}",
     ]
     y = 20
@@ -128,20 +129,40 @@ def parse_args():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=__doc__,
     )
-    parser.add_argument("--model", type=str, default="smolvla",
-                        help="Model type from the registry.")
-    parser.add_argument("--list-models", action="store_true",
-                        help="Print registered model names and exit.")
-    parser.add_argument("--checkpoint", type=str, default=None,
-                        help="HuggingFace hub ID or local checkpoint path.")
-    parser.add_argument("--camera-id", type=int, default=0,
-                        help="OpenCV camera index for the wrist camera.")
-    parser.add_argument("--task", type=str, default="pick up the object and place it",
-                        help="Task description (used by language-conditioned models).")
+    parser.add_argument(
+        "--model", type=str, default="smolvla", help="Model type from the registry."
+    )
+    parser.add_argument(
+        "--list-models",
+        action="store_true",
+        help="Print registered model names and exit.",
+    )
+    parser.add_argument(
+        "--checkpoint",
+        type=str,
+        default=None,
+        help="HuggingFace hub ID or local checkpoint path.",
+    )
+    parser.add_argument(
+        "--camera-id",
+        type=int,
+        default=0,
+        help="OpenCV camera index for the wrist camera.",
+    )
+    parser.add_argument(
+        "--task",
+        type=str,
+        default="pick up the object and place it",
+        help="Task description (used by language-conditioned models).",
+    )
     parser.add_argument("--device", type=str, default="cuda")
     parser.add_argument("--fps", type=float, default=10.0)
-    parser.add_argument("--trt-engine", type=str, default=None,
-                        help="Path to a pre-built TRT vision encoder (.trt).")
+    parser.add_argument(
+        "--trt-engine",
+        type=str,
+        default=None,
+        help="Path to a pre-built TRT vision encoder (.trt).",
+    )
     return parser.parse_args()
 
 
@@ -150,10 +171,10 @@ def parse_args():
 # ---------------------------------------------------------------------------
 
 _CHECKPOINTS = {
-    "smolvla":   "lerobot/smolvla_base",
-    "act":       "lerobot/act_base",
+    "smolvla": "lerobot/smolvla_base",
+    "act": "lerobot/act_base",
     "diffusion": "lerobot/diffusion_pusht",
-    "openvla":   "openvla/openvla-7b",
+    "openvla": "openvla/openvla-7b",
 }
 
 
@@ -190,7 +211,9 @@ def main():
 
     print(f'Loading {args.model} from "{checkpoint}"...')
     try:
-        adapter = make_policy(args.model, checkpoint=checkpoint, device=str(device or "cpu"))
+        adapter = make_policy(
+            args.model, checkpoint=checkpoint, device=str(device or "cpu")
+        )
     except Exception as exc:
         print(f"[ERROR] Failed to load policy: {exc}")
         return
@@ -228,7 +251,11 @@ def main():
 
             if cap is not None:
                 ret, frame_bgr = cap.read()
-                frame_bgr = frame_bgr if (ret and frame_bgr is not None) else np.zeros((h, w, 3), dtype=np.uint8)
+                frame_bgr = (
+                    frame_bgr
+                    if (ret and frame_bgr is not None)
+                    else np.zeros((h, w, 3), dtype=np.uint8)
+                )
             else:
                 frame_bgr = np.zeros((h, w, 3), dtype=np.uint8)
 

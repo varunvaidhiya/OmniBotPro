@@ -3,9 +3,15 @@ import os
 import io
 import base64
 import numpy as np
+import pytest
 from PIL import Image
 from unittest.mock import patch
 from fastapi.testclient import TestClient
+
+# Skip entire module when torch (and other heavy GPU deps) are not installed
+pytest.importorskip(
+    "torch", reason="torch not installed — vla_engine tests require GPU dependencies"
+)
 
 # Add vla_engine to path
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))

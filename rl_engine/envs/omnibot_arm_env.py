@@ -24,14 +24,12 @@ Usage:
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 
 import isaaclab.sim as sim_utils
 from isaaclab.assets import ArticulationCfg, RigidObjectCfg
 from isaaclab.envs import ManagerBasedRLEnvCfg
 from isaaclab.managers import (
     ObservationGroupCfg,
-    ObservationTermCfg,
     RewardTermCfg,
     TerminationTermCfg,
 )
@@ -54,7 +52,7 @@ from rl_engine.tasks.mdp import (
     arm_self_collision,
 )
 
-ROBOT_USD_PATH  = "{ROBOT_WS}/src/omnibot_description/usd/omnibot.usd"
+ROBOT_USD_PATH = "{ROBOT_WS}/src/omnibot_description/usd/omnibot.usd"
 # Default target object — override with curriculum_stages in arm_train.yaml
 MUSTARD_USD = "Isaac/Props/YCB/Obj_006_mustard_bottle/mustard_bottle.usd"
 
@@ -67,7 +65,7 @@ class OmnibotArmSceneCfg(InteractiveSceneCfg):
 
     # Table (fixed RigidObject)
     table: sim_utils.UsdFileCfg = sim_utils.UsdFileCfg(
-        prim_path='{ENV_REGEX_NS}/Table',
+        prim_path="{ENV_REGEX_NS}/Table",
         spawn=sim_utils.CuboidCfg(
             size=(0.6, 0.8, 0.74),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
@@ -80,31 +78,31 @@ class OmnibotArmSceneCfg(InteractiveSceneCfg):
 
     # Robot (base fixed in place for arm training)
     robot: ArticulationCfg = ArticulationCfg(
-        prim_path='{ENV_REGEX_NS}/Robot',
+        prim_path="{ENV_REGEX_NS}/Robot",
         spawn=sim_utils.UsdFileCfg(
             usd_path=ROBOT_USD_PATH,
             rigid_props=sim_utils.RigidBodyPropertiesCfg(disable_gravity=False),
             articulation_props=sim_utils.ArticulationRootPropertiesCfg(
-                fix_root_link=True,   # Fixed base for arm-only training
+                fix_root_link=True,  # Fixed base for arm-only training
                 enabled_self_collisions=False,
             ),
         ),
         init_state=ArticulationCfg.InitialStateCfg(
             pos=(0.0, 0.0, 0.075),
             joint_pos={
-                'arm_shoulder_pan':   0.0,
-                'arm_shoulder_lift': -0.5,
-                'arm_elbow_flex':     0.5,
-                'arm_wrist_flex':     0.0,
-                'arm_wrist_roll':     0.0,
-                'arm_gripper':        0.0,
+                "arm_shoulder_pan": 0.0,
+                "arm_shoulder_lift": -0.5,
+                "arm_elbow_flex": 0.5,
+                "arm_wrist_flex": 0.0,
+                "arm_wrist_roll": 0.0,
+                "arm_gripper": 0.0,
             },
         ),
     )
 
     # Target object (randomized per episode in curriculum)
     target_object: RigidObjectCfg = RigidObjectCfg(
-        prim_path='{ENV_REGEX_NS}/TargetObject',
+        prim_path="{ENV_REGEX_NS}/TargetObject",
         spawn=sim_utils.UsdFileCfg(
             usd_path=MUSTARD_USD,
             rigid_props=sim_utils.RigidBodyPropertiesCfg(disable_gravity=False),
@@ -116,7 +114,7 @@ class OmnibotArmSceneCfg(InteractiveSceneCfg):
 
     # Gripper contact sensor
     gripper_contact_sensor: ContactSensorCfg = ContactSensorCfg(
-        prim_path='{ENV_REGEX_NS}/Robot/arm_gripper_link',
+        prim_path="{ENV_REGEX_NS}/Robot/arm_gripper_link",
         update_period=0.0,
         history_length=6,
         debug_vis=False,
@@ -129,8 +127,9 @@ class OmnibotArmSceneCfg(InteractiveSceneCfg):
 @configclass
 class OmnibotArmActionsCfg:
     """Joint position delta actions for the arm."""
+
     arm_deltas: ArmJointDeltaActionTermCfg = ArmJointDeltaActionTermCfg(
-        asset_name='robot',
+        asset_name="robot",
         arm_joint_ids=[4, 5, 6, 7, 8, 9],  # arm joints in articulation order
     )
 
@@ -142,7 +141,8 @@ class OmnibotArmObservationsCfg:
     @configclass
     class PolicyCfg(ObservationGroupCfg):
         joint_pos_norm: ArmNormJointPosObsTermCfg = ArmNormJointPosObsTermCfg(
-            arm_joint_ids=[4, 5, 6, 7, 8, 9])
+            arm_joint_ids=[4, 5, 6, 7, 8, 9]
+        )
         # Additional terms (arm_joint_vel, ee_pos, ee_rot, target_pos,
         # gripper_opening, prev_action) are handled by the env's
         # observation manager once the full env class is implemented.
@@ -155,21 +155,33 @@ class OmnibotArmObservationsCfg:
 @configclass
 class OmnibotArmRewardsCfg:
     """Arm manipulation rewards with weights from arm_train.yaml."""
-    ee_approach     = RewardTermCfg(func=arm_ee_approach,       weight=2.0,   params={'sigma': 0.05})
-    grasp_success   = RewardTermCfg(func=arm_grasp_success,     weight=10.0)
-    object_lifted   = RewardTermCfg(func=arm_object_lifted,     weight=20.0,  params={'lift_height': 0.05})
-    object_placed   = RewardTermCfg(func=arm_object_placed,     weight=50.0)
-    joint_limits    = RewardTermCfg(func=arm_joint_limit_penalty, weight=0.1)
-    smoothness      = RewardTermCfg(func=arm_action_smoothness,  weight=0.01)
+
+    ee_approach = RewardTermCfg(
+        func=arm_ee_approach, weight=2.0, params={"sigma": 0.05}
+    )
+    grasp_success = RewardTermCfg(func=arm_grasp_success, weight=10.0)
+    object_lifted = RewardTermCfg(
+        func=arm_object_lifted, weight=20.0, params={"lift_height": 0.05}
+    )
+    object_placed = RewardTermCfg(func=arm_object_placed, weight=50.0)
+    joint_limits = RewardTermCfg(func=arm_joint_limit_penalty, weight=0.1)
+    smoothness = RewardTermCfg(func=arm_action_smoothness, weight=0.01)
 
 
 @configclass
 class OmnibotArmTerminationsCfg:
     """Arm manipulation terminations."""
-    timeout        = TerminationTermCfg(func=episode_timeout,    time_out=True)
-    place_success  = TerminationTermCfg(func=arm_place_success,  params={'tolerance': 0.05})
-    object_dropped = TerminationTermCfg(func=arm_object_dropped, params={'drop_height': -0.05})
-    self_collision = TerminationTermCfg(func=arm_self_collision,  params={'force_threshold': 5.0})
+
+    timeout = TerminationTermCfg(func=episode_timeout, time_out=True)
+    place_success = TerminationTermCfg(
+        func=arm_place_success, params={"tolerance": 0.05}
+    )
+    object_dropped = TerminationTermCfg(
+        func=arm_object_dropped, params={"drop_height": -0.05}
+    )
+    self_collision = TerminationTermCfg(
+        func=arm_self_collision, params={"force_threshold": 5.0}
+    )
 
 
 @configclass
@@ -181,14 +193,15 @@ class OmnibotArmEnvCfg(ManagerBasedRLEnvCfg):
       env_cfg = OmnibotArmEnvCfg()
       env_cfg.scene.num_envs = 256
     """
-    scene:        OmnibotArmSceneCfg        = OmnibotArmSceneCfg(num_envs=256, env_spacing=2.0)
-    actions:      OmnibotArmActionsCfg      = OmnibotArmActionsCfg()
+
+    scene: OmnibotArmSceneCfg = OmnibotArmSceneCfg(num_envs=256, env_spacing=2.0)
+    actions: OmnibotArmActionsCfg = OmnibotArmActionsCfg()
     observations: OmnibotArmObservationsCfg = OmnibotArmObservationsCfg()
-    rewards:      OmnibotArmRewardsCfg      = OmnibotArmRewardsCfg()
+    rewards: OmnibotArmRewardsCfg = OmnibotArmRewardsCfg()
     terminations: OmnibotArmTerminationsCfg = OmnibotArmTerminationsCfg()
 
-    episode_length_s: float = 20.0   # 400 steps at 20 Hz
-    decimation:       int   = 5      # physics at 100 Hz, policy at 20 Hz
+    episode_length_s: float = 20.0  # 400 steps at 20 Hz
+    decimation: int = 5  # physics at 100 Hz, policy at 20 Hz
 
     def __post_init__(self):
         super().__post_init__()

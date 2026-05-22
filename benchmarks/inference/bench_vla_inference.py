@@ -247,19 +247,27 @@ def test_bench_openvla_warm_inference():
 
     print(
         f"\n  OpenVLA warm inference (n={n}):\n"
-        f"    Server: mean={sum(server_times)/n:.0f}ms  "
-        f"p50={s_server[n//2]:.0f}ms  p95={p95_server:.0f}ms\n"
-        f"    Client: mean={sum(client_times)/n:.0f}ms  "
-        f"p50={s_client[n//2]:.0f}ms  p95={p95_client:.0f}ms\n"
+        f"    Server: mean={sum(server_times) / n:.0f}ms  "
+        f"p50={s_server[n // 2]:.0f}ms  p95={p95_server:.0f}ms\n"
+        f"    Client: mean={sum(client_times) / n:.0f}ms  "
+        f"p50={s_client[n // 2]:.0f}ms  p95={p95_client:.0f}ms\n"
         f"    Network overhead: ~{p95_client - p95_server:.1f}ms"
     )
 
     check_slo("openvla_inference_ms", p95_server, fail_on_max=False)
     return {
-        "server": {"n": n, "mean_ms": sum(server_times)/n,
-                   "p95_ms": p95_server, "median_ms": s_server[n//2]},
-        "client": {"n": n, "mean_ms": sum(client_times)/n,
-                   "p95_ms": p95_client, "median_ms": s_client[n//2]},
+        "server": {
+            "n": n,
+            "mean_ms": sum(server_times) / n,
+            "p95_ms": p95_server,
+            "median_ms": s_server[n // 2],
+        },
+        "client": {
+            "n": n,
+            "mean_ms": sum(client_times) / n,
+            "p95_ms": p95_client,
+            "median_ms": s_client[n // 2],
+        },
     }
 
 
@@ -331,7 +339,9 @@ if __name__ == "__main__":
         all_results["tokens_comparison"] = test_bench_openvla_max_tokens_comparison()
     else:
         print(f"\n  SKIP  Server not available at {_SERVER_URL}")
-        print("  Start: VLA_AUTO_LOAD=1 uvicorn vla_serve.inference.server:app --port 8000")
+        print(
+            "  Start: VLA_AUTO_LOAD=1 uvicorn vla_serve.inference.server:app --port 8000"
+        )
 
     write_results("openvla_inference", all_results)
     print("\nDone.")

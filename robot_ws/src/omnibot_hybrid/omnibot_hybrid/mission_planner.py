@@ -57,8 +57,8 @@ from std_msgs.msg import Bool, String
 
 # RL nav arrival detection: subscribe to /rl_nav/goal distance feedback
 # via /odom. Mission planner polls for arrival using a simple timer.
-_RL_NAV_ARRIVAL_POLL_HZ = 2.0   # Hz
-_RL_NAV_GOAL_TOLERANCE  = 0.30  # m — slightly looser than rl_nav_node's own tol
+_RL_NAV_ARRIVAL_POLL_HZ = 2.0  # Hz
+_RL_NAV_GOAL_TOLERANCE = 0.30  # m — slightly looser than rl_nav_node's own tol
 
 
 class MissionPlanner(Node):
@@ -118,9 +118,10 @@ class MissionPlanner(Node):
 
         # Odometry for RL nav arrival polling
         from nav_msgs.msg import Odometry as _Odometry
+
         self.create_subscription(
-            _Odometry, '/odom', self._odom_cb, 10,
-            callback_group=self._cb_group)
+            _Odometry, "/odom", self._odom_cb, 10, callback_group=self._cb_group
+        )
 
         # ── Nav2 action client ────────────────────────────────────────────────
         self._nav_client = ActionClient(
@@ -226,7 +227,7 @@ class MissionPlanner(Node):
         self._phase = "idle"
         self._mission = None
         self._rl_nav_goal = None
-        self._set_mode("nav2")        # return base control to Nav2
+        self._set_mode("nav2")  # return base control to Nav2
         self._set_arm_mode("policy")  # return arm control to SmolVLA
         self._publish_status()
 
@@ -280,7 +281,7 @@ class MissionPlanner(Node):
             # VLA-only mission — skip navigation
             self._start_vla_phase()
 
-        elif 'rl_arm' in self._mission:
+        elif "rl_arm" in self._mission:
             # RL arm only — skip navigation
             self._start_rl_arm_phase()
 
@@ -344,48 +345,49 @@ class MissionPlanner(Node):
     def _start_rl_nav_phase(self, pose: PoseStamped, location: str) -> None:
         self.get_logger().info(
             f'[RL Phase 1] RL navigation to "{location}" '
-            f'({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})')
-        self._phase = 'rl_navigating'
+            f"({pose.pose.position.x:.2f}, {pose.pose.position.y:.2f})"
+        )
+        self._phase = "rl_navigating"
         self._rl_nav_goal = pose
-        self._set_mode('rl_nav')
+        self._set_mode("rl_nav")
         self._publish_status()
         # Publish goal to rl_nav_node
         self._rl_goal_pub.publish(pose)
 
     def _poll_rl_nav_arrival(self) -> None:
         """Check if robot has reached the RL nav goal (polled at 2 Hz)."""
-        if self._phase != 'rl_navigating' or self._rl_nav_goal is None:
+        if self._phase != "rl_navigating" or self._rl_nav_goal is None:
             return
 
         gx = self._rl_nav_goal.pose.position.x
         gy = self._rl_nav_goal.pose.position.y
-        dist = math.sqrt(
-            (gx - self._odom_x) ** 2 + (gy - self._odom_y) ** 2)
+        dist = math.sqrt((gx - self._odom_x) ** 2 + (gy - self._odom_y) ** 2)
 
         if dist < _RL_NAV_GOAL_TOLERANCE:
-            self.get_logger().info('[RL Phase 1] RL navigation goal reached.')
+            self.get_logger().info("[RL Phase 1] RL navigation goal reached.")
             self._rl_nav_goal = None
-            if self._mission and 'rl_arm' in self._mission:
+            if self._mission and "rl_arm" in self._mission:
                 self._start_rl_arm_phase()
             else:
-                self._phase = 'done'
-                self._set_mode('nav2')   # return base to Nav2 after RL nav
+                self._phase = "done"
+                self._set_mode("nav2")  # return base to Nav2 after RL nav
                 self._publish_status()
-                self.get_logger().info('Mission complete (rl_nav-only).')
+                self.get_logger().info("Mission complete (rl_nav-only).")
 
     # ── RL arm phase ──────────────────────────────────────────────────────────
 
     def _start_rl_arm_phase(self) -> None:
-        task = self._mission.get('rl_arm', '') if self._mission else ''
+        task = self._mission.get("rl_arm", "") if self._mission else ""
         self.get_logger().info(f'[RL Phase 2] RL arm task — "{task}"')
-        self._phase = 'rl_arm'
-        self._set_arm_mode('rl_arm')
+        self._phase = "rl_arm"
+        self._set_arm_mode("rl_arm")
         self._publish_status()
         # Note: rl_arm_node reads /rl_arm/target_pose from rl_object_pose_node.
         # Mission planner does not need to supply a specific target — the pose
         # estimator continuously updates /rl_arm/target_pose.
         self.get_logger().info(
-            'RL arm active. Waiting for object detection via /rl_arm/target_pose.')
+            "RL arm active. Waiting for object detection via /rl_arm/target_pose."
+        )
 
     # ── VLA phase ─────────────────────────────────────────────────────────────
 
@@ -430,7 +432,7 @@ class MissionPlanner(Node):
         msg = String()
         msg.data = mode
         self._arm_mode_pub.publish(msg)
-        self.get_logger().info(f'[MissionPlanner] Arm mode → {mode}')
+        self.get_logger().info(f"[MissionPlanner] Arm mode → {mode}")
 
     def _publish_status(self) -> None:
         mission_str = str(self._mission) if self._mission else "none"

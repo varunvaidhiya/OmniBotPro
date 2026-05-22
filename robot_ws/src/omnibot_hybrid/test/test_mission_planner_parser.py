@@ -132,15 +132,9 @@ class TestResolveLocation:
         assert result is None
 
     def test_returns_pose_for_known_location(self):
-        import rclpy
-
-        rclpy.init()
-        try:
-            stub = self._make_node({"kitchen": {"x": 3.5, "y": -1.2, "yaw": 1.57}})
-            pose = stub._resolve_location("kitchen")
-            assert pose is not None
-            assert pose.pose.position.x == pytest.approx(3.5)
-            assert pose.pose.position.y == pytest.approx(-1.2)
-            assert pose.header.frame_id == "map"
-        finally:
-            rclpy.shutdown()
+        stub = self._make_node({"kitchen": {"x": 3.5, "y": -1.2, "yaw": 1.57}})
+        pose = stub._resolve_location("kitchen")
+        assert pose is not None
+        assert pose.pose.position.x == pytest.approx(3.5)
+        assert pose.pose.position.y == pytest.approx(-1.2)
+        assert pose.header.frame_id == "map"

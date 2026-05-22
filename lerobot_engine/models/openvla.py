@@ -100,7 +100,7 @@ class OpenVLAAdapter(PolicyAdapter):
 
         raw = action_tokens.cpu().float().numpy().flatten()
         result = np.zeros(9, dtype=np.float32)
-        result[:min(7, len(raw))] = raw[:7]
+        result[: min(7, len(raw))] = raw[:7]
         return result
 
     @property

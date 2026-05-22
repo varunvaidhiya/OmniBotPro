@@ -11,12 +11,20 @@
 #   docker compose --profile multi-vla up        # PC1: VLA inference only
 #   docker compose --profile multi-sim up        # PC2: simulation + BEV stitcher
 #   docker compose --profile standalone-bridge up # Pi: standalone ROSBridge only
+#   docker compose --profile observability up    # Prometheus + Loki + Grafana stack
 #
 # Services:
 #   robot       — ROS 2 base stack (driver + SLAM + Nav2 + ROSBridge)
 #   vla         — FastAPI VLA inference server (requires NVIDIA GPU)
 #   sim_pc      — Simulation workstation (bev_stitcher + RViz, multi mode PC2)
 #   rosbridge   — standalone ROSBridge WebSocket (Pi or single-machine)
+#
+# Observability (profile: observability):
+#   prometheus  — metrics database (scrapes :8888 Pi bridge + :8889 GPU bridge + :8000 VLA)
+#   loki        — log aggregation
+#   tempo       — distributed tracing (OTLP endpoint :4317)
+#   grafana     — dashboards at http://localhost:3000 (admin/omnibot)
+#   alertmanager — alert routing
 #
 # Hardware access: pass --privileged or individual device flags in .env.
 
@@ -199,6 +207,196 @@ services:
     profiles:
       - standalone-bridge
 
+  # ── Observability stack (GPU desktop — run alongside vla service) ─────────
+  # Start with: docker compose --profile observability up -d
+  # Grafana:      http://localhost:3000  (admin / omnibot)
+  # Prometheus:   http://localhost:9090
+  # AlertManager: http://localhost:9093
+
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: omnibot_prometheus
+    volumes:
+      - ./infra/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infra/observability/prometheus/alerts/:/etc/prometheus/alerts/:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+    ports:
+      - "9090:9090"
+    environment:
+      PI_IP: ${PI_IP:-192.168.1.101}
+    profiles:
+      - observability
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  loki:
+    image: grafana/loki:3.1.0
+    container_name: omnibot_loki
+    user: "0"
+    volumes:
+      - ./infra/observability/loki/loki-config.yml:/etc/loki/config.yml:ro
+      - loki_data:/loki
+    command: -config.file=/etc/loki/config.yml
+    ports:
+      - "3100:3100"
+    profiles:
+      - observability
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3100/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    container_name: omnibot_tempo
+    user: "0"
+    volumes:
+      - ./infra/observability/tempo/tempo-config.yml:/etc/tempo/config.yml:ro
+      - tempo_data:/var/tempo
+    command: -config.file=/etc/tempo/config.yml
+    ports:
+      - "4317:4317"   # OTLP gRPC (langchain_agent_node exports traces here)
+      - "4318:4318"   # OTLP HTTP
+      - "3200:3200"   # Tempo query
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: omnibot_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: omnibot
+      GF_FEATURE_TOGGLES_ENABLE: traceqlEditor traceToMetrics
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ./infra/observability/grafana/provisioning/:/etc/grafana/provisioning/:ro
+      - ./infra/observability/grafana/dashboards/:/var/lib/grafana/dashboards/:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      prometheus:
+        condition: service_healthy
+      loki:
+        condition: service_healthy
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: omnibot_alertmanager
+    volumes:
+      - ./infra/observability/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+    ports:
+      - "9093:9093"
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  # GPU desktop metrics bridge (exposes ROS 2 VLA/RL node metrics on :8889)
+  metrics_bridge_gpu:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: dev
+    image: omnibot/robot:latest
+    network_mode: host
+    environment:
+      <<: *ros-env
+    volumes:
+      - .:/home/ros/workspace:cached
+    command: >
+      bash -c "
+        source /opt/ros/jazzy/setup.bash &&
+        cd /home/ros/workspace/robot_ws &&
+        source install/setup.bash &&
+        ros2 launch omnibot_metrics metrics.launch.py
+          machine:=gpu_desktop port:=8889
+      "
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  # GPU desktop node exporter (system CPU/RAM/disk metrics)
+  node_exporter:
+    image: prom/node-exporter:v1.8.1
+    container_name: omnibot_node_exporter
+    pid: host
+    network_mode: host
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.sysfs=/host/sys"
+      - "--path.rootfs=/rootfs"
+      - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+)($|/)"
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  # NVIDIA GPU metrics (VRAM, utilization, temperature)
+  dcgm_exporter:
+    image: nvcr.io/nvidia/k8s/dcgm-exporter:3.3.6-3.4.2-ubuntu22.04
+    container_name: omnibot_dcgm
+    environment:
+      DCGM_EXPORTER_LISTEN: ":9400"
+      DCGM_EXPORTER_KUBERNETES: "false"
+    ports:
+      - "9400:9400"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    profiles:
+      - observability
+    restart: unless-stopped
+
+  # Promtail — ships ROS logs from GPU desktop to Loki
+  promtail:
+    image: grafana/promtail:3.1.0
+    container_name: omnibot_promtail
+    volumes:
+      - ./infra/observability/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /home/${USER:-ros}/.ros/log:/var/log/ros:ro
+    environment:
+      MACHINE_LABEL: gpu_desktop
+      LOKI_URL: http://loki:3100
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      loki:
+        condition: service_healthy
+    profiles:
+      - observability
+    restart: unless-stopped
+
 volumes:
   vla_model_cache:
     driver: local
+  prometheus_data:
+  loki_data:
+  tempo_data:
+  grafana_data:
+  alertmanager_data:
