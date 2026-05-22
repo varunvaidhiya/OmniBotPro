@@ -9,18 +9,10 @@ fast and completely deterministic.
 from unittest.mock import MagicMock
 
 import pytest
-import rclpy
 from geometry_msgs.msg import Twist
 from std_msgs.msg import String
 
 from omnibot_hybrid.cmd_vel_mux import CmdVelMux
-
-
-@pytest.fixture(scope="module", autouse=True)
-def ros_context():
-    rclpy.init()
-    yield
-    rclpy.shutdown()
 
 
 @pytest.fixture()

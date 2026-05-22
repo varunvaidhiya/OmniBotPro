@@ -8,25 +8,10 @@ without spinning a full ROS node or loading Nav2 action clients.
 """
 
 import pytest
-import rclpy
 
 # Import just the parsing logic without triggering ROS initialization.
 # We instantiate a minimal stub with only the method we need.
 from omnibot_hybrid.mission_planner import MissionPlanner
-
-
-@pytest.fixture(scope="module", autouse=True)
-def ros_context():
-    """Module-scoped rclpy init/shutdown.
-
-    test_cmd_vel_mux.py has already shut down rclpy before this module
-    runs (alphabetical order).  Re-initialise here so that any test that
-    needs a live rclpy context (e.g. rclpy.clock.Clock) can use it
-    without calling rclpy.init() inline.
-    """
-    rclpy.init()
-    yield
-    rclpy.shutdown()
 
 
 class _ParserStub:
