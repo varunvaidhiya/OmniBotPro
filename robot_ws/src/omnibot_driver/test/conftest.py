@@ -1,6 +1,5 @@
 """Shared fixtures for omnibot_driver tests."""
 
-import struct
 import pytest
 from unittest.mock import MagicMock, patch
 
