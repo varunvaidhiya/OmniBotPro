@@ -54,6 +54,21 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
                         if (binding.editPort.text.isNullOrEmpty()) binding.editPort.setText(port.toString())
                     }
                 }
+                launch {
+                    viewModel.gpuIp.collectLatest { ip ->
+                        if (binding.editGpuIp.text.isNullOrEmpty()) binding.editGpuIp.setText(ip)
+                    }
+                }
+                launch {
+                    viewModel.wandbEntity.collectLatest { entity ->
+                        if (binding.editWandbEntity.text.isNullOrEmpty()) binding.editWandbEntity.setText(entity)
+                    }
+                }
+                launch {
+                    viewModel.wandbKey.collectLatest { key ->
+                        if (binding.editWandbKey.text.isNullOrEmpty()) binding.editWandbKey.setText(key)
+                    }
+                }
             }
         }
     }
@@ -104,6 +119,11 @@ class SettingsFragment : BaseFragment<FragmentSettingsBinding>() {
             binding.layoutPort.error = null
 
             viewModel.saveConnectionSettings(ip, port)
+            viewModel.saveObservabilitySettings(
+                gpuIp      = binding.editGpuIp.text?.toString()?.trim() ?: "192.168.1.100",
+                wandbKey   = binding.editWandbKey.text?.toString()?.trim() ?: "",
+                wandbEntity= binding.editWandbEntity.text?.toString()?.trim() ?: ""
+            )
             flashSaved()
         }
     }

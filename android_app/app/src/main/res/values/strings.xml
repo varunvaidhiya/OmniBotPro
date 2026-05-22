@@ -62,4 +62,8 @@
     <string name="max_linear_velocity">Max Linear Velocity</string>
     <string name="max_angular_velocity">Max Angular Velocity</string>
     <string name="joystick_sensitivity">Joystick Sensitivity</string>
+
+    <!-- Observability -->
+    <string name="hud_label_observability">OBSERVABILITY</string>
+    <string name="title_observability">OBSERVE</string>
 </resources>

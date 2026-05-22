@@ -10,12 +10,17 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(private val preferences: AppPreferences) : ViewModel() {
 
-    val robotIp = preferences.robotIp
-    val robotPort = preferences.robotPort
+    val robotIp    = preferences.robotIp
+    val robotPort  = preferences.robotPort
+    val gpuIp      = preferences.gpuDesktopIp
+    val wandbKey   = preferences.wandbApiKey
+    val wandbEntity= preferences.wandbEntity
 
     fun saveConnectionSettings(ip: String, port: Int) {
-        viewModelScope.launch {
-            preferences.saveConnectionSettings(ip, port)
-        }
+        viewModelScope.launch { preferences.saveConnectionSettings(ip, port) }
+    }
+
+    fun saveObservabilitySettings(gpuIp: String, wandbKey: String, wandbEntity: String) {
+        viewModelScope.launch { preferences.saveObservabilitySettings(gpuIp, wandbKey, wandbEntity) }
     }
 }

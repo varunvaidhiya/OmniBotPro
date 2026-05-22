@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp"
+    android:gravity="center_vertical">
+
+    <!-- Severity dot -->
+    <View
+        android:id="@+id/accent_dot"
+        android:layout_width="4dp"
+        android:layout_height="4dp"
+        android:background="@drawable/shape_circle_green"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="6dp" />
+
+    <!-- Timestamp -->
+    <TextView
+        android:id="@+id/text_time"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:text="00:00:00"
+        android:textSize="7sp"
+        android:textColor="@color/hud_inactive"
+        android:fontFamily="monospace"
+        android:layout_marginEnd="6dp" />
+
+    <!-- Severity badge -->
+    <TextView
+        android:id="@+id/text_severity"
+        android:layout_width="28dp"
+        android:layout_height="wrap_content"
+        android:text="INFO"
+        android:textSize="7sp"
+        android:textColor="@color/hud_muted"
+        android:fontFamily="monospace"
+        android:layout_marginEnd="6dp" />
+
+    <!-- Node name -->
+    <TextView
+        android:id="@+id/text_node"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:text="node"
+        android:textSize="7sp"
+        android:textColor="@color/hud_muted"
+        android:fontFamily="monospace"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:layout_marginEnd="6dp" />
+
+    <!-- Message -->
+    <TextView
+        android:id="@+id/text_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="log message"
+        android:textSize="8sp"
+        android:textColor="@color/hud_text"
+        android:fontFamily="monospace"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:paddingEnd="10dp" />
+
+</LinearLayout>
