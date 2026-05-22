@@ -1023,6 +1023,98 @@ ros2 launch omnibot_metrics metrics.launch.py machine:=gpu_desktop port:=8889
 
 ---
 
+## Weights & Biases (W&B) Integration
+
+All three training pipelines log to W&B when a project name is provided. One-time setup:
+
+```bash
+pip install wandb>=0.16.0
+wandb login   # paste API key from wandb.ai/authorize
+```
+
+### Training — LeRobot / SmolVLA
+
+```bash
+python lerobot_engine/train.py \
+  --model smolvla \
+  --dataset-path ~/datasets/mobile_manipulation \
+  --output-dir ~/checkpoints/smolvla_run1 \
+  --wandb-project omnibot_smolvla \
+  --wandb-run-name "smolvla-lr1e-4-bs8"
+```
+
+Logs per-step loss + grad norm every 50 batches, per-epoch train/eval loss + LR curve, and uploads checkpoint artifacts (tagged `best` and `epoch-XXXX`) to the W&B artifact registry.
+
+### Training — RL Navigation (Isaac Lab)
+
+```bash
+python rl_engine/scripts/train_nav.py \
+  --num_envs 512 \
+  --wandb_project omnibot_nav   # default; pass "" to use TensorBoard instead
+```
+
+RSL-RL logs PPO metrics (mean reward, episode length, value loss, surrogate loss, entropy) automatically. Full YAML hyperparameter config is attached to the run.
+
+### Training — RL Arm (Isaac Lab)
+
+```bash
+python rl_engine/scripts/train_arm.py \
+  --num_envs 256 \
+  --wandb_project omnibot_arm
+```
+
+### ONNX Export — Artifact Tracking
+
+```bash
+python rl_engine/export/export_policy.py \
+  --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
+  --output ~/models/omnibot_nav_policy.onnx \
+  --type nav \
+  --wandb_project omnibot_nav \
+  --wandb_source_run <run_id>   # links artifact back to the training run
+```
+
+### Hyperparameter Sweeps
+
+```bash
+# Navigation RL sweep (Bayesian, ~20 runs recommended)
+wandb sweep rl_engine/config/wandb_sweep_nav.yaml
+wandb agent <sweep_id>
+
+# Arm RL sweep
+wandb sweep rl_engine/config/wandb_sweep_arm.yaml
+wandb agent <sweep_id>
+
+# SmolVLA sweep
+wandb sweep lerobot_engine/wandb_sweep_smolvla.yaml
+wandb agent <sweep_id>
+```
+
+### Runtime Monitoring (Deployed Robot)
+
+Enable by setting `wandb_project` in the RL node params YAML:
+
+```yaml
+# robot_ws/src/omnibot_rl/config/rl_nav_params.yaml
+rl_nav_node:
+  ros__parameters:
+    wandb_project: "omnibot_nav"   # streams runtime metrics at 5s intervals
+```
+
+Logged runtime metrics: `inference_ms`, `min_lidar_dist`, `cmd_vx/vy/omega`,
+`dist_to_goal`, `goal_reached` events.
+
+### W&B Files
+
+| File | Purpose |
+|---|---|
+| `lerobot_engine/wandb_sweep_smolvla.yaml` | Bayesian sweep for SmolVLA fine-tuning |
+| `rl_engine/config/wandb_sweep_nav.yaml` | Bayesian sweep for nav PPO |
+| `rl_engine/config/wandb_sweep_arm.yaml` | Bayesian sweep for arm PPO |
+| `robot_ws/src/omnibot_rl/omnibot_rl/wandb_runtime_logger.py` | Buffered runtime logger |
+
+---
+
 ## Known Issues & Mismatches
 
 No open issues. All previously tracked mismatches have been resolved.
