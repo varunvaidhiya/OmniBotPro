@@ -142,7 +142,10 @@ jobs:
         run: |
           pip3 install -e packages/yahboom_ros2 -e packages/vla_serve \
                        -e packages/robot_episode_dataset \
-                       -e packages/mecanum_drive_ros2 --break-system-packages
+                       -e packages/mecanum_drive_ros2 \
+                       -e packages/omnibot_connector \
+                       pytest-asyncio websockets \
+                       --break-system-packages
           # Enforce 60% threshold on tested packages only.
           # ros2_bev_stitcher and robot_episode_dataset have no unit tests yet
           # (they require ROS or large deps) — include them in the XML for
@@ -151,6 +154,7 @@ jobs:
                  --cov=packages/yahboom_ros2 \
                  --cov=packages/vla_serve \
                  --cov=packages/mecanum_drive_ros2 \
+                 --cov=packages/omnibot_connector \
                  --cov-report=xml:coverage-packages.xml --cov-report=term-missing \
                  --cov-fail-under=60 \
                  -v
@@ -202,5 +206,30 @@ jobs:
         run: |
           pytest packages/vla_serve/ -v \
                  --cov=packages/vla_serve \
+                 --cov-report=term-missing \
+                 --cov-fail-under=60
+
+  connector_test:
+    name: omnibot_connector Tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install omnibot_connector
+        run: |
+          pip install -e packages/omnibot_connector \
+                      httpx pytest pytest-cov pytest-asyncio \
+                      prometheus-fastapi-instrumentator prometheus_client \
+                      websockets pyyaml
+
+      - name: Run omnibot_connector tests
+        run: |
+          pytest packages/omnibot_connector/ -v \
+                 --cov=packages/omnibot_connector \
                  --cov-report=term-missing \
                  --cov-fail-under=60

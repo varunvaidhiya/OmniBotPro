@@ -192,6 +192,37 @@ services:
     profiles:
       - multi-sim
 
+  # ── OmniBot Agent Connector (MCP + REST + WebSocket stream) ─────────────
+  connector:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile.connector
+    image: omnibot/connector:latest
+    ports:
+      - "8080:8080"    # REST API
+      - "8081:8081"    # MCP server
+      - "8082:8082"    # WebSocket stream
+    environment:
+      <<: *ros-env
+      ROSBRIDGE_URL: ws://robot:9090
+      CONNECTOR_REST_PORT: "8080"
+      CONNECTOR_MCP_PORT: "8081"
+      CONNECTOR_STREAM_PORT: "8082"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      VLA_SERVE_URL: "http://vla:8000"
+      EPISODE_DIR: "/data/episodes"
+    volumes:
+      - connector_data:/data
+      - ./robot_ws/src/omnibot_hybrid/config:/config:ro
+    depends_on:
+      - robot
+    profiles: [single, connector]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      retries: 3
+      start_period: 10s
+
   # ── Standalone ROSBridge (when robot service is not used) ────────────────
   rosbridge:
     image: osrf/ros:jazzy-ros-core
@@ -394,6 +425,8 @@ services:
 
 volumes:
   vla_model_cache:
+    driver: local
+  connector_data:
     driver: local
   prometheus_data:
   loki_data:
