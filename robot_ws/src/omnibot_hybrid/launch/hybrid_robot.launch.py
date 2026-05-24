@@ -53,7 +53,7 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
+from launch.actions import DeclareLaunchArgument, ExecuteProcess, IncludeLaunchDescription
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PythonExpression
@@ -94,6 +94,16 @@ def generate_launch_description():
         "policy_checkpoint", default="lerobot/smolvla_base"
     )
     use_langchain = LaunchConfiguration("use_langchain", default="false")
+    use_connector = LaunchConfiguration("use_connector", default="false")
+
+    # ── OmniBot Connector (optional, use_connector:=true) ────────────────────
+    connector_process = ExecuteProcess(
+        cmd=["omnibot-connector"],
+        name="omnibot_connector",
+        output="screen",
+        additional_env={"ROSBRIDGE_URL": "ws://localhost:9090"},
+        condition=IfCondition(use_connector),
+    )
 
     # ── Robot driver ──────────────────────────────────────────────────────────
     # Remapped: driver reads /cmd_vel/out (mux output) instead of /cmd_vel.
@@ -398,7 +408,16 @@ def generate_launch_description():
                     "Requires ANTHROPIC_API_KEY env var."
                 ),
             ),
+            DeclareLaunchArgument(
+                "use_connector",
+                default_value="false",
+                description=(
+                    "Start omnibot-connector REST/MCP/WS bridge on ports 8080/8081/8082. "
+                    "Requires omnibot-connector package to be installed."
+                ),
+            ),
             # ── Nodes ─────────────────────────────────────────────────────────────
+            connector_process,
             driver_node,
             arm_cmd_mux_node,
             rl_inference,
