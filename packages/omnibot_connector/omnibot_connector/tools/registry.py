@@ -34,9 +34,18 @@ TOOLS: list[dict] = [
         "parameters": {
             "type": "object",
             "properties": {
-                "x": {"type": "number", "description": "X coordinate in map frame (metres)"},
-                "y": {"type": "number", "description": "Y coordinate in map frame (metres)"},
-                "yaw": {"type": "number", "description": "Heading in radians (-π to π)"},
+                "x": {
+                    "type": "number",
+                    "description": "X coordinate in map frame (metres)",
+                },
+                "y": {
+                    "type": "number",
+                    "description": "Y coordinate in map frame (metres)",
+                },
+                "yaw": {
+                    "type": "number",
+                    "description": "Heading in radians (-π to π)",
+                },
             },
             "required": ["x", "y", "yaw"],
         },
@@ -47,8 +56,14 @@ TOOLS: list[dict] = [
         "parameters": {
             "type": "object",
             "properties": {
-                "location": {"type": "string", "description": "Named destination location"},
-                "task": {"type": "string", "description": "Natural language manipulation task, e.g. 'pick up the red cup'"},
+                "location": {
+                    "type": "string",
+                    "description": "Named destination location",
+                },
+                "task": {
+                    "type": "string",
+                    "description": "Natural language manipulation task, e.g. 'pick up the red cup'",
+                },
             },
             "required": ["location", "task"],
         },
@@ -59,7 +74,10 @@ TOOLS: list[dict] = [
         "parameters": {
             "type": "object",
             "properties": {
-                "task": {"type": "string", "description": "Natural language task description, e.g. 'open the drawer'"}
+                "task": {
+                    "type": "string",
+                    "description": "Natural language task description, e.g. 'open the drawer'",
+                }
             },
             "required": ["task"],
         },
@@ -102,7 +120,10 @@ TOOLS: list[dict] = [
         "parameters": {
             "type": "object",
             "properties": {
-                "active": {"type": "boolean", "description": "true to activate e-stop, false to clear"}
+                "active": {
+                    "type": "boolean",
+                    "description": "true to activate e-stop, false to clear",
+                }
             },
             "required": ["active"],
         },
@@ -143,7 +164,10 @@ TOOLS: list[dict] = [
         "parameters": {
             "type": "object",
             "properties": {
-                "command": {"type": "string", "description": "Natural language command, e.g. 'find the red cup and bring it to me'"}
+                "command": {
+                    "type": "string",
+                    "description": "Natural language command, e.g. 'find the red cup and bring it to me'",
+                }
             },
             "required": ["command"],
         },

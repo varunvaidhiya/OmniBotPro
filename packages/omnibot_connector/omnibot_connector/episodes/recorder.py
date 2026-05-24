@@ -27,7 +27,11 @@ class EpisodeRecorder:
         }
         async with self._lock:
             self._current_episode.append(event)
-        if tool in ("navigate_to_location", "navigate_then_manipulate", "execute_manipulation"):
+        if tool in (
+            "navigate_to_location",
+            "navigate_then_manipulate",
+            "execute_manipulation",
+        ):
             await self._flush()
 
     async def _flush(self) -> None:

@@ -1,4 +1,5 @@
 """Comprehensive tests for omnibot_connector."""
+
 from __future__ import annotations
 
 import asyncio
@@ -7,10 +8,7 @@ import os
 import tempfile
 from pathlib import Path
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock, patch
-
 import pytest
-import pytest_asyncio
 import yaml
 from fastapi import HTTPException, Request
 from fastapi.testclient import TestClient
@@ -318,7 +316,12 @@ async def test_list_locations_with_yaml(fake_ros, state_store):
     from omnibot_connector.config import ConnectorConfig
     from omnibot_connector.tools.system import list_locations
 
-    locs = {"locations": {"kitchen": {"x": 1.0, "y": 2.0, "yaw": 0.0}, "home": {"x": 0.0, "y": 0.0, "yaw": 0.0}}}
+    locs = {
+        "locations": {
+            "kitchen": {"x": 1.0, "y": 2.0, "yaw": 0.0},
+            "home": {"x": 0.0, "y": 0.0, "yaw": 0.0},
+        }
+    }
     with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         yaml.safe_dump(locs, f)
         path = f.name
@@ -444,7 +447,9 @@ async def test_navigate_then_manipulate(fake_ros, state_store, cfg):
     from omnibot_connector.tools.navigation import navigate_then_manipulate
 
     cfg.locations_yaml = "/nonexistent/locations.yaml"
-    result = await navigate_then_manipulate("kitchen", "pick up the cup", fake_ros, state_store, cfg)
+    result = await navigate_then_manipulate(
+        "kitchen", "pick up the cup", fake_ros, state_store, cfg
+    )
     assert result["status"] == "sent"
     msg = fake_ros.last("/mission/command")
     assert "navigate:kitchen" in msg["data"]
@@ -575,8 +580,13 @@ def _make_test_app(state_store, fake_ros, cfg):
                 request.app.state.state_store,
                 request.app.state.cfg,
             )
-            await request.app.state.recorder.record_tool_call(body.tool, body.arguments, result)
-            return {"result": result, "latency_ms": round((time.monotonic() - t0) * 1000, 1)}
+            await request.app.state.recorder.record_tool_call(
+                body.tool, body.arguments, result
+            )
+            return {
+                "result": result,
+                "latency_ms": round((time.monotonic() - t0) * 1000, 1),
+            }
         except ValueError as exc:
             raise HTTPException(status_code=400, detail=str(exc))
         except RuntimeError as exc:
@@ -745,7 +755,7 @@ async def test_episode_recorder_creates_dir():
         episode_dir = os.path.join(tmpdir, "deep", "nested", "dir")
         cfg = ConnectorConfig()
         cfg.episode_dir = episode_dir
-        recorder = EpisodeRecorder(cfg)
+        EpisodeRecorder(cfg)
         assert os.path.isdir(episode_dir)
 
 

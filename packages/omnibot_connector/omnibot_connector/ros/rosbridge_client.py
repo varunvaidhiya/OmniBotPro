@@ -76,9 +76,13 @@ class RosBridgeClient:
 
     async def _on_connected(self, ws) -> None:
         for topic, msg_type in OUTBOUND_TOPICS.items():
-            await self._send_raw(ws, {"op": "advertise", "topic": topic, "type": msg_type})
+            await self._send_raw(
+                ws, {"op": "advertise", "topic": topic, "type": msg_type}
+            )
         for topic, msg_type in INBOUND_TOPICS.items():
-            await self._send_raw(ws, {"op": "subscribe", "topic": topic, "type": msg_type})
+            await self._send_raw(
+                ws, {"op": "subscribe", "topic": topic, "type": msg_type}
+            )
 
     async def _receive_loop(self, ws) -> None:
         async for raw in ws:
@@ -115,7 +119,9 @@ class RosBridgeClient:
         if not self._ws:
             raise RuntimeError("ROSBridge not connected")
         async with self._send_lock:
-            await self._send_raw(self._ws, {"op": "publish", "topic": topic, "msg": msg})
+            await self._send_raw(
+                self._ws, {"op": "publish", "topic": topic, "msg": msg}
+            )
 
     @staticmethod
     async def _send_raw(ws, payload: dict) -> None:

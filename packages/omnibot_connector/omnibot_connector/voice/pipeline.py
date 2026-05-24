@@ -1,4 +1,5 @@
 """Voice pipeline: openWakeWord → faster-whisper → ROS /ai/command + WS audio stream."""
+
 from __future__ import annotations
 
 import asyncio
@@ -23,7 +24,8 @@ class VoicePipeline:
     def set_active_mode(self, active: bool) -> None:
         self._active_mode = active
         logger.info(
-            "Voice pipeline mode: %s", "ACTIVE (24/7)" if active else "PASSIVE (wake word only)"
+            "Voice pipeline mode: %s",
+            "ACTIVE (24/7)" if active else "PASSIVE (wake word only)",
         )
 
     def start(self) -> None:
@@ -41,7 +43,9 @@ class VoicePipeline:
             from openwakeword.model import Model
 
             oww = Model(wakeword_models=[self._cfg.voice_wake_word])
-            whisper = WhisperModel(self._cfg.whisper_model, device=self._cfg.whisper_device)
+            whisper = WhisperModel(
+                self._cfg.whisper_model, device=self._cfg.whisper_device
+            )
             CHUNK = 1280  # 80 ms at 16 kHz
             SILENCE_THRESHOLD = 0.01
             SILENCE_FRAMES_REQUIRED = int(1.5 * 16000 / CHUNK)
@@ -86,9 +90,13 @@ class VoicePipeline:
                 blocksize=CHUNK,
                 callback=callback,
             ):
-                logger.info("Voice pipeline listening (wake word: '%s')", self._cfg.voice_wake_word)
+                logger.info(
+                    "Voice pipeline listening (wake word: '%s')",
+                    self._cfg.voice_wake_word,
+                )
                 while not self._stop.is_set():
                     import time
+
                     time.sleep(0.1)
         except ImportError:
             logger.warning(
@@ -105,6 +113,7 @@ class VoicePipeline:
                 return
             logger.info("Transcribed: %s", text)
             import time
+
             event = {"type": "voice_command", "text": text, "timestamp": time.time()}
             if self._push:
                 self._push(event)

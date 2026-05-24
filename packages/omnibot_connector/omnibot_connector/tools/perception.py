@@ -25,7 +25,11 @@ async def get_camera_image(camera: str, ros, state, cfg) -> dict:
         raise ValueError(f"camera must be one of {valid}, got '{camera}'")
     jpeg = await state.get_camera(camera)
     if jpeg is None:
-        return {"camera": camera, "image_base64": None, "error": "No frame available yet"}
+        return {
+            "camera": camera,
+            "image_base64": None,
+            "error": "No frame available yet",
+        }
     b64 = base64.b64encode(jpeg).decode()
     return {"camera": camera, "image_base64": b64, "timestamp": time.time()}
 
@@ -42,7 +46,9 @@ async def describe_scene(camera: str, ros, state, cfg) -> dict:
         return {"description": _describe_with_claude(b64, cfg)}
     if cfg.vla_serve_url:
         return {"description": _describe_with_vla_serve(b64, cfg)}
-    return {"description": "No vision API configured (set ANTHROPIC_API_KEY or VLA_SERVE_URL)"}
+    return {
+        "description": "No vision API configured (set ANTHROPIC_API_KEY or VLA_SERVE_URL)"
+    }
 
 
 def _describe_with_claude(b64: str, cfg) -> str:

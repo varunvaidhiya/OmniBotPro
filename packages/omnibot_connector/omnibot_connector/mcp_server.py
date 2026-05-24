@@ -1,4 +1,5 @@
 """OmniBot Connector — MCP server (port 8081) for OpenClaw / Hermes."""
+
 from __future__ import annotations
 
 import base64
@@ -7,7 +8,7 @@ import logging
 
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.types import EmbeddedResource, ImageContent, Resource, TextContent, Tool
+from mcp.types import Resource, TextContent, Tool
 from starlette.applications import Starlette
 from starlette.routing import Mount, Route
 
@@ -40,7 +41,11 @@ async def list_tools():
 @mcp.call_tool()
 async def call_tool(name: str, arguments: dict):
     if _ros is None or _state is None or _cfg is None:
-        return [TextContent(type="text", text=json.dumps({"error": "Server not initialised"}))]
+        return [
+            TextContent(
+                type="text", text=json.dumps({"error": "Server not initialised"})
+            )
+        ]
     try:
         result = await dispatch(name, arguments, _ros, _state, _cfg)
         return [TextContent(type="text", text=json.dumps(result))]
@@ -107,7 +112,7 @@ def _build_starlette_app(cfg) -> Starlette:
     transport = SseServerTransport("/messages")
 
     async def handle_sse(scope, receive, send):
-        async with mcp.run_sse_async(transport) as session:
+        async with mcp.run_sse_async(transport):
             await transport.connect_sse(scope, receive, send)
 
     async def handle_messages(scope, receive, send):
@@ -138,7 +143,9 @@ def main() -> None:
     async def run():
         await _ros.start()
         starlette_app = _build_starlette_app(cfg)
-        config = uvicorn.Config(starlette_app, host="0.0.0.0", port=cfg.mcp_port, log_level="info")
+        config = uvicorn.Config(
+            starlette_app, host="0.0.0.0", port=cfg.mcp_port, log_level="info"
+        )
         server = uvicorn.Server(config)
         await server.serve()
 

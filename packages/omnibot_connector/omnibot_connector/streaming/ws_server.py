@@ -1,4 +1,5 @@
 """WebSocket push server (port 8082) — streams robot state and camera frames to agents."""
+
 from __future__ import annotations
 
 import asyncio
@@ -65,7 +66,9 @@ async def _stream_state(websocket) -> None:
 async def _stream_camera(websocket, camera: str) -> None:
     valid = {"front", "wrist", "bev"}
     if camera not in valid:
-        await websocket.send(json.dumps({"error": f"Unknown camera '{camera}'. Use: {valid}"}))
+        await websocket.send(
+            json.dumps({"error": f"Unknown camera '{camera}'. Use: {valid}"})
+        )
         return
     fps = _cfg.camera_fps if _cfg else 2
     interval = 1.0 / max(1, fps)
@@ -78,7 +81,9 @@ async def _stream_camera(websocket, camera: str) -> None:
         if jpeg and jpeg != last_sent:
             b64 = base64.b64encode(jpeg).decode()
             await websocket.send(
-                json.dumps({"camera": camera, "image_base64": b64, "timestamp": time.time()})
+                json.dumps(
+                    {"camera": camera, "image_base64": b64, "timestamp": time.time()}
+                )
             )
             last_sent = jpeg
         await asyncio.sleep(interval)

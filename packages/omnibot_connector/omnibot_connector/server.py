@@ -1,4 +1,5 @@
 """OmniBot Connector — FastAPI REST API (port 8080)."""
+
 from __future__ import annotations
 
 import time
@@ -7,7 +8,6 @@ from typing import Any
 
 import yaml
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel
 
@@ -80,8 +80,13 @@ async def call_tool(body: ToolCallRequest, request: Request):
             request.app.state.state_store,
             request.app.state.cfg,
         )
-        await request.app.state.recorder.record_tool_call(body.tool, body.arguments, result)
-        return {"result": result, "latency_ms": round((time.monotonic() - t0) * 1000, 1)}
+        await request.app.state.recorder.record_tool_call(
+            body.tool, body.arguments, result
+        )
+        return {
+            "result": result,
+            "latency_ms": round((time.monotonic() - t0) * 1000, 1),
+        }
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
     except RuntimeError as exc:
