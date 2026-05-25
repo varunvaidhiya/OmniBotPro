@@ -26,7 +26,6 @@ Parameters:
 
 import hashlib
 import json
-import os
 import shutil
 import subprocess
 import tarfile
@@ -61,7 +60,9 @@ class OtaAgentNode(Node):
         self._manifest_url: str = self.get_parameter("manifest_url").value
         self._check_interval: float = self.get_parameter("check_interval_s").value
         ws_root = self.get_parameter("workspace_root").value
-        self._workspace_root = Path(ws_root) if ws_root else Path.home() / "OmniBot" / "robot_ws"
+        self._workspace_root = (
+            Path(ws_root) if ws_root else Path.home() / "OmniBot" / "robot_ws"
+        )
         models_dir = self.get_parameter("models_dir").value
         self._models_dir = Path(models_dir) if models_dir else Path.home() / "models"
         self._service_name: str = self.get_parameter("service_name").value
@@ -89,7 +90,9 @@ class OtaAgentNode(Node):
         self.create_service(Trigger, "/ota/check", self._check_cb)
         self.create_service(Trigger, "/ota/apply_workspace", self._apply_workspace_cb)
         self.create_service(Trigger, "/ota/apply_models", self._apply_models_cb)
-        self.create_service(Trigger, "/ota/rollback_workspace", self._rollback_workspace_cb)
+        self.create_service(
+            Trigger, "/ota/rollback_workspace", self._rollback_workspace_cb
+        )
 
         # ── Timer ──────────────────────────────────────────────────────────────
         self.create_timer(self._check_interval, self._check_updates)
@@ -228,7 +231,9 @@ class OtaAgentNode(Node):
             service = comp.get("restart_service", self._service_name)
 
             if not url or not expected_sha:
-                raise ValueError("manifest missing ros_workspace download_url or sha256")
+                raise ValueError(
+                    "manifest missing ros_workspace download_url or sha256"
+                )
 
             self._set_ws_state("DOWNLOADING")
             artifact = self._cache_dir / Path(url).name
@@ -237,7 +242,9 @@ class OtaAgentNode(Node):
             self._set_ws_state("VERIFYING")
             actual = self._sha256(artifact)
             if actual != expected_sha:
-                raise ValueError(f"SHA-256 mismatch: expected {expected_sha} got {actual}")
+                raise ValueError(
+                    f"SHA-256 mismatch: expected {expected_sha} got {actual}"
+                )
             self.get_logger().info("[OTA] Workspace SHA-256 OK")
 
             self._set_ws_state("INSTALLING")

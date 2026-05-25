@@ -6,10 +6,7 @@ snapshot/restore logic, and model apply path via internal methods.
 """
 
 import hashlib
-import json
 import shutil
-import tempfile
-from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -53,6 +50,7 @@ def _resp():
 
 # ── SHA-256 ────────────────────────────────────────────────────────────────────
 
+
 class TestSha256:
     def test_known_hash(self, tmp_path):
         f = tmp_path / "data.bin"
@@ -68,6 +66,7 @@ class TestSha256:
 
 
 # ── Snapshot ───────────────────────────────────────────────────────────────────
+
 
 class TestSnapshot:
     def test_copies_install_to_backup(self, node, tmp_ws):
@@ -88,6 +87,7 @@ class TestSnapshot:
 
 
 # ── Rollback ───────────────────────────────────────────────────────────────────
+
 
 class TestRollback:
     def test_fails_gracefully_with_no_backup(self, node):
@@ -113,6 +113,7 @@ class TestRollback:
 
 
 # ── Check service ──────────────────────────────────────────────────────────────
+
 
 class TestCheckService:
     def test_empty_url_returns_failure(self, node):
@@ -147,6 +148,7 @@ class TestCheckService:
 
 # ── Apply workspace ────────────────────────────────────────────────────────────
 
+
 class TestApplyWorkspace:
     def test_apply_already_current(self, node):
         node._ws_version = "v1.0.0"
@@ -175,6 +177,7 @@ class TestApplyWorkspace:
 
 
 # ── Apply models ───────────────────────────────────────────────────────────────
+
 
 class TestApplyModels:
     def test_model_apply_writes_to_models_dir(self, node, tmp_ws):

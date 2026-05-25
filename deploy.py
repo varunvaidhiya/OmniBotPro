@@ -223,7 +223,9 @@ def _run_interactive(ping_check: bool) -> None:
     mode, vla_ip, pi_ip, sim_ip, domain = args_tuple
     _write_env(mode, vla_ip, pi_ip, sim_ip, domain)
     _show_launch_hints(mode)
-    print("  OTA: edit OTA_MANIFEST_URL in deployment.env after configuring a GitHub Release URL.")
+    print(
+        "  OTA: edit OTA_MANIFEST_URL in deployment.env after configuring a GitHub Release URL."
+    )
 
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
@@ -307,7 +309,11 @@ def main() -> None:
 
     if args.mode == "single":
         _write_env(
-            "single", "127.0.0.1", "127.0.0.1", "127.0.0.1", args.domain,
+            "single",
+            "127.0.0.1",
+            "127.0.0.1",
+            "127.0.0.1",
+            args.domain,
             ota_manifest_url=args.ota_manifest_url,
             ota_channel=args.ota_channel,
         )
@@ -323,7 +329,11 @@ def main() -> None:
             if not ok:
                 print("\n  [WARN] Some machines unreachable — continuing anyway.")
         _write_env(
-            "multi", args.vla_ip, args.pi_ip, args.sim_ip, args.domain,
+            "multi",
+            args.vla_ip,
+            args.pi_ip,
+            args.sim_ip,
+            args.domain,
             ota_manifest_url=args.ota_manifest_url,
             ota_channel=args.ota_channel,
         )
