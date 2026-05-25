@@ -32,6 +32,9 @@ class ROSBridgeManager(
     
     var connectionState = ConnectionState.DISCONNECTED
         private set
+
+    private val serviceCallbacks = mutableMapOf<String, (Map<String, Any>) -> Unit>()
+    private var serviceCallId = 0
     
     /**
      * Connect to ROSBridge server
@@ -87,6 +90,22 @@ class ROSBridgeManager(
     }
     
     /**
+     * Call a ROS service via ROSBridge (std_srvs/Trigger or custom).
+     * Callback is invoked on the IO thread when the response arrives.
+     */
+    fun callService(
+        service: String,
+        args: Map<String, Any> = emptyMap(),
+        id: String = "svc_${++serviceCallId}",
+        callback: (Map<String, Any>) -> Unit
+    ) {
+        serviceCallbacks[id] = callback
+        sendMessage(
+            mapOf("op" to "call_service", "service" to service, "args" to args, "id" to id)
+        )
+    }
+
+    /**
      * Send raw message to ROSBridge
      */
     private fun sendMessage(message: Map<String, Any>) {
@@ -138,11 +157,28 @@ class ROSBridgeManager(
             try {
                 @Suppress("UNCHECKED_CAST")
                 val message = gson.fromJson(text, Map::class.java) as Map<String, Any>
-                val topic = message["topic"] as? String ?: return
-                @Suppress("UNCHECKED_CAST")
-                val msg = message["msg"] as? Map<String, Any> ?: return
-                
-                listener.onMessageReceived(topic, msg)
+
+                when (message["op"] as? String) {
+                    "service_response" -> {
+                        val id = message["id"] as? String ?: return
+                        @Suppress("UNCHECKED_CAST")
+                        val values = (message["values"] as? Map<String, Any>) ?: emptyMap<String, Any>()
+                        serviceCallbacks.remove(id)?.invoke(values)
+                    }
+                    "publish" -> {
+                        val topic = message["topic"] as? String ?: return
+                        @Suppress("UNCHECKED_CAST")
+                        val msg = message["msg"] as? Map<String, Any> ?: return
+                        listener.onMessageReceived(topic, msg)
+                    }
+                    else -> {
+                        // Fallback: some ROSBridge versions omit the "op" key for topic messages
+                        val topic = message["topic"] as? String ?: return
+                        @Suppress("UNCHECKED_CAST")
+                        val msg = message["msg"] as? Map<String, Any> ?: return
+                        listener.onMessageReceived(topic, msg)
+                    }
+                }
             } catch (e: Exception) {
                 Timber.e(e, "Failed to parse message: $text")
             }

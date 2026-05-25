@@ -66,4 +66,8 @@
     <!-- Observability -->
     <string name="hud_label_observability">OBSERVABILITY</string>
     <string name="title_observability">OBSERVE</string>
+
+    <!-- OTA Updates -->
+    <string name="title_ota">OTA</string>
+    <string name="hud_label_ota">OTA UPDATES</string>
 </resources>

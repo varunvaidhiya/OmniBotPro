@@ -47,4 +47,10 @@
         android:label="OBSERVABILITY"
         tools:layout="@layout/fragment_observability" />
 
+    <fragment
+        android:id="@+id/navigation_ota"
+        android:name="com.varunvaidhiya.robotcontrol.ui.ota.OTAFragment"
+        android:label="@string/hud_label_ota"
+        tools:layout="@layout/fragment_ota" />
+
 </navigation>

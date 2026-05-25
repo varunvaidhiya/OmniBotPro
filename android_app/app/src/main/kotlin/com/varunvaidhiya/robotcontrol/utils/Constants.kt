@@ -78,4 +78,15 @@ object Constants {
 
     // Point cloud: max points rendered per frame (performance guard)
     const val POINT_CLOUD_MAX_POINTS   = 20_000
+
+    // ── OTA Update System ─────────────────────────────────────────────────────
+    // Topics: subscribe
+    const val TOPIC_OTA_STATUS          = "/ota/status"    // std_msgs/String (JSON)
+    const val TOPIC_OTA_PROGRESS        = "/ota/progress"  // std_msgs/String (JSON)
+
+    // ROS services: called via ROSBridgeManager.callService()
+    const val SERVICE_OTA_CHECK              = "/ota/check"
+    const val SERVICE_OTA_APPLY_WORKSPACE    = "/ota/apply_workspace"
+    const val SERVICE_OTA_APPLY_MODELS       = "/ota/apply_models"
+    const val SERVICE_OTA_ROLLBACK_WORKSPACE = "/ota/rollback_workspace"
 }

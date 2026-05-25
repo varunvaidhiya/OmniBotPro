@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>omnibot_ota</name>
+  <version>1.0.0</version>
+  <description>Over-the-Air update agent for OmniBot — polls a manifest, verifies downloads, and installs ROS workspace and ONNX model updates atomically with rollback support.</description>
+  <maintainer email="varunvaidhiya@todo.todo">varunvaidhiya</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>rclpy</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

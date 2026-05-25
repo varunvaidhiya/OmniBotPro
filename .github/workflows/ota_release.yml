@@ -1,0 +1,118 @@
+name: OTA Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*'
+
+permissions:
+  contents: write   # required by softprops/action-gh-release@v2
+
+jobs:
+  build-and-release:
+    name: Build ROS workspace & publish OTA manifest
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+
+      - name: Build ROS workspace inside Docker
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -w /workspace/robot_ws \
+            osrf/ros:jazzy-desktop \
+            bash -c "
+              apt-get update -qq && \
+              rosdep update --rosdistro jazzy && \
+              rosdep install --from-paths src --ignore-src -y --rosdistro jazzy && \
+              pip3 install numpy'<2.0' && \
+              source /opt/ros/jazzy/setup.bash && \
+              colcon build --symlink-install 2>&1 && \
+              echo '${GITHUB_REF_NAME}' > install/.ota_version
+            "
+
+      - name: Package workspace tarball
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          ARTIFACT="ros-workspace-${VERSION}.tar.zst"
+          cd robot_ws
+          tar \
+            --exclude=./build \
+            --exclude=./log \
+            -I 'zstd -T0 -15' \
+            -cf "../${ARTIFACT}" \
+            install/
+          echo "artifact=${ARTIFACT}" >> "$GITHUB_ENV"
+          echo "artifact_path=${{ github.workspace }}/${ARTIFACT}" >> "$GITHUB_ENV"
+
+      - name: Compute SHA-256
+        id: sha256
+        run: |
+          SHA=$(sha256sum "${{ env.artifact_path }}" | awk '{print $1}')
+          echo "sha256=${SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate manifest.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          SHA="${{ steps.sha256.outputs.sha256 }}"
+          ARTIFACT="${{ env.artifact }}"
+          REPO="${{ github.repository }}"
+
+          python3 - <<EOF
+          import json, os
+          manifest = {
+              "schema_version": 1,
+              "version": "${VERSION}",
+              "published_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+              "components": {
+                  "ros_workspace": {
+                      "filename": "${ARTIFACT}",
+                      "sha256": "${SHA}",
+                      "download_url": "https://github.com/${REPO}/releases/download/${VERSION}/${ARTIFACT}",
+                      "restart_required": True,
+                      "restart_service": "omnibot-robot.service"
+                  },
+                  "nav_policy_onnx": {
+                      "filename": "",
+                      "sha256": "",
+                      "download_url": "",
+                      "target_path": "~/models/omnibot_nav_policy.onnx"
+                  },
+                  "arm_policy_onnx": {
+                      "filename": "",
+                      "sha256": "",
+                      "download_url": "",
+                      "target_path": "~/models/omnibot_arm_policy.onnx"
+                  }
+              },
+              "min_compatible_version": "v1.0.0",
+              "release_notes_url": "https://github.com/${REPO}/releases/tag/${VERSION}"
+          }
+          with open("manifest.json", "w") as f:
+              json.dump(manifest, f, indent=2)
+          print("manifest.json written")
+          EOF
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: "OmniBot ${{ steps.version.outputs.version }}"
+          body: |
+            Automated OTA release.
+
+            SHA-256 (`ros-workspace-${{ steps.version.outputs.version }}.tar.zst`): `${{ steps.sha256.outputs.sha256 }}`
+
+            To update your robot:
+            1. Set `OTA_MANIFEST_URL` in `deployment.env` to the manifest.json URL below.
+            2. From the Android app → OTA tab → tap **Check for Update** → **Apply Robot Update**.
+          files: |
+            ${{ env.artifact_path }}
+            manifest.json
+          make_latest: true

@@ -45,12 +45,24 @@ def generate_launch_description():
         default_value="8888",
         description="HTTP port the Prometheus metrics bridge listens on",
     )
+    declare_use_ota = DeclareLaunchArgument(
+        "use_ota",
+        default_value="false",
+        description="Start OTA update agent (requires OTA_MANIFEST_URL in deployment.env)",
+    )
+    declare_ota_manifest_url = DeclareLaunchArgument(
+        "ota_manifest_url",
+        default_value="",
+        description="URL to OTA manifest.json — overrides deployment.env OTA_MANIFEST_URL",
+    )
 
     use_rosbridge = LaunchConfiguration("use_rosbridge")
     use_foxglove = LaunchConfiguration("use_foxglove")
     use_ekf = LaunchConfiguration("ekf")
     use_metrics = LaunchConfiguration("use_metrics")
     metrics_port = LaunchConfiguration("metrics_port")
+    use_ota = LaunchConfiguration("use_ota")
+    ota_manifest_url = LaunchConfiguration("ota_manifest_url")
 
     # ── Yahboom driver ────────────────────────────────────────────────────────
     # publish_tf is disabled when EKF is running — the EKF owns odom→base_link.
@@ -146,6 +158,18 @@ def generate_launch_description():
         condition=IfCondition(use_metrics),
     )
 
+    # ── OTA update agent ──────────────────────────────────────────────────────
+    # Polls manifest.json for updates; Android app calls /ota/* services.
+    # Enable with: ros2 launch omnibot_bringup robot.launch.py use_ota:=true ota_manifest_url:=<URL>
+    ota_agent_node = Node(
+        package="omnibot_ota",
+        executable="ota_agent",
+        name="ota_agent_node",
+        output="screen",
+        parameters=[{"manifest_url": ota_manifest_url}],
+        condition=IfCondition(use_ota),
+    )
+
     return LaunchDescription(
         [
             declare_use_rosbridge,
@@ -153,6 +177,8 @@ def generate_launch_description():
             declare_ekf,
             declare_use_metrics,
             declare_metrics_port,
+            declare_use_ota,
+            declare_ota_manifest_url,
             driver_with_ekf,
             driver_without_ekf,
             robot_state_publisher,
@@ -160,5 +186,6 @@ def generate_launch_description():
             rosbridge_node,
             foxglove_node,
             metrics_bridge_node,
+            ota_agent_node,
         ]
     )

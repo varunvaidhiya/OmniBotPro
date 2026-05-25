@@ -1,0 +1,22 @@
+[Unit]
+Description=OmniBot Robot Stack (ROS 2 Jazzy) — instance %i
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+# Load deployment.env if present (sets ROS_DOMAIN_ID, OTA_MANIFEST_URL, etc.)
+EnvironmentFile=-%h/OmniBot/deployment.env
+ExecStart=/bin/bash -c '\
+  source /opt/ros/jazzy/setup.bash && \
+  source %h/OmniBot/robot_ws/install/setup.bash && \
+  ros2 launch omnibot_bringup robot.launch.py \
+    use_rosbridge:=true \
+    use_ota:=true \
+    ota_manifest_url:=${OTA_MANIFEST_URL:-}'
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
