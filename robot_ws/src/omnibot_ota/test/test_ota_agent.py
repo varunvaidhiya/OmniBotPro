@@ -6,7 +6,6 @@ snapshot/restore logic, and model apply path via internal methods.
 """
 
 import hashlib
-import shutil
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -184,16 +183,14 @@ class TestApplyModels:
         models_dir = tmp_ws / "models"
         node._models_dir = models_dir
 
-        # Create a fake ONNX artifact in the cache
-        fake_onnx = node._cache_dir / "omnibot-nav-policy-v1.1.0.onnx"
-        fake_onnx.write_bytes(b"\x00" * 16)
-        expected_sha = OtaAgentNode._sha256(fake_onnx)
+        fake_bytes = b"\x00" * 16
+        expected_sha = hashlib.sha256(fake_bytes).hexdigest()
 
         manifest = {
             "version": "v1.1.0",
             "components": {
                 "nav_policy_onnx": {
-                    "download_url": f"http://example.com/{fake_onnx.name}",
+                    "download_url": "http://example.com/omnibot-nav-policy-v1.1.0.onnx",
                     "sha256": expected_sha,
                     "target_path": "~/models/omnibot_nav_policy.onnx",
                 },
@@ -206,8 +203,7 @@ class TestApplyModels:
         }
 
         def fake_download(url, dest, component=""):
-            # Simulate download by copying the pre-existing fake artifact
-            shutil.copy(str(fake_onnx), str(dest))
+            dest.write_bytes(fake_bytes)
 
         with patch.object(node, "_download", side_effect=fake_download):
             node._apply_models(manifest)
