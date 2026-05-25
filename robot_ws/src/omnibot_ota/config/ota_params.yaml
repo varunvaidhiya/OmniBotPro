@@ -1,0 +1,13 @@
+ota_agent_node:
+  ros__parameters:
+    # URL to manifest.json published by CI on GitHub Releases.
+    # Override at launch or via deployment.env → OTA_MANIFEST_URL.
+    manifest_url: ""
+    # Seconds between automatic manifest checks. 3600 = 1 hour.
+    check_interval_s: 3600.0
+    # Absolute path to robot_ws. Empty string → ~/OmniBot/robot_ws.
+    workspace_root: ""
+    # Absolute path to ONNX models directory. Empty string → ~/models.
+    models_dir: ""
+    # systemd service restarted after a successful workspace update.
+    service_name: "omnibot-robot.service"

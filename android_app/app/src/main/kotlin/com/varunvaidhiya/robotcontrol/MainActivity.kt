@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
                     R.id.navigation_controls     -> "ROBOT CONTROLS"
                     R.id.navigation_settings     -> "SETTINGS"
                     R.id.navigation_observability-> "OBSERVABILITY"
+                    R.id.navigation_ota          -> "OTA UPDATES"
                     else -> destination.label?.toString() ?: ""
                 }
                 binding.textScreenTitle.text = title

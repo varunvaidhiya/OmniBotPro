@@ -207,6 +207,35 @@ services:
     profiles:
       - standalone-bridge
 
+  # ── OTA update agent (GPU PC or Pi — manages ROS workspace updates) ────────
+  # Runs the omnibot_ota node inside the robot image.
+  # Start with: docker compose --profile ota up ota_agent
+  ota_agent:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: dev
+    image: omnibot/robot:latest
+    network_mode: host
+    environment:
+      <<: *ros-env
+      OTA_MANIFEST_URL: ${OTA_MANIFEST_URL:-}
+      OTA_CHANNEL: ${OTA_CHANNEL:-stable}
+    volumes:
+      - .:/home/ros/workspace:cached
+    command: >
+      bash -c "
+        source /opt/ros/jazzy/setup.bash &&
+        cd /home/ros/workspace/robot_ws &&
+        source install/setup.bash &&
+        ros2 launch omnibot_ota ota.launch.py
+          manifest_url:=${OTA_MANIFEST_URL:-}
+          service_name:=omnibot-robot.service
+      "
+    restart: unless-stopped
+    profiles:
+      - ota
+
   # ── Observability stack (GPU desktop — run alongside vla service) ─────────
   # Start with: docker compose --profile observability up -d
   # Grafana:      http://localhost:3000  (admin / omnibot)

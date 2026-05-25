@@ -69,6 +69,13 @@ class RobotRepository @Inject constructor() {
     private val _isRecording = MutableStateFlow(false)
     val isRecording: StateFlow<Boolean> = _isRecording.asStateFlow()
 
+    // ── OTA update state (/ota/status, /ota/progress) ─────────────────────────
+    private val _otaStatus = MutableStateFlow<Map<String, Any>>(emptyMap())
+    val otaStatus: StateFlow<Map<String, Any>> = _otaStatus.asStateFlow()
+
+    private val _otaProgress = MutableStateFlow(0)
+    val otaProgress: StateFlow<Int> = _otaProgress.asStateFlow()
+
     // ── ROSBridge listener ─────────────────────────────────────────────────────
     private val rosListener = object : ROSBridgeListener {
         override fun onConnected() {
@@ -179,6 +186,9 @@ class RobotRepository @Inject constructor() {
             // AI orchestration feedback (no-ops if langchain_agent_node not running)
             subscribe(Constants.TOPIC_AI_STATUS,           "std_msgs/String")
             subscribe(Constants.TOPIC_AI_RESPONSE_NEEDED,  "std_msgs/String")
+            // OTA update agent (no-ops if omnibot_ota node not running)
+            subscribe(Constants.TOPIC_OTA_STATUS,          "std_msgs/String")
+            subscribe(Constants.TOPIC_OTA_PROGRESS,        "std_msgs/String")
         }
     }
 
@@ -195,6 +205,8 @@ class RobotRepository @Inject constructor() {
                 Constants.TOPIC_MOTOR_PWM          -> parseMotorData(message)
                 Constants.TOPIC_AI_STATUS          -> parseStringTopic(message) { _aiStatus.value = it }
                 Constants.TOPIC_AI_RESPONSE_NEEDED -> parseStringTopic(message) { _aiResponseNeeded.value = it }
+                Constants.TOPIC_OTA_STATUS         -> parseOtaStatus(message)
+                Constants.TOPIC_OTA_PROGRESS       -> parseOtaProgress(message)
             }
         } catch (e: Exception) {
             Timber.e(e, "Error parsing message for topic: $topic")
@@ -345,5 +357,53 @@ class RobotRepository @Inject constructor() {
             backLeft   = motorStatus("back_left"),
             backRight  = motorStatus("back_right")
         )
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun parseOtaStatus(msg: Map<String, Any>) {
+        val data = msg["data"] as? String ?: return
+        try {
+            val parsed = com.google.gson.Gson().fromJson(data, Map::class.java) as Map<String, Any>
+            _otaStatus.value = parsed
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to parse OTA status JSON")
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun parseOtaProgress(msg: Map<String, Any>) {
+        val data = msg["data"] as? String ?: return
+        try {
+            val parsed = com.google.gson.Gson().fromJson(data, Map::class.java) as Map<String, Any>
+            _otaProgress.value = (parsed["percent"] as? Number)?.toInt() ?: 0
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to parse OTA progress JSON")
+        }
+    }
+
+    // ── OTA service calls ──────────────────────────────────────────────────────
+
+    fun checkOtaUpdate(callback: (Boolean, String) -> Unit) {
+        rosManager?.callService(Constants.SERVICE_OTA_CHECK) { result ->
+            callback(result["success"] as? Boolean ?: false, result["message"] as? String ?: "")
+        }
+    }
+
+    fun applyOtaWorkspace(callback: (Boolean, String) -> Unit) {
+        rosManager?.callService(Constants.SERVICE_OTA_APPLY_WORKSPACE) { result ->
+            callback(result["success"] as? Boolean ?: false, result["message"] as? String ?: "")
+        }
+    }
+
+    fun applyOtaModels(callback: (Boolean, String) -> Unit) {
+        rosManager?.callService(Constants.SERVICE_OTA_APPLY_MODELS) { result ->
+            callback(result["success"] as? Boolean ?: false, result["message"] as? String ?: "")
+        }
+    }
+
+    fun rollbackOtaWorkspace(callback: (Boolean, String) -> Unit) {
+        rosManager?.callService(Constants.SERVICE_OTA_ROLLBACK_WORKSPACE) { result ->
+            callback(result["success"] as? Boolean ?: false, result["message"] as? String ?: "")
+        }
     }
 }

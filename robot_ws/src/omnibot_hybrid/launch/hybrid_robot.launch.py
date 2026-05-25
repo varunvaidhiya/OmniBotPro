@@ -85,6 +85,8 @@ def generate_launch_description():
         "vla_image_topic", default="/camera/front/image_raw"
     )
     use_rosbridge = LaunchConfiguration("use_rosbridge", default="true")
+    use_ota = LaunchConfiguration("use_ota", default="false")
+    ota_manifest_url = LaunchConfiguration("ota_manifest_url", default="")
     use_foxglove = LaunchConfiguration("use_foxglove", default="true")
     use_bev = LaunchConfiguration("use_bev", default="true")
     use_rl = LaunchConfiguration("use_rl", default="false")
@@ -398,6 +400,16 @@ def generate_launch_description():
                     "Requires ANTHROPIC_API_KEY env var."
                 ),
             ),
+            DeclareLaunchArgument(
+                "use_ota",
+                default_value="false",
+                description="Start OTA update agent — exposes /ota/* services for Android app",
+            ),
+            DeclareLaunchArgument(
+                "ota_manifest_url",
+                default_value="",
+                description="URL to OTA manifest.json (GitHub Releases)",
+            ),
             # ── Nodes ─────────────────────────────────────────────────────────────
             driver_node,
             arm_cmd_mux_node,
@@ -415,5 +427,13 @@ def generate_launch_description():
             rosbridge_node,
             foxglove_node,
             rviz_node,
+            Node(
+                package="omnibot_ota",
+                executable="ota_agent",
+                name="ota_agent_node",
+                output="screen",
+                parameters=[{"manifest_url": ota_manifest_url}],
+                condition=IfCondition(use_ota),
+            ),
         ]
     )

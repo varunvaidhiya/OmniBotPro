@@ -134,6 +134,22 @@ WantedBy=multi-user.target
 EOF
 
 # Note: don't auto-enable — let the user start it manually after building the workspace
+# ── 5. Install omnibot-robot systemd service (used by OTA agent) ─────────────
+echo "[5/5] Installing omnibot-robot systemd service..."
+
+sudo cp "${OMNIBOT_DIR}/infra/ota/omnibot-robot@.service" /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable "omnibot-robot@${USER}"
+
+SUDOERS_LINE="${USER} ALL=(ALL) NOPASSWD: /bin/systemctl restart omnibot-robot@${USER}.service"
+if ! sudo grep -qF "${SUDOERS_LINE}" /etc/sudoers.d/omnibot-ota 2>/dev/null; then
+  echo "${SUDOERS_LINE}" | sudo tee /etc/sudoers.d/omnibot-ota > /dev/null
+  sudo chmod 440 /etc/sudoers.d/omnibot-ota
+fi
+echo "  omnibot-robot@${USER} enabled."
+echo "  Start:   sudo systemctl start omnibot-robot@${USER}"
+echo "  OTA can: sudo systemctl restart omnibot-robot@${USER}.service  (no password)"
+
 echo ""
 echo "=== Setup complete ==="
 echo ""

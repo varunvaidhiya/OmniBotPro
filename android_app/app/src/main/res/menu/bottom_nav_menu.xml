@@ -20,4 +20,8 @@
         android:id="@+id/navigation_controls"
         android:icon="@drawable/ic_gamepad"
         android:title="@string/title_controls" />
+    <item
+        android:id="@+id/navigation_ota"
+        android:icon="@drawable/ic_ota"
+        android:title="@string/title_ota" />
 </menu>
