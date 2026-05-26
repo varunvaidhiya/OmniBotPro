@@ -3,8 +3,22 @@ name: ROS 2 CI
 on:
   push:
     branches: [ main ]
+    paths-ignore:
+      - 'infra/content/**'
+      - 'digital_twin/configs/**'
+      - 'android_app/**'
+      - '**.md'
+      - 'network.env'
+      - 'deployment.env.example'
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - 'infra/content/**'
+      - 'digital_twin/configs/**'
+      - 'android_app/**'
+      - '**.md'
+      - 'network.env'
+      - 'deployment.env.example'
 
 permissions:
   contents: write
