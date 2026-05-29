@@ -9,24 +9,28 @@ Starts:
   4. depthimage_to_laserscan        (depth → /scan for SLAM)
   5. bev_stitcher_node              (4 base cams → /camera/base/bev/image_raw)
   6. foxglove_bridge                (ws://pi-ip:8765 — workstation browser viewer)
-  7. rviz2                          (optional — default false; run viewer on workstation)
+  7. web_video_server               (http://pi-ip:8080 — low-latency MJPEG browser viewer)
+  8. rviz2                          (optional — default false; run viewer on workstation)
 
-Run on Pi (all cameras active, no local RViz):
+Run on Pi (all cameras active):
     ros2 launch omnibot_bringup perception.launch.py
-
-Run with local RViz (Pi has a screen):
-    ros2 launch omnibot_bringup perception.launch.py rviz:=true
 
 Skip Astra Pro depth camera:
     ros2 launch omnibot_bringup perception.launch.py depth_camera:=false
 
-Override camera device paths:
-    ros2 launch omnibot_bringup perception.launch.py \\
-        cam_front:=/dev/video0 cam_rear:=/dev/video2 \\
-        cam_left:=/dev/video4 cam_right:=/dev/video6 \\
-        cam_wrist:=/dev/video8
+Skip web_video_server (save a little RAM when not needed):
+    ros2 launch omnibot_bringup perception.launch.py web_video:=false
 
-View outputs on workstation (separate terminal, matching ROS_DOMAIN_ID=30):
+Run with local RViz (Pi has a screen):
+    ros2 launch omnibot_bringup perception.launch.py rviz:=true
+
+View streams in browser (workstation):
+    http://pi-ip:8080                                         — topic index
+    http://pi-ip:8080/stream?topic=/camera/base/bev/image_raw — BEV (fused)
+    http://pi-ip:8080/stream?topic=/camera/wrist/image_raw    — wrist
+    http://pi-ip:8080/stream?topic=/camera/depth/image_raw    — depth
+
+View outputs via Foxglove (workstation):
     ros2 launch omnibot_bringup perception_viewer.launch.py
 """
 
@@ -61,6 +65,11 @@ def generate_launch_description():
         "foxglove",
         default_value="true",
         description="Foxglove WebSocket bridge (ws://pi-ip:8765)",
+    )
+    declare_web_video = DeclareLaunchArgument(
+        "web_video",
+        default_value="true",
+        description="web_video_server MJPEG streams (http://pi-ip:8080)",
     )
     declare_depth_camera = DeclareLaunchArgument(
         "depth_camera",
@@ -276,7 +285,27 @@ def generate_launch_description():
         ],
     )
 
-    # ── 8. RViz (optional — prefer running on workstation) ────────────────────
+    # ── 8. web_video_server — low-latency MJPEG browser viewer ──────────────────
+    # Open http://<pi-ip>:8080 to see a topic index, or stream directly:
+    #   /stream?topic=/camera/base/bev/image_raw
+    #   /stream?topic=/camera/wrist/image_raw
+    #   /stream?topic=/camera/depth/image_raw
+    # Near-zero CPU when no browser is connected; ~5-10% per active stream.
+    web_video_server = TimerAction(
+        period=4.0,
+        actions=[
+            Node(
+                package="web_video_server",
+                executable="web_video_server",
+                name="web_video_server",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("web_video")),
+                parameters=[{"port": 8080, "address": "0.0.0.0"}],
+            )
+        ],
+    )
+
+    # ── 9. RViz (optional — prefer running on workstation) ────────────────────
     rviz = Node(
         package="rviz2",
         executable="rviz2",
@@ -290,6 +319,7 @@ def generate_launch_description():
         [
             declare_rviz,
             declare_foxglove,
+            declare_web_video,
             declare_depth_camera,
             declare_bev,
             declare_cam_front,
@@ -307,6 +337,7 @@ def generate_launch_description():
             depth_to_scan,
             bev_stitcher,
             foxglove_bridge,
+            web_video_server,
             rviz,
         ]
     )
