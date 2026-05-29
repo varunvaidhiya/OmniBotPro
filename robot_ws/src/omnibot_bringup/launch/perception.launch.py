@@ -76,27 +76,27 @@ def generate_launch_description():
     # Camera device paths — override for your hardware
     declare_cam_front = DeclareLaunchArgument(
         "cam_front",
-        default_value="/dev/video0",
+        default_value="/dev/video2",
         description="Front base camera V4L2 device",
     )
     declare_cam_rear = DeclareLaunchArgument(
         "cam_rear",
-        default_value="/dev/video2",
+        default_value="/dev/video10",
         description="Rear base camera V4L2 device",
     )
     declare_cam_left = DeclareLaunchArgument(
         "cam_left",
-        default_value="/dev/video4",
+        default_value="/dev/video6",
         description="Left base camera V4L2 device",
     )
     declare_cam_right = DeclareLaunchArgument(
         "cam_right",
-        default_value="/dev/video6",
+        default_value="/dev/video4",
         description="Right base camera V4L2 device",
     )
     declare_cam_wrist = DeclareLaunchArgument(
         "cam_wrist",
-        default_value="/dev/video10",
+        default_value="/dev/video0",
         description="Wrist camera V4L2 device",
     )
 
