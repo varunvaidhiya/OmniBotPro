@@ -70,7 +70,7 @@ Visualization Manager:
 
     # ── slam_toolbox 2-D map ──────────────────────────────────────────────────
     - Alpha: 0.7
-      Class: nav2_rviz_plugins/MapDisplay
+      Class: rviz_default_plugins/Map
       Color Scheme: map
       Draw Behind: false
       Enabled: true
@@ -86,7 +86,7 @@ Visualization Manager:
 
     # ── OctoMap projected 2-D slice (octomap_server → /projected_map) ─────────
     - Alpha: 0.45
-      Class: nav2_rviz_plugins/MapDisplay
+      Class: rviz_default_plugins/Map
       Color Scheme: costmap
       Draw Behind: false
       Enabled: true
