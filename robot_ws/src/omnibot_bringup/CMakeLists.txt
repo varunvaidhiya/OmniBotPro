@@ -21,11 +21,10 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-# Install launch files
+# Install launch files (including master/ subfolder)
 install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}
-  PATTERN "*.launch.py"
 )
 
 # Install config files
