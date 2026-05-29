@@ -5,7 +5,7 @@ perception.launch.py — Run on the Pi to start all cameras + BEV stitcher.
 Starts:
   1. robot_state_publisher          (URDF → /robot_description + TF)
   2. usb_cam × 5                    (front / rear / left / right / wrist)
-  3. astra_camera_node              (Orbbec Astra Pro — RGB + depth)
+  3. astra_camera_node (astra_pro profile) (Orbbec Astra Pro — RGB + depth via ros2_astra_camera)
   4. depthimage_to_laserscan        (depth → /scan for SLAM)
   5. bev_stitcher_node              (4 base cams → /camera/base/bev/image_raw)
   6. foxglove_bridge                (ws://pi-ip:8765 — workstation browser viewer)
@@ -34,8 +34,9 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition
+from launch.launch_description_sources import AnyLaunchDescriptionSource, PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.descriptions import ParameterValue
@@ -198,33 +199,31 @@ def generate_launch_description():
     )
 
     # ── 4. Orbbec Astra Pro (RGB-D) ───────────────────────────────────────────
+    # Uses ros2_astra_camera (OpenNI2 + libuvc, astra_pro profile).
     # Publishes:
-    #   /camera/color/image_raw      — 640×480 RGB @ 30 Hz
+    #   /camera/color/image_raw      — 640×480 RGB @ 30 Hz (UVC, 0x0501)
     #   /camera/color/camera_info
-    #   /camera/depth/image_raw      — 640×480 16-bit depth in mm
+    #   /camera/depth/image_raw      — 640×480 16-bit depth in mm (OpenNI, 0x0403)
     #   /camera/depth/camera_info
     #   /camera/depth/points         — PointCloud2
-    astra_camera = Node(
-        package="astra_camera",
-        executable="astra_camera_node",
-        name="astra_camera",
-        namespace="camera",
-        output="screen",
+    # Udev rules must be installed: see infra/udev/99-obsensor-libusb.rules
+    astra_camera = IncludeLaunchDescription(
+        AnyLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("astra_camera"),
+                "launch",
+                "astra_pro.launch.xml",
+            )
+        ),
+        launch_arguments={
+            "camera_name": "camera",
+            "depth_registration": "true",
+            "enable_point_cloud": "true",
+            "enable_colored_point_cloud": "false",
+            "color_depth_synchronization": "false",
+            "oni_log_level": "none",
+        }.items(),
         condition=IfCondition(LaunchConfiguration("depth_camera")),
-        parameters=[
-            {
-                "depth_registration": True,
-                "camera_name": "camera",
-                "color_width": 640,
-                "color_height": 480,
-                "color_fps": 30,
-                "depth_width": 640,
-                "depth_height": 480,
-                "depth_fps": 30,
-                "enable_point_cloud": True,
-                "enable_colored_point_cloud": False,
-            }
-        ],
     )
 
     # ── 5. depth → /scan (required by SLAM toolbox) ───────────────────────────
@@ -262,13 +261,19 @@ def generate_launch_description():
 
     # ── 7. Foxglove bridge — browser / workstation viewer ─────────────────────
     # Open https://app.foxglove.dev → Connect → ws://<pi-ip>:8765
-    foxglove_bridge = Node(
-        package="foxglove_bridge",
-        executable="foxglove_bridge",
-        name="foxglove_bridge",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("foxglove")),
-        parameters=[{"port": 8765, "address": "0.0.0.0"}],
+    # Delayed 4 s so port 8765 is guaranteed free after a restart.
+    foxglove_bridge = TimerAction(
+        period=4.0,
+        actions=[
+            Node(
+                package="foxglove_bridge",
+                executable="foxglove_bridge",
+                name="foxglove_bridge",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("foxglove")),
+                parameters=[{"port": 8765, "address": "0.0.0.0"}],
+            )
+        ],
     )
 
     # ── 8. RViz (optional — prefer running on workstation) ────────────────────

@@ -35,7 +35,7 @@ Hardware platform:
 ## Repository Layout
 
 ```
-Mecanum-Wheel-Robot/
+OmniBot/
 ├── robot_ws/
 │   └── src/
 │       ├── omnibot_bringup/       # Launch files, RViz/Gazebo config
@@ -55,35 +55,12 @@ Mecanum-Wheel-Robot/
 │   ├── robot_episode_dataset/     # LeRobot-format dataset helpers
 │   ├── ros2_bev_stitcher/         # BEV (bird's-eye-view) image stitcher
 │   └── mecanum_drive_ros2/        # C++17 + Python mecanum kinematics library
-├── vla_engine/
-│   ├── inference/server.py        # FastAPI server wrapping OpenVLA
-│   ├── models/openvla.py          # OpenVLA model wrapper
-│   └── tests/
-├── data_engine/
-│   ├── schema/constants.py        # Action/state/camera specs
-│   ├── ingestion/                 # ROS bag → LeRobot format
-│   └── tests/
-├── lerobot_engine/
-│   ├── train.py                   # Direct LeRobot policy training
-│   ├── record.py                  # Direct LeRobot episode recording
-│   ├── infer.py                   # Direct LeRobot inference
-│   └── requirements.txt
-├── rl_engine/
-│   ├── requirements.txt           # isaaclab, onnxruntime-gpu, torch
-│   ├── config/                    # PPO hyperparams + domain randomization YAMLs
-│   ├── envs/                      # Isaac Lab ManagerBasedRLEnvCfg (nav + arm)
-│   ├── tasks/mdp/                 # Actions, observations, rewards, terminations
-│   ├── export/export_policy.py    # Checkpoint → ONNX opset 17 + TorchScript
-│   └── scripts/                   # train_nav.py, train_arm.py
-├── digital_twin/
-│   ├── worlds/omnibot_lab.sdf     # Rich indoor lab world (table, shelf, YCB objects)
-│   ├── scenarios/                 # VLA/nav benchmark scenario definitions
-│   ├── docker/                    # Dockerfile.sim + docker-compose.yml
-│   ├── configs/                   # RViz configs (perception/navigation/manipulation) + Foxglove layout
-│   └── scripts/                   # build_usd.sh (URDF→Isaac Sim USD), setup_omnigraph.py
+├── vla_engine/                    # FastAPI server + OpenVLA wrapper + tests
+├── data_engine/                   # schema/constants.py, ingestion/, isaac_sim/, tests/
+├── lerobot_engine/                # train.py, record.py, infer.py, requirements.txt
+├── rl_engine/                     # Isaac Lab envs, mdp tasks, export, train scripts
+├── digital_twin/                  # worlds/, scenarios/, docker/, configs/, scripts/
 ├── android_app/                   # Kotlin MVVM app (ROSBridge WebSocket)
-├── data_engine/
-│   └── isaac_sim/                 # Isaac Sim episode collection (Replicator)
 ├── confirmed_protocol.py          # Yahboom protocol reference (root debug script)
 ├── deploy.py                      # Deployment mode configurator (single/multi)
 ├── deployment.env.example         # Template for deployment.env
@@ -92,9 +69,7 @@ Mecanum-Wheel-Robot/
 ├── launch_simulation.sh           # Convenience build+launch for Gazebo (single or multi)
 ├── launch_teleop.sh               # Convenience teleop launcher (sources network.env for DDS peers)
 ├── launch_rosbridge.sh            # Start ROSBridge WebSocket server for Android app
-├── launch_mobile_manipulation.sh  # Mobile manipulation bringup (base + arm + cameras + rosbridge)
-├── launch_sim_pc.sh               # PC2 launch script (multi-workstation mode)
-└── fuzz_*.py, scan_*.py, ...      # Hardware debug scripts — NOT part of ROS
+└── launch_mobile_manipulation.sh  # Mobile manipulation bringup (base + arm + cameras + rosbridge)
 ```
 
 > **Root-level `*.py` files** (`fuzz_*.py`, `scan_*.py`, `test_*.py`,
@@ -159,101 +134,56 @@ Writes `deployment.env` which all launch scripts source automatically.
 
 ```bash
 # ── Perception (all cameras + BEV + depth→scan) ────────────────────────────
-# Run on Pi — starts 5 USB cams, Astra Pro, BEV stitcher, Foxglove bridge
-ros2 launch omnibot_bringup perception.launch.py
-# With local RViz (Pi has a display)
+ros2 launch omnibot_bringup perception.launch.py          # run on Pi
 ros2 launch omnibot_bringup perception.launch.py rviz:=true
-# View camera feeds + BEV + point cloud on workstation (ROS_DOMAIN_ID=30 must match)
-ros2 launch omnibot_bringup perception_viewer.launch.py
+ros2 launch omnibot_bringup perception_viewer.launch.py   # workstation viewer
 
 # ── SLAM + 3-D mapping (run after perception.launch.py) ───────────────────
-# 2-D slam_toolbox + RTAB-Map 3-D + OctoMap — run on Pi
 ros2 launch omnibot_bringup slam_3d_mapping.launch.py
-# Headless Pi — view SLAM + 3-D map on workstation
-ros2 launch omnibot_bringup slam_3d_mapping.launch.py rviz:=false
-ros2 launch omnibot_bringup slam_3d_viewer.launch.py    # workstation
-# 2-D SLAM only (no RTAB-Map / OctoMap)
-ros2 launch omnibot_bringup slam_3d_mapping.launch.py slam3d:=false
-# Localization against a saved map
-ros2 launch omnibot_bringup slam_3d_mapping.launch.py slam_mode:=localization map_file:=/path/to/omnibot_map
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py rviz:=false   # headless Pi
+ros2 launch omnibot_bringup slam_3d_viewer.launch.py                # workstation viewer
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py slam3d:=false # 2-D SLAM only
+ros2 launch omnibot_bringup slam_3d_mapping.launch.py \
+  slam_mode:=localization map_file:=/path/to/omnibot_map
 
-# ── Basic robot: driver + state publisher
+# ── Basic robot, teleop ────────────────────────────────────────────────────
 ros2 launch omnibot_bringup robot.launch.py
+ros2 launch omnibot_bringup robot_with_joy.launch.py   # + Xbox controller
+ros2 launch omnibot_bringup joy_teleop.launch.py       # teleop only
 
-# Robot + Xbox controller (also available as ./launch_teleop.sh which sources network.env)
-ros2 launch omnibot_bringup robot_with_joy.launch.py
+# ── Simulation ────────────────────────────────────────────────────────────
+./launch_simulation.sh                               # builds + launches (ROS_DOMAIN_ID=30)
+ros2 launch omnibot_bringup simulation.launch.py     # direct
+ros2 launch omnibot_bringup simulation.launch.py \
+  world:=$(pwd)/digital_twin/worlds/omnibot_lab.sdf  # richer lab world
 
-# Xbox controller teleoperation only
-ros2 launch omnibot_bringup joy_teleop.launch.py
+# ── Mobile manipulation ────────────────────────────────────────────────────
+./launch_mobile_manipulation.sh
+ros2 launch omnibot_bringup mobile_manipulation.launch.py
 
-# Gazebo simulation + RViz
-./launch_simulation.sh           # convenience: builds, sources, then launches (ROS_DOMAIN_ID=30)
-ros2 launch omnibot_bringup simulation.launch.py   # direct
-
-# Mobile manipulation (base + arm + cameras + rosbridge)
-./launch_mobile_manipulation.sh  # convenience: auto-builds, checks deps, starts rosbridge
-ros2 launch omnibot_bringup mobile_manipulation.launch.py   # direct
-
-# ROSBridge WebSocket (required for Android app, port 9090)
-./launch_rosbridge.sh            # convenience: shows local IP for Android config
+# ── ROSBridge (required for Android app, port 9090) ───────────────────────
+./launch_rosbridge.sh
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090
 
-# Isaac Sim companion nodes (bev_stitcher + RViz) — Isaac Sim must already be running
-ros2 launch omnibot_bringup isaac_sim.launch.py
-
-# PC2 simulation workstation (multi mode) — runs bev_stitcher + RViz
-./launch_sim_pc.sh
-
-# Autonomous navigation with SLAM
+# ── AI & navigation ───────────────────────────────────────────────────────
 ros2 launch omnibot_navigation autonomous_robot.launch.py
-
-# Full hybrid robot (driver + SLAM + Nav2 + VLA + mux + mission planner)
-ros2 launch omnibot_hybrid hybrid_robot.launch.py
-
-# SmolVLA mobile-manipulation inference
+ros2 launch omnibot_hybrid hybrid_robot.launch.py               # driver+SLAM+Nav2+VLA+mux
+ros2 launch omnibot_hybrid hybrid_robot.launch.py use_rl:=true  # + RL nodes
+ros2 launch omnibot_hybrid hybrid_robot.launch.py use_langchain:=true
 ros2 launch omnibot_lerobot smolvla_inference.launch.py
-
-# OpenVLA inference (NVIDIA GPU, ≥ 16 GB VRAM)
-ros2 launch omnibot_vla vla_desktop.launch.py
-
-# SO-101 arm driver
+ros2 launch omnibot_vla vla_desktop.launch.py    # GPU machine only
 ros2 launch omnibot_arm arm.launch.py
+ros2 launch omnibot_rl rl_inference.launch.py    # 4 RL nodes standalone
+ros2 launch omnibot_bringup isaac_sim.launch.py  # Isaac Sim companion nodes
 
-# Send a VLA prompt
+# ── Key topic publishes ────────────────────────────────────────────────────
 ros2 topic pub --once /vla/prompt std_msgs/msg/String "data: 'Find the red cup'"
-
-# Send a mission command (hybrid mode)
 ros2 topic pub --once /mission/command std_msgs/msg/String \
   "data: 'navigate:kitchen,vla:find the red cup'"
-
-# Full hybrid robot WITH RL inference nodes enabled
-ros2 launch omnibot_hybrid hybrid_robot.launch.py use_rl:=true
-
-# RL inference nodes only (4 nodes: rl_nav, rl_arm, arm_cmd_mux, rl_object_pose)
-ros2 launch omnibot_rl rl_inference.launch.py
-
-# Train navigation RL policy in Isaac Lab (requires Isaac Sim + Isaac Lab)
-python rl_engine/scripts/train_nav.py --num_envs 512
-
-# Train arm RL policy in Isaac Lab
-python rl_engine/scripts/train_arm.py --num_envs 256
-
-# Export trained policy to ONNX (nav: 27D obs → 3D act)
-python rl_engine/export/export_policy.py \
-  --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
-  --output ~/models/omnibot_nav_policy.onnx --type nav
-
-# Switch base to RL navigation mode (short-range goal approach ≤ 3 m)
-ros2 topic pub --once /control_mode std_msgs/msg/String "data: 'rl_nav'"
-ros2 topic pub --once /rl_nav/goal geometry_msgs/msg/PoseStamped \
-  "{header: {frame_id: 'map'}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}}"
-
-# Switch arm to RL control mode (precision pick/place, triggered by mission planner)
-ros2 topic pub --once /arm/cmd_mode std_msgs/msg/String "data: 'rl_arm'"
-
-# Send RL nav + arm mission
 ros2 topic pub --once /mission/command std_msgs/msg/String \
   "data: 'rl_nav:kitchen,rl_arm:pick up the cup'"
+ros2 topic pub --once /control_mode std_msgs/msg/String "data: 'rl_nav'"
+ros2 topic pub --once /arm/cmd_mode std_msgs/msg/String "data: 'rl_arm'"
 ```
 
 ---
@@ -331,7 +261,6 @@ VLA Desktop (GPU PC)
 | `/rl_arm/target_detected` | Bool | `rl_object_pose_node` | `rl_arm_node` |
 | `/emergency_stop` | Bool | Android | `yahboom_controller_node` |
 | `/robot_mode` | String | Android | *(monitoring only — does not control mux)* |
-| `/control_mode` | String | Android, `mission_planner`, manual pub | `cmd_vel_mux` |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
 | `/camera/front/image_raw` | Image | USB camera / Gazebo | `vla_node` (via `/image_raw` remap), `langchain_agent_node` |
 | `/camera/wrist/image_raw` | Image | wrist camera | `smolvla_node`, `teleop_recorder_node`, `rl_object_pose_node`, `langchain_agent_node` |
@@ -363,8 +292,7 @@ Primary motor driver. **`yahboom_controller_node.py`** is the active node;
 | `debug_serial` | `False` | verbose serial logging |
 
 Safety constants (hardcoded): max linear `0.2 m/s`, ramp step `0.05 m/s`,
-update rate `20 Hz`.
-Debug log: `/home/varunvaidhiya/yahboom_debug.log` (fails silently if absent).
+update rate `20 Hz`. Debug log: `~/.ros/omnibot_debug.log`.
 
 **`serial_bridge_node.py`** (STM32 legacy bridge, also used for odometry from
 encoder packets) — same geometry parameters plus `odom_frame`/`base_frame`.
@@ -561,28 +489,7 @@ Launch: `robot_ws/src/omnibot_rl/launch/rl_inference.launch.py`.
 
 Isaac Lab training infrastructure for sim-to-real RL. Requires Isaac Sim + Isaac Lab
 (not part of the ROS build — run separately on the GPU PC).
-
-```
-rl_engine/
-├── requirements.txt          # isaaclab>=1.1.0, onnxruntime-gpu>=1.16, torch>=2.1
-├── config/
-│   ├── domain_randomization.yaml   # Per-episode randomization ranges
-│   ├── nav_train.yaml              # PPO hyperparams + curriculum for nav
-│   └── arm_train.yaml              # PPO hyperparams + curriculum for arm
-├── envs/
-│   ├── omnibot_nav_env.py          # OmnibotNavEnvCfg (27D obs, 3D act, 512 envs)
-│   └── omnibot_arm_env.py          # OmnibotArmEnvCfg (30D obs, 6D act, 256 envs)
-├── tasks/mdp/
-│   ├── actions.py        # MecanumWheelActionTerm, ArmJointDeltaActionTerm
-│   ├── observations.py   # LidarSectorObsTerm, GoalRelativeObsTerm, ArmNormJointPos
-│   ├── rewards.py        # nav_goal_approach, arm_ee_approach, grasp/lift/place bonuses
-│   └── terminations.py   # collision, timeout, goal_reached, object_dropped
-├── export/
-│   └── export_policy.py  # --checkpoint → ONNX opset 17 or TorchScript
-└── scripts/
-    ├── train_nav.py       # AppLauncher → OmnibotNavEnvCfg → RSL-RL PPO
-    └── train_arm.py       # AppLauncher → OmnibotArmEnvCfg → RSL-RL PPO
-```
+Requirements: `isaaclab>=1.1.0`, `onnxruntime-gpu>=1.16`, `torch>=2.1`.
 
 **Key design decisions:**
 - Actions are velocity **deltas** (not absolute), matching Yahboom's 0.05 m/s ramp limiter.
@@ -592,15 +499,13 @@ rl_engine/
 - `physics_randomization` in `randomization_config.yaml` is disabled by default;
   set `enabled: true` only during Isaac Lab RL training.
 
-**Training workflow:**
+**Train → Export workflow:**
 ```bash
-# 1. Train
 python rl_engine/scripts/train_nav.py --num_envs 512 --max_iterations 2000
-# 2. Export
 python rl_engine/export/export_policy.py \
   --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
   --output ~/models/omnibot_nav_policy.onnx --type nav
-# 3. Deploy: copy .onnx to robot, launch with use_rl:=true
+# Copy .onnx to robot, then launch with use_rl:=true
 ```
 
 ---
@@ -643,9 +548,7 @@ Config: `packages/ros2_bev_stitcher/config/bev_params.yaml`.
 
 Hardware-agnostic mecanum kinematics — C++17 header-only library
 (`include/mecanum_drive_ros2/mecanum_kinematics.hpp`) with a pure Python mirror
-(`mecanum_drive_ros2.kinematics`). Provides inverse kinematics (body twist → wheel ω)
-and forward kinematics (wheel ω → body twist) using the same physical constants
-as the rest of the project.
+(`mecanum_drive_ros2.kinematics`).
 
 ```python
 from mecanum_drive_ros2 import RobotGeometry, inverse_kinematics, forward_kinematics
@@ -680,48 +583,17 @@ hardware required.
 | VLA / Training data | Isaac Sim + `isaac_sim.launch.py` | Foxglove |
 
 Use `digital_twin/configs/nav2_sim_params.yaml` (not `robot_ws/.../nav2_params.yaml`)
-for simulation-tuned Nav2 costmaps:
-
-```bash
-ros2 launch omnibot_navigation autonomous_robot.launch.py \
-  params_file:=$(pwd)/digital_twin/configs/nav2_sim_params.yaml
-```
-
-### Lab world (richer than default)
-
-```bash
-ros2 launch omnibot_bringup simulation.launch.py \
-  world:=$(pwd)/digital_twin/worlds/omnibot_lab.sdf
-```
+for simulation-tuned Nav2 costmaps.
 
 ### Isaac Sim (VLA / training data)
 
 ```bash
-bash digital_twin/scripts/build_usd.sh          # URDF → USD (run once per URDF change)
-# Start Isaac Sim, then in Script Editor:
-#   digital_twin/scripts/setup_omnigraph.py
+bash digital_twin/scripts/build_usd.sh   # URDF → USD (run once per URDF change)
+# Start Isaac Sim, run digital_twin/scripts/setup_omnigraph.py in Script Editor
 ros2 launch omnibot_bringup isaac_sim.launch.py
 python3 data_engine/isaac_sim/collect_episodes.py \
   --config data_engine/isaac_sim/randomization_config.yaml \
   --output ~/datasets/omnibot
-```
-
----
-
-## LeRobot Engine
-
-`lerobot_engine/` provides standalone scripts for direct LeRobot interaction
-without ROS. Install deps: `pip install -r lerobot_engine/requirements.txt`.
-
-```bash
-# Record demonstrations
-python lerobot_engine/record.py
-
-# Train a policy
-python lerobot_engine/train.py
-
-# Run inference
-python lerobot_engine/infer.py
 ```
 
 ---
@@ -787,15 +659,6 @@ robot missions using Claude. Runs on the AI desktop PC alongside the VLA nodes.
 **Publishes**: `/mission/command` → `mission_planner`, `/mission/cancel`,
 `/ai/status` → Android, `/ai/response_needed` → Android
 
-**Launch**:
-```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-# Standalone (alongside hybrid_robot.launch.py)
-ros2 launch omnibot_orchestration langchain_agent.launch.py
-# Or integrated via hybrid_robot:
-ros2 launch omnibot_hybrid hybrid_robot.launch.py use_langchain:=true
-```
-
 **LangGraph tools**: `navigate_to_location`, `navigate_then_execute`,
 `execute_vla_task`, `get_robot_status`, `cancel_current_mission`,
 `list_available_locations`, `describe_current_scene`, `ask_human_for_clarification`
@@ -826,7 +689,7 @@ MVVM architecture with Hilt DI, OkHttp3 WebSocket, Kotlin coroutines.
 |---|---|---|
 | `/cmd_vel/teleop` | Twist | rate: 20 Hz, clamped ±1.5 m/s / ±2.0 rad/s. Set `/control_mode` to `"teleop"` first. |
 | `/control_mode` | String | set via `sendMode()` or `sendControlMode()` — drives `cmd_vel_mux` |
-| `/emergency_stop` | Bool | zerors velocity immediately; hold Bool=false to clear |
+| `/emergency_stop` | Bool | zeroes velocity immediately; hold Bool=false to clear |
 | `/robot_mode` | String | monitoring only; does not control `cmd_vel_mux` |
 | `/arm/joint_commands` | JointState | joint names must be `arm_*` prefixed; routes via `arm_cmd_mux` |
 | `/arm/enable` | Bool | |
@@ -924,90 +787,16 @@ where `lx = wheel_separation_length/2`, `ly = wheel_separation_width/2`.
 
 Grafana + Prometheus + Loki + Tempo — deployed on the GPU desktop via Docker Compose.
 
-### Quick start (GPU Desktop)
-
 ```bash
-# Start the full observability stack
 docker compose --profile observability up -d
+# Grafana: http://localhost:3000  (admin / omnibot)
+# Prometheus: http://localhost:9090   AlertManager: http://localhost:9093
 
-# Grafana dashboards: http://localhost:3000  (admin / omnibot)
-# Prometheus:         http://localhost:9090
-# AlertManager:       http://localhost:9093
-```
-
-### Pi setup (one-time)
-
-```bash
-GPU_DESKTOP_IP=192.168.1.100 bash infra/observability/setup_pi_agents.sh
-# Then after building the workspace:
-sudo systemctl enable --now omnibot-metrics-bridge
-```
-
-### Enable metrics bridge in launch files
-
-```bash
-# Pi (alongside the robot stack)
+# Pi (alongside robot stack)
 ros2 launch omnibot_bringup robot.launch.py use_metrics:=true
-
-# GPU Desktop (alongside VLA nodes — uses port 8889)
+# GPU Desktop (alongside VLA nodes)
 ros2 launch omnibot_metrics metrics.launch.py machine:=gpu_desktop port:=8889
 ```
-
-### Architecture
-
-| Component | Runs on | Port | Purpose |
-|---|---|---|---|
-| `ros2_prometheus_bridge` | Pi + GPU Desktop | 8888 / 8889 | Converts ROS 2 topics → Prometheus metrics |
-| `prometheus_fastapi_instrumentator` | GPU Desktop (VLA FastAPI) | 8000/metrics | HTTP request metrics for vla_serve |
-| `node_exporter` | Pi + GPU Desktop | 9100 | CPU, RAM, disk metrics |
-| `dcgm_exporter` | GPU Desktop | 9400 | GPU VRAM, utilization, temperature |
-| `promtail` | Pi + GPU Desktop | — | Ships `~/.ros/log/**` to Loki |
-| `Prometheus` | GPU Desktop | 9090 | Scrapes all exporters, 30-day retention |
-| `Loki` | GPU Desktop | 3100 | Log aggregation from all machines |
-| `Tempo` | GPU Desktop | 4317 (OTLP) | Distributed traces from LangGraph agent |
-| `Grafana` | GPU Desktop | 3000 | Dashboards + alerting UI |
-| `AlertManager` | GPU Desktop | 9093 | Alert routing (email/Slack) |
-
-### Metrics exposed by `ros2_prometheus_bridge`
-
-| Metric | Source |
-|---|---|
-| `omnibot_node_cycle_p50/p95/max_ms{node, machine}` | `/diagnostics` (all nodes) |
-| `omnibot_vla_inference_ms` | `/diagnostics` (vla_node) |
-| `omnibot_vla_preprocess_ms` | `/diagnostics` (vla_node) |
-| `omnibot_rl_inference_ms{policy}` | `/diagnostics` (rl_nav/arm nodes) |
-| `omnibot_robot_vx/vy/omega` | `/odom` |
-| `omnibot_arm_joint_pos_rad{joint}` | `/arm/joint_states` |
-| `omnibot_arm_joint_vel_rads{joint}` | `/arm/joint_states` |
-| `omnibot_missions_total{type}` | `/mission/command` |
-| `omnibot_missions_done_total{type, result}` | `/mission/status` |
-| `omnibot_estop_active` | `/emergency_stop` |
-| `omnibot_control_mode_info{mode}` | `/control_mode/active` |
-| `omnibot_ai_commands_total` | `/ai/command` |
-
-### Dashboards (auto-provisioned)
-
-| Dashboard UID | Title | Key panels |
-|---|---|---|
-| `omnibot-robot-health` | OmniBot — Robot Health | E-stop, control mode, driver cycle times, velocity, arm joints |
-| `omnibot-ai-performance` | OmniBot — AI Performance | VLA latency, mission success rate, LangGraph traces, agent logs |
-| `omnibot-system-resources` | OmniBot — System Resources | Pi CPU/RAM/disk, GPU VRAM/utilization/temperature |
-
-### Alert rules (`infra/observability/prometheus/alerts/omnibot_alerts.yml`)
-
-- `ControlLoopSlow` — driver P95 > 55 ms (warning)
-- `ControlLoopCritical` — driver P95 > 100 ms (critical)
-- `EmergencyStopActive` — `/emergency_stop` is true (critical, immediate)
-- `VLAInferenceSlow` — VLA > 2 s (warning)
-- `VLAInferenceCritical` — VLA > 5 s (critical)
-- `GPUVRAMCritical` — VRAM > 95% (critical)
-- `GPUVRAMHigh` — VRAM > 85% (warning)
-- `PiCPUHigh` / `PiCPUCritical` — Pi CPU > 85% / 95%
-- `PiDiskFull` — Pi root disk < 10% free
-- `MissionFailureRateHigh` — > 30% failure rate over 10 min
-- `MetricsBridgeDown` — bridge unreachable
-
-### Key files
 
 | File | Purpose |
 |---|---|
@@ -1018,93 +807,19 @@ ros2 launch omnibot_metrics metrics.launch.py machine:=gpu_desktop port:=8889
 | `infra/observability/alertmanager/alertmanager.yml` | Alert routing — add email/Slack config here |
 | `infra/observability/setup_pi_agents.sh` | One-time Pi setup (node_exporter + promtail + metrics bridge) |
 | `robot_ws/src/omnibot_metrics/` | `ros2_prometheus_bridge` ROS 2 package |
-| `packages/vla_serve/vla_serve/inference/server.py` | Exposes `/metrics` via prometheus-fastapi-instrumentator |
-| `robot_ws/src/omnibot_orchestration/omnibot_orchestration/langchain_agent_node.py` | OTEL traces exported to Tempo via gRPC :4317 |
 
 ---
 
 ## Weights & Biases (W&B) Integration
 
-All three training pipelines log to W&B when a project name is provided. One-time setup:
+All three training pipelines log to W&B. Setup: `pip install wandb>=0.16.0 && wandb login`.
 
-```bash
-pip install wandb>=0.16.0
-wandb login   # paste API key from wandb.ai/authorize
-```
+- **SmolVLA**: `lerobot_engine/train.py --wandb-project omnibot_smolvla`
+- **RL nav**: `rl_engine/scripts/train_nav.py --wandb_project omnibot_nav`
+- **RL arm**: `rl_engine/scripts/train_arm.py --wandb_project omnibot_arm`
 
-### Training — LeRobot / SmolVLA
-
-```bash
-python lerobot_engine/train.py \
-  --model smolvla \
-  --dataset-path ~/datasets/mobile_manipulation \
-  --output-dir ~/checkpoints/smolvla_run1 \
-  --wandb-project omnibot_smolvla \
-  --wandb-run-name "smolvla-lr1e-4-bs8"
-```
-
-Logs per-step loss + grad norm every 50 batches, per-epoch train/eval loss + LR curve, and uploads checkpoint artifacts (tagged `best` and `epoch-XXXX`) to the W&B artifact registry.
-
-### Training — RL Navigation (Isaac Lab)
-
-```bash
-python rl_engine/scripts/train_nav.py \
-  --num_envs 512 \
-  --wandb_project omnibot_nav   # default; pass "" to use TensorBoard instead
-```
-
-RSL-RL logs PPO metrics (mean reward, episode length, value loss, surrogate loss, entropy) automatically. Full YAML hyperparameter config is attached to the run.
-
-### Training — RL Arm (Isaac Lab)
-
-```bash
-python rl_engine/scripts/train_arm.py \
-  --num_envs 256 \
-  --wandb_project omnibot_arm
-```
-
-### ONNX Export — Artifact Tracking
-
-```bash
-python rl_engine/export/export_policy.py \
-  --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
-  --output ~/models/omnibot_nav_policy.onnx \
-  --type nav \
-  --wandb_project omnibot_nav \
-  --wandb_source_run <run_id>   # links artifact back to the training run
-```
-
-### Hyperparameter Sweeps
-
-```bash
-# Navigation RL sweep (Bayesian, ~20 runs recommended)
-wandb sweep rl_engine/config/wandb_sweep_nav.yaml
-wandb agent <sweep_id>
-
-# Arm RL sweep
-wandb sweep rl_engine/config/wandb_sweep_arm.yaml
-wandb agent <sweep_id>
-
-# SmolVLA sweep
-wandb sweep lerobot_engine/wandb_sweep_smolvla.yaml
-wandb agent <sweep_id>
-```
-
-### Runtime Monitoring (Deployed Robot)
-
-Enable by setting `wandb_project` in the RL node params YAML:
-
-```yaml
-# robot_ws/src/omnibot_rl/config/rl_nav_params.yaml
-rl_nav_node:
-  ros__parameters:
-    wandb_project: "omnibot_nav"   # streams runtime metrics at 5s intervals
-```
-
-Logged runtime metrics: `inference_ms`, `min_lidar_dist`, `cmd_vx/vy/omega`,
-`dist_to_goal`, `goal_reached` events.
-
-### W&B Files
+Enable runtime monitoring on the deployed robot by setting `wandb_project: "omnibot_nav"`
+in `robot_ws/src/omnibot_rl/config/rl_nav_params.yaml` (streams metrics at 5 s intervals).
 
 | File | Purpose |
 |---|---|
@@ -1112,34 +827,6 @@ Logged runtime metrics: `inference_ms`, `min_lidar_dist`, `cmd_vx/vy/omega`,
 | `rl_engine/config/wandb_sweep_nav.yaml` | Bayesian sweep for nav PPO |
 | `rl_engine/config/wandb_sweep_arm.yaml` | Bayesian sweep for arm PPO |
 | `robot_ws/src/omnibot_rl/omnibot_rl/wandb_runtime_logger.py` | Buffered runtime logger |
-
----
-
-## Known Issues & Mismatches
-
-No open issues. All previously tracked mismatches have been resolved.
-
-**Fixed (no longer open):**
-- *`robot.launch.py` parameter names* — both `robot.launch.py` and
-  `yahboom_controller_node.py` now use `wheel_separation_length`/`width` consistently.
-- *Emergency stop not wired* — `yahboom_controller_node.py` subscribes to
-  `/emergency_stop` (Bool); activating it zeroes velocity immediately and holds
-  until cleared (Bool=false).
-- *Hardcoded debug log path* — changed from `/home/varunvaidhiya/yahboom_debug.log`
-  to `~/.ros/omnibot_debug.log` (works on any machine).
-- *Arm joint name prefix* — `smolvla_node.py` `JOINT_NAMES` and `arm_driver_node.py`
-  default `joint_names` both now use the `arm_` prefix (`arm_shoulder_pan`, …).
-- *arm_cmd_mux missing from default launches* — now started unconditionally in
-  `hybrid_robot.launch.py`, `mobile_manipulation.launch.py`, and
-  `smolvla_inference.launch.py`.
-- *OpenVLA `/image_raw` subscription* — `vla_desktop.launch.py` and
-  `hybrid_robot.launch.py` now remap `/image_raw` → `/camera/front/image_raw`.
-- *ROSBridge and BEV stitcher not in launch files* — both are included in
-  `robot.launch.py`, `hybrid_robot.launch.py`, and `mobile_manipulation.launch.py`.
-- *Android cmd_vel on wrong topic* — now publishes to `/cmd_vel/teleop` (teleop
-  slot) instead of the nav2 slot. Call `sendControlMode("teleop")` before driving.
-- *Android sendMode not updating cmd_vel_mux* — `sendMode` now also publishes
-  the correct mode string to `/control_mode`.
 
 ---
 

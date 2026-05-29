@@ -19,6 +19,10 @@ setup(
             os.path.join("share", package_name, "config"),
             glob(os.path.join("config", "*.yaml")),
         ),
+        (
+            os.path.join("lib", package_name),
+            glob(os.path.join("omnibot_lerobot", "*_node.py")),
+        ),
     ],
     install_requires=["setuptools"],
     zip_safe=True,
