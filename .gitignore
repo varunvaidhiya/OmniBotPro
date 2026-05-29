@@ -24,3 +24,5 @@ yahboom_debug.log
 coverage.xml
 htmlcov/
 *.egg-info/
+.omnibot_content_state.json
+deployment.env
