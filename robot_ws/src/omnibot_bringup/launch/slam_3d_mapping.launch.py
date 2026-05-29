@@ -115,7 +115,7 @@ def generate_launch_description():
     # Publishes /rtabmap/cloud_map (PointCloud2), /rtabmap/octomap_*,
     #           /rtabmap/grid_map (OccupancyGrid)
     rtabmap = Node(
-        package="rtabmap_ros",
+        package="rtabmap_slam",
         executable="rtabmap",
         name="rtabmap",
         output="screen",
