@@ -96,7 +96,7 @@ def generate_launch_description():
     )
     declare_cam_wrist = DeclareLaunchArgument(
         "cam_wrist",
-        default_value="/dev/video8",
+        default_value="/dev/video10",
         description="Wrist camera V4L2 device",
     )
 
