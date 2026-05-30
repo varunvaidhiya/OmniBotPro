@@ -76,47 +76,56 @@ from launch_ros.descriptions import ParameterValue
 def generate_launch_description():
 
     # ── Package directories ───────────────────────────────────────────────────
-    pkg_desc   = get_package_share_directory("omnibot_description")
-    pkg_bringup = get_package_share_directory("omnibot_bringup")
-    pkg_nav    = get_package_share_directory("omnibot_navigation")
-    pkg_driver = get_package_share_directory("omnibot_driver")
+    pkg_desc = get_package_share_directory("omnibot_description")
+    pkg_nav = get_package_share_directory("omnibot_navigation")
 
-    xacro_file    = os.path.join(pkg_desc,   "urdf", "omnibot.urdf.xacro")
-    slam_params   = os.path.join(pkg_nav,    "config", "slam_toolbox_params.yaml")
-    rtabmap_params = os.path.join(pkg_nav,   "config", "rtabmap_params.yaml")
-    octomap_params = os.path.join(pkg_nav,   "config", "octomap_params.yaml")
-    ekf_params    = os.path.join(pkg_nav,    "config", "robot_localization.yaml")
-    nav2_params   = os.path.join(pkg_nav,    "config", "nav2_params.yaml")
+    xacro_file = os.path.join(pkg_desc, "urdf", "omnibot.urdf.xacro")
+    slam_params = os.path.join(pkg_nav, "config", "slam_toolbox_params.yaml")
+    rtabmap_params = os.path.join(pkg_nav, "config", "rtabmap_params.yaml")
+    octomap_params = os.path.join(pkg_nav, "config", "octomap_params.yaml")
+    ekf_params = os.path.join(pkg_nav, "config", "robot_localization.yaml")
 
     robot_desc = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
 
     # ── Launch arguments ──────────────────────────────────────────────────────
     declare_depth_camera = DeclareLaunchArgument(
-        "depth_camera", default_value="true",
-        description="Start Orbbec Astra Pro RGB-D driver (~70% CPU)")
+        "depth_camera",
+        default_value="true",
+        description="Start Orbbec Astra Pro RGB-D driver (~70% CPU)",
+    )
     declare_slam = DeclareLaunchArgument(
-        "slam", default_value="true",
-        description="Start SLAM stack (slam_toolbox + rtabmap + octomap)")
+        "slam",
+        default_value="true",
+        description="Start SLAM stack (slam_toolbox + rtabmap + octomap)",
+    )
     declare_nav2 = DeclareLaunchArgument(
-        "nav2", default_value="true",
-        description="Start Nav2 autonomous navigation stack")
+        "nav2",
+        default_value="true",
+        description="Start Nav2 autonomous navigation stack",
+    )
     declare_arm = DeclareLaunchArgument(
-        "arm", default_value="true",
-        description="Start SO-101 arm driver")
+        "arm", default_value="true", description="Start SO-101 arm driver"
+    )
     declare_foxglove = DeclareLaunchArgument(
-        "foxglove", default_value="true",
-        description="Foxglove WebSocket bridge (ws://pi-ip:8765)")
+        "foxglove",
+        default_value="true",
+        description="Foxglove WebSocket bridge (ws://pi-ip:8765)",
+    )
     declare_web_video = DeclareLaunchArgument(
-        "web_video", default_value="true",
-        description="web_video_server MJPEG streams (http://pi-ip:8080)")
+        "web_video",
+        default_value="true",
+        description="web_video_server MJPEG streams (http://pi-ip:8080)",
+    )
     declare_rosbridge = DeclareLaunchArgument(
-        "rosbridge", default_value="true",
-        description="ROSBridge WebSocket for Android app (ws://pi-ip:9090)")
+        "rosbridge",
+        default_value="true",
+        description="ROSBridge WebSocket for Android app (ws://pi-ip:9090)",
+    )
 
     # Camera device paths
     declare_cam_front = DeclareLaunchArgument("cam_front", default_value="/dev/video2")
-    declare_cam_rear  = DeclareLaunchArgument("cam_rear",  default_value="/dev/video10")
-    declare_cam_left  = DeclareLaunchArgument("cam_left",  default_value="/dev/video6")
+    declare_cam_rear = DeclareLaunchArgument("cam_rear", default_value="/dev/video10")
+    declare_cam_left = DeclareLaunchArgument("cam_left", default_value="/dev/video6")
     declare_cam_right = DeclareLaunchArgument("cam_right", default_value="/dev/video4")
     declare_cam_wrist = DeclareLaunchArgument("cam_wrist", default_value="/dev/video0")
 
@@ -135,13 +144,15 @@ def generate_launch_description():
         executable="yahboom_controller_node.py",
         name="yahboom_controller_node",
         output="screen",
-        parameters=[{
-            "serial_port": "/dev/ttyUSB0",
-            "baud_rate": 115200,
-            "wheel_radius": 0.04,
-            "wheel_separation_width": 0.215,
-            "wheel_separation_length": 0.165,
-        }],
+        parameters=[
+            {
+                "serial_port": "/dev/ttyUSB0",
+                "baud_rate": 115200,
+                "wheel_radius": 0.04,
+                "wheel_separation_width": 0.215,
+                "wheel_separation_length": 0.165,
+            }
+        ],
         remappings=[("cmd_vel", "/cmd_vel/out")],
     )
 
@@ -152,11 +163,13 @@ def generate_launch_description():
         name="arm_driver_node",
         output="screen",
         condition=IfCondition(LaunchConfiguration("arm")),
-        parameters=[{
-            "follower_port": "/dev/ttyACM0",
-            "baudrate": 1000000,
-            "publish_rate": 100.0,
-        }],
+        parameters=[
+            {
+                "follower_port": "/dev/ttyACM0",
+                "baudrate": 1000000,
+                "publish_rate": 100.0,
+            }
+        ],
         remappings=[("joint_commands", "/arm/joint_commands/out")],
     )
 
@@ -169,40 +182,90 @@ def generate_launch_description():
         "io_method": "mmap",
     }
     cam_front = Node(
-        package="usb_cam", executable="usb_cam_node_exe",
-        name="usb_cam_front", namespace="camera/front", output="screen",
-        parameters=[{**_cam_params,
-            "video_device": LaunchConfiguration("cam_front"),
-            "camera_name": "front", "camera_frame_id": "camera_front_optical_frame"}])
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam_front",
+        namespace="camera/front",
+        output="screen",
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_front"),
+                "camera_name": "front",
+                "camera_frame_id": "camera_front_optical_frame",
+            }
+        ],
+    )
     cam_rear = Node(
-        package="usb_cam", executable="usb_cam_node_exe",
-        name="usb_cam_rear", namespace="camera/rear", output="screen",
-        parameters=[{**_cam_params,
-            "video_device": LaunchConfiguration("cam_rear"),
-            "camera_name": "rear", "camera_frame_id": "camera_rear_optical_frame"}])
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam_rear",
+        namespace="camera/rear",
+        output="screen",
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_rear"),
+                "camera_name": "rear",
+                "camera_frame_id": "camera_rear_optical_frame",
+            }
+        ],
+    )
     cam_left = Node(
-        package="usb_cam", executable="usb_cam_node_exe",
-        name="usb_cam_left", namespace="camera/left", output="screen",
-        parameters=[{**_cam_params,
-            "video_device": LaunchConfiguration("cam_left"),
-            "camera_name": "left", "camera_frame_id": "camera_left_optical_frame"}])
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam_left",
+        namespace="camera/left",
+        output="screen",
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_left"),
+                "camera_name": "left",
+                "camera_frame_id": "camera_left_optical_frame",
+            }
+        ],
+    )
     cam_right = Node(
-        package="usb_cam", executable="usb_cam_node_exe",
-        name="usb_cam_right", namespace="camera/right", output="screen",
-        parameters=[{**_cam_params,
-            "video_device": LaunchConfiguration("cam_right"),
-            "camera_name": "right", "camera_frame_id": "camera_right_optical_frame"}])
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam_right",
+        namespace="camera/right",
+        output="screen",
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_right"),
+                "camera_name": "right",
+                "camera_frame_id": "camera_right_optical_frame",
+            }
+        ],
+    )
     cam_wrist = Node(
-        package="usb_cam", executable="usb_cam_node_exe",
-        name="usb_cam_wrist", namespace="camera/wrist", output="screen",
-        parameters=[{**_cam_params,
-            "video_device": LaunchConfiguration("cam_wrist"),
-            "camera_name": "wrist", "camera_frame_id": "camera_wrist_optical_frame"}])
+        package="usb_cam",
+        executable="usb_cam_node_exe",
+        name="usb_cam_wrist",
+        namespace="camera/wrist",
+        output="screen",
+        parameters=[
+            {
+                **_cam_params,
+                "video_device": LaunchConfiguration("cam_wrist"),
+                "camera_name": "wrist",
+                "camera_frame_id": "camera_wrist_optical_frame",
+            }
+        ],
+    )
 
     # ── 5. Orbbec Astra Pro RGB-D ─────────────────────────────────────────────
     astra_camera = IncludeLaunchDescription(
-        AnyLaunchDescriptionSource(os.path.join(
-            get_package_share_directory("astra_camera"), "launch", "astra_pro.launch.xml")),
+        AnyLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("astra_camera"),
+                "launch",
+                "astra_pro.launch.xml",
+            )
+        ),
         launch_arguments={
             "camera_name": "camera",
             "depth_registration": "true",
@@ -221,8 +284,14 @@ def generate_launch_description():
         name="depthimage_to_laserscan",
         output="screen",
         condition=IfCondition(LaunchConfiguration("depth_camera")),
-        parameters=[{"scan_height": 1, "range_min": 0.3, "range_max": 8.0,
-                     "output_frame": "depth_camera_optical_frame"}],
+        parameters=[
+            {
+                "scan_height": 1,
+                "range_min": 0.3,
+                "range_max": 8.0,
+                "output_frame": "depth_camera_optical_frame",
+            }
+        ],
         remappings=[
             ("depth", "/camera/depth/image_raw"),
             ("depth_camera_info", "/camera/depth/camera_info"),
@@ -267,12 +336,12 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration("slam")),
         parameters=[rtabmap_params, {"use_sim_time": False}],
         remappings=[
-            ("rgb/image",        "/camera/color/image_raw"),
-            ("rgb/camera_info",  "/camera/color/camera_info"),
-            ("depth/image",      "/camera/depth/image_raw"),
-            ("depth/camera_info","/camera/depth/camera_info"),
-            ("odom",             "/odometry/filtered"),
-            ("grid_map",         "/rtabmap/grid_map"),
+            ("rgb/image", "/camera/color/image_raw"),
+            ("rgb/camera_info", "/camera/color/camera_info"),
+            ("depth/image", "/camera/depth/image_raw"),
+            ("depth/camera_info", "/camera/depth/camera_info"),
+            ("odom", "/odometry/filtered"),
+            ("grid_map", "/rtabmap/grid_map"),
         ],
         arguments=["--delete_db_on_start"],
     )
@@ -290,8 +359,9 @@ def generate_launch_description():
 
     # ── 12. Nav2 stack ────────────────────────────────────────────────────────
     nav2 = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(
-            pkg_nav, "launch", "autonomous_navigation.launch.py")),
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_nav, "launch", "autonomous_navigation.launch.py")
+        ),
         condition=IfCondition(LaunchConfiguration("nav2")),
     )
 
@@ -325,72 +395,94 @@ def generate_launch_description():
     )
 
     # ── 16. Foxglove bridge ───────────────────────────────────────────────────
-    foxglove_bridge = TimerAction(period=4.0, actions=[Node(
-        package="foxglove_bridge",
-        executable="foxglove_bridge",
-        name="foxglove_bridge",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("foxglove")),
-        parameters=[{"port": 8765, "address": "0.0.0.0"}],
-    )])
+    foxglove_bridge = TimerAction(
+        period=4.0,
+        actions=[
+            Node(
+                package="foxglove_bridge",
+                executable="foxglove_bridge",
+                name="foxglove_bridge",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("foxglove")),
+                parameters=[{"port": 8765, "address": "0.0.0.0"}],
+            )
+        ],
+    )
 
     # ── 17. web_video_server ──────────────────────────────────────────────────
-    web_video_server = TimerAction(period=4.0, actions=[Node(
-        package="web_video_server",
-        executable="web_video_server",
-        name="web_video_server",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("web_video")),
-        parameters=[{"port": 8080, "address": "0.0.0.0"}],
-    )])
+    web_video_server = TimerAction(
+        period=4.0,
+        actions=[
+            Node(
+                package="web_video_server",
+                executable="web_video_server",
+                name="web_video_server",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("web_video")),
+                parameters=[{"port": 8080, "address": "0.0.0.0"}],
+            )
+        ],
+    )
 
     # ── 18. ROSBridge WebSocket (Android app) ─────────────────────────────────
-    rosbridge = TimerAction(period=4.0, actions=[Node(
-        package="rosbridge_server",
-        executable="rosbridge_websocket",
-        name="rosbridge_websocket",
-        output="screen",
-        condition=IfCondition(LaunchConfiguration("rosbridge")),
-        parameters=[{"port": 9090}],
-    )])
+    rosbridge = TimerAction(
+        period=4.0,
+        actions=[
+            Node(
+                package="rosbridge_server",
+                executable="rosbridge_websocket",
+                name="rosbridge_websocket",
+                output="screen",
+                condition=IfCondition(LaunchConfiguration("rosbridge")),
+                parameters=[{"port": 9090}],
+            )
+        ],
+    )
 
     # ── Assemble ──────────────────────────────────────────────────────────────
-    return LaunchDescription([
-        # Arguments
-        declare_depth_camera, declare_slam, declare_nav2, declare_arm,
-        declare_foxglove, declare_web_video, declare_rosbridge,
-        declare_cam_front, declare_cam_rear, declare_cam_left,
-        declare_cam_right, declare_cam_wrist,
-
-        # Hardware
-        robot_state_publisher,
-        yahboom_controller,
-        arm_driver,
-
-        # Perception
-        cam_front, cam_rear, cam_left, cam_right, cam_wrist,
-        astra_camera,
-        depth_to_scan,
-        bev_stitcher,
-
-        # State estimation
-        ekf,
-
-        # Mapping
-        slam_toolbox,
-        rtabmap,
-        octomap_server,
-
-        # Navigation
-        nav2,
-
-        # Control routing
-        cmd_vel_mux,
-        arm_cmd_mux,
-        mission_planner,
-
-        # Connectivity (delayed to let DDS settle)
-        foxglove_bridge,
-        web_video_server,
-        rosbridge,
-    ])
+    return LaunchDescription(
+        [
+            # Arguments
+            declare_depth_camera,
+            declare_slam,
+            declare_nav2,
+            declare_arm,
+            declare_foxglove,
+            declare_web_video,
+            declare_rosbridge,
+            declare_cam_front,
+            declare_cam_rear,
+            declare_cam_left,
+            declare_cam_right,
+            declare_cam_wrist,
+            # Hardware
+            robot_state_publisher,
+            yahboom_controller,
+            arm_driver,
+            # Perception
+            cam_front,
+            cam_rear,
+            cam_left,
+            cam_right,
+            cam_wrist,
+            astra_camera,
+            depth_to_scan,
+            bev_stitcher,
+            # State estimation
+            ekf,
+            # Mapping
+            slam_toolbox,
+            rtabmap,
+            octomap_server,
+            # Navigation
+            nav2,
+            # Control routing
+            cmd_vel_mux,
+            arm_cmd_mux,
+            mission_planner,
+            # Connectivity (delayed to let DDS settle)
+            foxglove_bridge,
+            web_video_server,
+            rosbridge,
+        ]
+    )
