@@ -1,0 +1,72 @@
+name: Daily Content Generation
+
+on:
+  schedule:
+    # 9:00 AM UTC every day
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      day_override:
+        description: 'Force a specific day number (1-based). Leave empty to use state file.'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run — generate but do not send to Discord'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # needed to commit the updated state file
+
+jobs:
+  generate-and-deliver:
+    name: Generate & Deliver Daily Content
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # need all commits for git log --reverse
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: infra/content/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r infra/content/requirements.txt
+
+      - name: Build CLI args
+        id: args
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.day_override }}" ]; then
+            ARGS="$ARGS --day ${{ github.event.inputs.day_override }}"
+          fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          echo "cli_args=$ARGS" >> "$GITHUB_OUTPUT"
+
+      - name: Generate and send daily content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: python infra/content/daily_content.py ${{ steps.args.outputs.cli_args }}
+
+      - name: Commit updated state file
+        # Only commit when not a dry-run and not forcing a specific day (those don't mutate state)
+        if: >
+          github.event.inputs.dry_run != 'true' &&
+          github.event.inputs.day_override == ''
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .content_state.json
+          git diff --cached --quiet && echo "No state change" || \
+            git commit -m "chore(content): advance daily content state [skip ci]"
+          git push origin HEAD:main
