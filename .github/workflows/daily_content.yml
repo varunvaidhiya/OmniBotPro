@@ -1,0 +1,70 @@
+name: Daily Content Generation
+
+on:
+  schedule:
+    # 09:00 UTC every day
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run — generate content but do NOT post to Discord"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+permissions:
+  contents: write   # needed to push the updated state file
+
+jobs:
+  generate-content:
+    name: Generate and post daily robotics content
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Check out with full history ────────────────────────────────────
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python environment ──────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install --quiet anthropic httpx
+
+      # ── 3. Run the generator ───────────────────────────────────────────────
+      - name: Generate and deliver daily content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # In dry-run mode we pass an intentionally invalid URL so the script
+          # will fail at the Discord send step — but we still exercise the
+          # Claude generation path. For a fully safe dry run, extend the script.
+          DISCORD_WEBHOOK_URL: >-
+            ${{
+              inputs.dry_run == 'true'
+              && 'https://discord.com/api/webhooks/dry-run-disabled'
+              || secrets.DISCORD_WEBHOOK_URL
+            }}
+        run: python tools/daily_content_gen.py
+
+      # ── 4. Persist state so the next run picks up the next commit ──────────
+      - name: Commit updated state file
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name  "github-actions[bot]"
+          git add tools/content_gen_state.json
+          # Only commit if the file actually changed
+          if git diff --staged --quiet; then
+            echo "State file unchanged — nothing to commit."
+          else
+            git commit -m "chore(content-gen): advance to next commit [skip ci]"
+            git push origin HEAD
+          fi
