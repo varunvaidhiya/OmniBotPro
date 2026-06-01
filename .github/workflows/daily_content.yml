@@ -1,0 +1,69 @@
+name: Daily Content Generator
+
+on:
+  schedule:
+    # 9:00 AM UTC daily
+    - cron: "0 9 * * *"
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "Force a specific day number (leave empty for auto)"
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (print without sending to Discord)"
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate-content:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install anthropic requests
+
+      - name: Restore content state
+        uses: actions/cache@v4
+        with:
+          path: infra/content_generator/.content_state.json
+          key: content-state-${{ github.run_id }}
+          restore-keys: |
+            content-state-
+
+      - name: Generate and send daily content
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          ARGS=""
+          if [ -n "${{ github.event.inputs.day }}" ]; then
+            ARGS="$ARGS --day ${{ github.event.inputs.day }}"
+          fi
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          python infra/content_generator/generate_content.py $ARGS
+
+      - name: Commit updated state
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet infra/content_generator/.content_state.json 2>/dev/null; then
+            echo "No state change to commit"
+          else
+            git add infra/content_generator/.content_state.json
+            git commit -m "chore(content): advance content state after day generation [skip ci]"
+            git push
+          fi

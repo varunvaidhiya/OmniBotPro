@@ -1,0 +1,12 @@
+{
+  "current_index": 1,
+  "history": [
+    {
+      "day": 1,
+      "commit": "34a262c",
+      "date": "2026-03-17",
+      "topic": "Why Your ROS 2 Simulation Breaks Silently When Joint Names Don't Match Across Every Layer",
+      "sent_at": "2026-06-01T00:00:00Z"
+    }
+  ]
+}
