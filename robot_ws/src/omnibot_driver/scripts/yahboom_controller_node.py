@@ -62,11 +62,6 @@ _ANG_TURBO  = 0.5   # rad/s (was 1.0)
 # joy_node publishes at 20 Hz when a controller is connected, so 0.5 s silence
 # reliably means the controller was powered off or disconnected.
 _JOY_TIMEOUT_S = 0.5
-# Minimum consecutive full-speed ticks per sigma-delta pulse.
-# One tick = 50 ms at 20 Hz. The Yahboom board's PID needs at least
-# ~150-200 ms to spin motors up from zero and overcome static friction;
-# shorter pulses cause vibration without rotation.
-_MIN_BURST_TICKS = 4  # 200 ms
 
 
 class YahboomControllerNode(Node):
@@ -132,13 +127,6 @@ class YahboomControllerNode(Node):
         self.cmd_vy = 0.0
         self.cmd_wa = 0.0
 
-        # Sigma-delta PWM: accumulator + minimum-burst counter per axis.
-        # acc crosses 1.0  → fire a burst of _MIN_BURST_TICKS full-speed ticks.
-        # burst counter    → remaining ticks of the current burst.
-        # Both reset to 0 when the input returns to rest.
-        self._sd_vx = 0.0;  self._burst_vx = 0
-        self._sd_vy = 0.0;  self._burst_vy = 0
-        self._sd_wa = 0.0;  self._burst_wa = 0
 
         # Odometry velocity (from board feedback, used by publish_odometry)
         self.current_vx = 0.0
@@ -375,46 +363,16 @@ class YahboomControllerNode(Node):
         try:
             msg = self.current_twist
 
-            # Sigma-delta PWM — bypasses the Yahboom board's minimum-speed
-            # dead zone while keeping average speed proportional to input.
-            #
-            # Each axis accumulates its fractional duty cycle every 20 Hz tick.
-            # When the accumulator crosses 1.0 a single full-speed pulse is sent;
-            # otherwise 0 is sent. The robot's inertia averages the pulses into
-            # smooth motion at the commanded average speed.
-            #
-            # duty = |demand| / MAX   →   effective avg = MAX * duty = |demand|
-            #
-            # Example at 50 % stick (normal mode, lin_scale=0.07):
-            #   demand = 0.035 m/s,  MAX_VAL = 0.12 m/s
-            #   duty = 0.035 / 0.12 ≈ 0.29 → ON 6 of every 20 ticks
-            #   avg output = 0.12 × 0.29 = 0.035 m/s  ✓
-
-            MAX_VAL = 0.12  # m/s  — full-speed on-pulse (turbo ceiling)
+            # Send the commanded velocity directly — the Yahboom board has its
+            # own internal encoder PID that achieves the requested speed using
+            # motor PWM. Proportionality (stick farther = faster) comes from
+            # the board's own control loop, not from anything we need to add.
+            MAX_VAL = 0.12  # m/s  (turbo ceiling)
             MAX_ANG = 0.5   # rad/s
 
-            raw_vx = float(np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL))
-            raw_vy = float(np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL))
-            raw_wa = float(np.clip(msg.angular.z, -MAX_ANG, MAX_ANG))
-
-            def _sd(acc, burst, demand, full):
-                if abs(demand) < 1e-4:       # rest: flush everything
-                    return 0.0, 0, 0.0
-                direction = math.copysign(full, demand)
-                if burst > 0:               # continue current burst
-                    return acc, burst - 1, direction
-                duty = abs(demand) / full
-                acc += duty
-                if acc >= 1.0:
-                    # Pre-deduct the extra burst ticks so proportionality is
-                    # approximately preserved across the full deflection range.
-                    acc = max(0.0, acc - 1.0 - duty * (_MIN_BURST_TICKS - 1))
-                    return acc, _MIN_BURST_TICKS - 1, direction
-                return acc, 0, 0.0
-
-            self._sd_vx, self._burst_vx, self.cmd_vx = _sd(self._sd_vx, self._burst_vx, raw_vx, MAX_VAL)
-            self._sd_vy, self._burst_vy, self.cmd_vy = _sd(self._sd_vy, self._burst_vy, raw_vy, MAX_VAL)
-            self._sd_wa, self._burst_wa, self.cmd_wa = _sd(self._sd_wa, self._burst_wa, raw_wa, MAX_ANG)
+            self.cmd_vx = float(np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL))
+            self.cmd_vy = float(np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL))
+            self.cmd_wa = float(np.clip(msg.angular.z, -MAX_ANG, MAX_ANG))
 
             # Send onboard Mecanum kinematics command (0x12)
             # Board computes wheel speeds internally using CAR_TYPE=1 algorithm
