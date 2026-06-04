@@ -115,13 +115,13 @@ class YahboomControllerNode(Node):
 
         self.last_beep_time = 0
         # Watchdog: timestamp of the last /joy message received.
-        # send_motion_command zeros velocity if this is older than _JOY_TIMEOUT_S.
         self.last_joy_time = 0.0
-        # LT trigger calibration: the HID driver reports LT=−1.0 (fully pressed)
-        # during driver init / reconnect. Trigger-based forward motion is disabled
-        # until LT is first seen at its true idle position (≥+0.9). Reset whenever
-        # a joy gap is detected so a reconnect always requires re-calibration.
-        self._lt_calibrated = False
+        # Safety gate: True at startup and after any joy silence.
+        # Motion is blocked until ALL inputs confirm idle:
+        #   sticks ≤ 0.2, triggers ≥ 0.8 (HID idle = +1.0), D-pad = 0.
+        # This prevents HID init transients (triggers not yet at +1.0) from
+        # commanding unexpected motion on startup or after reconnect.
+        self._joy_needs_idle = True
 
         # Ramping State
         self.cmd_vx = 0.0
@@ -273,11 +273,22 @@ class YahboomControllerNode(Node):
                 return float(msg.axes[i]) if len(msg.axes) > i else 0.0
 
             now = time.time()
-            # Detect any gap in joy messages (quick disconnects shorter than
-            # _JOY_TIMEOUT_S) and force LT re-calibration.
-            if self.last_joy_time > 0 and (now - self.last_joy_time) > 0.15:
-                self._lt_calibrated = False
             self.last_joy_time = now
+
+            # Safety gate: block all motion until every input is at idle.
+            # Triggers (HID): idle = +1.0; sticks: idle ≈ 0; D-pad: idle = 0.
+            if self._joy_needs_idle:
+                triggers_idle = (
+                    axis(_AXIS_LT) >= 0.8 and axis(_AXIS_RT) >= 0.8
+                )
+                sticks_idle = all(abs(axis(i)) <= 0.2 for i in [0, 1, 2, 3])
+                dpad_idle = axis(_AXIS_DPAD_X) == 0.0 and axis(_AXIS_DPAD_Y) == 0.0
+                if triggers_idle and sticks_idle and dpad_idle:
+                    self._joy_needs_idle = False
+                    self.get_logger().info("Controller at idle — motion enabled")
+                else:
+                    self.current_twist = Twist()
+                    return
 
             # A button → beep (debounced 0.5 s)
             if btn(_BTN_A) and (now - self.last_beep_time) > 0.5:
@@ -308,16 +319,9 @@ class YahboomControllerNode(Node):
             dpad_strafe = -axis(_AXIS_DPAD_X) * lin_scale  # left(+1)→−strafe_left, right(−1)→+strafe_right
 
             # LT → analog forward speed  (axis 4, HID: idle=+1.0, full=−1.0)
-            # Only enabled after LT has been seen at its true idle position (≥+0.9).
-            # This prevents the HID driver's transient −1.0 init value from
-            # commanding full-speed forward on reconnect.
-            lt_raw = axis(_AXIS_LT)
-            if not self._lt_calibrated:
-                if lt_raw >= 0.9:
-                    self._lt_calibrated = True
-                trigger_fwd = 0.0
-            else:
-                trigger_fwd = max(0.0, (1.0 - lt_raw) / 2.0) * lin_scale
+            # Safe to use directly here because _joy_needs_idle already confirmed
+            # LT was at ≥+0.8 (idle) before any motion was enabled.
+            trigger_fwd = max(0.0, (1.0 - axis(_AXIS_LT)) / 2.0) * lin_scale
 
             # Right stick vertical → FORWARD / BACKWARD  (linear.y)
             ls_fwd =  -axis(_AXIS_RS_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
@@ -351,7 +355,7 @@ class YahboomControllerNode(Node):
         # Controller watchdog — zero velocity if /joy has gone silent.
         # Covers: controller powered off, USB disconnect, joy_node crash.
         if self.last_joy_time > 0 and (time.time() - self.last_joy_time) > _JOY_TIMEOUT_S:
-            self._lt_calibrated = False  # force re-calibration on reconnect
+            self._joy_needs_idle = True  # require all-inputs-idle before motion resumes
             self.current_twist = Twist()
             self.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
             return
