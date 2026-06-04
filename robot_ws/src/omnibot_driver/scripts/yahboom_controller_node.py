@@ -62,6 +62,11 @@ _ANG_TURBO  = 0.5   # rad/s (was 1.0)
 # joy_node publishes at 20 Hz when a controller is connected, so 0.5 s silence
 # reliably means the controller was powered off or disconnected.
 _JOY_TIMEOUT_S = 0.5
+# Minimum consecutive full-speed ticks per sigma-delta pulse.
+# One tick = 50 ms at 20 Hz. The Yahboom board's PID needs at least
+# ~150-200 ms to spin motors up from zero and overcome static friction;
+# shorter pulses cause vibration without rotation.
+_MIN_BURST_TICKS = 4  # 200 ms
 
 
 class YahboomControllerNode(Node):
@@ -127,13 +132,13 @@ class YahboomControllerNode(Node):
         self.cmd_vy = 0.0
         self.cmd_wa = 0.0
 
-        # Sigma-delta PWM accumulators — one per axis.
-        # Accumulates fractional duty cycle; fires a full-speed ON pulse
-        # whenever the sum crosses 1.0, giving average speed proportional
-        # to joystick deflection while bypassing the board's dead zone.
-        self._sd_vx = 0.0
-        self._sd_vy = 0.0
-        self._sd_wa = 0.0
+        # Sigma-delta PWM: accumulator + minimum-burst counter per axis.
+        # acc crosses 1.0  → fire a burst of _MIN_BURST_TICKS full-speed ticks.
+        # burst counter    → remaining ticks of the current burst.
+        # Both reset to 0 when the input returns to rest.
+        self._sd_vx = 0.0;  self._burst_vx = 0
+        self._sd_vy = 0.0;  self._burst_vy = 0
+        self._sd_wa = 0.0;  self._burst_wa = 0
 
         # Odometry velocity (from board feedback, used by publish_odometry)
         self.current_vx = 0.0
@@ -392,18 +397,24 @@ class YahboomControllerNode(Node):
             raw_vy = float(np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL))
             raw_wa = float(np.clip(msg.angular.z, -MAX_ANG, MAX_ANG))
 
-            def _sd(acc, demand, full):
-                if abs(demand) < 1e-4:   # input at rest → flush accumulator
-                    return 0.0, 0.0
-                acc += abs(demand) / full
+            def _sd(acc, burst, demand, full):
+                if abs(demand) < 1e-4:       # rest: flush everything
+                    return 0.0, 0, 0.0
+                direction = math.copysign(full, demand)
+                if burst > 0:               # continue current burst
+                    return acc, burst - 1, direction
+                duty = abs(demand) / full
+                acc += duty
                 if acc >= 1.0:
-                    acc -= 1.0
-                    return acc, math.copysign(full, demand)
-                return acc, 0.0
+                    # Pre-deduct the extra burst ticks so proportionality is
+                    # approximately preserved across the full deflection range.
+                    acc = max(0.0, acc - 1.0 - duty * (_MIN_BURST_TICKS - 1))
+                    return acc, _MIN_BURST_TICKS - 1, direction
+                return acc, 0, 0.0
 
-            self._sd_vx, self.cmd_vx = _sd(self._sd_vx, raw_vx, MAX_VAL)
-            self._sd_vy, self.cmd_vy = _sd(self._sd_vy, raw_vy, MAX_VAL)
-            self._sd_wa, self.cmd_wa = _sd(self._sd_wa, raw_wa, MAX_ANG)
+            self._sd_vx, self._burst_vx, self.cmd_vx = _sd(self._sd_vx, self._burst_vx, raw_vx, MAX_VAL)
+            self._sd_vy, self._burst_vy, self.cmd_vy = _sd(self._sd_vy, self._burst_vy, raw_vy, MAX_VAL)
+            self._sd_wa, self._burst_wa, self.cmd_wa = _sd(self._sd_wa, self._burst_wa, raw_wa, MAX_ANG)
 
             # Send onboard Mecanum kinematics command (0x12)
             # Board computes wheel speeds internally using CAR_TYPE=1 algorithm
