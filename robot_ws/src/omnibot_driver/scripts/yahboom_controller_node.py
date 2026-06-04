@@ -58,6 +58,10 @@ _LIN_NORMAL = 0.07  # m/s  (was 0.15 — halved for structural safety)
 _LIN_TURBO  = 0.12  # m/s  (was 0.30)
 _ANG_NORMAL = 0.25  # rad/s (was 0.5)
 _ANG_TURBO  = 0.5   # rad/s (was 1.0)
+# Safety: zero velocity if no /joy message arrives within this window.
+# joy_node publishes at 20 Hz when a controller is connected, so 0.5 s silence
+# reliably means the controller was powered off or disconnected.
+_JOY_TIMEOUT_S = 0.5
 
 
 class YahboomControllerNode(Node):
@@ -110,6 +114,9 @@ class YahboomControllerNode(Node):
         self._emergency_stop = False
 
         self.last_beep_time = 0
+        # Watchdog: timestamp of the last /joy message received.
+        # send_motion_command zeros velocity if this is older than _JOY_TIMEOUT_S.
+        self.last_joy_time = 0.0
 
         # Ramping State
         self.cmd_vx = 0.0
@@ -260,8 +267,10 @@ class YahboomControllerNode(Node):
             def axis(i):
                 return float(msg.axes[i]) if len(msg.axes) > i else 0.0
 
-            # A button → beep (debounced 0.5 s)
             now = time.time()
+            self.last_joy_time = now  # watchdog heartbeat
+
+            # A button → beep (debounced 0.5 s)
             if btn(_BTN_A) and (now - self.last_beep_time) > 0.5:
                 self.get_logger().info("Button A: BEEP")
                 self.send_packet(0x02, struct.pack("<h", 100))
@@ -320,6 +329,14 @@ class YahboomControllerNode(Node):
             # Keep sending zero velocity while e-stop is active
             self.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
             return
+
+        # Controller watchdog — zero velocity if /joy has gone silent.
+        # Covers: controller powered off, USB disconnect, joy_node crash.
+        if self.last_joy_time > 0 and (time.time() - self.last_joy_time) > _JOY_TIMEOUT_S:
+            self.current_twist = Twist()
+            self.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
+            return
+
         try:
             msg = self.current_twist
 
