@@ -117,6 +117,11 @@ class YahboomControllerNode(Node):
         # Watchdog: timestamp of the last /joy message received.
         # send_motion_command zeros velocity if this is older than _JOY_TIMEOUT_S.
         self.last_joy_time = 0.0
+        # Reconnect settling: set True by the watchdog when the controller goes
+        # away; cleared on first joy message, which also starts a frame countdown
+        # that suppresses motion until the controller axis values have settled.
+        self._joy_disconnected = False
+        self._joy_settle_frames = 0
 
         # Ramping State
         self.cmd_vx = 0.0
@@ -270,6 +275,18 @@ class YahboomControllerNode(Node):
             now = time.time()
             self.last_joy_time = now  # watchdog heartbeat
 
+            # Reconnect settling: discard the first 10 frames (~500 ms at 20 Hz)
+            # after the controller comes back so transient axis values (especially
+            # triggers not yet at their idle +1.0) don't cause unexpected motion.
+            if self._joy_disconnected:
+                self._joy_disconnected = False
+                self._joy_settle_frames = 10
+                self.get_logger().info("Controller reconnected — settling for 10 frames")
+            if self._joy_settle_frames > 0:
+                self._joy_settle_frames -= 1
+                self.current_twist = Twist()
+                return
+
             # A button → beep (debounced 0.5 s)
             if btn(_BTN_A) and (now - self.last_beep_time) > 0.5:
                 self.get_logger().info("Button A: BEEP")
@@ -333,6 +350,7 @@ class YahboomControllerNode(Node):
         # Controller watchdog — zero velocity if /joy has gone silent.
         # Covers: controller powered off, USB disconnect, joy_node crash.
         if self.last_joy_time > 0 and (time.time() - self.last_joy_time) > _JOY_TIMEOUT_S:
+            self._joy_disconnected = True
             self.current_twist = Twist()
             self.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
             return
