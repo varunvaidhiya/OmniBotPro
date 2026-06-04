@@ -318,10 +318,10 @@ class YahboomControllerNode(Node):
             # D-pad left/right → STRAFE  (linear.x)
             dpad_strafe = -axis(_AXIS_DPAD_X) * lin_scale  # left(+1)→−strafe_left, right(−1)→+strafe_right
 
-            # LT → analog forward speed  (axis 4, HID: idle=+1.0, full=−1.0)
-            # Safe to use directly here because _joy_needs_idle already confirmed
-            # LT was at ≥+0.8 (idle) before any motion was enabled.
-            trigger_fwd = max(0.0, (1.0 - axis(_AXIS_LT)) / 2.0) * lin_scale
+            # RT → forward,  LT → reverse  (HID: idle=+1.0, full press=−1.0)
+            # Normalise: (1 − raw) / 2  →  0.0 (idle) … 1.0 (full press)
+            trigger_fwd = max(0.0, (1.0 - axis(_AXIS_RT)) / 2.0) * lin_scale
+            trigger_rev = max(0.0, (1.0 - axis(_AXIS_LT)) / 2.0) * lin_scale
 
             # Right stick vertical → FORWARD / BACKWARD  (linear.y)
             ls_fwd =  -axis(_AXIS_RS_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
@@ -334,7 +334,7 @@ class YahboomControllerNode(Node):
 
             twist = Twist()
             twist.linear.x  = dpad_strafe
-            twist.linear.y  = -(dpad_fwd + trigger_fwd + ls_fwd)
+            twist.linear.y  = -(dpad_fwd + trigger_fwd - trigger_rev + ls_fwd)
             twist.angular.z = ls_wz + rs_wz
             self.current_twist = twist
 
