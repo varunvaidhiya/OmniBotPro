@@ -5,33 +5,43 @@ from ament_index_python.packages import (
     get_package_share_directory,
     PackageNotFoundError,
 )
+import logging
 import os
 
 
 def generate_launch_description():
     pkg_omnibot_bringup = get_package_share_directory("omnibot_bringup")
 
-    # Auto-detect whether foxglove_bridge is installed so launch never crashes
-    # when the package is missing. Install with:
-    #   sudo apt install ros-jazzy-foxglove-bridge
+    # Auto-detect optional packages so launch never crashes when missing.
     try:
         get_package_share_directory("foxglove_bridge")
         foxglove_available = "true"
     except PackageNotFoundError:
-        import logging
-
         logging.getLogger("launch").warning(
             "[robot_with_joy] foxglove_bridge not installed — Foxglove disabled. "
             "Run: sudo apt install ros-jazzy-foxglove-bridge"
         )
         foxglove_available = "false"
 
-    # Launch Robot Driver (Yahboom Node) — disable foxglove if not installed
+    try:
+        get_package_share_directory("robot_localization")
+        ekf_available = "true"
+    except PackageNotFoundError:
+        logging.getLogger("launch").warning(
+            "[robot_with_joy] robot_localization not installed — EKF disabled. "
+            "Run: sudo apt install ros-jazzy-robot-localization"
+        )
+        ekf_available = "false"
+
+    # Launch Robot Driver (Yahboom Node)
     robot_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_omnibot_bringup, "launch", "robot.launch.py")
         ),
-        launch_arguments={"use_foxglove": foxglove_available}.items(),
+        launch_arguments={
+            "use_foxglove": foxglove_available,
+            "ekf": ekf_available,
+        }.items(),
     )
 
     # Launch Joystick Teleop

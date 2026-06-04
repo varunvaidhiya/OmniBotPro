@@ -19,23 +19,45 @@ import traceback
 
 _DEBUG_LOG_PATH = os.path.join(os.path.expanduser("~"), ".ros", "omnibot_debug.log")
 
-# Xbox controller axis/button indices (Linux xpad driver)
-_AXIS_LS_X = 0  # Left Stick horizontal  → strafe
-_AXIS_LS_Y = 1  # Left Stick vertical    → forward / back
-_AXIS_RS_X = 3  # Right Stick horizontal → car-steering (speed-coupled)
-_AXIS_DPAD_X = 6  # D-Pad horizontal       → pure in-place rotation
-_BTN_A = 0  # A button               → beep
-_BTN_RB = 5  # RB (Right Bumper)      → deadman switch (btn5, matches xbox_teleop.yaml)
-_BTN_START = 7  # Start                  → turbo
+# ── Xbox Series X controller map (Linux hid-generic / ros-joy) ───────────
+# Analog sticks: left/down = −1.0, right/up = +1.0
+# D-pad hat:     left/down = −1.0, right/up = +1.0
+# Triggers (HID):released = +1.0, fully pressed = −1.0  ← NOT 0→1!
+#   Normalize with: (1 − raw) / 2  →  0.0 (idle) … 1.0 (full press)
+#
+# Axis layout observed on this machine (ros2 topic echo /joy at idle):
+#   [0]=0, [1]=0, [2]=0, [3]=0, [4]=1.0, [5]=1.0, [6]=0, [7]=0
+#   → axes 4 and 5 are the triggers (rest=1.0 confirms hid convention)
+#   → axes 0-3 are the four stick axes
+#
+# Control scheme:
+#   D-pad      → cardinal translation: up/down=fwd/rev, left/right=strafe
+#   Left stick → vert=stride fwd/rev, horiz=turn in-place
+#   RT (axis5) → analog forward speed (squeeze = faster)
+#   Right stick→ pure in-place rotation
+#   RB (btn5)  → deadman — MUST HOLD to drive (beep works without it)
+#   Start(btn7)→ turbo (doubles all speeds)
+#   A (btn0)   → beep (fires without RB)
+#   LB/Back    → reserved for dataset recorder (handled by teleop_recorder_node)
+_AXIS_LS_X   = 0   # Left Stick X:  left=−1 … right=+1
+_AXIS_LS_Y   = 1   # Left Stick Y:  down=−1 … up=+1
+_AXIS_RS_X   = 2   # Right Stick X: left=−1 … right=+1
+_AXIS_RS_Y   = 3   # Right Stick Y: down=−1 … up=+1
+_AXIS_LT     = 4   # Left Trigger:  HID — released=+1.0, pressed=−1.0
+_AXIS_RT     = 5   # Right Trigger: HID — released=+1.0, pressed=−1.0
+_AXIS_DPAD_X = 6   # D-pad X:       left=−1 … right=+1
+_AXIS_DPAD_Y = 7   # D-pad Y:       down=−1 … up=+1
 
-# Normal / turbo speed scales
-_LIN_NORMAL = 0.15  # m/s
-_LIN_TURBO = 0.30  # m/s
-_ANG_NORMAL = 0.5  # rad/s
-_ANG_TURBO = 1.0  # rad/s
-# Car-steering gain: at full forward speed + full stick → max angular rate
-# gain = ang_scale / lin_scale = 2.0 rad/m (constant across normal/turbo)
-_STEER_GAIN = _ANG_NORMAL / _LIN_NORMAL
+_BTN_A     = 0   # A          → beep
+_BTN_LB    = 4   # LB         → dataset discard (teleop_recorder_node)
+_BTN_RB    = 5   # RB         → deadman switch
+_BTN_BACK  = 6   # Back/View  → dataset record  (teleop_recorder_node)
+_BTN_START = 7   # Start/Menu → turbo
+
+_LIN_NORMAL = 0.07  # m/s  (was 0.15 — halved for structural safety)
+_LIN_TURBO  = 0.12  # m/s  (was 0.30)
+_ANG_NORMAL = 0.25  # rad/s (was 0.5)
+_ANG_TURBO  = 0.5   # rad/s (was 1.0)
 
 
 class YahboomControllerNode(Node):
@@ -232,44 +254,57 @@ class YahboomControllerNode(Node):
 
     def joy_callback(self, msg):
         try:
-
             def btn(i):
                 return len(msg.buttons) > i and msg.buttons[i] == 1
 
             def axis(i):
                 return float(msg.axes[i]) if len(msg.axes) > i else 0.0
 
-            # Button A → beep (debounced to 1 per 0.5 s)
+            # A button → beep (debounced 0.5 s)
             now = time.time()
-            if btn(_BTN_A):
-                if (now - self.last_beep_time) > 0.5:
-                    self.get_logger().info("Button A: BEEP")
-                    self.send_packet(0x02, struct.pack("<h", 100))
-                    self.last_beep_time = now
-
-            # Deadman: RB (btn5) must be held — release zeroes velocity immediately
-            if not btn(_BTN_RB):
-                self.current_twist = Twist()
-                return
+            if btn(_BTN_A) and (now - self.last_beep_time) > 0.5:
+                self.get_logger().info("Button A: BEEP")
+                self.send_packet(0x02, struct.pack("<h", 100))
+                self.last_beep_time = now
 
             turbo = btn(_BTN_START)
             lin_scale = _LIN_TURBO if turbo else _LIN_NORMAL
             ang_scale = _ANG_TURBO if turbo else _ANG_NORMAL
 
-            # Left stick → forward/back (vx) and strafe (vy)
-            vx = axis(_AXIS_LS_Y) * lin_scale
-            vy = axis(_AXIS_LS_X) * lin_scale
+            # ── Physical robot convention (determined empirically) ────────────────
+            # twist.linear.x > 0  = strafe RIGHT,  < 0 = strafe LEFT
+            # twist.linear.y > 0  = FORWARD,       < 0 = BACKWARD
+            # twist.angular.z > 0 = rotate LEFT (CCW)
+            #
+            # Axis signs on this controller:
+            #   DPAD_Y (axis 7): up = −1, down = +1  (Linux HAT Y)
+            #   DPAD_X (axis 6): left = +1, right = −1  (inverted HAT X on this unit)
+            #   LS_Y   (axis 1): up = −1, down = +1  (Linux analog Y)
+            #   LS_X   (axis 0): left = −1, right = +1
+            #   LT     (axis 4): released = +1, pressed = −1  (HID convention)
 
-            # D-pad ←→ → pure in-place rotation (discrete ±1)
-            wz = axis(_AXIS_DPAD_X) * ang_scale
+            # D-pad up/down → FORWARD / BACKWARD  (linear.y)
+            dpad_fwd    = -axis(_AXIS_DPAD_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
 
-            # Right stick ←→ → car-like steering
-            wz += axis(_AXIS_RS_X) * vx * _STEER_GAIN
+            # D-pad left/right → STRAFE  (linear.x)
+            dpad_strafe = -axis(_AXIS_DPAD_X) * lin_scale  # left(+1)→−strafe_left, right(−1)→+strafe_right
+
+            # LT → analog forward speed  (axis 4, HID: 1=idle → −1=full)
+            trigger_fwd = max(0.0, (1.0 - axis(_AXIS_LT)) / 2.0) * lin_scale
+
+            # Right stick vertical → FORWARD / BACKWARD  (linear.y)
+            ls_fwd =  -axis(_AXIS_RS_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
+
+            # Right stick horizontal → turn (stride-coupled)
+            ls_wz  = -axis(_AXIS_RS_X) * ang_scale   # left(−1)→+wz=CCW, right(+1)→−wz=CW
+
+            # Left stick horizontal → pure in-place rotation
+            rs_wz  = -axis(_AXIS_LS_X) * ang_scale
 
             twist = Twist()
-            twist.linear.x = vx
-            twist.linear.y = vy
-            twist.angular.z = wz
+            twist.linear.x  = dpad_strafe
+            twist.linear.y  = -(dpad_fwd + trigger_fwd + ls_fwd)
+            twist.angular.z = ls_wz + rs_wz
             self.current_twist = twist
 
         except Exception as e:
@@ -288,32 +323,13 @@ class YahboomControllerNode(Node):
         try:
             msg = self.current_twist
 
-            # CLAMP SPEED to prevent Brownout/Over-current - SAFE MODE
-            MAX_VAL = 0.2  # m/s
-            MAX_ANG = 1.0  # rad/s
-            RAMP_STEP = 0.025  # m/s per tick — halved for smoother linear accel
-            RAMP_STEP_ANG = 0.05  # rad/s per tick — smooth angular start/stop
+            # Hard clamp — no ramp, constant speed from the first tick
+            MAX_VAL = 0.12  # m/s  (turbo ceiling, well below brownout threshold)
+            MAX_ANG = 0.5   # rad/s
 
-            target_vx = np.clip(msg.linear.x, -MAX_VAL, MAX_VAL)
-            target_vy = np.clip(msg.linear.y, -MAX_VAL, MAX_VAL)
-            target_w = np.clip(msg.angular.z, -MAX_ANG, MAX_ANG)
-
-            # Ramping Logic — linear
-            if self.cmd_vx < target_vx:
-                self.cmd_vx = min(self.cmd_vx + RAMP_STEP, target_vx)
-            elif self.cmd_vx > target_vx:
-                self.cmd_vx = max(self.cmd_vx - RAMP_STEP, target_vx)
-
-            if self.cmd_vy < target_vy:
-                self.cmd_vy = min(self.cmd_vy + RAMP_STEP, target_vy)
-            elif self.cmd_vy > target_vy:
-                self.cmd_vy = max(self.cmd_vy - RAMP_STEP, target_vy)
-
-            # Ramping Logic — angular (previously instant, now smoothed)
-            if self.cmd_wa < target_w:
-                self.cmd_wa = min(self.cmd_wa + RAMP_STEP_ANG, target_w)
-            elif self.cmd_wa > target_w:
-                self.cmd_wa = max(self.cmd_wa - RAMP_STEP_ANG, target_w)
+            self.cmd_vx = np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL)
+            self.cmd_vy = np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL)
+            self.cmd_wa = np.clip(msg.angular.z, -MAX_ANG, MAX_ANG)
 
             # Send onboard Mecanum kinematics command (0x12)
             # Board computes wheel speeds internally using CAR_TYPE=1 algorithm
