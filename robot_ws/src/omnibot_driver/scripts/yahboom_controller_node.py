@@ -123,10 +123,17 @@ class YahboomControllerNode(Node):
         # commanding unexpected motion on startup or after reconnect.
         self._joy_needs_idle = True
 
-        # Ramping State
         self.cmd_vx = 0.0
         self.cmd_vy = 0.0
         self.cmd_wa = 0.0
+
+        # Sigma-delta PWM accumulators — one per axis.
+        # Accumulates fractional duty cycle; fires a full-speed ON pulse
+        # whenever the sum crosses 1.0, giving average speed proportional
+        # to joystick deflection while bypassing the board's dead zone.
+        self._sd_vx = 0.0
+        self._sd_vy = 0.0
+        self._sd_wa = 0.0
 
         # Odometry velocity (from board feedback, used by publish_odometry)
         self.current_vx = 0.0
@@ -363,19 +370,46 @@ class YahboomControllerNode(Node):
         try:
             msg = self.current_twist
 
-            # Hard clamp — no ramp, constant speed from the first tick
-            MAX_VAL = 0.12  # m/s  (turbo ceiling, well below brownout threshold)
+            # Sigma-delta PWM — bypasses the Yahboom board's minimum-speed
+            # dead zone while keeping average speed proportional to input.
+            #
+            # Each axis accumulates its fractional duty cycle every 20 Hz tick.
+            # When the accumulator crosses 1.0 a single full-speed pulse is sent;
+            # otherwise 0 is sent. The robot's inertia averages the pulses into
+            # smooth motion at the commanded average speed.
+            #
+            # duty = |demand| / MAX   →   effective avg = MAX * duty = |demand|
+            #
+            # Example at 50 % stick (normal mode, lin_scale=0.07):
+            #   demand = 0.035 m/s,  MAX_VAL = 0.12 m/s
+            #   duty = 0.035 / 0.12 ≈ 0.29 → ON 6 of every 20 ticks
+            #   avg output = 0.12 × 0.29 = 0.035 m/s  ✓
+
+            MAX_VAL = 0.12  # m/s  — full-speed on-pulse (turbo ceiling)
             MAX_ANG = 0.5   # rad/s
 
-            self.cmd_vx = np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL)
-            self.cmd_vy = np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL)
-            self.cmd_wa = np.clip(msg.angular.z, -MAX_ANG, MAX_ANG)
+            raw_vx = float(np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL))
+            raw_vy = float(np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL))
+            raw_wa = float(np.clip(msg.angular.z, -MAX_ANG, MAX_ANG))
+
+            def _sd(acc, demand, full):
+                if abs(demand) < 1e-4:   # input at rest → flush accumulator
+                    return 0.0, 0.0
+                acc += abs(demand) / full
+                if acc >= 1.0:
+                    acc -= 1.0
+                    return acc, math.copysign(full, demand)
+                return acc, 0.0
+
+            self._sd_vx, self.cmd_vx = _sd(self._sd_vx, raw_vx, MAX_VAL)
+            self._sd_vy, self.cmd_vy = _sd(self._sd_vy, raw_vy, MAX_VAL)
+            self._sd_wa, self.cmd_wa = _sd(self._sd_wa, raw_wa, MAX_ANG)
 
             # Send onboard Mecanum kinematics command (0x12)
             # Board computes wheel speeds internally using CAR_TYPE=1 algorithm
             vx_int = int(self.cmd_vx * 1000)  # mm/s
             vy_int = int(self.cmd_vy * 1000)
-            w_int = int(self.cmd_wa * 1000)
+            w_int  = int(self.cmd_wa * 1000)
 
             CAR_TYPE = 1  # Mecanum X3
             payload = struct.pack("<bhhh", CAR_TYPE, vx_int, vy_int, w_int)
