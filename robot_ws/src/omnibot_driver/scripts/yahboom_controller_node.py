@@ -316,7 +316,7 @@ class YahboomControllerNode(Node):
             dpad_fwd    = -axis(_AXIS_DPAD_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
 
             # D-pad left/right → STRAFE  (linear.x)
-            dpad_strafe = -axis(_AXIS_DPAD_X) * lin_scale  # left(+1)→−strafe_left, right(−1)→+strafe_right
+            dpad_strafe = axis(_AXIS_DPAD_X) * lin_scale
 
             # RT → forward,  LT → reverse  (HID: idle=+1.0, full press=−1.0)
             # Normalise: (1 − raw) / 2  →  0.0 (idle) … 1.0 (full press)
