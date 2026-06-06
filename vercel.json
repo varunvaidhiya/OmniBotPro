@@ -1,7 +1,6 @@
 {
-  "framework": "nextjs",
   "buildCommand": "cd website && npm install --legacy-peer-deps && npm run build",
-  "outputDirectory": "website/.next",
+  "outputDirectory": "website/out",
   "installCommand": "true",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- website/"
 }
