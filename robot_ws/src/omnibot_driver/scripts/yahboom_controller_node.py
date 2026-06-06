@@ -39,25 +39,25 @@ _DEBUG_LOG_PATH = os.path.join(os.path.expanduser("~"), ".ros", "omnibot_debug.l
 #   Start(btn7)→ turbo (doubles all speeds)
 #   A (btn0)   → beep (fires without RB)
 #   LB/Back    → reserved for dataset recorder (handled by teleop_recorder_node)
-_AXIS_LS_X   = 0   # Left Stick X:  left=−1 … right=+1
-_AXIS_LS_Y   = 1   # Left Stick Y:  down=−1 … up=+1
-_AXIS_RS_X   = 2   # Right Stick X: left=−1 … right=+1
-_AXIS_RS_Y   = 3   # Right Stick Y: down=−1 … up=+1
-_AXIS_LT     = 4   # Left Trigger:  HID — released=+1.0, pressed=−1.0
-_AXIS_RT     = 5   # Right Trigger: HID — released=+1.0, pressed=−1.0
-_AXIS_DPAD_X = 6   # D-pad X:       left=−1 … right=+1
-_AXIS_DPAD_Y = 7   # D-pad Y:       down=−1 … up=+1
+_AXIS_LS_X = 0  # Left Stick X:  left=−1 … right=+1
+_AXIS_LS_Y = 1  # Left Stick Y:  down=−1 … up=+1
+_AXIS_RS_X = 2  # Right Stick X: left=−1 … right=+1
+_AXIS_RS_Y = 3  # Right Stick Y: down=−1 … up=+1
+_AXIS_LT = 4  # Left Trigger:  HID — released=+1.0, pressed=−1.0
+_AXIS_RT = 5  # Right Trigger: HID — released=+1.0, pressed=−1.0
+_AXIS_DPAD_X = 6  # D-pad X:       left=−1 … right=+1
+_AXIS_DPAD_Y = 7  # D-pad Y:       down=−1 … up=+1
 
-_BTN_A     = 0   # A          → beep
-_BTN_LB    = 4   # LB         → dataset discard (teleop_recorder_node)
-_BTN_RB    = 5   # RB         → deadman switch
-_BTN_BACK  = 6   # Back/View  → dataset record  (teleop_recorder_node)
-_BTN_START = 7   # Start/Menu → turbo
+_BTN_A = 0  # A          → beep
+_BTN_LB = 4  # LB         → dataset discard (teleop_recorder_node)
+_BTN_RB = 5  # RB         → deadman switch
+_BTN_BACK = 6  # Back/View  → dataset record  (teleop_recorder_node)
+_BTN_START = 7  # Start/Menu → turbo
 
 _LIN_NORMAL = 0.07  # m/s  (was 0.15 — halved for structural safety)
-_LIN_TURBO  = 0.12  # m/s  (was 0.30)
+_LIN_TURBO = 0.12  # m/s  (was 0.30)
 _ANG_NORMAL = 0.25  # rad/s (was 0.5)
-_ANG_TURBO  = 0.5   # rad/s (was 1.0)
+_ANG_TURBO = 0.5  # rad/s (was 1.0)
 # Safety: zero velocity if no /joy message arrives within this window.
 # joy_node publishes at 20 Hz when a controller is connected, so 0.5 s silence
 # reliably means the controller was powered off or disconnected.
@@ -126,7 +126,6 @@ class YahboomControllerNode(Node):
         self.cmd_vx = 0.0
         self.cmd_vy = 0.0
         self.cmd_wa = 0.0
-
 
         # Odometry velocity (from board feedback, used by publish_odometry)
         self.current_vx = 0.0
@@ -266,6 +265,7 @@ class YahboomControllerNode(Node):
 
     def joy_callback(self, msg):
         try:
+
             def btn(i):
                 return len(msg.buttons) > i and msg.buttons[i] == 1
 
@@ -278,9 +278,7 @@ class YahboomControllerNode(Node):
             # Safety gate: block all motion until every input is at idle.
             # Triggers (HID): idle = +1.0; sticks: idle ≈ 0; D-pad: idle = 0.
             if self._joy_needs_idle:
-                triggers_idle = (
-                    axis(_AXIS_LT) >= 0.8 and axis(_AXIS_RT) >= 0.8
-                )
+                triggers_idle = axis(_AXIS_LT) >= 0.8 and axis(_AXIS_RT) >= 0.8
                 sticks_idle = all(abs(axis(i)) <= 0.2 for i in [0, 1, 2, 3])
                 dpad_idle = axis(_AXIS_DPAD_X) == 0.0 and axis(_AXIS_DPAD_Y) == 0.0
                 if triggers_idle and sticks_idle and dpad_idle:
@@ -313,7 +311,7 @@ class YahboomControllerNode(Node):
             #   LT     (axis 4): released = +1, pressed = −1  (HID convention)
 
             # D-pad up/down → FORWARD / BACKWARD  (linear.y)
-            dpad_fwd    = -axis(_AXIS_DPAD_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
+            dpad_fwd = -axis(_AXIS_DPAD_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
 
             # D-pad left/right → STRAFE  (linear.x)
             dpad_strafe = axis(_AXIS_DPAD_X) * lin_scale
@@ -324,17 +322,17 @@ class YahboomControllerNode(Node):
             trigger_rev = max(0.0, (1.0 - axis(_AXIS_LT)) / 2.0) * lin_scale
 
             # Right stick vertical → FORWARD / BACKWARD  (linear.y)
-            ls_fwd =  -axis(_AXIS_RS_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
+            ls_fwd = -axis(_AXIS_RS_Y) * lin_scale  # up(−1)→+fwd, down(+1)→−bwd
 
             # Right stick horizontal → turn (stride-coupled)
-            ls_wz  = -axis(_AXIS_RS_X) * ang_scale   # left(−1)→+wz=CCW, right(+1)→−wz=CW
+            ls_wz = -axis(_AXIS_RS_X) * ang_scale  # left(−1)→+wz=CCW, right(+1)→−wz=CW
 
             # Left stick horizontal → pure in-place rotation
-            rs_wz  = -axis(_AXIS_LS_X) * ang_scale
+            rs_wz = -axis(_AXIS_LS_X) * ang_scale
 
             twist = Twist()
-            twist.linear.x  = dpad_strafe
-            twist.linear.y  = -(dpad_fwd + trigger_fwd - trigger_rev + ls_fwd)
+            twist.linear.x = dpad_strafe
+            twist.linear.y = -(dpad_fwd + trigger_fwd - trigger_rev + ls_fwd)
             twist.angular.z = ls_wz + rs_wz
             self.current_twist = twist
 
@@ -354,7 +352,10 @@ class YahboomControllerNode(Node):
 
         # Controller watchdog — zero velocity if /joy has gone silent.
         # Covers: controller powered off, USB disconnect, joy_node crash.
-        if self.last_joy_time > 0 and (time.time() - self.last_joy_time) > _JOY_TIMEOUT_S:
+        if (
+            self.last_joy_time > 0
+            and (time.time() - self.last_joy_time) > _JOY_TIMEOUT_S
+        ):
             self._joy_needs_idle = True  # require all-inputs-idle before motion resumes
             self.current_twist = Twist()
             self.send_packet(0x12, struct.pack("<bhhh", 1, 0, 0, 0))
@@ -368,17 +369,17 @@ class YahboomControllerNode(Node):
             # motor PWM. Proportionality (stick farther = faster) comes from
             # the board's own control loop, not from anything we need to add.
             MAX_VAL = 0.12  # m/s  (turbo ceiling)
-            MAX_ANG = 0.5   # rad/s
+            MAX_ANG = 0.5  # rad/s
 
-            self.cmd_vx = float(np.clip(msg.linear.x,  -MAX_VAL, MAX_VAL))
-            self.cmd_vy = float(np.clip(msg.linear.y,  -MAX_VAL, MAX_VAL))
+            self.cmd_vx = float(np.clip(msg.linear.x, -MAX_VAL, MAX_VAL))
+            self.cmd_vy = float(np.clip(msg.linear.y, -MAX_VAL, MAX_VAL))
             self.cmd_wa = float(np.clip(msg.angular.z, -MAX_ANG, MAX_ANG))
 
             # Send onboard Mecanum kinematics command (0x12)
             # Board computes wheel speeds internally using CAR_TYPE=1 algorithm
             vx_int = int(self.cmd_vx * 1000)  # mm/s
             vy_int = int(self.cmd_vy * 1000)
-            w_int  = int(self.cmd_wa * 1000)
+            w_int = int(self.cmd_wa * 1000)
 
             CAR_TYPE = 1  # Mecanum X3
             payload = struct.pack("<bhhh", CAR_TYPE, vx_int, vy_int, w_int)
