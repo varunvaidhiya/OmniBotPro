@@ -1,0 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0A0E1A;
+  --surf: #0F1628;
+  --surf-hi: #141D35;
+  --border: rgba(255,255,255,0.07);
+  --border-med: rgba(255,255,255,0.13);
+  --cyan: #00D4FF;
+  --cyan-dim: rgba(0,212,255,0.10);
+  --cyan-glow: rgba(0,212,255,0.22);
+  --violet: #7C3AED;
+  --violet-lite: #A78BFA;
+  --violet-dim: rgba(124,58,237,0.10);
+  --violet-glow: rgba(124,58,237,0.22);
+  --text: #FFFFFF;
+  --muted: rgba(255,255,255,0.52);
+  --faint: rgba(255,255,255,0.22);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+
+/* ── HERO GRID ─────────────────────────────────────────────────── */
+.hero-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.045) 1px, transparent 1px);
+  background-size: 68px 68px;
+  animation: grid-drift 28s linear infinite;
+}
+@keyframes grid-drift {
+  from { background-position: 0 0; }
+  to   { background-position: 68px 68px; }
+}
+
+/* ── ORB ANIMATIONS ────────────────────────────────────────────── */
+.hero-orb-1 {
+  position: absolute; width: 700px; height: 700px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,.10) 0%, transparent 68%);
+  top: -10%; left: -15%;
+  animation: orb1 18s ease-in-out infinite alternate; pointer-events: none;
+}
+.hero-orb-2 {
+  position: absolute; width: 560px; height: 560px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(124,58,237,.16) 0%, transparent 68%);
+  bottom: -5%; right: -8%;
+  animation: orb2 14s ease-in-out infinite alternate; pointer-events: none;
+}
+.hero-orb-3 {
+  position: absolute; width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,.07) 0%, transparent 70%);
+  top: 40%; right: 15%;
+  animation: orb1 22s ease-in-out infinite alternate-reverse; pointer-events: none;
+}
+@keyframes orb1 { from { transform: translate(0,0); } to { transform: translate(70px,-50px); } }
+@keyframes orb2 { from { transform: translate(0,0); } to { transform: translate(-60px,40px); } }
+
+/* ── BADGE DOT ─────────────────────────────────────────────────── */
+.badge-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--cyan);
+  animation: bdot 2.2s ease-in-out infinite; display: inline-block;
+}
+@keyframes bdot {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .4; transform: scale(.65); }
+}
+
+/* ── HERO LOGO MIRROR ──────────────────────────────────────────── */
+.hero-logo-mirror {
+  position: absolute; top: 96%; left: 0; right: 0;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+  font-size: clamp(88px, 17vw, 172px);
+  letter-spacing: -0.045em; line-height: 1;
+  transform: scaleY(-1); pointer-events: none; user-select: none;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(255,255,255,.12) 0%, transparent 55%);
+  mask-image: linear-gradient(to bottom, rgba(255,255,255,.12) 0%, transparent 55%);
+}
+
+/* ── SCROLL HINT ───────────────────────────────────────────────── */
+.scroll-hint {
+  position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  color: var(--faint); font-size: 10px; font-family: 'JetBrains Mono', monospace;
+  letter-spacing: .08em;
+  animation: sh 2s ease-in-out infinite;
+}
+@keyframes sh {
+  0%,100% { transform: translateX(-50%) translateY(0); opacity: .5; }
+  50%      { transform: translateX(-50%) translateY(7px); opacity: 1; }
+}
+
+/* ── HOW IT WORKS CONNECTOR ────────────────────────────────────── */
+.step-join {
+  position: absolute; top: 40px;
+  left: calc(100% / 3 / 2); right: calc(100% / 3 / 2);
+  height: 1px; pointer-events: none;
+  background: linear-gradient(90deg, var(--cyan), rgba(124,58,237,.6), var(--violet));
+  opacity: .2;
+}
+
+/* ── CTA BG ────────────────────────────────────────────────────── */
+.cta-bg {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 90% at 50% 110%, rgba(124,58,237,.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 50% -10%, rgba(0,212,255,.10) 0%, transparent 70%);
+}
+
+/* ── PRODUCT CARD HOVER ────────────────────────────────────────── */
+.pc-card:hover .pc-link-arrow {
+  transform: translateX(5px);
+}
+.pc-link-arrow {
+  transition: transform 0.2s;
+}

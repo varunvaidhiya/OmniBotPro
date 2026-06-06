@@ -1,0 +1,5 @@
+.next/
+node_modules/
+out/
+.env*.local
+# Keep .vercel/project.json tracked — it links to the Vercel project (no secrets)

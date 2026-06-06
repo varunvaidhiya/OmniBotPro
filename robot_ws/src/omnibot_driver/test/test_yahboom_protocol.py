@@ -139,20 +139,20 @@ class TestOdometryParsing:
 
     def test_current_vx_reflects_commanded_velocity(self, node, mock_serial):
         # current_vx is updated from cmd_vx (commanded), not board feedback.
-        # Issue a motion command so cmd_vx advances one ramp step.
+        # The node clips directly to MAX_VAL=0.12 (no software ramp; board handles PID).
         from geometry_msgs.msg import Twist
 
         msg = Twist()
-        msg.linear.x = 0.2  # at max — cmd_vx advances by RAMP_STEP=0.025
+        msg.linear.x = 0.2  # above MAX_VAL=0.12, so cmd_vx is clipped to 0.12
         node.current_twist = msg
-        node.send_motion_command()  # cmd_vx = 0.025
+        node.send_motion_command()
 
         pkt = build_velocity_packet(0, 0, 0)  # board feedback irrelevant
         mock_serial.in_waiting = len(pkt)
         mock_serial.read.return_value = pkt
         node.read_yahboom_odometry()
 
-        assert node.current_vx == pytest.approx(0.025)
+        assert node.current_vx == pytest.approx(0.12)
 
     def test_multiple_imu_packets_last_wins(self, node, mock_serial):
         # Multiple packets in one read burst are all parsed; last value wins.
@@ -203,23 +203,24 @@ class TestImuParsing:
         assert node.imu_yaw == pytest.approx(math.pi / 2, rel=1e-3)
 
 
-# ── Ramp limiting ─────────────────────────────────────────────────────────────
+# ── Velocity clamping ─────────────────────────────────────────────────────────
+# The node clips directly to MAX_VAL=0.12 m/s; ramping is handled by the board.
 
 
-class TestRampLimiting:
+class TestVelocityClamping:
     def test_velocity_clamped_to_max(self, node, mock_serial):
         msg = Twist()
-        msg.linear.x = 10.0  # way above max 0.2
+        msg.linear.x = 10.0  # way above MAX_VAL=0.12
         node.current_twist = msg
         node.send_motion_command()
 
         written = bytearray(mock_serial.write.call_args[0][0])
         # Payload starts at byte 4: CAR_TYPE(1b) + vx(2b) + vy(2b) + w(2b)
         vx_int = struct.unpack_from("<h", written, 5)[0]
-        # After one ramp step from 0, vx should be 25 (RAMP_STEP=0.025 m/s = 25 mm/s)
-        assert vx_int == 25
+        # Clipped to 0.12 m/s → 120 mm/s
+        assert vx_int == 120
 
-    def test_negative_velocity_ramps(self, node, mock_serial):
+    def test_negative_velocity_clamped_to_min(self, node, mock_serial):
         msg = Twist()
         msg.linear.x = -10.0
         node.current_twist = msg
@@ -227,7 +228,7 @@ class TestRampLimiting:
 
         written = bytearray(mock_serial.write.call_args[0][0])
         vx_int = struct.unpack_from("<h", written, 5)[0]
-        assert vx_int == -25
+        assert vx_int == -120
 
 
 # ── Emergency stop ────────────────────────────────────────────────────────────
