@@ -26,6 +26,7 @@ from sensor_msgs.msg import Range
 
 try:
     import gpiod
+
     _GPIOD_OK = True
 except ImportError:
     _GPIOD_OK = False
@@ -33,28 +34,28 @@ except ImportError:
 
 class UltrasonicDriverNode(Node):
     # HC-SR04 constants
-    _TRIG_PULSE_S = 10e-6          # 10 µs trigger pulse
-    _SPEED_OF_SOUND = 343.0        # m/s at ~20 °C
-    _ECHO_TIMEOUT_S = 0.030        # 30 ms → ~5 m max range
-    _MIN_RANGE = 0.02              # 2 cm
-    _MAX_RANGE = 4.0               # 4 m (reliable HC-SR04 spec)
+    _TRIG_PULSE_S = 10e-6  # 10 µs trigger pulse
+    _SPEED_OF_SOUND = 343.0  # m/s at ~20 °C
+    _ECHO_TIMEOUT_S = 0.030  # 30 ms → ~5 m max range
+    _MIN_RANGE = 0.02  # 2 cm
+    _MAX_RANGE = 4.0  # 4 m (reliable HC-SR04 spec)
 
     def __init__(self):
-        super().__init__('ultrasonic_driver_node')
+        super().__init__("ultrasonic_driver_node")
 
-        self.declare_parameter('chip', 'gpiochip4')   # Pi 5 RP1 GPIO chip
-        self.declare_parameter('trig_pin', 23)
-        self.declare_parameter('echo_pin', 24)
-        self.declare_parameter('publish_hz', 10.0)
-        self.declare_parameter('frame_id', 'ultrasonic_link')
-        self.declare_parameter('simulate', False)
-        self.declare_parameter('field_of_view_deg', 15.0)
+        self.declare_parameter("chip", "gpiochip4")  # Pi 5 RP1 GPIO chip
+        self.declare_parameter("trig_pin", 23)
+        self.declare_parameter("echo_pin", 24)
+        self.declare_parameter("publish_hz", 10.0)
+        self.declare_parameter("frame_id", "ultrasonic_link")
+        self.declare_parameter("simulate", False)
+        self.declare_parameter("field_of_view_deg", 15.0)
 
         p = self.get_parameter
-        self._frame_id = p('frame_id').value
-        self._simulate = p('simulate').value
-        self._fov = math.radians(p('field_of_view_deg').value)
-        hz = max(1.0, min(20.0, p('publish_hz').value))
+        self._frame_id = p("frame_id").value
+        self._simulate = p("simulate").value
+        self._fov = math.radians(p("field_of_view_deg").value)
+        hz = max(1.0, min(20.0, p("publish_hz").value))
 
         self._chip = None
         self._trig = None
@@ -64,22 +65,22 @@ class UltrasonicDriverNode(Node):
 
         if not self._simulate:
             self._init_gpio(
-                p('chip').value,
-                p('trig_pin').value,
-                p('echo_pin').value,
+                p("chip").value,
+                p("trig_pin").value,
+                p("echo_pin").value,
             )
 
-        self._pub = self.create_publisher(Range, '/sensors/ultrasonic/range', 10)
+        self._pub = self.create_publisher(Range, "/sensors/ultrasonic/range", 10)
         self.create_timer(1.0 / hz, self._measure_and_publish)
         self.get_logger().info(
-            f'UltrasonicDriverNode ready  simulate={self._simulate}  hz={hz:.0f}'
+            f"UltrasonicDriverNode ready  simulate={self._simulate}  hz={hz:.0f}"
         )
 
     def _init_gpio(self, chip_name: str, trig: int, echo: int) -> None:
         if not _GPIOD_OK:
             self.get_logger().warn(
-                'python3-gpiod not installed; switching to simulate=True. '
-                'Install with: sudo apt install python3-gpiod'
+                "python3-gpiod not installed; switching to simulate=True. "
+                "Install with: sudo apt install python3-gpiod"
             )
             self._simulate = True
             return
@@ -88,20 +89,20 @@ class UltrasonicDriverNode(Node):
             self._trig = self._chip.get_line(trig)
             self._echo = self._chip.get_line(echo)
             self._trig.request(
-                consumer='ultrasonic_trig',
+                consumer="ultrasonic_trig",
                 type=gpiod.LINE_REQ_DIR_OUT,
                 default_val=0,
             )
             self._echo.request(
-                consumer='ultrasonic_echo',
+                consumer="ultrasonic_echo",
                 type=gpiod.LINE_REQ_DIR_IN,
             )
             self.get_logger().info(
-                f'GPIO ready  chip={chip_name}  trig={trig}  echo={echo}'
+                f"GPIO ready  chip={chip_name}  trig={trig}  echo={echo}"
             )
         except Exception as exc:
             self.get_logger().error(
-                f'GPIO init failed ({exc}); switching to simulate=True'
+                f"GPIO init failed ({exc}); switching to simulate=True"
             )
             self._simulate = True
 
