@@ -47,6 +47,7 @@ OmniBot/
 │       ├── omnibot_hybrid/        # cmd_vel mux + mission planner
 │       ├── omnibot_lerobot/       # SmolVLA unified 9-DOF policy
 │       ├── omnibot_rl/            # RL inference nodes (nav + arm) + arm_cmd_mux
+│       ├── omnibot_perception/    # Unified perception: YOLO detect/track/segment + distance fusion
 │       ├── omnibot_orchestration/ # LangGraph AI orchestration (Claude-backed)
 │       └── omnibot_firmware/      # Legacy STM32 (not active)
 ├── packages/
@@ -257,8 +258,17 @@ VLA Desktop (GPU PC)
 | `/arm/enable` | Bool | Android | `arm_driver_node` |
 | `/cmd_vel/rl` | Twist | `rl_nav_node` | `cmd_vel_mux` |
 | `/rl_nav/goal` | PoseStamped | `mission_planner`, manual pub | `rl_nav_node` |
-| `/rl_arm/target_pose` | PoseStamped | `rl_object_pose_node` | `rl_arm_node` |
-| `/rl_arm/target_detected` | Bool | `rl_object_pose_node` | `rl_arm_node` |
+| `/rl_arm/target_pose` | PoseStamped | `rl_object_pose_node` or `perception_node` | `rl_arm_node` |
+| `/rl_arm/target_detected` | Bool | `rl_object_pose_node` or `perception_node` | `rl_arm_node` |
+| `/perception/detections` | String (JSON) | `perception_node` | `distance_estimator_node`, `vla_trigger_node` |
+| `/perception/enriched_detections` | String (JSON) | `distance_estimator_node` | monitoring |
+| `/perception/tracking_lost` | Bool | `perception_node` | `vla_trigger_node` |
+| `/perception/target_pose` | PoseStamped | `perception_node` | `rl_arm_node`, monitoring |
+| `/perception/nearest_obstacle_m` | Float32 | `perception_node`, `distance_estimator_node` | monitoring, safety |
+| `/perception/mode` | String | `vla_trigger_node`, manual pub | `perception_node` |
+| `/perception/target_class` | String | manual pub | `perception_node`, `vla_trigger_node` |
+| `/sensors/ultrasonic/range` | Range | `ultrasonic_driver_node` | `distance_estimator_node` |
+| `/vla_trigger/command` | String | manual pub | `vla_trigger_node` |
 | `/emergency_stop` | Bool | Android | `yahboom_controller_node` |
 | `/robot_mode` | String | Android | *(monitoring only — does not control mux)* |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
@@ -482,6 +492,93 @@ Uses TF2 to transform wrist_camera_link → base_link.
 Config files: `robot_ws/src/omnibot_rl/config/rl_nav_params.yaml`,
 `robot_ws/src/omnibot_rl/config/rl_arm_params.yaml`.
 Launch: `robot_ws/src/omnibot_rl/launch/rl_inference.launch.py`.
+
+### `omnibot_perception`
+
+Unified perception pipeline: YOLO-based detection / ByteTrack tracking /
+instance segmentation, depth-fused 3-D distance estimation, ultrasonic sensor
+driver, and VLA hand-off orchestration.
+
+**Four nodes:**
+
+| Node | Executable | Purpose |
+|---|---|---|
+| `PerceptionNode` | `perception_node` | YOLO detect/track/segment on front + wrist cameras |
+| `DistanceEstimatorNode` | `distance_estimator_node` | Depth-camera + ultrasonic fusion per detection |
+| `VlaTriggerNode` | `vla_trigger_node` | Monitors tracking state; activates SmolVLA on loss |
+| `UltrasonicDriverNode` | `ultrasonic_driver_node` | HC-SR04 via `gpiod` on Raspberry Pi 5 |
+
+**`perception_node` declared parameters:**
+
+| Parameter | Default | Description |
+|---|---|---|
+| `det_model` | `'yolov8n.pt'` | Detection model (ultralytics) |
+| `seg_model` | `'yolov8n-seg.pt'` | Segmentation model |
+| `mode` | `'track'` | `detect` \| `track` \| `segment` \| `vla` |
+| `target_class` | `''` | COCO class to focus on (empty = all) |
+| `confidence` | `0.45` | Detection confidence threshold |
+| `inference_hz` | `10.0` | Inference rate |
+| `device` | `'cpu'` | `'cuda'` on GPU desktop |
+| `publish_annotated` | `True` | Publish annotated images |
+| `enable_wrist` | `True` | Also process wrist camera |
+
+**Key topics:**
+
+| Topic | Type | Direction |
+|---|---|---|
+| `/perception/detections` | String (JSON) | Published — list of detection dicts with `class_name`, `confidence`, `bbox`, `track_id`, `distance_m`, `position_3d` |
+| `/perception/enriched_detections` | String (JSON) | Published by distance_estimator — detections with `sensor_source` field |
+| `/perception/annotated/front` | Image | Published — YOLO-annotated front camera |
+| `/perception/annotated/wrist` | Image | Published — annotated wrist camera |
+| `/perception/masks` | Image | Published — colour segmentation overlay |
+| `/perception/target_pose` | PoseStamped | Published — 3-D pose of `target_class` object |
+| `/rl_arm/target_pose` | PoseStamped | Also published — replaces `rl_object_pose_node` output |
+| `/rl_arm/target_detected` | Bool | Also published — backward-compat with `rl_arm_node` |
+| `/perception/nearest_obstacle_m` | Float32 | Published — nearest forward obstacle in metres |
+| `/perception/ultrasonic_range_m` | Float32 | Published — raw HC-SR04 reading |
+| `/perception/tracking_lost` | Bool | Published — True when `target_class` not visible |
+| `/perception/mode` | String | Subscribed + Published — runtime mode switch |
+| `/perception/target_class` | String | Subscribed — runtime target class override |
+| `/vla_trigger/command` | String | Subscribed — `activate_vla` \| `deactivate_vla` \| `target:<class>` |
+
+**Launch:**
+```bash
+# Standalone
+ros2 launch omnibot_perception perception_pipeline.launch.py \
+  mode:=track target_class:=cup device:=cuda
+
+# Inside hybrid bringup
+ros2 launch omnibot_hybrid hybrid_robot.launch.py \
+  use_perception:=true perception_target:=cup \
+  perception_device:=cuda auto_vla_trigger:=true
+
+# With ultrasonic sensor on Pi 5
+ros2 launch omnibot_perception perception_pipeline.launch.py \
+  use_ultrasonic:=true mode:=track
+
+# Simulate ultrasonic (no hardware)
+ros2 launch omnibot_perception perception_pipeline.launch.py \
+  use_ultrasonic:=true simulate_us:=true
+```
+
+**Runtime mode switching:**
+```bash
+ros2 topic pub --once /perception/mode std_msgs/msg/String "data: 'segment'"
+ros2 topic pub --once /perception/target_class std_msgs/msg/String "data: 'cup'"
+ros2 topic pub --once /vla_trigger/command std_msgs/msg/String "data: 'activate_vla'"
+```
+
+**`ultrasonic_driver_node` wiring (Pi 5 only):**
+- Uses `gpiod` (python3-gpiod) — RPi.GPIO does NOT work on Pi 5
+- Default: TRIG=GPIO23, ECHO=GPIO24 (3.3 V logic; use voltage divider on ECHO)
+- `chip: gpiochip4` for Pi 5 RP1; Pi 4 uses `gpiochip0`
+- Set `simulate: true` in params to run without physical sensor
+
+**`omnibot_perception` dependencies (pip, not rosdep):**
+```bash
+pip install ultralytics>=8.2   # YOLO, ByteTrack, SAM
+pip install python3-gpiod       # Pi 5 GPIO (via apt: sudo apt install python3-gpiod)
+```
 
 ---
 

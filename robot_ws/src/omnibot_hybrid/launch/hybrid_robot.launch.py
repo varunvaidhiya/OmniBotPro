@@ -71,6 +71,7 @@ def generate_launch_description():
     pkg_rl = get_package_share_directory("omnibot_rl")
     pkg_lerobot = get_package_share_directory("omnibot_lerobot")
     pkg_orchestration = get_package_share_directory("omnibot_orchestration")
+    pkg_perception = get_package_share_directory("omnibot_perception")
 
     xacro_file = os.path.join(pkg_description, "urdf", "omnibot.urdf.xacro")
     robot_description = ParameterValue(Command(["xacro ", xacro_file]), value_type=str)
@@ -96,6 +97,12 @@ def generate_launch_description():
         "policy_checkpoint", default="lerobot/smolvla_base"
     )
     use_langchain = LaunchConfiguration("use_langchain", default="false")
+    use_perception = LaunchConfiguration("use_perception", default="false")
+    perception_mode = LaunchConfiguration("perception_mode", default="track")
+    perception_target = LaunchConfiguration("perception_target", default="")
+    perception_device = LaunchConfiguration("perception_device", default="cpu")
+    use_ultrasonic = LaunchConfiguration("use_ultrasonic", default="false")
+    auto_vla_trigger = LaunchConfiguration("auto_vla_trigger", default="false")
 
     # ── Robot driver ──────────────────────────────────────────────────────────
     # Remapped: driver reads /cmd_vel/out (mux output) instead of /cmd_vel.
@@ -161,6 +168,23 @@ def generate_launch_description():
             "model_type": policy_model_type,
             "checkpoint": policy_checkpoint,
             "include_arm_mux": "false",  # arm_cmd_mux already started above
+        }.items(),
+    )
+
+    # ── Perception pipeline (optional, use_perception:=true) ─────────────────
+    # Provides YOLO detection/tracking/segmentation + depth fusion + VLA trigger.
+    perception_pipeline = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(pkg_perception, "launch", "perception_pipeline.launch.py")
+        ),
+        condition=IfCondition(use_perception),
+        launch_arguments={
+            "mode": perception_mode,
+            "target_class": perception_target,
+            "device": perception_device,
+            "use_ultrasonic": use_ultrasonic,
+            "auto_vla": auto_vla_trigger,
+            "use_vla_trigger": "true",
         }.items(),
     )
 
@@ -410,11 +434,44 @@ def generate_launch_description():
                 default_value="",
                 description="URL to OTA manifest.json (GitHub Releases)",
             ),
+            DeclareLaunchArgument(
+                "use_perception",
+                default_value="false",
+                description=(
+                    "Start YOLO detection/tracking/segmentation + depth-fusion pipeline"
+                ),
+            ),
+            DeclareLaunchArgument(
+                "perception_mode",
+                default_value="track",
+                description="Initial perception mode: detect | track | segment | vla",
+            ),
+            DeclareLaunchArgument(
+                "perception_target",
+                default_value="",
+                description="COCO class name to actively follow (empty = report all)",
+            ),
+            DeclareLaunchArgument(
+                "perception_device",
+                default_value="cpu",
+                description="Torch device for YOLO: cpu (Pi) or cuda (GPU desktop)",
+            ),
+            DeclareLaunchArgument(
+                "use_ultrasonic",
+                default_value="false",
+                description="Launch HC-SR04 ultrasonic driver (Pi 5 GPIO)",
+            ),
+            DeclareLaunchArgument(
+                "auto_vla_trigger",
+                default_value="false",
+                description="Auto-activate VLA when tracking is lost",
+            ),
             # ── Nodes ─────────────────────────────────────────────────────────────
             driver_node,
             arm_cmd_mux_node,
             rl_inference,
             policy_inference,
+            perception_pipeline,
             langchain_agent,
             robot_state_publisher,
             ekf_node,

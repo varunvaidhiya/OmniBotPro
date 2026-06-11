@@ -1,0 +1,70 @@
+/**:
+  ros__parameters:
+    # ── perception_node ──────────────────────────────────────────────────────
+    front_camera_topic: /camera/front/image_raw
+    wrist_camera_topic: /camera/wrist/image_raw
+    depth_topic:        /camera/depth/image_raw
+    depth_info_topic:   /camera/depth/camera_info
+
+    # YOLO model weights.
+    #   Pi (CPU)  : yolov8n.pt (nano, ~3 ms/frame)
+    #   GPU PC    : yolov8s.pt or yolov8m.pt for better recall
+    det_model: yolov8n.pt
+    # Segmentation model — loaded only in 'segment'/'vla' modes
+    seg_model: yolov8n-seg.pt
+
+    confidence: 0.45
+    iou: 0.45
+
+    # Mode at startup: detect | track | segment | vla
+    mode: track
+
+    # Class name to actively follow (empty = report all detections)
+    target_class: ''
+
+    # Inference rate (reduce on CPU-only Pi to save compute)
+    inference_hz: 10.0
+
+    # Set 'cuda' when running on the GPU desktop
+    device: cpu
+
+    # Publish annotated images to /perception/annotated/* for visualisation
+    publish_annotated: true
+    enable_wrist: true
+
+# ── distance_estimator_node ───────────────────────────────────────────────────
+distance_estimator_node:
+  ros__parameters:
+    depth_topic:       /camera/depth/image_raw
+    depth_info_topic:  /camera/depth/camera_info
+    ultrasonic_topic:  /sensors/ultrasonic/range
+    detections_topic:  /perception/detections
+    min_depth_m: 0.10
+    max_depth_m: 5.0
+    publish_hz:  10.0
+    ultrasonic_fov_deg: 15.0
+
+# ── vla_trigger_node ──────────────────────────────────────────────────────────
+vla_trigger_node:
+  ros__parameters:
+    # Seconds of tracking loss before auto-activating VLA
+    loss_threshold_s: 1.5
+    # Python .format() template; {object} → detected class name
+    task_template: 'pick up the {object} and place it'
+    # Requires explicit /vla_trigger/command 'activate_vla' when false
+    auto_vla: false
+    target_class: ''
+    # When target reappears, switch back to track + RL arm
+    reacquire_returns_to_track: true
+    check_hz: 5.0
+
+# ── ultrasonic_driver_node ────────────────────────────────────────────────────
+ultrasonic_driver_node:
+  ros__parameters:
+    chip: gpiochip4   # Pi 5 RP1 GPIO chip; Pi 4 uses gpiochip0
+    trig_pin: 23
+    echo_pin: 24
+    publish_hz: 10.0
+    frame_id: ultrasonic_link
+    simulate: false   # set true when no HC-SR04 is wired
+    field_of_view_deg: 15.0
