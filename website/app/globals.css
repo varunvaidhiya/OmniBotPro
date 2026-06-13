@@ -105,6 +105,32 @@ ul { list-style: none; }
   50%      { transform: translateX(-50%) translateY(7px); opacity: 1; }
 }
 
+/* ── HERO 3D LEGIBILITY GRADIENTS ──────────────────────────────── */
+.hero-fade-top {
+  position: absolute; top: 0; left: 0; right: 0; height: 38%;
+  z-index: 6; pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(10,14,26,.92) 0%, rgba(10,14,26,.55) 45%, transparent 100%);
+}
+.hero-fade-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
+  z-index: 6; pointer-events: none;
+  background: linear-gradient(to top,
+    var(--bg) 2%, rgba(10,14,26,.80) 38%, transparent 100%);
+}
+
+/* ── HERO CONTROL-HINT KEYCAPS ─────────────────────────────────── */
+.hero-kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 5px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1;
+  color: var(--cyan);
+  background: rgba(0,212,255,.06);
+  border: 1px solid rgba(0,212,255,.22);
+  border-radius: 5px;
+  box-shadow: 0 1px 0 rgba(0,212,255,.12);
+}
+
 /* ── HOW IT WORKS CONNECTOR ────────────────────────────────────── */
 .step-join {
   position: absolute; top: 40px;
