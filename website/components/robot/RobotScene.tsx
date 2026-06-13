@@ -6,8 +6,16 @@ import {
   Environment,
   Grid,
   Lightformer,
+  MeshReflectorMaterial,
   OrbitControls,
 } from "@react-three/drei";
+import {
+  Bloom,
+  EffectComposer,
+  N8AO,
+  SMAA,
+  Vignette,
+} from "@react-three/postprocessing";
 import { Suspense } from "react";
 import * as THREE from "three";
 import OmniBotModel from "./OmniBotModel";
@@ -18,76 +26,98 @@ export default function RobotScene() {
       shadows
       dpr={[1, 2]}
       gl={{
-        antialias: true,
+        antialias: false, // SMAA handles AA in the composer
         alpha: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.05,
+        toneMappingExposure: 1.0,
         powerPreference: "high-performance",
       }}
-      camera={{ position: [0.78, 0.52, 0.92], fov: 34, near: 0.05, far: 50 }}
+      camera={{ position: [0.64, 0.42, 0.78], fov: 32, near: 0.05, far: 50 }}
       style={{ width: "100%", height: "100%" }}
     >
       {/* subtle depth fade into the page background */}
-      <fog attach="fog" args={["#0A0E1A", 2.4, 6.5]} />
+      <fog attach="fog" args={["#0A0E1A", 2.6, 7.5]} />
 
       <Suspense fallback={null}>
         {/* ── lighting rig ── */}
-        <ambientLight intensity={0.5} />
-        <hemisphereLight args={["#cfe9ff", "#06080f", 0.55]} />
+        <ambientLight intensity={0.35} />
+        <hemisphereLight args={["#cfe9ff", "#05070d", 0.5]} />
 
         {/* key light (casts shadows) */}
         <directionalLight
-          position={[2.6, 3.6, 2.2]}
-          intensity={3.0}
+          position={[2.6, 3.8, 2.2]}
+          intensity={3.2}
           color="#ffffff"
           castShadow
           shadow-mapSize={[2048, 2048]}
           shadow-bias={-0.0002}
+          shadow-normalBias={0.02}
         >
           <orthographicCamera
             attach="shadow-camera"
-            args={[-1.6, 1.6, 1.6, -1.6, 0.1, 10]}
+            args={[-1.0, 1.0, 1.0, -1.0, 0.1, 9]}
           />
         </directionalLight>
         {/* soft front fill so the black chassis keeps its form */}
-        <directionalLight position={[-1.5, 1.2, 2.5]} intensity={0.7} color="#dfe9ff" />
+        <directionalLight position={[-1.6, 1.3, 2.6]} intensity={0.7} color="#dfe9ff" />
 
-        {/* cyan rim + violet kicker — subtle brand glow, not a wash */}
-        <spotLight position={[-2.6, 1.5, -1.6]} angle={0.6} penumbra={1} intensity={9} color="#00d4ff" distance={9} />
-        <spotLight position={[2.2, 1.0, -2.2]} angle={0.7} penumbra={1} intensity={7} color="#7c3aed" distance={9} />
+        {/* cyan rim + violet kicker — brand glow */}
+        <spotLight position={[-2.6, 1.6, -1.6]} angle={0.6} penumbra={1} intensity={11} color="#00d4ff" distance={9} />
+        <spotLight position={[2.2, 1.1, -2.2]} angle={0.7} penumbra={1} intensity={8} color="#7c3aed" distance={9} />
 
         {/* procedural studio environment (no CDN dependency) for crisp reflections */}
-        <Environment resolution={256} frames={1}>
-          <Lightformer intensity={1.6} position={[0, 3, 0]} scale={[4, 4, 1]} color="#ffffff" />
-          <Lightformer intensity={1.3} position={[-3, 1, -2]} scale={[3, 3, 1]} color="#00d4ff" />
-          <Lightformer intensity={1.0} position={[3, 1, -2]} scale={[3, 3, 1]} color="#7c3aed" />
-          <Lightformer intensity={1.1} position={[0, 1.5, 3]} scale={[5, 2, 1]} color="#cfe0ff" />
+        <Environment resolution={512} frames={1}>
+          <Lightformer intensity={1.8} position={[0, 3.2, 0]} scale={[5, 5, 1]} color="#ffffff" />
+          <Lightformer intensity={1.4} position={[-3.2, 1.2, -2]} scale={[3, 3, 1]} color="#00d4ff" />
+          <Lightformer intensity={1.1} position={[3.2, 1.2, -2]} scale={[3, 3, 1]} color="#7c3aed" />
+          <Lightformer intensity={1.2} position={[0, 1.6, 3.2]} scale={[6, 2.4, 1]} color="#cfe0ff" />
+          <Lightformer intensity={1.0} form="ring" position={[1.6, 2.2, 1.6]} scale={2} color="#ffffff" />
         </Environment>
 
         {/* ── the robot ── */}
         <OmniBotModel />
 
-        {/* ── ground ── */}
+        {/* ── reflective showroom floor ── */}
+        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+          <planeGeometry args={[30, 30]} />
+          <MeshReflectorMaterial
+            resolution={1024}
+            mixBlur={1.0}
+            mixStrength={2.2}
+            blur={[420, 120]}
+            roughness={0.92}
+            depthScale={1.1}
+            minDepthThreshold={0.4}
+            maxDepthThreshold={1.4}
+            color="#080b14"
+            metalness={0.55}
+            mirror={0}
+          />
+        </mesh>
+
+        {/* soft contact shadow under the wheels */}
         <ContactShadows
-          position={[0, 0.001, 0]}
-          opacity={0.55}
-          scale={4}
-          blur={2.2}
-          far={1.2}
+          position={[0, 0.002, 0]}
+          opacity={0.5}
+          scale={2.4}
+          blur={2.6}
+          far={0.9}
           resolution={1024}
           color="#000000"
         />
+
+        {/* faint tech grid floating just above the floor */}
         <Grid
-          position={[0, 0, 0]}
+          position={[0, 0.001, 0]}
           args={[12, 12]}
           cellSize={0.18}
-          cellThickness={0.6}
-          cellColor="#13314a"
+          cellThickness={0.5}
+          cellColor="#10293d"
           sectionSize={0.9}
-          sectionThickness={1.1}
-          sectionColor="#00d4ff"
-          fadeDistance={5.5}
-          fadeStrength={2}
+          sectionThickness={1.0}
+          sectionColor="#0a6f8c"
+          fadeDistance={4.2}
+          fadeStrength={2.4}
           followCamera={false}
           infiniteGrid
         />
@@ -96,16 +126,30 @@ export default function RobotScene() {
         <OrbitControls
           makeDefault
           enablePan={false}
-          minDistance={0.7}
-          maxDistance={2.2}
-          minPolarAngle={0.25}
-          maxPolarAngle={Math.PI / 2 - 0.04}
+          minDistance={0.8}
+          maxDistance={1.7}
+          minPolarAngle={0.4}
+          maxPolarAngle={Math.PI / 2 - 0.08}
           autoRotate
-          autoRotateSpeed={0.45}
-          target={[0, 0.2, 0]}
+          autoRotateSpeed={0.42}
+          target={[0, 0.1, 0]}
           enableDamping
           dampingFactor={0.08}
         />
+
+        {/* ── post-processing: AO, bloom on the cyan accents, vignette, AA ── */}
+        <EffectComposer multisampling={0} enableNormalPass={false}>
+          <N8AO aoRadius={0.35} intensity={2.4} distanceFalloff={0.8} quality="performance" color="#04060d" />
+          <Bloom
+            intensity={0.5}
+            luminanceThreshold={0.95}
+            luminanceSmoothing={0.2}
+            mipmapBlur
+            radius={0.55}
+          />
+          <Vignette eskil={false} offset={0.22} darkness={0.72} />
+          <SMAA />
+        </EffectComposer>
       </Suspense>
     </Canvas>
   );
