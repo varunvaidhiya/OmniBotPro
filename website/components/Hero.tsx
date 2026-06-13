@@ -142,15 +142,15 @@ export default function Hero() {
             className="flex items-center gap-x-5 gap-y-2 flex-wrap justify-center font-mono text-[11px] tracking-[0.04em]"
             style={{ color: "rgba(255,255,255,0.40)" }}
           >
+            <span>move your mouse — OmniBot chases it &amp; grabs</span>
+            <span className="hidden sm:inline opacity-40">·</span>
             <span className="inline-flex items-center gap-1.5">
               <kbd className="hero-kbd">↑</kbd>
               <kbd className="hero-kbd">↓</kbd>
               <kbd className="hero-kbd">←</kbd>
               <kbd className="hero-kbd">→</kbd>
-              drive
+              manual drive
             </span>
-            <span className="hidden sm:inline opacity-40">·</span>
-            <span>move mouse to aim the arm</span>
             <span className="hidden sm:inline opacity-40">·</span>
             <span>drag to orbit</span>
           </motion.div>
