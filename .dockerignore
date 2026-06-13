@@ -1,0 +1,57 @@
+# Build artifacts
+robot_ws/build/
+robot_ws/install/
+robot_ws/log/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile*
+.dockerignore
+docker-compose*.yml
+
+# CI/CD
+.github/
+
+# Models and datasets (large files)
+*.onnx
+*.pt
+*.pth
+*.bin
+datasets/
+models/
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment and secrets
+.env
+deployment.env
+*.env
+!deployment.env.example
+!*.env.example
+
+# Logs
+*.log
+logs/
+
+# Documentation images and assets
+docs/_build/
+*.md
+!README.md

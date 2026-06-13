@@ -103,6 +103,7 @@ class RobotRepository @Inject constructor() {
 
     fun connect(ip: String = Constants.DEFAULT_ROBOT_IP, port: Int = Constants.DEFAULT_ROSBRIDGE_PORT) {
         _robotStatus.value = _robotStatus.value.copy(ipAddress = ip)
+        rosManager?.disconnect()  // clean up previous manager if any
         rosManager = ROSBridgeManager("ws://$ip:$port", rosListener)
         rosManager?.connect()
         _connectionState.value = ROSBridgeManager.ConnectionState.CONNECTING

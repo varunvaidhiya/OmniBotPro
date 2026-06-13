@@ -85,8 +85,8 @@ services:
     image: grafana/grafana:11.1.0
     container_name: omnibot_grafana
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: omnibot
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-omnibot}
       GF_FEATURE_TOGGLES_ENABLE: traceqlEditor traceToMetrics
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_USERS_ALLOW_SIGN_UP: "false"

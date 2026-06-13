@@ -81,6 +81,7 @@ def generate_launch_description():
                 "wheel_separation_width": 0.215,
                 "wheel_radius": 0.04,
                 "publish_tf": False,  # EKF owns odom→base_link TF
+                "publish_diagnostics": True,  # Android app /diagnostics panel
             }
         ],
     )
@@ -99,6 +100,7 @@ def generate_launch_description():
                 "wheel_separation_width": 0.215,
                 "wheel_radius": 0.04,
                 "publish_tf": True,  # driver broadcasts TF when EKF is off
+                "publish_diagnostics": True,  # Android app /diagnostics panel
             }
         ],
     )

@@ -27,6 +27,25 @@ except ImportError:
     TRANSFORMERS_AVAILABLE = False
 
 
+def _select_attn() -> str:
+    """Select the best available attention implementation."""
+    try:
+        import flash_attn  # noqa: F401 — import is the availability probe
+
+        return "flash_attention_2"
+    except ImportError:
+        pass
+    try:
+        import torch
+
+        major, minor = map(int, torch.__version__.split(".")[:2])
+        if major >= 2 and minor >= 0:
+            return "sdpa"  # PyTorch 2.0+ native scaled dot-product attention
+    except Exception:
+        pass
+    return "eager"
+
+
 @register("openvla")
 class OpenVLAAdapter(PolicyAdapter):
     """Wraps the OpenVLA 7B model via HuggingFace Transformers.
@@ -62,7 +81,7 @@ class OpenVLAAdapter(PolicyAdapter):
         )
         self._model = AutoModelForVision2Seq.from_pretrained(
             checkpoint,
-            attn_implementation="flash_attention_2",
+            attn_implementation=_select_attn(),
             torch_dtype=torch.bfloat16,
             low_cpu_mem_usage=True,
             trust_remote_code=True,

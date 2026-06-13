@@ -151,9 +151,29 @@ def generate_launch_description():
                 "wheel_radius": 0.04,
                 "wheel_separation_width": 0.215,
                 "wheel_separation_length": 0.165,
+                # EKF owns odom->base_link TF (double-broadcast causes jitter)
+                "publish_tf": False,
+                # Android app subscribes /diagnostics — publish driver health
+                "publish_diagnostics": True,
             }
         ],
         remappings=[("cmd_vel", "/cmd_vel/out")],
+    )
+
+    # -- AI perception: object distance + pose from depth camera ------------
+    object_perception = Node(
+        package="omnibot_perception",
+        executable="object_perception_node",
+        name="object_perception_node",
+        output="screen",
+    )
+
+    # -- Remote rosbag recorder (Android app record button) -----------------
+    rosbag_recorder = Node(
+        package="omnibot_hybrid",
+        executable="rosbag_recorder",
+        name="rosbag_recorder",
+        output="screen",
     )
 
     # ── 3. SO-101 Arm driver ──────────────────────────────────────────────────
@@ -470,6 +490,8 @@ def generate_launch_description():
             bev_stitcher,
             # State estimation
             ekf,
+            object_perception,
+            rosbag_recorder,
             # Mapping
             slam_toolbox,
             rtabmap,

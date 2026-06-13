@@ -27,6 +27,7 @@ class MjpegView @JvmOverloads constructor(
     private var streamUrl: String? = null
     private var isStreaming = false
     private var streamJob: Job? = null
+    private var connection: HttpURLConnection? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     
     private var currentBitmap: Bitmap? = null
@@ -50,25 +51,34 @@ class MjpegView @JvmOverloads constructor(
         isStreaming = true
         
         streamJob = scope.launch {
+            var conn: HttpURLConnection? = null
             try {
                 Timber.d("Starting MJPEG stream: $url")
-                val connection = URL(url).openConnection() as HttpURLConnection
-                connection.connectTimeout = 5000
-                connection.readTimeout = 5000
-                connection.doInput = true
-                connection.connect()
+                conn = URL(url).openConnection() as HttpURLConnection
+                connection = conn
+                conn.connectTimeout = 5000
+                conn.readTimeout = 0  // infinite — MJPEG streams push frames at variable rates
+                conn.doInput = true
+                conn.connect()
 
-                val inputStream = BufferedInputStream(connection.inputStream)
+                val inputStream = BufferedInputStream(conn.inputStream)
                 
                 while (isActive) {
                     val frame = readMjpegFrame(inputStream)
                     if (frame != null) {
                         currentBitmap = frame
                         postInvalidate()
+                    } else if (!isActive) {
+                        break
                     }
                 }
             } catch (e: Exception) {
-                Timber.e(e, "MJPEG Stream error")
+                if (isActive) {
+                    Timber.e(e, "MJPEG Stream error")
+                }
+            } finally {
+                conn?.disconnect()
+                connection = null
             }
         }
     }
@@ -77,6 +87,8 @@ class MjpegView @JvmOverloads constructor(
         isStreaming = false
         streamJob?.cancel()
         streamJob = null
+        connection?.disconnect()
+        connection = null
         currentBitmap = null
         invalidate()
     }

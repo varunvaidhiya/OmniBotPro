@@ -5,8 +5,8 @@ FROM osrf/ros:jazzy-desktop AS base
 ENV DEBIAN_FRONTEND=noninteractive
 ENV ROS_DISTRO=jazzy
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
+# Install system dependencies (--no-install-recommends keeps image smaller)
+RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     python3-venv \
     python3-colcon-common-extensions \
@@ -22,13 +22,17 @@ RUN apt-get update && apt-get install -y \
     ros-jazzy-navigation2 \
     ros-jazzy-nav2-bringup \
     ros-jazzy-xacro \
-    # Clean up
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt /tmp/requirements.txt
-# Check if requirements.txt exists and install, otherwise just install basics
-RUN if [ -f "/tmp/requirements.txt" ]; then pip3 install --no-cache-dir -r /tmp/requirements.txt; else pip3 install --no-cache-dir pyserial numpy; fi
+RUN pip3 install --no-cache-dir --break-system-packages \
+    pyserial \
+    numpy<2.0 \
+    opencv-python \
+    torch \
+    transformers \
+    accelerate
 
 # Development Image
 FROM base AS dev

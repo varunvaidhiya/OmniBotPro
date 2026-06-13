@@ -21,12 +21,15 @@ from contextlib import asynccontextmanager
 from typing import Optional
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security.api_key import APIKeyHeader
 
 from .schema import InferenceRequest, InferenceResponse
 from ..utils.image import decode_base64_image
 from ..models.base import VLAModel
+
+_MAX_BODY_BYTES = 10 * 1024 * 1024
 
 try:
     from prometheus_fastapi_instrumentator import Instrumentator
@@ -94,9 +97,6 @@ def _require_api_key(api_key: Optional[str] = Depends(_api_key_header)) -> str:
 
 def _check_rate_limit(key: str) -> None:
     """Token-bucket rate limiter — raises HTTP 429 when exhausted."""
-    if not _API_KEY:
-        return  # rate limiting only applies when auth is enabled
-
     now = time.monotonic()
     tokens, last = _rate_buckets[key]
     elapsed = now - last
@@ -135,6 +135,12 @@ async def lifespan(app: FastAPI):
     yield
 
     if _model is not None:
+        try:
+            import torch
+
+            torch.cuda.empty_cache()
+        except Exception:
+            pass
         del _model
 
 
@@ -148,6 +154,26 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("VLA_CORS_ORIGINS", "*").split(","),
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["X-API-Key", "Content-Type"],
+)
+
+_MB = 1024 * 1024
+_MAX_BODY = int(os.getenv("VLA_MAX_BODY_BYTES", str(_MAX_BODY_BYTES)))
+
+
+@app.middleware("http")
+async def _limit_body_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > _MAX_BODY:
+        raise HTTPException(status_code=413, detail="Request body too large")
+    return await call_next(request)
+
 
 # Instrument all HTTP routes with Prometheus metrics (/metrics endpoint).
 # Exposes: http_requests_total, http_request_duration_seconds, etc.
@@ -216,10 +242,15 @@ def predict(
         logger.debug(
             "inference latency=%.1f ms instruction=%r", latency, request.instruction
         )
-        action = result if isinstance(result, dict) else {"vector": result}
+        if isinstance(result, dict) and "vector" in result:
+            action = result
+        elif isinstance(result, (list, tuple)):
+            action = {"vector": list(result), "raw_output": str(result)}
+        else:
+            action = {"vector": [], "raw_output": str(result)}
         return InferenceResponse(
             action=action,
-            raw_output=str(result),
+            raw_output=action.get("raw_output", str(result)),
             latency_ms=latency,
         )
     except HTTPException:

@@ -131,7 +131,7 @@ def _make_int8_calibrator(calibration_dir: str, image_h: int, image_w: int):
 def _sanity_check(policy, engine_path: Path, image_h: int, image_w: int) -> bool:
     """Compare TRT output vs PyTorch output on a random input. Returns True if close."""
     import torch
-    from vla_engine.trt.smolvla_encoder import (
+    from vla_engine.trt.encoder_export import (
         find_vision_encoder,
         TRTVisionEncoderModule,
     )
@@ -266,7 +266,7 @@ def main():
         )
         sys.exit(1)
 
-    from vla_engine.trt.smolvla_encoder import export_vision_encoder, build_trt_engine
+    from vla_engine.trt.encoder_export import export_vision_encoder, build_trt_engine
 
     # ------------------------------------------------------------------
     # Device

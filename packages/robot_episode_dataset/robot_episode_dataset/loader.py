@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
+import pyarrow.parquet as pq  # guaranteed by setup_requires
 
 
 class EpisodeDataset:
@@ -39,30 +40,32 @@ class EpisodeDataset:
         transform: Optional[Callable] = None,
         image_keys: Optional[List[str]] = None,
     ) -> None:
-        try:
-            import pyarrow.parquet as pq
-        except ImportError:
-            raise ImportError("pyarrow is required: pip install pyarrow")
-
         self._root = Path(root)
         self._transform = transform
         self._image_keys = image_keys
-        self._rows: List[Dict[str, Any]] = []
 
-        # Load all parquet files
+        # Build an index of (parquet_file, row_index) pairs — O(1) memory per
+        # sample rather than loading all rows into Python lists.
+        self._index: List[tuple] = []
         for chunk_dir in sorted((self._root / "data").glob("chunk-*")):
             for pq_file in sorted(chunk_dir.glob("episode_*.parquet")):
-                table = pq.read_table(pq_file)
-                for i in range(table.num_rows):
-                    row = {col: table[col][i].as_py() for col in table.schema.names}
-                    row["_parquet_file"] = str(pq_file)
-                    self._rows.append(row)
+                pf = pq.ParquetFile(pq_file)
+                n_rows = pf.metadata.num_rows
+                for i in range(n_rows):
+                    self._index.append((str(pq_file), i))
+
+        # Video capture cache: keyed by video path, reused across __getitem__
+        # calls that access the same video file.
+        self._video_cache: Dict[str, Any] = {}
 
     def __len__(self) -> int:
-        return len(self._rows)
+        return len(self._index)
 
     def __getitem__(self, idx: int) -> Dict[str, Any]:
-        row = dict(self._rows[idx])
+        pq_path, row_idx = self._index[idx]
+        table = pq.read_table(pq_path)
+        row = {col: table[col][row_idx].as_py() for col in table.schema.names}
+        row["_parquet_file"] = pq_path
 
         if self._image_keys:
             frame_idx = row.get("frame_index", 0)
@@ -71,27 +74,30 @@ class EpisodeDataset:
             ep_str = f"episode_{ep_idx:06d}"
 
             for key in self._image_keys:
-                video_path = self._root / "videos" / chunk / key / f"{ep_str}.mp4"
-                if video_path.exists():
-                    row[key] = self._load_video_frame(str(video_path), frame_idx)
+                video_path = str(self._root / "videos" / chunk / key / f"{ep_str}.mp4")
+                row[key] = self._load_video_frame(video_path, frame_idx)
 
         if self._transform:
             row = self._transform(row)
 
         return row
 
-    @staticmethod
-    def _load_video_frame(path: str, frame_idx: int) -> np.ndarray:
+    def _load_video_frame(self, path: str, frame_idx: int):
+        """Read a single frame from an MP4 video, caching the VideoCapture."""
         try:
             import cv2
         except ImportError:
             raise ImportError("opencv-python is required for image loading.")
-        cap = cv2.VideoCapture(path)
+
+        cap = self._video_cache.get(path)
+        if cap is None:
+            cap = cv2.VideoCapture(path)
+            self._video_cache[path] = cap
         cap.set(cv2.CAP_PROP_POS_FRAMES, frame_idx)
         ret, frame = cap.read()
-        cap.release()
         if not ret:
             return np.zeros((1, 1, 3), dtype=np.uint8)
+
         return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def as_torch_dataset(self):

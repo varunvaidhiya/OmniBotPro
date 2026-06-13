@@ -21,7 +21,7 @@ on:
       - 'deployment.env.example'
 
 permissions:
-  contents: write
+  contents: read
   issues: write
 
 jobs:

@@ -11,7 +11,7 @@ pkill -9 -f "usb_cam_node_exe"           2>/dev/null || true
 pkill -9 -f "foxglove_bridge"            2>/dev/null || true
 pkill -9 -f "depthimage_to_laserscan"    2>/dev/null || true
 pkill -9 -f "bev_stitcher"              2>/dev/null || true
-pkill -9 -f "robot_state_publisher"      2>/dev/null || true
+pkill -9 -f "robot_state_publisher.*omnibot" 2>/dev/null || true
 pkill -9 -f "ros2 launch omnibot_bringup perception" 2>/dev/null || true
 
 echo "[stop_perception] Waiting 6 s for USB devices and ports to release..."

@@ -72,8 +72,10 @@ JOINT_NAMES = [
     "arm_wrist_roll",
     "arm_gripper",
 ]
-JOINT_MIN = np.array([-3.14, -1.57, -1.69, -1.66, -2.74, -0.17])
-JOINT_MAX = np.array([3.14, 1.57, 1.69, 1.66, 2.84, 1.75])
+# Must match arm_driver_node.py defaults (SO-101 arm + URDF limits).
+# These are also used in Isaac Lab training and ONNX export.
+JOINT_MIN = np.array([-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
+JOINT_MAX = np.array([3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
 JOINT_HOME = np.zeros(6)  # radians (home = 2048 ticks = 0 rad offset)
 
 OBS_DIM = 30

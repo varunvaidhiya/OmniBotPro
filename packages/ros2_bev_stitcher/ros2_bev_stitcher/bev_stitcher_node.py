@@ -242,11 +242,22 @@ class BevStitcherNode(Node):
             _tc = time.perf_counter() if self._diag_enabled else None
 
             if img.shape[1] != self._src_w or img.shape[0] != self._src_h:
+                sx = self._src_w / img.shape[1]
+                sy = self._src_h / img.shape[0]
                 img = cv2.resize(img, (self._src_w, self._src_h))
+                # Scale the homography to account for the resize:
+                # H maps original-image pixels to BEV canvas.
+                # Resized pixel (u',v') maps to original pixel (u'*sx, v'*sy).
+                # So H_scaled = H @ diag(sx, sy, 1).
+                H = self._homographies[name].copy()
+                H[:, 0] *= sx
+                H[:, 1] *= sy
+            else:
+                H = self._homographies[name]
 
             warped = cv2.warpPerspective(
                 img.astype(np.float32),
-                self._homographies[name],
+                H,
                 (self._canvas, self._canvas),
             )
 

@@ -58,7 +58,7 @@ def route_after_parse(
 def route_after_navigate(
     state: MissionState,
 ) -> Literal["execute_vla", "finalize", "recover"]:
-    if state.get("last_error"):
+    if state.get("last_error") or state.get("phase") == "failed":
         return "recover"
     if state.get("vla_task"):
         return "execute_vla"
@@ -68,7 +68,7 @@ def route_after_navigate(
 def route_after_vla(
     state: MissionState,
 ) -> Literal["navigate", "finalize", "recover"]:
-    if state.get("last_error"):
+    if state.get("last_error") or state.get("phase") == "failed":
         return "recover"
     if state.get("return_home") and state.get("phase") != "returning":
         return "navigate"
@@ -81,7 +81,8 @@ def route_after_recover(
     if state.get("requires_human"):
         return "human_checkpoint"
     # Retry the failed phase
-    if state.get("nav_location") and state.get("phase") in ("navigating", "recovering"):
+    ph = state.get("phase", "")
+    if state.get("nav_location") and ph in ("navigating", "recovering", "failed"):
         return "navigate"
     if state.get("vla_task"):
         return "execute_vla"

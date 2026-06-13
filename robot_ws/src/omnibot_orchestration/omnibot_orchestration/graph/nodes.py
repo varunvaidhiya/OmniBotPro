@@ -13,6 +13,8 @@ All other nodes are pure ROS publishers or local logic — no LLM calls.
 
 import json
 import re
+import threading
+import time
 from typing import Any, Dict
 
 from langchain_anthropic import ChatAnthropic
@@ -120,6 +122,20 @@ def parse_intent_node(state: MissionState, config: RunnableConfig) -> Dict:
 # ---------------------------------------------------------------------------
 
 
+def _wait_for_acceptance(node: Any, phase: str, timeout: float = 5.0) -> bool:
+    """Poll mission status briefly to check if the command was accepted."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        status = node._latest_mission_status if node else ""
+        if f"phase={phase}" in status:
+            return True
+        if "idle" in status and phase not in status:
+            # Planner reverted to idle without entering this phase — likely failure
+            return False
+        threading.Event().wait(0.2)
+    return False  # timeout
+
+
 def navigate_node(state: MissionState, config: RunnableConfig) -> Dict:
     node = _ros_node(config)
     location = state["nav_location"]
@@ -127,6 +143,11 @@ def navigate_node(state: MissionState, config: RunnableConfig) -> Dict:
     if node:
         node._publish_mission(f"navigate:{location}")
         node.get_logger().info(f"[Graph] navigate → '{location}'")
+        if not _wait_for_acceptance(node, "navigating"):
+            node.get_logger().error(
+                f"[Graph] Navigate mission was not accepted for '{location}'."
+            )
+            return {"phase": "failed", "last_error": f"Navigation to {location} failed"}
 
     return {"phase": "navigating"}
 
@@ -143,6 +164,11 @@ def execute_vla_node(state: MissionState, config: RunnableConfig) -> Dict:
     if node:
         node._publish_mission(f"vla:{task}")
         node.get_logger().info(f"[Graph] execute_vla → '{task}'")
+        if not _wait_for_acceptance(node, "vla"):
+            node.get_logger().error(
+                f"[Graph] VLA mission was not accepted for '{task}'."
+            )
+            return {"phase": "failed", "last_error": f"VLA task '{task}' failed"}
 
     return {"phase": "vla"}
 
@@ -158,6 +184,20 @@ def observe_node(state: MissionState, config: RunnableConfig) -> Dict:
 
     if node and node._vision:
         description = node._vision.describe_scene(camera="front")
+
+    # Augment the visual description with metric object perception
+    # (distance / bearing / 3-D position from object_perception_node),
+    # so the agent can ground language in real measurements.
+    if node is not None:
+        try:
+            perception = node.get_fresh_perception()
+        except AttributeError:
+            perception = None
+        if perception and perception != "[]":
+            description += (
+                "\n\nMetric object detections (base_link frame, from the "
+                f"depth camera): {perception}"
+            )
 
     return {
         "phase": "observing",
@@ -217,11 +257,22 @@ def recover_node(state: MissionState, config: RunnableConfig) -> Dict:
         if plan.get("refined_task"):
             updates["vla_task"] = plan["refined_task"]
     else:
-        updates["requires_human"] = True
-        updates["human_question"] = plan.get(
+        question = plan.get(
             "question",
             f"Mission failed after {retry_count} attempts. How should I proceed?",
         )
+        updates["requires_human"] = True
+        updates["human_question"] = question
+        # Publish clarification BEFORE the graph halts at human_checkpoint intercept.
+        # The human_checkpoint_node itself is guarded by interrupt_before and never
+        # executes — this publish here ensures the user actually sees the question.
+        if node:
+            from std_msgs.msg import String
+
+            resp_msg = String()
+            resp_msg.data = question
+            node._resp_pub.publish(resp_msg)
+            node.get_logger().info(f"[recover] Awaiting human response: {question}")
 
     return updates
 

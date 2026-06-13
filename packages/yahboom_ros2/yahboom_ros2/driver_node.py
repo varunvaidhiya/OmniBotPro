@@ -97,6 +97,11 @@ class YahboomDriverNode(Node):
         self._last_beep_time = 0.0
         self._current_twist = Twist()
 
+        # Reconnect backoff state
+        self._reconnect_backoff = 0.0
+        self._reconnect_last_attempt = 0.0
+        self._max_reconnect_backoff = 30.0
+
         # IMU defaults (z-accel = g at rest)
         self._imu_accel = [0.0, 0.0, 9.81]
         self._imu_gyro = [0.0, 0.0, 0.0]
@@ -125,6 +130,10 @@ class YahboomDriverNode(Node):
         if serial is None:
             self.get_logger().error("pyserial not installed.")
             return
+        now = time.time()
+        if now - self._reconnect_last_attempt < self._reconnect_backoff:
+            return
+        self._reconnect_last_attempt = now
         try:
             if self._serial and self._serial.is_open:
                 self._serial.close()
@@ -134,10 +143,15 @@ class YahboomDriverNode(Node):
             for _ in range(5):
                 self._serial.write(packet_set_car_type(CAR_TYPE_MECANUM_X3))
                 time.sleep(0.05)
+            self._reconnect_backoff = 0.0  # reset on success
             self.get_logger().info("Serial connected; CAR_TYPE set to Mecanum X3.")
         except Exception as exc:
             self.get_logger().error(f"Serial connect failed: {exc}")
             self._serial = None
+            self._reconnect_backoff = min(
+                self._reconnect_backoff + 1.0 if self._reconnect_backoff > 0 else 1.0,
+                self._max_reconnect_backoff,
+            )
 
     def _send(self, data: bytes) -> None:
         if self._serial is None:
@@ -147,7 +161,10 @@ class YahboomDriverNode(Node):
             time.sleep(0.002)  # board needs a small inter-packet gap
         except Exception as exc:
             self.get_logger().error(f"Serial TX error: {exc}")
-            self._serial.close()
+            try:
+                self._serial.close()
+            except Exception:
+                pass
             self._serial = None
 
     # ── ROS callbacks ────────────────────────────────────────────────────────
@@ -178,18 +195,16 @@ class YahboomDriverNode(Node):
             self.get_logger().error(f"Update error: {exc}")
 
     def _send_motion(self) -> None:
-        import numpy as _np  # local import so we fail gracefully if missing
-
         msg = self._current_twist
-        target_vx = float(_np.clip(msg.linear.x, -self._max_lin, self._max_lin))
-        target_vy = float(_np.clip(msg.linear.y, -self._max_lin, self._max_lin))
-        target_wa = float(_np.clip(msg.angular.z, -self._max_ang, self._max_ang))
+        target_vx = float(np.clip(msg.linear.x, -self._max_lin, self._max_lin))
+        target_vy = float(np.clip(msg.linear.y, -self._max_lin, self._max_lin))
+        target_wa = float(np.clip(msg.angular.z, -self._max_ang, self._max_ang))
 
-        # Velocity ramping
+        # Velocity ramping (linear + angular)
         step = self._ramp_step
         self._cmd_vx = _ramp(self._cmd_vx, target_vx, step)
         self._cmd_vy = _ramp(self._cmd_vy, target_vy, step)
-        self._cmd_wa = target_wa
+        self._cmd_wa = _ramp(self._cmd_wa, target_wa, step)
 
         self._send(packet_motion(self._cmd_vx, self._cmd_vy, self._cmd_wa))
 
@@ -203,6 +218,11 @@ class YahboomDriverNode(Node):
             data = self._serial.read(waiting)
         except Exception as exc:
             self.get_logger().error(f"Serial RX error: {exc}")
+            try:
+                self._serial.close()
+            except Exception:
+                pass
+            self._serial = None
             return
 
         for _offset, pkt in parse_rx_buffer(data):

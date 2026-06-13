@@ -18,9 +18,10 @@ Topics published:
 
 Homography calibration
 ----------------------
-On first run (or when no calibration file is found), the node uses
-identity-based fallback transforms that tile the four cameras in
-quadrants.  To calibrate properly:
+When no calibration file is found, the node computes geometric IPM
+(inverse perspective mapping) homographies from the URDF camera mounting
+poses — this already produces a true fused top-down view.  For a refined
+calibration:
 
   1. Place a checkerboard flat on the ground.
   2. Run:
@@ -30,6 +31,7 @@ quadrants.  To calibrate properly:
   4. Restart this node — it will load that file automatically.
 """
 
+import math
 import os
 import numpy as np
 import rclpy
@@ -53,35 +55,87 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
-# Default calibration: tile four cameras into quadrants (no perspective warp)
+# Geometric IPM (inverse perspective mapping) — default when no manual
+# calibration file is present.  Projects each camera onto the z=0 ground
+# plane using the known mounting pose from the URDF, producing a true
+# fused top-down view instead of a tiled mosaic.
 # ---------------------------------------------------------------------------
 
 
-def _default_homographies(canvas: int, src_w: int, src_h: int):
+def _geometric_ipm(
+    names,
+    poses: dict,
+    cam_height: float,
+    hfov: float,
+    src_w: int,
+    src_h: int,
+    canvas: int,
+    range_m: float,
+    min_depth: float = 0.03,
+):
     """
-    Fallback: map each camera to one quadrant of the canvas.
-    Cameras are scaled so each fills exactly one quarter of the BEV canvas.
+    Compute per-camera homographies (image px → BEV canvas px) and
+    canvas-space blend masks by projecting the ground plane (z=0) through
+    each camera's pinhole model.
 
-    Layout:
-        +-------+-------+
-        | front |  left |
-        +-------+-------+
-        | right |  rear |
-        +-------+-------+
+    poses: {name: (x, y, yaw)} camera position/orientation in base_link.
+    cam_height: camera optical centre height above the ground (m).
+    range_m: half-extent of the BEV canvas in metres (canvas covers
+             ±range_m around base_link; +X forward = image up,
+             +Y left = image left).
+
+    Returns (homographies: dict, masks: dict).  Masks are feathered by
+    bearing off the optical axis so overlapping wedges blend smoothly.
     """
-    half = canvas // 2
-    sx = half / src_w
-    sy = half / src_h
+    fx = (src_w / 2.0) / math.tan(hfov / 2.0)
+    fy = fx
+    cx, cy = src_w / 2.0, src_h / 2.0
+    mpp = (2.0 * range_m) / canvas  # metres per canvas pixel
+    c0 = (canvas - 1) / 2.0
+    tan_half_h = math.tan(hfov / 2.0)
+    tan_half_v = (src_h / 2.0) / fy
 
-    scale = np.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]], dtype=np.float64)
+    homographies, masks = {}, {}
+    rows, cols = np.mgrid[0:canvas, 0:canvas].astype(np.float32)
+    gX = (c0 - rows) * mpp  # ground X (forward) per canvas pixel
+    gY = (c0 - cols) * mpp  # ground Y (left)    per canvas pixel
 
-    offsets = {
-        "front": np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=np.float64),
-        "left": np.array([[1, 0, half], [0, 1, 0], [0, 0, 1]], dtype=np.float64),
-        "right": np.array([[1, 0, 0], [0, 1, half], [0, 0, 1]], dtype=np.float64),
-        "rear": np.array([[1, 0, half], [0, 1, half], [0, 0, 1]], dtype=np.float64),
-    }
-    return {k: offsets[k] @ scale for k in offsets}
+    for name in names:
+        px, py, yaw = poses[name]
+        cos_y, sin_y = math.cos(yaw), math.sin(yaw)
+
+        # ── Homography from 4 ground points inside the camera's view ──
+        img_pts, can_pts = [], []
+        for bearing in (-hfov * 0.3, hfov * 0.3):
+            for dist in (range_m * 0.25, range_m * 0.9):
+                wx = px + dist * math.cos(yaw + bearing)
+                wy = py + dist * math.sin(yaw + bearing)
+                # base → camera link frame
+                dx, dy = wx - px, wy - py
+                xl = cos_y * dx + sin_y * dy
+                yl = -sin_y * dx + cos_y * dy
+                # link → optical (z fwd, x right, y down)
+                xo, yo, zo = -yl, cam_height, xl
+                img_pts.append((fx * xo / zo + cx, fy * yo / zo + cy))
+                can_pts.append((c0 - wy / mpp, c0 - wx / mpp))  # (col, row)
+        H = cv2.getPerspectiveTransform(np.float32(img_pts), np.float32(can_pts))
+        homographies[name] = H.astype(np.float64)
+
+        # ── Canvas-domain visibility + feathered blend mask ──
+        dx, dy = gX - px, gY - py
+        xl = cos_y * dx + sin_y * dy
+        yl = -sin_y * dx + cos_y * dy
+        zo = xl  # optical depth
+        xo = -yl
+        yo = cam_height  # ground is cam_height below the optical centre
+        with np.errstate(divide="ignore", invalid="ignore"):
+            bearing_ratio = np.abs(xo) / np.maximum(zo, 1e-6) / tan_half_h
+            elev_ratio = yo / np.maximum(zo, 1e-6) / tan_half_v
+        valid = (zo > min_depth) & (bearing_ratio < 1.0) & (elev_ratio <= 1.0)
+        weight = np.clip(1.0 - bearing_ratio, 0.0, 1.0)
+        masks[name] = np.where(valid, weight, 0.0).astype(np.float32)
+
+    return homographies, masks
 
 
 # ---------------------------------------------------------------------------
@@ -109,6 +163,15 @@ class BevStitcherNode(Node):
         self.declare_parameter(
             "calibration_file", os.path.expanduser("~/omnibot_bev_calibration.npz")
         )
+        # ── Geometric IPM parameters (used when no calibration file) ──
+        # Defaults match omnibot.urdf.xacro base-camera mounting.
+        self.declare_parameter("bev_range_m", 2.0)
+        self.declare_parameter("camera_hfov", 1.745)
+        self.declare_parameter("camera_height", 0.0885)
+        self.declare_parameter("cam_front_pose", [0.1175, 0.0, 0.0])
+        self.declare_parameter("cam_rear_pose", [-0.1175, 0.0, math.pi])
+        self.declare_parameter("cam_left_pose", [0.0, 0.110, math.pi / 2.0])
+        self.declare_parameter("cam_right_pose", [0.0, -0.110, -math.pi / 2.0])
 
         self.canvas_size = self.get_parameter("canvas_size").value
         self.out_w = self.get_parameter("output_width").value
@@ -165,7 +228,7 @@ class BevStitcherNode(Node):
         self.get_logger().info(
             f"BevStitcherNode started | canvas={self.canvas_size} "
             f"| output={self.out_w}x{self.out_h} | hz={self.publish_hz} "
-            f"| calibration={'loaded' if self._cal_loaded else 'default (tiled)'}"
+            f"| calibration={'loaded' if self._cal_loaded else 'geometric IPM'}"
         )
 
     # ------------------------------------------------------------------
@@ -185,10 +248,29 @@ class BevStitcherNode(Node):
                 return Hs
             except Exception as exc:
                 self.get_logger().warn(
-                    f"Failed to load calibration ({exc}). Using default tiled layout."
+                    f"Failed to load calibration ({exc}). "
+                    "Falling back to geometric IPM from URDF camera poses."
                 )
 
-        return _default_homographies(self.canvas_size, self.src_w, self.src_h)
+        poses = {
+            name: tuple(self.get_parameter(f"cam_{name}_pose").value)
+            for name in self.CAMERA_NAMES
+        }
+        Hs, self._geo_masks = _geometric_ipm(
+            self.CAMERA_NAMES,
+            poses,
+            float(self.get_parameter("camera_height").value),
+            float(self.get_parameter("camera_hfov").value),
+            self.src_w,
+            self.src_h,
+            self.canvas_size,
+            float(self.get_parameter("bev_range_m").value),
+        )
+        self.get_logger().info(
+            "Using geometric IPM homographies (true fused BEV). "
+            "Run bev_calibrate for a refined ground-truth calibration."
+        )
+        return Hs
 
     # ------------------------------------------------------------------
     # Blend weight precomputation
@@ -200,8 +282,14 @@ class BevStitcherNode(Node):
         warped region.  Used for alpha blending in overlap zones.
 
         Returns a dict {name: weight_map (canvas_size x canvas_size, float32)}.
-        For the default tiled layout these are binary masks (no real overlap).
+
+        Geometric-IPM mode uses analytic canvas-space visibility wedges
+        (feathered by bearing), which also suppress the mirrored/behind-
+        camera artefacts that a raw warpPerspective would produce.
         """
+        if getattr(self, "_geo_masks", None) is not None:
+            return self._geo_masks
+
         weights = {}
         for name in self.CAMERA_NAMES:
             # Create a white source image (src weight map)

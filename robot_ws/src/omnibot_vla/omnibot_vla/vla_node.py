@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import collections
+import os
 import statistics as _statistics
 import time
 import rclpy
@@ -34,9 +35,20 @@ class VLANode(Node):
             f"Loading OpenVLA model: {model_path} on {self.device}..."
         )
 
+        # Validate model source — trust_remote_code is required for OpenVLA
+        # but introduces arbitrary code execution risk. Only enable it for
+        # models from the trusted openvla HuggingFace organisation.
+        _trusted = model_path.startswith("openvla/") or os.path.isdir(model_path)
+        if not _trusted:
+            self.get_logger().warn(
+                f"Loading model from untrusted path: {model_path}. "
+                "trust_remote_code=True allows arbitrary code execution. "
+                "Ensure you trust this model source."
+            )
+
         # Initialize Processor and Model
         self.processor = AutoProcessor.from_pretrained(
-            model_path, trust_remote_code=True
+            model_path, trust_remote_code=_trusted
         )
 
         # Load model with optimizations
@@ -47,14 +59,14 @@ class VLANode(Node):
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.float16,
                 load_in_4bit=True,
-                trust_remote_code=True,
+                trust_remote_code=_trusted,
             )
         else:
             self.model = AutoModelForVision2Seq.from_pretrained(
                 model_path,
                 attn_implementation="flash_attention_2",
                 torch_dtype=torch.float16,
-                trust_remote_code=True,
+                trust_remote_code=_trusted,
             ).to(self.device)
 
         self.get_logger().info("Model loaded successfully!")
@@ -91,11 +103,8 @@ class VLANode(Node):
 
     def image_callback(self, msg):
         try:
-            # Store raw numpy array; PIL conversion deferred to inference time
-            # (avoids converting every incoming frame at 30 Hz when inference runs at 1 Hz)
             _tp0 = time.perf_counter() if self._diag_enabled else None
-            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
-            self.last_image = PILImage.fromarray(cv_image)
+            self.last_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding="rgb8")
             if self._diag_enabled and _tp0 is not None:
                 self._t_preprocess.append((time.perf_counter() - _tp0) * 1000.0)
         except Exception as e:
@@ -115,7 +124,7 @@ class VLANode(Node):
 
         _ti0 = time.perf_counter() if self._diag_enabled else None
         try:
-            inputs = self.processor(prompt, self.last_image).to(
+            inputs = self.processor(prompt, PILImage.fromarray(self.last_image)).to(
                 self.device, dtype=torch.float16
             )
 

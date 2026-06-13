@@ -398,14 +398,30 @@ def _pointcloud_to_sectors(
     """
     sectors = np.full(n_sectors, lidar_max)
 
-    # Parse PointCloud2 fields: find byte offsets for x, y, z
+    # Parse PointCloud2 fields: find byte offsets and types for x, y, z
     field_map = {f.name: (f.offset, f.datatype) for f in msg.fields}
     if "x" not in field_map or "y" not in field_map or "z" not in field_map:
         return sectors
 
-    x_off = field_map["x"][0]
-    y_off = field_map["y"][0]
-    z_off = field_map["z"][0]
+    # Map PointCloud2 datatype constants to struct format characters.
+    #  1=INT8, 2=UINT8, 3=INT16, 4=UINT16, 5=INT32, 6=UINT32,
+    #  7=FLOAT32, 8=FLOAT64
+    _DTYPE_MAP = {7: "f", 8: "d"}
+    x_off, x_dt = field_map["x"]
+    y_off, y_dt = field_map["y"]
+    z_off, z_dt = field_map["z"]
+    if x_dt not in _DTYPE_MAP or y_dt not in _DTYPE_MAP or z_dt not in _DTYPE_MAP:
+        # Module-level helper (no `self`): log via the named rclpy logger.
+        rclpy.logging.get_logger("rl_nav_node").error(
+            f"Unsupported PointCloud2 field types (x={x_dt}, y={y_dt}, z={z_dt}). "
+            "Expected FLOAT32 (7) or FLOAT64 (8)."
+        )
+        return sectors
+
+    endian = "<" if msg.is_bigendian == 0 else ">"
+    x_fmt = endian + _DTYPE_MAP[x_dt]
+    y_fmt = endian + _DTYPE_MAP[y_dt]
+    z_fmt = endian + _DTYPE_MAP[z_dt]
     point_step = msg.point_step
     data = bytes(msg.data)
 
@@ -413,9 +429,9 @@ def _pointcloud_to_sectors(
 
     for i in range(msg.width * msg.height):
         base = i * point_step
-        x = struct.unpack_from("<f", data, base + x_off)[0]
-        y = struct.unpack_from("<f", data, base + y_off)[0]
-        z = struct.unpack_from("<f", data, base + z_off)[0]
+        x = struct.unpack_from(x_fmt, data, base + x_off)[0]
+        y = struct.unpack_from(y_fmt, data, base + y_off)[0]
+        z = struct.unpack_from(z_fmt, data, base + z_off)[0]
 
         if not math.isfinite(x) or not math.isfinite(y) or not math.isfinite(z):
             continue

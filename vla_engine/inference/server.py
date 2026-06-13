@@ -1,52 +1,125 @@
+import logging
+import os
 import time
-import uvicorn
-from fastapi import FastAPI, HTTPException
+from collections import defaultdict
 from contextlib import asynccontextmanager
+from typing import Optional
+
+import uvicorn
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security.api_key import APIKeyHeader
+
 from ..models.openvla import OpenVLAModel
 from ..utils.image import decode_base64_image
 from .schema import InferenceRequest, InferenceResponse
 
-# Global model instance
-model_instance = None
+logger = logging.getLogger("vla_engine")
+
+_MAX_BODY_BYTES = 10 * 1024 * 1024
+
+# ---------------------------------------------------------------------------
+# Globals
+# ---------------------------------------------------------------------------
+model_instance: Optional[OpenVLAModel] = None
+
+_rate_buckets: dict[str, tuple[float, float]] = defaultdict(
+    lambda: (float(os.getenv("VLA_RATE_LIMIT", "10")), time.monotonic())
+)
+_RATE_LIMIT = float(os.getenv("VLA_RATE_LIMIT", "10"))
+
+# ---------------------------------------------------------------------------
+# Auth
+# ---------------------------------------------------------------------------
+_API_KEY: str = os.getenv("VLA_API_KEY", "")
+_api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
+def _require_api_key(api_key: Optional[str] = Depends(_api_key_header)) -> str:
+    if not _API_KEY:
+        return ""
+    if api_key != _API_KEY:
+        logger.warning("rejected request with invalid API key")
+        raise HTTPException(status_code=401, detail="Invalid or missing API key.")
+    return api_key
+
+
+def _check_rate_limit(key: str) -> None:
+    now = time.monotonic()
+    tokens, last = _rate_buckets[key]
+    elapsed = now - last
+    tokens = min(_RATE_LIMIT, tokens + elapsed * _RATE_LIMIT)
+    if tokens < 1.0:
+        raise HTTPException(
+            status_code=429,
+            detail=f"Rate limit exceeded. Max {_RATE_LIMIT:.0f} requests/second.",
+        )
+    _rate_buckets[key] = (tokens - 1.0, now)
+
+
+# ---------------------------------------------------------------------------
+# Lifespan
+# ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Load model on startup
     global model_instance
-    print("Initializing VLA Engine Inference Server...")
+    logger.info("Initializing VLA Engine Inference Server...")
     try:
         model_instance = OpenVLAModel()
-        # In production, make the path configurable via env vars
-        # For now, we lazily load or load a small dummy/base model if desired
-        # To avoid massive download on first run without checking, we might want to defer or use a specific flag
-        print(
-            "Model instance created. Waiting for explicit load or auto-loading if configured."
-        )
-        # model_instance.load_model() # Uncomment to load on startup
     except Exception as e:
-        print(f"Error initializing model: {e}")
+        logger.error("Error initializing model: %s", e)
 
     yield
 
-    # Clean up
-    if model_instance:
+    if model_instance is not None:
+        try:
+            import torch
+
+            torch.cuda.empty_cache()
+        except Exception:
+            pass
         del model_instance
 
 
+# ---------------------------------------------------------------------------
+# App
+# ---------------------------------------------------------------------------
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("VLA_CORS_ORIGINS", "*").split(","),
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["X-API-Key", "Content-Type"],
+)
+
+_MAX_BODY = int(os.getenv("VLA_MAX_BODY_BYTES", str(_MAX_BODY_BYTES)))
+
+
+@app.middleware("http")
+async def _limit_body_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length and int(content_length) > _MAX_BODY:
+        raise HTTPException(status_code=413, detail="Request body too large")
+    return await call_next(request)
 
 
 @app.get("/health")
 def health_check():
-    return {
-        "status": "ok",
-        "model_loaded": model_instance.model is not None if model_instance else False,
-    }
+    loaded = (
+        model_instance is not None
+        and getattr(model_instance, "model", None) is not None
+    )
+    return {"status": "ok", "model_loaded": loaded}
 
 
 @app.post("/load_model")
-def load_model(model_path: str = "openvla/openvla-7b", load_4bit: bool = False):
+def load_model(
+    model_path: str = "openvla/openvla-7b",
+    load_4bit: bool = False,
+    _key: str = Depends(_require_api_key),
+):
     global model_instance
     if not model_instance:
         model_instance = OpenVLAModel()
@@ -59,7 +132,12 @@ def load_model(model_path: str = "openvla/openvla-7b", load_4bit: bool = False):
 
 
 @app.post("/predict", response_model=InferenceResponse)
-def predict(request: InferenceRequest):
+def predict(
+    request: InferenceRequest,
+    key: str = Depends(_require_api_key),
+):
+    _check_rate_limit(key or "anon")
+
     global model_instance
     if not model_instance or not model_instance.model:
         raise HTTPException(
@@ -68,23 +146,26 @@ def predict(request: InferenceRequest):
 
     try:
         start_time = time.time()
-
-        # Decode image
         image = decode_base64_image(request.image_base64)
-
-        # Run inference
         result = model_instance.predict_action(image, request.instruction)
 
-        end_time = time.time()
-        latency = (end_time - start_time) * 1000
+        latency = (time.time() - start_time) * 1000
+        if isinstance(result, dict) and "vector" in result:
+            action = result
+        elif isinstance(result, (list, tuple)):
+            action = {"vector": list(result), "raw_output": str(result)}
+        else:
+            action = {"vector": [], "raw_output": str(result)}
 
         return InferenceResponse(
-            action=result if isinstance(result, dict) else {"vector": result},
-            raw_output=str(result),
+            action=action,
+            raw_output=action.get("raw_output", str(result)),
             latency_ms=latency,
         )
-
+    except HTTPException:
+        raise
     except Exception as e:
+        logger.error("predict failed: %s", e)
         raise HTTPException(status_code=500, detail=str(e))
 
 

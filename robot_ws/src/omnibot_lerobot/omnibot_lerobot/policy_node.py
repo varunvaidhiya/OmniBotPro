@@ -41,6 +41,7 @@ Topics published
 """
 
 import collections
+import threading
 import time
 import numpy as np
 import rclpy
@@ -163,8 +164,9 @@ class PolicyNode(Node):
         self._t_inference = collections.deque(maxlen=100)
         self._t_total = collections.deque(maxlen=100)
 
-        # Sensor cache
+        # Sensor cache (protected by _cam_lock for thread safety)
         self.enabled = False
+        self._cam_lock = threading.Lock()
         self.camera_images: dict[str, np.ndarray | None] = {}
         self.arm_positions = np.zeros(6, dtype=np.float32)
         self.base_vel = np.zeros(3, dtype=np.float32)
@@ -327,7 +329,9 @@ class PolicyNode(Node):
     # ------------------------------------------------------------------
 
     def _image_cb(self, msg: Image, key: str) -> None:
-        self.camera_images[key] = self._ros_image_to_numpy(msg)
+        np_img = self._ros_image_to_numpy(msg)
+        with self._cam_lock:
+            self.camera_images[key] = np_img
 
     def _depth_cb(self, msg: Image) -> None:
         pass  # depth reserved for future use
@@ -368,9 +372,10 @@ class PolicyNode(Node):
         if not self.enabled:
             return
 
-        missing = [
-            k for k in self.adapter.image_keys if self.camera_images.get(k) is None
-        ]
+        with self._cam_lock:
+            camera_snapshot = dict(self.camera_images)
+
+        missing = [k for k in self.adapter.image_keys if camera_snapshot.get(k) is None]
         if missing:
             self.get_logger().warn(
                 f"Waiting for images: {missing}", throttle_duration_sec=2.0
@@ -382,7 +387,12 @@ class PolicyNode(Node):
         try:
             obs = {}
             for key in self.adapter.image_keys:
-                obs[key] = self._numpy_to_tensor(self.camera_images[key])
+                img = camera_snapshot[key]
+                if img is None:
+                    img = np.zeros(
+                        (self.image_height, self.image_width, 3), dtype=np.uint8
+                    )
+                obs[key] = self._numpy_to_tensor(img)
 
             state = np.concatenate([self.arm_positions, self.base_vel])
             if TORCH_AVAILABLE:
@@ -428,10 +438,15 @@ class PolicyNode(Node):
 
     def _publish_base(self, base_action: np.ndarray) -> None:
         s = self.base_vel_scale
+        # Clip to match the yahboom_controller_node hardware limits
+        # (0.2 m/s linear, 0.5 rad/s angular). The scale parameter
+        # (default 0.3) determines output range within these limits.
+        max_lin = 0.20
+        max_ang = 0.50
         msg = Twist()
-        msg.linear.x = float(np.clip(base_action[0] * s, -0.3, 0.3))
-        msg.linear.y = float(np.clip(base_action[1] * s, -0.3, 0.3))
-        msg.angular.z = float(np.clip(base_action[2] * s, -1.0, 1.0))
+        msg.linear.x = float(np.clip(base_action[0] * s, -max_lin, max_lin))
+        msg.linear.y = float(np.clip(base_action[1] * s, -max_lin, max_lin))
+        msg.angular.z = float(np.clip(base_action[2] * s, -max_ang, max_ang))
         self.cmd_vel_pub.publish(msg)
 
     def _publish_diagnostics(self) -> None:

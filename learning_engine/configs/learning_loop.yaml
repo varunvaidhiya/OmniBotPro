@@ -1,0 +1,66 @@
+# Example post-training loop configuration.
+# Component sections use {name: <registry-name>, **constructor-kwargs}.
+# Build with: learning_engine.core.config.load_config + the registries.
+
+dataset:
+  root: ~/datasets/omnibot_replay
+  store_images: true
+
+collectors:
+  # Ingest real-robot executions logged by episode_logger_node on the Pi
+  - name: execution_log
+    log_dir: ~/datasets/execution_logs
+  # Teleop demonstrations recorded with teleop_recorder_node (LeRobot format)
+  # - name: teleop_dataset
+  #   repo_id: local/mobile_manipulation
+  # Simulation rollouts (construct env + policy in code; see README quickstart)
+
+reward_engine:
+  terms:
+    - {name: task_success, weight: 1.0, bonus: 10.0}
+    - {name: goal_progress, weight: 1.0}
+    - {name: collision, weight: 5.0, min_distance_m: 0.25}
+    - {name: joint_limit, weight: 1.0, margin_rad: 0.1}
+    - {name: energy, weight: 0.05}
+    - {name: time, weight: 1.0, per_step: 0.01}
+    - {name: action_smoothness, weight: 0.5}
+
+evaluators:
+  # Tried in order; first decisive verdict wins. HeuristicSelfEvaluator is
+  # always appended as the final fallback by the loop itself.
+  - {name: language_goal}     # needs a VLMClient (ANTHROPIC_API_KEY)
+  - {name: reflection}        # ditto
+  - {name: heuristic_self_eval}
+
+replay:
+  ratios: {success: 0.5, near_success: 0.3, failure: 0.2}
+  recency_half_life: 200
+
+trainer:
+  name: behavior_cloning   # or: offline_rl_awr | online_rl | finetune_smolvla
+  epochs: 20
+  batch_size: 256
+  lr: 0.001
+  device: cuda
+  checkpoint_dir: ~/models/learning_engine
+
+loop:
+  collect_per_iteration: 10
+  train_episodes_per_iteration: 50
+  eval_episodes: 5
+  report_dir: ~/datasets/omnibot_replay/reports
+
+continual:
+  min_new_episodes: 50
+  max_staleness_s: 604800      # 7 days
+  retrain_on_new_task: true
+  state_path: ~/datasets/omnibot_replay/continual_state.json
+
+verifier:
+  n_candidates: 4
+  horizon: 10
+  consistency_weight: 0.5
+  checks:
+    - {name: safety}
+    - {name: reachability, max_displacement_m: 3.0}
+    # - {name: task_likelihood}   # needs a reward model

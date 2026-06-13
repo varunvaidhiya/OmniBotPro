@@ -165,8 +165,8 @@ class ArmNormJointPosObsTerm(ObservationTerm):
     Returns (num_envs, 6).
     """
 
-    _joint_min = torch.tensor([-3.14, -1.57, -1.69, -1.66, -2.74, -0.17])
-    _joint_max = torch.tensor([3.14, 1.57, 1.69, 1.66, 2.84, 1.75])
+    _joint_min = torch.tensor([-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
+    _joint_max = torch.tensor([3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
 
     def __call__(self, env: ManagerBasedRLEnv) -> torch.Tensor:
         arm = env.scene.articulations["robot"]

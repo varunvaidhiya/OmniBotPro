@@ -98,6 +98,10 @@ class LangchainAgentNode(Node):
         self._latest_front_image: Optional[np.ndarray] = None
         self._latest_wrist_image: Optional[np.ndarray] = None
         self._latest_mission_status: Optional[str] = None
+        # Latest metric object detections from object_perception_node
+        # (JSON string from /perception/object_info), with receive time.
+        self._latest_perception: Optional[str] = None
+        self._latest_perception_time: float = 0.0
 
         # ── ROS interfaces ─────────────────────────────────────────────────
         self._setup_ros_interfaces()
@@ -179,6 +183,10 @@ class LangchainAgentNode(Node):
         self.create_subscription(String, "/ai/command", self._on_ai_command, qos)
         self.create_subscription(
             String, "/mission/status", self._on_mission_status, qos
+        )
+        # Metric object perception (distance / bearing / pose per object)
+        self.create_subscription(
+            String, "/perception/object_info", self._on_perception_info, qos
         )
 
         if CV_BRIDGE_AVAILABLE:
@@ -271,6 +279,25 @@ class LangchainAgentNode(Node):
     def _on_mission_status(self, msg: String) -> None:
         with self._status_lock:
             self._latest_mission_status = msg.data
+
+    def _on_perception_info(self, msg: String) -> None:
+        import time as _time
+
+        with self._status_lock:
+            self._latest_perception = msg.data
+            self._latest_perception_time = _time.time()
+
+    def get_fresh_perception(self, max_age_s: float = 2.0) -> Optional[str]:
+        """Latest /perception/object_info JSON if newer than max_age_s."""
+        import time as _time
+
+        with self._status_lock:
+            if (
+                self._latest_perception is not None
+                and _time.time() - self._latest_perception_time <= max_age_s
+            ):
+                return self._latest_perception
+        return None
 
     def _on_front_image(self, msg: "Image") -> None:
         if self._bridge is None:

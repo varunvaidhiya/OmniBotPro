@@ -1,0 +1,18 @@
+object_perception_node:
+  ros__parameters:
+    depth_topic: /camera/depth/image_raw
+    depth_info_topic: /camera/depth/camera_info
+    color_topic: /camera/color/image_raw
+    target_frame: base_link
+    rate_hz: 5.0
+    range_min: 0.3
+    range_max: 6.0
+    # YOLO backend (auto-falls back to depth clustering if ultralytics missing)
+    use_yolo: true
+    yolo_model: yolov8n.pt
+    yolo_conf: 0.4
+    # Depth-clustering backend
+    cluster_min_pixels: 400
+    cluster_depth_step: 0.25
+    max_objects: 10
+    min_height_above_ground: 0.03

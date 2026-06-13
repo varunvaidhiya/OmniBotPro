@@ -145,7 +145,7 @@ def generate_launch_description():
                 "scan_height": 1,
                 "range_min": 0.6,
                 "range_max": 8.0,
-                "output_frame": "depth_camera_optical_frame",
+                "output_frame": "depth_camera_link",  # MUST be x-forward frame, not optical (z-fwd) — scan was rotated 90°
                 "use_sim_time": True,
             }
         ],
@@ -162,7 +162,11 @@ def generate_launch_description():
         period=5.0,
         actions=[
             Node(
-                package="ros2_bev_stitcher",
+                # omnibot_lerobot stitcher: geometric-IPM fused BEV, publishes
+                # /camera/base/bev/image_raw (required by smolvla_node).
+                # (ros2_bev_stitcher defaulted to /camera/bev/image_raw,
+                # which nothing subscribes to.)
+                package="omnibot_lerobot",
                 executable="bev_stitcher_node",
                 name="bev_stitcher_node",
                 output="screen",

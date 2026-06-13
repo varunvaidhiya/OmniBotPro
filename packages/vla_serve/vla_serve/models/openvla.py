@@ -1,11 +1,15 @@
 """OpenVLA model implementation for vla_serve."""
 
+import re
+import logging
 from typing import Any, Dict, List, Union
 
 import numpy as np
 from PIL import Image
 
 from .base import VLAModel
+
+logger = logging.getLogger(__name__)
 
 
 class OpenVLAModel(VLAModel):
@@ -41,7 +45,7 @@ class OpenVLAModel(VLAModel):
         import torch
         from transformers import AutoModelForVision2Seq, AutoProcessor
 
-        print(f"Loading OpenVLA from {model_path} on {self._device}...")
+        logger.info("Loading OpenVLA from %s on %s...", model_path, self._device)
         self.processor = AutoProcessor.from_pretrained(
             model_path, trust_remote_code=True
         )
@@ -61,7 +65,26 @@ class OpenVLAModel(VLAModel):
         if not load_in_4bit:
             self.model.to(self._device)
 
-        print("OpenVLA loaded.")
+        logger.info("OpenVLA loaded.")
+
+    @staticmethod
+    def _parse_action_vector(text: str) -> List[float]:
+        """
+        Extract an action vector from OpenVLA's generated text.
+
+        OpenVLA models output action tokens that decode to numeric text.
+        The typical format is a sequence of numbers (space/comma separated)
+        representing the action dimensions.  We extract the *last* contiguous
+        group of numbers found in the text so that preceding instruction text
+        is ignored.
+        """
+        matches = list(re.finditer(r"-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?", text))
+        if not matches:
+            logger.warning(
+                "Could not parse action vector from generated text: %r", text
+            )
+            return []
+        return [float(m.group()) for m in matches]
 
     def predict_action(
         self,
@@ -90,4 +113,5 @@ class OpenVLAModel(VLAModel):
             )
 
         text = self.processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        return {"raw_output": text}
+        action_vector = self._parse_action_vector(text)
+        return {"vector": action_vector, "raw_output": text}
