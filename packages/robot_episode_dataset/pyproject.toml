@@ -31,10 +31,6 @@ all = [
     "opencv-python>=4.8",
 ]
 
-[project.scripts]
-red-ingest = "robot_episode_dataset.scripts.ingest:main"
-red-validate = "robot_episode_dataset.scripts.validate:main"
-
 [project.urls]
 Homepage = "https://github.com/varunvaidhiya/Mecanum-Wheel-Robot"
 

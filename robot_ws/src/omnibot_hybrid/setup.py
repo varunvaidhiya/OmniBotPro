@@ -25,6 +25,7 @@ setup(
         "console_scripts": [
             "cmd_vel_mux = omnibot_hybrid.cmd_vel_mux:main",
             "mission_planner = omnibot_hybrid.mission_planner:main",
+            "rosbag_recorder = omnibot_hybrid.rosbag_recorder:main",
         ],
     },
 )

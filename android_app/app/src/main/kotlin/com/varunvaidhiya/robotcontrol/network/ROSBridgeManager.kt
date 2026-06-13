@@ -30,6 +30,7 @@ class ROSBridgeManager(
         DISCONNECTED, CONNECTING, CONNECTED, ERROR
     }
     
+    @Volatile
     var connectionState = ConnectionState.DISCONNECTED
         private set
 
@@ -62,6 +63,7 @@ class ROSBridgeManager(
         webSocket?.close(1000, "Client disconnecting")
         webSocket = null
         connectionState = ConnectionState.DISCONNECTED
+        reconnectAttempts = maxReconnectAttempts  // prevent auto-reconnect
         scope.coroutineContext.cancelChildren()
     }
     
@@ -123,7 +125,7 @@ class ROSBridgeManager(
      */
     private fun attemptReconnect() {
         if (reconnectAttempts >= maxReconnectAttempts) {
-            Timber.e("Max reconnect attempts reached")
+            Timber.e("Max reconnect attempts reached (or manual disconnect)")
             connectionState = ConnectionState.ERROR
             return
         }
@@ -199,13 +201,18 @@ class ROSBridgeManager(
     }
     
     /**
-     * Send periodic ping to keep connection alive
+     * Send periodic ping to keep connection alive.
+     * OkHttp3 handles TCP keepalive, so this is a lightweight ROS-level
+     * liveness signal — sends a valid JSON ping (not empty string).
      */
     private fun startHeartbeat() {
-        scope.launch {
-            while (isActive && connectionState == ConnectionState.CONNECTED) {
-                delay(5000) // 5 seconds
-                webSocket?.send("")
+        if (scope.isActive) {
+            scope.launch {
+                while (isActive && connectionState == ConnectionState.CONNECTED) {
+                    delay(5000)
+                    if (connectionState != ConnectionState.CONNECTED) break
+                    webSocket?.send("""{"op":"ping"}""")
+                }
             }
         }
     }

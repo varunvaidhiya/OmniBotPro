@@ -83,6 +83,12 @@ def generate_launch_description():
         default_value="true",
         description="Start BEV stitcher (requires all 4 base cameras)",
     )
+    declare_ai_perception = DeclareLaunchArgument(
+        "ai_perception",
+        default_value="true",
+        description="Start object_perception_node (object distance + pose "
+        "estimation from depth camera; YOLO labels if ultralytics installed)",
+    )
 
     # Camera device paths — override for your hardware
     declare_cam_front = DeclareLaunchArgument(
@@ -249,7 +255,7 @@ def generate_launch_description():
                 "scan_height": 1,
                 "range_min": 0.3,
                 "range_max": 8.0,
-                "output_frame": "depth_camera_optical_frame",
+                "output_frame": "depth_camera_link",  # MUST be x-forward frame, not optical (z-fwd) — scan was rotated 90°
             }
         ],
         remappings=[
@@ -317,6 +323,17 @@ def generate_launch_description():
         arguments=["-d", rviz_config],
     )
 
+    # ── AI perception — object distance + pose estimation ────────────────────
+    # Publishes /perception/objects, /perception/object_info,
+    # /perception/nearest_distance, /perception/query_result
+    object_perception = Node(
+        package="omnibot_perception",
+        executable="object_perception_node",
+        name="object_perception_node",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("ai_perception")),
+    )
+
     return LaunchDescription(
         [
             declare_rviz,
@@ -324,6 +341,7 @@ def generate_launch_description():
             declare_web_video,
             declare_depth_camera,
             declare_bev,
+            declare_ai_perception,
             declare_cam_front,
             declare_cam_rear,
             declare_cam_left,
@@ -338,6 +356,7 @@ def generate_launch_description():
             astra_camera,
             depth_to_scan,
             bev_stitcher,
+            object_perception,
             foxglove_bridge,
             web_video_server,
             rviz,

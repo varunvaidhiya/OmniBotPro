@@ -1,17 +1,7 @@
-global:
-  resolve_timeout: 5m
-  # Configure your SMTP or Slack webhook here.
-  # smtp_smarthost: 'smtp.gmail.com:587'
-  # smtp_from: 'omnibot-alerts@yourdomain.com'
-  # smtp_auth_username: 'youremail@gmail.com'
-  # smtp_auth_password: 'your-app-password'
-
-# Route tree — critical alerts get immediate notification,
-# warnings are batched every 5 minutes.
 route:
-  group_by: ["alertname", "component"]
+  group_by: [alertname, component]
   group_wait: 10s
-  group_interval: 5m
+  group_interval: 30s
   repeat_interval: 1h
   receiver: default_receiver
 
@@ -20,7 +10,7 @@ route:
         severity: critical
       receiver: critical_receiver
       group_wait: 0s
-      repeat_interval: 15m
+      repeat_interval: 5m
 
     - match:
         component: safety
@@ -30,18 +20,20 @@ route:
 
 receivers:
   - name: default_receiver
-    # Uncomment and configure one or more receivers:
+    # Default: log all alerts to stdout (visible via docker logs).
+    # Set ALERTMANAGER_EMAIL_TO / ALERTMANAGER_SLACK_URL env vars to
+    # enable real notifications.
 
-    # Email (warnings/info)
+    # Email
     # email_configs:
-    #   - to: 'varun.vaidhiya@gmail.com'
+    #   - to: '{{ .ExternalURL }}'
     #     send_resolved: true
     #     subject: '[OmniBot] {{ .GroupLabels.alertname }}'
     #     body: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
 
     # Slack
     # slack_configs:
-    #   - api_url: 'https://hooks.slack.com/services/YOUR/WEBHOOK/URL'
+    #   - api_url: '{{ .ExternalURL }}'
     #     channel: '#omnibot-alerts'
     #     send_resolved: true
     #     title: '[{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
@@ -49,15 +41,14 @@ receivers:
 
   - name: critical_receiver
     # email_configs:
-    #   - to: 'varun.vaidhiya@gmail.com'
+    #   - to: '{{ .ExternalURL }}'
     #     send_resolved: true
     #     subject: '[OmniBot CRITICAL] {{ .GroupLabels.alertname }}'
     #     body: '{{ range .Alerts }}{{ .Annotations.summary }}{{ "\n" }}{{ .Annotations.description }}{{ end }}'
 
 inhibit_rules:
-  # If a critical alert fires, suppress the corresponding warning.
   - source_match:
       severity: critical
     target_match:
       severity: warning
-    equal: ["alertname", "component"]
+    equal: [alertname, component]

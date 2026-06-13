@@ -303,16 +303,47 @@ def _update_stats(dataset_root: Path, rows: list[dict]) -> None:
 
     old = json.loads(stats_path.read_text())
 
-    # Merge: simple min/max update, mean/std approximate merge
+    # Track episode count so we can compute merged mean/std via Welford
+    old["_num_episodes"] = old.get("_num_episodes", 1)
+
+    # Merge: simple min/max update, mean/std via Welford's algorithm
     for key in ("observation.state", "action"):
         for stat in ("min", "max"):
             fn = min if stat == "min" else max
             old[key][stat] = [
                 fn(a, b) for a, b in zip(old[key][stat], new_stats[key][stat])
             ]
-        # Overwrite mean/std with new episode values (good enough for normalisation)
-        old[key]["mean"] = new_stats[key]["mean"]
-        old[key]["std"] = new_stats[key]["std"]
+        # Merge mean/std using Welford's online algorithm
+        old_mean = old[key]["mean"]
+        old_std = old[key]["std"]
+        new_mean = new_stats[key]["mean"]
+        new_std = new_stats[key]["std"]
+        n_old = old["_num_episodes"]
+        n_new = 1  # one new episode
+
+        # Welford merge for each dimension
+        merged_mean = []
+        merged_std = []
+        for i in range(len(old_mean)):
+            m_a = old_mean[i]
+            m_b = new_mean[i]
+            s_a = old_std[i]
+            s_b = new_std[i]
+            # Combined mean
+            mc = (n_old * m_a + n_new * m_b) / (n_old + n_new)
+            # Combined variance (parallel algorithm)
+            var_a = s_a ** 2
+            var_b = s_b ** 2
+            vc = (
+                (n_old * (var_a + (m_a - mc) ** 2) + n_new * (var_b + (m_b - mc) ** 2))
+                / (n_old + n_new)
+            )
+            merged_mean.append(mc)
+            merged_std.append(math.sqrt(vc))
+        old[key]["mean"] = merged_mean
+        old[key]["std"] = merged_std
+
+    old["_num_episodes"] += 1
 
     stats_path.write_text(json.dumps(old, indent=2))
 

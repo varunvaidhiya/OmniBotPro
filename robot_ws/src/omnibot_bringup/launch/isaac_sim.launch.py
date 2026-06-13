@@ -138,7 +138,7 @@ def generate_launch_description():
                 "scan_height": 1,
                 "range_min": 0.6,
                 "range_max": 8.0,
-                "output_frame": "depth_camera_optical_frame",
+                "output_frame": "depth_camera_link",  # MUST be x-forward frame, not optical (z-fwd) — scan was rotated 90°
             }
         ],
         remappings=[

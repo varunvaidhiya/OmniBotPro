@@ -42,7 +42,7 @@ ACTION_DIMS = {
 }
 
 
-def load_policy(checkpoint_path: str, obs_dim: int) -> torch.nn.Module:
+def load_policy(checkpoint_path: str, obs_dim: int, action_dim: int) -> torch.nn.Module:
     """
     Load a trained RSL-RL actor network from a checkpoint.
 
@@ -60,7 +60,6 @@ def load_policy(checkpoint_path: str, obs_dim: int) -> torch.nn.Module:
         state_dict = ckpt
 
     # Build a simple MLP actor matching the network config (256, 128, 64 + ELU)
-    action_dim = ACTION_DIMS.get("nav", 3)  # updated below by caller
     actor = _build_mlp_actor(obs_dim, action_dim)
 
     # Filter state dict to actor keys only
@@ -70,17 +69,13 @@ def load_policy(checkpoint_path: str, obs_dim: int) -> torch.nn.Module:
         if k.startswith("actor.")
     }
     if not actor_state:
-        # Some RSL-RL versions use different key prefix
-        actor_state = {
-            k: v for k, v in state_dict.items() if "actor" not in k or "critic" not in k
-        }
+        raise RuntimeError(
+            "No 'actor.*' keys found in checkpoint. "
+            "Ensure the checkpoint was saved by RSL-RL with the actor-critic architecture. "
+            f"Available top-level keys: {list(state_dict.keys())[:10]}"
+        )
 
-    try:
-        actor.load_state_dict(actor_state, strict=True)
-    except RuntimeError:
-        actor.load_state_dict(actor_state, strict=False)
-        print("WARNING: Partial state dict loaded — check layer dimensions.")
-
+    actor.load_state_dict(actor_state, strict=True)
     return actor
 
 
@@ -200,7 +195,7 @@ def main():
     print(f"Loading {args.type} policy from {checkpoint}")
     print(f"  obs_dim={obs_dim}, action_dim={action_dim}")
 
-    model = load_policy(checkpoint, obs_dim)
+    model = load_policy(checkpoint, obs_dim, action_dim)
     model.eval()
 
     onnx_path = None

@@ -42,6 +42,7 @@ Subscribed topics
 
 import math
 import os
+import threading
 
 import yaml
 from ament_index_python.packages import get_package_share_directory
@@ -54,11 +55,22 @@ from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
 from std_msgs.msg import Bool, String
+import time as _wall_time
+
+try:
+    import tf2_ros
+    import tf2_geometry_msgs
+    _TF2_AVAILABLE = True
+except ImportError:
+    _TF2_AVAILABLE = False
 
 # RL nav arrival detection: subscribe to /rl_nav/goal distance feedback
 # via /odom. Mission planner polls for arrival using a simple timer.
 _RL_NAV_ARRIVAL_POLL_HZ = 2.0  # Hz
 _RL_NAV_GOAL_TOLERANCE = 0.30  # m — slightly looser than rl_nav_node's own tol
+_DEFAULT_NAV2_TIMEOUT = 300.0  # s — abort if Nav2 navigation takes longer
+_DEFAULT_VLA_TIMEOUT = 120.0  # s — VLA task timeout (task is fire-and-forget)
+_DEFAULT_RL_ARM_TIMEOUT = 120.0  # s — RL arm task timeout
 
 
 class MissionPlanner(Node):
@@ -78,6 +90,17 @@ class MissionPlanner(Node):
 
         self._cb_group = ReentrantCallbackGroup()
 
+        # Thread safety for _mission dict (accessed from multiple callbacks)
+        self._mission_lock = threading.Lock()
+
+        # TF2 buffer for frame transforms (odom → map)
+        if _TF2_AVAILABLE:
+            self._tf_buffer = tf2_ros.Buffer()
+            self._tf_listener = tf2_ros.TransformListener(self._tf_buffer, self)
+        else:
+            self._tf_buffer = None
+            self._tf_listener = None
+
         # ── Named locations database ──────────────────────────────────────────
         self._locations: dict = {}
         self._load_locations()
@@ -89,6 +112,7 @@ class MissionPlanner(Node):
         self._rl_nav_goal: PoseStamped | None = None  # for arrival polling
         self._odom_x: float = 0.0
         self._odom_y: float = 0.0
+        self._phase_deadline: float = 0.0  # wall-clock deadline for current phase
 
         # ── Publishers ────────────────────────────────────────────────────────
         self._mode_pub = self.create_publisher(String, "/control_mode", 10)
@@ -132,6 +156,8 @@ class MissionPlanner(Node):
         self.create_timer(2.0, self._publish_status)
         # Poll RL nav arrival at _RL_NAV_ARRIVAL_POLL_HZ
         self.create_timer(1.0 / _RL_NAV_ARRIVAL_POLL_HZ, self._poll_rl_nav_arrival)
+        # Check phase timeouts at 1 Hz
+        self.create_timer(1.0, self._check_phase_timeout)
 
         self.get_logger().info(
             f"MissionPlanner ready. Known locations: {sorted(self._locations.keys())}"
@@ -219,13 +245,15 @@ class MissionPlanner(Node):
             return
 
         self.get_logger().info(f"New mission: {mission}")
-        self._mission = mission
+        with self._mission_lock:
+            self._mission = mission
         self._execute_mission()
 
     def _on_cancel(self, _msg: String) -> None:
         self.get_logger().info(f'Mission cancelled (was phase="{self._phase}").')
         self._phase = "idle"
-        self._mission = None
+        with self._mission_lock:
+            self._mission = None
         self._rl_nav_goal = None
         self._set_mode("nav2")  # return base control to Nav2
         self._set_arm_mode("policy")  # return arm control to SmolVLA
@@ -238,12 +266,14 @@ class MissionPlanner(Node):
     # ── Execution ─────────────────────────────────────────────────────────────
 
     def _execute_mission(self) -> None:
-        if self._mission is None:
+        with self._mission_lock:
+            mission = self._mission
+        if mission is None:
             return
 
-        if "navigate" in self._mission:
+        if "navigate" in mission:
             # Phase 1 (Nav2): navigate to named location
-            location = self._mission["navigate"]
+            location = mission["navigate"]
             pose = self._resolve_location(location)
             if pose is None:
                 self.get_logger().error(
@@ -256,6 +286,7 @@ class MissionPlanner(Node):
 
             self._phase = "navigating"
             self._set_mode("nav2")
+            self._phase_deadline = _wall_time.time() + _DEFAULT_NAV2_TIMEOUT
             self._publish_status()
             self.get_logger().info(
                 f'[Phase 1/2] Navigating to "{location}" '
@@ -263,9 +294,9 @@ class MissionPlanner(Node):
             )
             self._send_nav2_goal(pose)
 
-        elif "rl_nav" in self._mission:
+        elif "rl_nav" in mission:
             # Phase 1b (RL nav): short-range RL navigation to named location
-            location = self._mission["rl_nav"]
+            location = mission["rl_nav"]
             pose = self._resolve_location(location)
             if pose is None:
                 self.get_logger().error(
@@ -277,11 +308,11 @@ class MissionPlanner(Node):
                 return
             self._start_rl_nav_phase(pose, location)
 
-        elif "vla" in self._mission:
+        elif "vla" in mission:
             # VLA-only mission — skip navigation
             self._start_vla_phase()
 
-        elif "rl_arm" in self._mission:
+        elif "rl_arm" in mission:
             # RL arm only — skip navigation
             self._start_rl_arm_phase()
 
@@ -332,7 +363,9 @@ class MissionPlanner(Node):
 
     def _on_nav2_result(self, future) -> None:
         self.get_logger().info("Nav2 navigation complete.")
-        if self._mission and "vla" in self._mission:
+        with self._mission_lock:
+            has_vla = self._mission and "vla" in self._mission
+        if has_vla:
             self._start_vla_phase()
         else:
             self._phase = "done"
@@ -361,12 +394,36 @@ class MissionPlanner(Node):
 
         gx = self._rl_nav_goal.pose.position.x
         gy = self._rl_nav_goal.pose.position.y
-        dist = math.sqrt((gx - self._odom_x) ** 2 + (gy - self._odom_y) ** 2)
+
+        rx, ry = self._odom_x, self._odom_y
+
+        # Transform odom-frame position to map frame if TF2 is available.
+        # Without TF2, we assume odom ≡ map (valid before SLAM corrections).
+        if self._tf_buffer is not None:
+            try:
+                odom_pose = PoseStamped()
+                odom_pose.header.frame_id = "odom"
+                odom_pose.header.stamp = self.get_clock().now().to_msg()
+                odom_pose.pose.position.x = rx
+                odom_pose.pose.position.y = ry
+                odom_pose.pose.orientation.w = 1.0
+                map_pose = self._tf_buffer.transform(
+                    odom_pose, "map", timeout=rclpy.duration.Duration(seconds=0.5)
+                )
+                rx = map_pose.pose.position.x
+                ry = map_pose.pose.position.y
+            except Exception:
+                pass  # fallback to raw odom coordinates
+
+        dist = math.sqrt((gx - rx) ** 2 + (gy - ry) ** 2)
 
         if dist < _RL_NAV_GOAL_TOLERANCE:
             self.get_logger().info("[RL Phase 1] RL navigation goal reached.")
             self._rl_nav_goal = None
-            if self._mission and "rl_arm" in self._mission:
+            self._phase_deadline = 0.0
+            with self._mission_lock:
+                has_arm = self._mission and "rl_arm" in self._mission
+            if has_arm:
                 self._start_rl_arm_phase()
             else:
                 self._phase = "done"
@@ -374,13 +431,39 @@ class MissionPlanner(Node):
                 self._publish_status()
                 self.get_logger().info("Mission complete (rl_nav-only).")
 
+    # ── Phase timeouts ────────────────────────────────────────────────────────
+
+    def _check_phase_timeout(self) -> None:
+        """Abort any phase that exceeds its deadline."""
+        if self._phase in ("idle", "done"):
+            return
+        if self._phase_deadline == 0.0:
+            return
+
+        now = _wall_time.time()
+        if now < self._phase_deadline:
+            return
+
+        self.get_logger().warn(
+            f'Phase "{self._phase}" timed out after '
+            f"{now - self._phase_deadline + _DEFAULT_NAV2_TIMEOUT:.0f}s. "
+            "Aborting mission."
+        )
+        self._phase = "done"
+        self._set_mode("nav2")
+        self._set_arm_mode("policy")
+        self._phase_deadline = 0.0
+        self._publish_status()
+
     # ── RL arm phase ──────────────────────────────────────────────────────────
 
     def _start_rl_arm_phase(self) -> None:
-        task = self._mission.get("rl_arm", "") if self._mission else ""
+        with self._mission_lock:
+            task = self._mission.get("rl_arm", "") if self._mission else ""
         self.get_logger().info(f'[RL Phase 2] RL arm task — "{task}"')
         self._phase = "rl_arm"
         self._set_arm_mode("rl_arm")
+        self._phase_deadline = _wall_time.time() + _DEFAULT_RL_ARM_TIMEOUT
         self._publish_status()
         # Note: rl_arm_node reads /rl_arm/target_pose from rl_object_pose_node.
         # Mission planner does not need to supply a specific target — the pose
@@ -392,11 +475,12 @@ class MissionPlanner(Node):
     # ── VLA phase ─────────────────────────────────────────────────────────────
 
     def _start_vla_phase(self) -> None:
-        task = self._mission.get("vla", "")
-        self.get_logger().info(f'[Phase 2/2] Starting VLA task — "{task}"')
+        with self._mission_lock:
+            task = self._mission.get("vla", "") if self._mission else ""
         self._phase = "vla"
         self._set_mode("vla")
         self._set_arm_mode("policy")
+        self._phase_deadline = _wall_time.time() + _DEFAULT_VLA_TIMEOUT
         self._publish_status()
 
         # SmolVLA: set task description then enable inference
@@ -435,7 +519,9 @@ class MissionPlanner(Node):
         self.get_logger().info(f"[MissionPlanner] Arm mode → {mode}")
 
     def _publish_status(self) -> None:
-        mission_str = str(self._mission) if self._mission else "none"
+        with self._mission_lock:
+            mission = self._mission
+        mission_str = str(mission) if mission else "none"
         msg = String()
         msg.data = f"phase={self._phase} mission={mission_str}"
         self._status_pub.publish(msg)

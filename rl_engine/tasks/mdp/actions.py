@@ -35,8 +35,9 @@ MAX_ANG_VEL = 1.00  # rad/s — hardware limit
 MAX_DELTA = 0.05  # m/s per step — mirrors Yahboom ramp limiter at 20 Hz
 
 # SO-101 joint limits (rad) — from arm_params.yaml / URDF
-ARM_JOINT_MIN = torch.tensor([-3.14, -1.57, -1.69, -1.66, -2.74, -0.17])
-ARM_JOINT_MAX = torch.tensor([3.14, 1.57, 1.69, 1.66, 2.84, 1.75])
+# Must match arm_driver_node.py defaults and rl_arm_node.py JOINT_MIN/MAX.
+ARM_JOINT_MIN = torch.tensor([-3.14, -1.57, -1.57, -1.57, -3.14, -0.1])
+ARM_JOINT_MAX = torch.tensor([3.14, 1.57, 1.57, 1.57, 3.14, 0.8])
 ARM_MAX_DELTA = 0.05  # rad/step
 
 

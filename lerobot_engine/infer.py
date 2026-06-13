@@ -263,6 +263,13 @@ def main():
 
             obs = {k: dummy_tensor(w, h, device) for k in adapter.image_keys}
             obs[adapter.image_keys[0]] = wrist_t  # wrist is always first
+            if len(adapter.image_keys) > 1:
+                print(
+                    "[WARNING] Policy expects %d cameras but only 1 (wrist) is "
+                    "available. Secondary cameras are fed zeros. "
+                    "Use --camera 0 (e.g., webcam) for single-cam policies."
+                    % len(adapter.image_keys)
+                )
             obs[adapter.state_key] = build_state_tensor(adapter.action_dim, device)
             if adapter.task_key:
                 obs[adapter.task_key] = args.task

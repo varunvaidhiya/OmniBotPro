@@ -114,9 +114,22 @@ def generate_launch_description():
                 "wheel_separation_width": 0.215,
                 "wheel_radius": 0.04,
                 "use_sim_time": use_sim_time,
+                # EKF owns odom->base_link TF -- never run two broadcasters
+                # on the same transform (causes TF jitter -> SLAM/Nav2 drift).
+                "publish_tf": False,
+                # Android app subscribes /diagnostics — publish driver health
+                "publish_diagnostics": True,
             }
         ],
         remappings=[("/cmd_vel", "/cmd_vel/out")],
+    )
+
+    # -- Remote rosbag recorder (Android app record button) -----------------
+    rosbag_recorder_node = Node(
+        package="omnibot_hybrid",
+        executable="rosbag_recorder",
+        name="rosbag_recorder",
+        output="screen",
     )
 
     # ── Arm Command Mux (always required) ────────────────────────────────────
@@ -422,6 +435,7 @@ def generate_launch_description():
             autonomous_navigation,
             vla_node,
             cmd_vel_mux_node,
+            rosbag_recorder_node,
             mission_planner_node,
             bev_stitcher_node,
             rosbridge_node,

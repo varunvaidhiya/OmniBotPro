@@ -19,6 +19,7 @@ parameters, or conventions.
 | `data_engine/` | Episode-based dataset collection pipeline |
 | `lerobot_engine/` | Direct LeRobot training/recording/inference scripts (no ROS) |
 | `rl_engine/` | Isaac Lab RL training + ONNX export for sim-to-real |
+| `learning_engine/` | Post-training & continual-learning framework (numpy core, optional torch/VLM) |
 | `digital_twin/` | Contributor simulation environment (Gazebo, Isaac Sim, Foxglove) |
 | `android_app/` | Kotlin MVVM Android controller (ROSBridge WebSocket) |
 | `infra/` | Docker, DevContainers, CI/CD scripts, observability stack |
@@ -48,6 +49,7 @@ OmniBot/
 │       ├── omnibot_lerobot/       # SmolVLA unified 9-DOF policy
 │       ├── omnibot_rl/            # RL inference nodes (nav + arm) + arm_cmd_mux
 │       ├── omnibot_orchestration/ # LangGraph AI orchestration (Claude-backed)
+│       ├── omnibot_perception/    # AI perception: object distance + pose (depth cam)
 │       └── omnibot_firmware/      # Legacy STM32 (not active)
 ├── packages/
 │   ├── yahboom_ros2/              # Pure-Python Yahboom protocol encoder/decoder
@@ -59,6 +61,7 @@ OmniBot/
 ├── data_engine/                   # schema/constants.py, ingestion/, isaac_sim/, tests/
 ├── lerobot_engine/                # train.py, record.py, infer.py, requirements.txt
 ├── rl_engine/                     # Isaac Lab envs, mdp tasks, export, train scripts
+├── learning_engine/               # Post-training loop: collectors, rewards, replay, trainers, verification
 ├── digital_twin/                  # worlds/, scenarios/, docker/, configs/, scripts/
 ├── android_app/                   # Kotlin MVVM app (ROSBridge WebSocket)
 ├── confirmed_protocol.py          # Yahboom protocol reference (root debug script)
@@ -203,7 +206,7 @@ Xbox Joy     ──/joy───────────────────
                                                 │    modes: nav2 | vla | teleop | rl_nav
                                                 │
                                                 ├─ arm_cmd_mux  (/arm/joint_commands/out)
-                                                │    modes: smolvla (default) | rl_arm
+                                                │    modes: policy (default) | rl_arm
                                                 │
                                                 ├─ mission_planner
                                                 │    parses "navigate:X,vla:Y" commands
@@ -259,6 +262,14 @@ VLA Desktop (GPU PC)
 | `/rl_nav/goal` | PoseStamped | `mission_planner`, manual pub | `rl_nav_node` |
 | `/rl_arm/target_pose` | PoseStamped | `rl_object_pose_node` | `rl_arm_node` |
 | `/rl_arm/target_detected` | Bool | `rl_object_pose_node` | `rl_arm_node` |
+| `/perception/objects` | PoseArray | `object_perception_node` | monitoring, Nav2 tooling |
+| `/perception/object_info` | String (JSON) | `object_perception_node` | `langchain_agent_node` |
+| `/perception/nearest_distance` | Float32 | `object_perception_node` | mission logic |
+| `/perception/query_pixel` | PointStamped | any (VLA / agent) | `object_perception_node` |
+| `/perception/query_result` | PoseStamped | `object_perception_node` | requester |
+| `/rosbag_recorder/start` | String | Android | `rosbag_recorder` |
+| `/rosbag_recorder/stop` | Empty | Android | `rosbag_recorder` |
+| `/rosbag_recorder/status` | String | `rosbag_recorder` | Android, monitoring |
 | `/emergency_stop` | Bool | Android | `yahboom_controller_node` |
 | `/robot_mode` | String | Android | *(monitoring only — does not control mux)* |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
@@ -319,6 +330,19 @@ Nav2 + SLAM + EKF. Config files live in `config/`:
 `rtabmap_params.yaml`, `octomap_params.yaml`, `waypoints.yaml`.
 
 AMCL uses `OmnidirectionalMotionModel` (correct for mecanum).
+
+**EKF (`robot_localization.yaml`)**: wheel odom fused as VELOCITIES ONLY
+(vx, vy, vyaw — mecanum slip makes absolute encoder pose untrustworthy);
+IMU fused as differential orientation + angular velocity, linear accel
+disabled (noisy MEMS). Exactly ONE odom→base_link TF broadcaster: the EKF.
+Every launch that starts both the driver and ekf_node must set the driver's
+`publish_tf: False` (robot.launch.py, hybrid_robot.launch.py,
+master/omnibot_pi.launch.py all do).
+
+**rosbag_recorder** (`omnibot_hybrid`): remote-controlled `ros2 bag record`
+for the Android app. `/rosbag_recorder/start` (String bag name),
+`/rosbag_recorder/stop` (Empty), status on `/rosbag_recorder/status`.
+Records a curated telemetry set by default (`record_all:=true` for -a).
 
 ### `omnibot_vla`
 
@@ -460,7 +484,7 @@ Active only when `/arm/cmd_mode == "rl_arm"`.
 
 **`arm_cmd_mux.py`** — arm command multiplexer (mirrors cmd_vel_mux design).
 
-Valid modes: `"smolvla"` (default, transparent pass-through), `"rl_arm"`.
+Valid modes: `"policy"` (default, transparent pass-through), `"rl_arm"`.
 Inputs: `/arm/joint_commands` (SmolVLA), `/arm/joint_commands/rl` (RL arm node).
 Output: `/arm/joint_commands/out` → `arm_driver_node`.
 Mode feedback on `/arm/cmd_mode/active` at 1 Hz.
@@ -482,6 +506,38 @@ Uses TF2 to transform wrist_camera_link → base_link.
 Config files: `robot_ws/src/omnibot_rl/config/rl_nav_params.yaml`,
 `robot_ws/src/omnibot_rl/config/rl_arm_params.yaml`.
 Launch: `robot_ws/src/omnibot_rl/launch/rl_inference.launch.py`.
+
+### `omnibot_perception`
+
+Modular AI perception. **`object_perception_node.py`** measures object
+distance + estimates pose from the Astra depth camera. Two backends chosen
+automatically: YOLO (`ultralytics`, optional) with depth-fused 3-D positions,
+or dependency-free depth-band clustering (connected components + PCA yaw).
+Publishes `/perception/objects` (PoseArray, base_link), `/perception/object_info`
+(JSON), `/perception/nearest_distance` (Float32), `/perception/markers` (RViz).
+Answers pixel queries: `/perception/query_pixel` → `/perception/query_result`.
+Launched by `perception.launch.py` (`ai_perception:=true` default) or
+standalone: `ros2 launch omnibot_perception perception_ai.launch.py`.
+Config: `robot_ws/src/omnibot_perception/config/perception_params.yaml`.
+`langchain_agent_node` consumes `/perception/object_info` and appends metric
+detections to `observe_node` scene descriptions.
+
+### BEV stitcher (geometric IPM)
+
+`omnibot_lerobot/bev_stitcher_node.py` now computes geometric IPM
+homographies from URDF camera poses when no calibration file exists —
+producing a true fused top-down BEV (no more 2×2 tiling). Params:
+`bev_range_m` (2.0), `camera_hfov` (1.745), `camera_height` (0.0885),
+`cam_{front,rear,left,right}_pose` [x, y, yaw]. A calibration file
+(`~/omnibot_bev_calibration.npz`) still takes priority when present.
+
+### Nav2 motion limits (must match driver)
+
+`nav2_params.yaml` velocities are capped at 0.20 m/s and accelerations at
+1.0 m/s² to match the Yahboom driver's hardcoded clamp (0.2 m/s) and ramp
+limiter (0.05 m/s per 20 Hz tick). `min_vel_x` is −0.20 (omnidirectional
+reverse allowed), `vy_samples: 10`. `depthimage_to_laserscan` must use
+`output_frame: depth_camera_link` (x-forward), never the optical frame.
 
 ---
 
@@ -506,6 +562,68 @@ python rl_engine/export/export_policy.py \
   --checkpoint ~/logs/omnibot_nav/checkpoints/model_2000.pt \
   --output ~/models/omnibot_nav_policy.onnx --type nav
 # Copy .onnx to robot, then launch with use_rl:=true
+```
+
+---
+
+## Learning Engine (`learning_engine/`)
+
+Modular post-training & continual-learning framework — see
+`learning_engine/ARCHITECTURE.md` for the full design. Architecture-first:
+every layer is a pluggable component behind `learning_engine/core/interfaces.py`,
+registered by name in `core/registry.py` and assembled from config
+(`configs/learning_loop.yaml`).
+
+Layers: data collection (teleop/sim/real/rosbag collectors → on-disk
+`ReplayDataset`, npz+json), simulation adapters (Isaac Lab, MuJoCo, ManiSkill,
+Gazebo) + curriculum/domain randomization, multi-objective `RewardEngine`
+(task/dense/safety/efficiency/smoothness terms), vision rewards & AI judges
+(`VLMClient`, Claude by default), self-evaluation (reflection + heuristic
+fallback), experience replay (PER + outcome-stratified episodic store),
+interchangeable trainers (BC, offline RL/AWR; `online_rl` delegates to
+`rl_engine`, `finetune_smolvla` delegates to `lerobot_engine`),
+`PostTrainingLoop` + `ContinualLearningScheduler` (triggers: new episodes /
+new tasks / staleness), and `InferenceVerifier` (Best-of-N with hard
+safety/reachability checks using the real hardware limits).
+
+Key conventions:
+- Observations are `Dict[str, np.ndarray]` with keys in
+  `learning_engine/data/schema.py` (`state` 9-D = arm ×6 + base ×3) — must
+  stay aligned with `data_engine/schema/constants.py`.
+- Core imports need only numpy; torch/lerobot/isaaclab/anthropic/rclpy are
+  optional and imported lazily inside the components that need them.
+- ROS integration: `learning_engine/ros2/episode_logger_node.py` runs on the
+  Pi, records post-mux commands + observations, segments episodes via
+  `/learning/episode/start|stop` or `/mission/status`; topic names live in
+  `learning_engine/ros2/topics.py` and must mirror this file's topic map.
+
+**Hardware portability** (`learning_engine/hardware/`): all hardware
+knowledge is isolated here — every component takes `device="auto"` (resolved
+by `resolve_device()` → cuda/mps/cpu) and ONNX policies call
+`onnx_providers()` (TensorRT-first on Jetson; CUDA on the dGPU workstation
+with TensorRT opt-in via `prefer_tensorrt=True`; CoreML on Apple Silicon;
+CPU elsewhere). Named deployment topologies in `hardware/profiles.py`:
+`pi_workstation` (= deploy.py multi), `workstation_single` (= deploy.py
+single), `jetson_single`, `pi_accelerator_workstation` (Hailo/Coral),
+`mac_dev`. `OMNIBOT_HW_PROFILE` env var forces a profile; else
+`detect_profile()` guesses. Add a target = one row in `detect_accelerators()`
++ one EP-preference row + optionally one profile.
+
+**Benchmarking** (`learning_engine/benchmarks/`): `run.py` CLI runs the same
+inference/training/dataset suites on any target under a `ResourceMonitor`
+(CPU/GPU util, mem, power, temp via psutil/pynvml/tegrastats), bundling AI
+metrics + hardware telemetry + a `SystemInfo` snapshot. Reporters publish to
+W&B (`WandbReporter` — SystemInfo → run config, grouped by hw profile),
+Prometheus (`PrometheusReporter` — `/metrics` HTTP on port 8890, already a
+scrape target in `infra/observability/prometheus/prometheus.yml`; or
+node_exporter textfile on the Pi), and JSON artifacts. `PostTrainingLoop`
+accepts the same `reporters=[...]` so continual-learning metrics stream too.
+
+```bash
+# Tests (stdlib unittest, no optional deps needed)
+python3 -m unittest discover -s learning_engine/tests -t .
+# Benchmark this machine (auto-detects accelerator + profile)
+python3 -m learning_engine.benchmarks.run --suite inference,training,dataset
 ```
 
 ---

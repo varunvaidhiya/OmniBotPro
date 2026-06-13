@@ -319,9 +319,11 @@ def main():
     print("\nStarting training...\n")
     best_eval_loss = float("inf")
     global_step = 0
+    epoch = 0
 
-    for epoch in range(1, args.num_epochs + 1):
-        policy_model.train()
+    try:
+        for epoch in range(1, args.num_epochs + 1):
+            policy_model.train()
         epoch_loss, n_batches = 0.0, 0
 
         for batch_idx, batch in enumerate(train_loader):
@@ -360,7 +362,7 @@ def main():
         avg_loss = epoch_loss / max(n_batches, 1)
         eval_loss = (
             compute_eval_loss(policy_model, eval_loader, device)
-            if eval_loader
+            if eval_loader and len(eval_loader.dataset) > 0
             else float("nan")
         )
         is_best = eval_loss < best_eval_loss
@@ -416,12 +418,16 @@ def main():
                     best_artifact, aliases=["best", f"epoch-{epoch:04d}"]
                 )
 
+    except Exception:
+        print(f"\nTraining interrupted at epoch {epoch}")
+        raise
+    finally:
+        if wandb_run is not None:
+            wandb.summary["best_eval_loss"] = best_eval_loss
+            wandb_run.finish()
+
     print(f"\nTraining complete. Best eval loss: {best_eval_loss:.6f}")
     print(f"  Best checkpoint: {output_dir / 'best'}")
-
-    if wandb_run is not None:
-        wandb.summary["best_eval_loss"] = best_eval_loss
-        wandb_run.finish()
 
 
 if __name__ == "__main__":

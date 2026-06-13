@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnibot-learning-engine"
+version = "0.1.0"
+description = "Modular post-training and continual-learning framework for OmniBot"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+yaml = ["pyyaml>=6.0"]
+train = ["torch>=2.1"]
+onnx = ["onnxruntime>=1.16"]
+vlm = ["anthropic>=0.40", "pillow>=10.0"]
+lerobot = ["lerobot>=0.1"]
+sim = ["gymnasium>=0.29"]
+bench = ["psutil>=5.9", "pynvml>=11.5", "wandb>=0.16"]
+all = [
+    "pyyaml>=6.0", "torch>=2.1", "onnxruntime>=1.16",
+    "anthropic>=0.40", "pillow>=10.0", "gymnasium>=0.29",
+    "psutil>=5.9", "pynvml>=11.5", "wandb>=0.16",
+]
+
+# pyproject lives inside the package directory (repo-root/learning_engine),
+# so packages are declared explicitly with the dir mapped onto the package name.
+[tool.setuptools]
+package-dir = {"learning_engine" = "."}
+packages = [
+    "learning_engine",
+    "learning_engine.core",
+    "learning_engine.data",
+    "learning_engine.sim",
+    "learning_engine.rewards",
+    "learning_engine.evaluation",
+    "learning_engine.replay",
+    "learning_engine.policies",
+    "learning_engine.verification",
+    "learning_engine.loop",
+    "learning_engine.ros2",
+    "learning_engine.hardware",
+    "learning_engine.benchmarks",
+]

@@ -1,9 +1,15 @@
+import logging
+import re
+from typing import Union, List, Dict, Any
+
+import numpy as np
 import torch
 from PIL import Image
 from transformers import AutoModelForVision2Seq, AutoProcessor
+
 from .base import VLAModel
-from typing import Union, List, Dict, Any
-import numpy as np
+
+logger = logging.getLogger(__name__)
 
 
 class OpenVLAModel(VLAModel):
@@ -29,7 +35,7 @@ class OpenVLAModel(VLAModel):
             model_path: HuggingFace model ID or local path.
             load_in_4bit: Whether to load in 4-bit quantization (requires bitsandbytes).
         """
-        print(f"Loading OpenVLA model from {model_path} on {self.device}...")
+        logger.info("Loading OpenVLA model from %s on %s...", model_path, self.device)
 
         self.processor = AutoProcessor.from_pretrained(
             model_path, trust_remote_code=True
@@ -49,13 +55,36 @@ class OpenVLAModel(VLAModel):
         if not load_in_4bit:
             self.model.to(self.device)
 
-        print("Model loaded successfully.")
+        logger.info("Model loaded successfully.")
+
+    @staticmethod
+    def _parse_action_vector(text: str) -> List[float]:
+        """
+        Extract an action vector from OpenVLA's generated text.
+
+        OpenVLA models output action tokens that decode to numeric text.
+        The typical format is a sequence of numbers (space/comma separated)
+        representing the action dimensions.  We extract the *last* contiguous
+        group of numbers found in the text so that preceding instruction text
+        is ignored.
+        """
+        matches = list(re.finditer(r"-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?", text))
+        if not matches:
+            logger.warning(
+                "Could not parse action vector from generated text: %r", text
+            )
+            return []
+        return [float(m.group()) for m in matches]
 
     def predict_action(
         self, image: Union[Image.Image, np.ndarray], instruction: str, **kwargs
     ) -> Union[List[float], Dict[str, Any]]:
         """
         Run inference using OpenVLA.
+
+        Returns:
+            dict with 'vector' (list of float action values) and
+            'raw_output' (raw generated text).
         """
         if self.model is None:
             raise RuntimeError("Model not loaded. Call load_model() first.")
@@ -68,8 +97,6 @@ class OpenVLAModel(VLAModel):
         )
 
         with torch.inference_mode():
-            # OpenVLA specific generation
-            # TODO: Fine-tune generation parameters for specific robot action space if needed
             generated_ids = self.model.generate(
                 **inputs, max_new_tokens=128, do_sample=False
             )
@@ -78,9 +105,5 @@ class OpenVLAModel(VLAModel):
             generated_ids, skip_special_tokens=True
         )[0]
 
-        # Post-process the text to extract action vector if the model outputs raw text tokens
-        # For OpenVLA, it typically outputs a specific format or we might need to parse it.
-        # Assuming standard OpenVLA behavior which might need adaptation for this specific robot's joint space.
-
-        # Placeholder parsing logic - in a real scenario, we'd parse the action tokens
-        return {"raw_output": generated_text}
+        action_vector = self._parse_action_vector(generated_text)
+        return {"vector": action_vector, "raw_output": generated_text}

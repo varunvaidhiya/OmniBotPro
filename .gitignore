@@ -25,3 +25,21 @@ coverage.xml
 htmlcov/
 *.egg-info/
 .claude/settings.json
+
+# Secrets and deployment config
+.env
+deployment.env
+!deployment.env.example
+!*.env.example
+
+# Build artifacts
+dist/
+*.onnx
+*.pt
+*.pth
+
+# Python
+.eggs/
+*.so
+*.pyd
+site/

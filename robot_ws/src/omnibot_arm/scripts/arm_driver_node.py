@@ -367,8 +367,14 @@ class ArmDriverNode(Node):
     # ------------------------------------------------------------------
 
     def destroy_node(self):
-        """Disconnect buses before shutdown."""
+        """Disable torque then disconnect buses before shutdown."""
         if self.follower_bus is not None:
+            try:
+                torque_off = {name: 0 for name in self.joint_names}
+                self.follower_bus.write("Torque_Enable", torque_off)
+                self.get_logger().info("Arm torque disabled before shutdown.")
+            except Exception as exc:
+                self.get_logger().warn(f"Error disabling torque: {exc}")
             try:
                 self.follower_bus.disconnect()
                 self.get_logger().info("Follower bus disconnected.")

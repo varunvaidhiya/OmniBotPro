@@ -26,9 +26,13 @@ class CameraViewModel @Inject constructor(
         viewModelScope.launch {
             repository.robotStatus.collect { status ->
                 if (status.isConnected && status.ipAddress.isNotEmpty()) {
-                    // ros_web_video_server default port is 8080
-                    // Topic: /camera/image_raw
-                    val url = "http://${status.ipAddress}:8080/stream?topic=/camera/image_raw&type=mjpeg&quality=50"
+                    // ros_web_video_server default port is 8080.
+                    // /camera/front/image_raw is the forward base camera
+                    // (the old /camera/image_raw topic no longer exists).
+                    // Other streams: /camera/base/bev/image_raw (top-down BEV),
+                    // /camera/color/image_raw (Astra RGB, rear-facing),
+                    // /camera/wrist/image_raw (gripper cam).
+                    val url = "http://${status.ipAddress}:8080/stream?topic=/camera/front/image_raw&type=mjpeg&quality=50"
                     _streamUrl.value = url
                 }
             }

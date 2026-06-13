@@ -184,7 +184,14 @@ def parse_rx_buffer(data: bytes) -> List[Tuple[int, RxPacket]]:
 
         pkt = data[idx : idx + total]
         pkt_type = pkt[3]
-        payload = pkt[4:-1]
+        payload = pkt[4:-1]  # exclude header (4 bytes) and checksum (1 byte)
+
+        # Verify RX checksum: sum(len, type, payload bytes) & 0xFF
+        expected_cs = sum(pkt[2:-1]) & 0xFF
+        actual_cs = pkt[-1]
+        if expected_cs != actual_cs:
+            idx += 1  # scan forward; don't swallow the whole packet
+            continue
 
         parsed: Optional[RxPacket] = None
 

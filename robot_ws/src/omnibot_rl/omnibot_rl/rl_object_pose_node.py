@@ -299,8 +299,10 @@ class RLObjectPoseNode(Node):
         h, w = self._depth_img.shape[:2]
         if 0 <= ix < w and 0 <= iy < h:
             depth_val = float(self._depth_img[iy, ix])
-            if depth_val > 0:
-                z_m = depth_val * self._depth_scale / 1000.0  # mm → m
+            z_m = depth_val * self._depth_scale / 1000.0  # mm → m
+            # Only refine if depth is physically plausible (0.05 m – 3.0 m)
+            # to avoid replacing solvePnP estimates with sensor noise/zeros.
+            if 0.05 <= z_m <= 3.0:
                 pos_cam = pos_cam.copy()
                 pos_cam[2] = z_m
         return pos_cam

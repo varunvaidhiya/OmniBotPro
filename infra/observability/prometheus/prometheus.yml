@@ -63,6 +63,19 @@ scrape_configs:
           machine: gpu_desktop
           layer: gpu
 
+  # ── learning_engine hardware/AI benchmarks ───────────────────────────────
+  # PrometheusReporter HTTP mode exposes /metrics on port 8890 (see
+  # `python3 -m learning_engine.benchmarks.run --prom-port 8890`). Point this
+  # at whichever target you are benchmarking (Pi, Jetson, workstation, Mac).
+  # On the Pi prefer node_exporter textfile mode instead (--prom-textfile).
+  - job_name: omnibot_benchmarks
+    static_configs:
+      - targets: ["localhost:8890"]
+        labels:
+          layer: benchmark
+    metrics_path: /metrics
+    honor_labels: true   # keep the host/accelerator/device labels the reporter sets
+
   # ── Prometheus self-monitoring ────────────────────────────────────────────
   - job_name: prometheus
     static_configs:
