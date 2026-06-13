@@ -42,6 +42,22 @@ const WHEEL_Y = 0.215 / 2;
 // the mecanum tread clears the chassis instead of clipping up through it.
 const WHEEL_Y_VIS = 0.142;
 
+/* ── SO-101 arm IK constants (metres, expressed in root-local space) ──────
+   The shoulder/pan joint sits on the top plate, SH_X forward of the robot
+   centre at height SH_Y. We treat the arm as a 2-link planar chain in the
+   vertical plane chosen by the pan joint: an upper arm (IK_L1) and a combined
+   forearm+gripper segment (IK_LB) whose tip is the grasp centre between the
+   jaws. The shoulder is ~0.316 m up while the whole arm is only ~0.32 m long,
+   so the gripper physically CANNOT touch the floor — instead we grab a point
+   on the camera→cursor ray (which always reprojects onto the cursor pixel) at
+   a comfortable reach radius GRAB_R. */
+const SH_X = 0.055; // shoulder/pan axis, forward of robot centre
+const SH_Y = 0.316; // shoulder pivot height above the floor
+const IK_L1 = 0.12; // shoulder → elbow
+const IK_LB = 0.2; // elbow → grasp centre (forearm + gripper)
+const ARM_MAX = (IK_L1 + IK_LB) * 0.985; // max straight-arm reach (~0.315 m)
+const GRAB_R = 0.27; // reach radius at which we try to clamp the cursor ray
+
 /* convert URDF (x,y,z) → three position tuple */
 const P = (x: number, y: number, z: number): [number, number, number] => [x, z, -y];
 
@@ -336,7 +352,7 @@ export default function OmniBotModel() {
     const dt = Math.min(dtRaw, 0.05);
     const k = keys.current;
 
-    /* ── 1. where is the cursor sitting on the floor? ── */
+    /* ── 1. cursor → floor goal (for the base) + keep the ray (for the arm) ── */
     ray.setFromCamera(pointer, camera);
     if (ray.ray.intersectPlane(groundPlane, hit)) {
       // keep the goal inside the arena so the base never chases out of frame
@@ -351,8 +367,51 @@ export default function OmniBotModel() {
       goal.current.x += (hit.x - goal.current.x) * gl;
       goal.current.z += (hit.z - goal.current.z) * gl;
     }
+    const ox = ray.ray.origin.x, oy = ray.ray.origin.y, oz = ray.ray.origin.z;
+    const dxr = ray.ray.direction.x, dyr = ray.ray.direction.y, dzr = ray.ray.direction.z;
 
-    /* ── 2. decide target body velocities ── */
+    // pose captured before integration; used for the ray maths and the arm IK
+    const h = heading.current;
+    const rx = root.current?.position.x ?? 0;
+    const rz = root.current?.position.z ?? 0;
+
+    /* ── 2. where can the arm grab the cursor? ──────────────────────────────
+       The shoulder is on the pan axis, SH_X ahead of centre at height SH_Y. */
+    const sx = rx + SH_X * Math.cos(h);
+    const sy = SH_Y;
+    const sz = rz - SH_X * Math.sin(h);
+
+    // closest approach of the cursor ray to the shoulder
+    const ocx = ox - sx, ocy = oy - sy, ocz = oz - sz;
+    const ocDotD = ocx * dxr + ocy * dyr + ocz * dzr;
+    const tStar = Math.max(0.01, -ocDotD);
+    const cpx = ox + dxr * tStar, cpy = oy + dyr * tStar, cpz = oz + dzr * tStar;
+    const distCP = Math.hypot(cpx - sx, cpy - sy, cpz - sz); // perp distance to ray
+
+    // intersect the cursor ray with a sphere of radius GRAB_R around the
+    // shoulder → a point that is BOTH reachable AND on the cursor's line of
+    // sight (so the gripper visually lands on the cursor pixel)
+    const disc = ocDotD * ocDotD - (ocx * ocx + ocy * ocy + ocz * ocz - GRAB_R * GRAB_R);
+    const cursorReachable = disc >= 0;
+    let atx: number, aty: number, atz: number; // arm target (world)
+    if (cursorReachable) {
+      const sq = Math.sqrt(disc);
+      const tFar = -ocDotD + sq; // lower / into-the-scene intersection
+      const tNear = -ocDotD - sq;
+      let tg = tFar;
+      if (oy + dyr * tFar < 0.05) tg = tNear; // don't dive under the floor
+      atx = ox + dxr * tg;
+      aty = oy + dyr * tg;
+      atz = oz + dzr * tg;
+    } else {
+      // ray is farther than we can reach → aim at the closest point, clamped
+      const f = ARM_MAX / Math.max(distCP, 1e-3);
+      atx = sx + (cpx - sx) * f;
+      aty = sy + (cpy - sy) * f;
+      atz = sz + (cpz - sz) * f;
+    }
+
+    /* ── 3. base: manual override, else pursue the floor goal ── */
     const FWD = 0.55;
     const STRAFE = 0.5;
     const TURN = 1.6;
@@ -360,18 +419,16 @@ export default function OmniBotModel() {
       ty = 0,
       tw = 0;
 
-    // arrow keys / WASD take over as a manual override
     const manual =
       k["arrowup"] || k["arrowdown"] || k["arrowleft"] || k["arrowright"] ||
       k["w"] || k["a"] || k["s"] || k["d"] || k["q"] || k["e"];
 
+    const dgx = goal.current.x - rx;
+    const dgz = goal.current.z - rz;
+    const distGoal = Math.hypot(dgx, dgz);
     // body-frame vector to the goal (forward = +x_body, left strafe = +y_body)
-    const h = heading.current;
-    const dx = goal.current.x - (root.current?.position.x ?? 0);
-    const dz = goal.current.z - (root.current?.position.z ?? 0);
-    const dist = Math.hypot(dx, dz);
-    const bvx = dx * Math.cos(h) - dz * Math.sin(h);
-    const bvy = -dx * Math.sin(h) - dz * Math.cos(h);
+    const bvx = dgx * Math.cos(h) - dgz * Math.sin(h);
+    const bvy = -dgx * Math.sin(h) - dgz * Math.cos(h);
 
     if (manual) {
       if (k["arrowup"] || k["w"]) tx += FWD;
@@ -383,26 +440,26 @@ export default function OmniBotModel() {
       grabbing.current = false;
       grabClock.current = 0;
     } else {
-      // autonomous pursuit — drive toward the cursor and rotate to face it.
-      // Hysteresis (enter <0.18 m, leave >0.34 m) keeps the base from buzzing
-      // on the boundary once it settles into grab range.
-      if (grabbing.current ? dist > 0.34 : dist < 0.18) {
+      // grab once the cursor's line of sight comes within arm's reach; drive
+      // the base toward the cursor until then. Hysteresis on the perpendicular
+      // distance keeps it from buzzing on the boundary.
+      if (grabbing.current ? distCP > GRAB_R * 1.18 : distCP < GRAB_R * 0.96) {
         grabbing.current = !grabbing.current;
         grabClock.current = 0;
       }
 
-      if (!grabbing.current && dist > 1e-3) {
-        const speed = Math.min(0.5, dist * 2.6); // ease off as we close in
-        tx = (bvx / dist) * speed;
-        ty = (bvy / dist) * speed;
+      if (!grabbing.current && distGoal > 1e-3) {
+        const speed = Math.min(0.5, distGoal * 2.6); // ease off as we close in
+        tx = (bvx / distGoal) * speed;
+        ty = (bvy / distGoal) * speed;
       }
       // turn to face the goal; fade the turn out on arrival so it never spins
       // in place once parked next to the cursor
-      const faceYaw = Math.atan2(-dz, dx);
+      const faceYaw = Math.atan2(-dgz, dgx);
       const yawErr = Math.atan2(Math.sin(faceYaw - h), Math.cos(faceYaw - h));
       tw =
         THREE.MathUtils.clamp(yawErr * 2.6, -TURN, TURN) *
-        THREE.MathUtils.clamp(dist / 0.22, 0, 1);
+        THREE.MathUtils.clamp(distGoal / 0.22, 0, 1);
     }
 
     // smooth (the Yahboom board ramp-limits — mimic it)
@@ -411,7 +468,7 @@ export default function OmniBotModel() {
     vel.current.y += (ty - vel.current.y) * ramp;
     vel.current.w += (tw - vel.current.w) * ramp;
 
-    /* ── 3. integrate pose ── */
+    /* ── 4. integrate pose ── */
     heading.current += vel.current.w * dt;
     const hh = heading.current;
     const dxWorld = (vel.current.x * Math.cos(hh) - vel.current.y * Math.sin(hh)) * dt;
@@ -433,7 +490,7 @@ export default function OmniBotModel() {
       }
     }
 
-    /* ── 4. wheel spin ── */
+    /* ── 5. wheel spin ── */
     wheelSpin.current += (vel.current.x / WHEEL_R) * dt;
     const baseSpin = wheelSpin.current;
     const turn = (vel.current.w * WHEEL_Y) / WHEEL_R;
@@ -442,28 +499,54 @@ export default function OmniBotModel() {
     if (wheelRL.current) wheelRL.current.rotation.z = -(baseSpin - turn);
     if (wheelRR.current) wheelRR.current.rotation.z = -(baseSpin + turn);
 
-    /* ── 5. arm: aim at the cursor, then reach out & grab once parked ── */
-    // pan tracks the goal's bearing in the body frame (≈0 once the base faces it)
-    const targetPan = THREE.MathUtils.clamp(Math.atan2(bvy, bvx), -1.7, 1.7);
+    /* ── 6. arm: 2-link IK so the gripper lands on the cursor ──────────────
+       Express the world target in the shoulder's local frame, pick the pan
+       angle that swings the arm plane onto it, then solve a planar 2-link IK
+       (upper arm IK_L1 + forearm/gripper IK_LB) for the lift & elbow joints. */
+    const relx = atx - rx;
+    const relz = atz - rz;
+    const lxl = relx * Math.cos(h) - relz * Math.sin(h); // root-local x (forward)
+    const lzl = relx * Math.sin(h) + relz * Math.cos(h); // root-local z (left)
+    const axl = lxl - SH_X; // relative to shoulder
+    const ayl = aty - SH_Y;
+    const azl = lzl;
 
-    // extend the arm as we settle into grab range, tuck it for travel
-    reach.current += ((grabbing.current ? 1 : 0) - reach.current) * Math.min(1, 4 * dt);
+    const targetPan = THREE.MathUtils.clamp(Math.atan2(-azl, axl), -1.7, 1.7);
+    const radH = Math.hypot(axl, azl); // horizontal reach in the arm plane
+    let reachD = Math.hypot(radH, ayl);
+    reachD = THREE.MathUtils.clamp(reachD, Math.abs(IK_L1 - IK_LB) + 0.002, (IK_L1 + IK_LB) * 0.999);
+    let c2 = (reachD * reachD - IK_L1 * IK_L1 - IK_LB * IK_LB) / (2 * IK_L1 * IK_LB);
+    c2 = THREE.MathUtils.clamp(c2, -1, 1);
+    const s2 = -Math.sqrt(1 - c2 * c2); // elbow-up: forearm bends down to the target
+    const q2 = Math.atan2(s2, c2);
+    const q1 = Math.atan2(ayl, radH) - Math.atan2(IK_LB * s2, IK_L1 + IK_LB * c2);
+    const ikLift = THREE.MathUtils.clamp(q1, -1.5, 1.0);
+    const ikElbow = THREE.MathUtils.clamp(q2, -1.55, 1.55);
+    const ikWrist = 0; // gripper stays inline so the grasp centre hits the target
+
+    // blend a tucked travel pose → the IK reach pose as the cursor comes in range
+    const reachTarget = grabbing.current
+      ? 1
+      : THREE.MathUtils.clamp((GRAB_R * 1.8 - distCP) / (GRAB_R * 0.8), 0, 1);
+    reach.current += (reachTarget - reach.current) * Math.min(1, 5 * dt);
     const rr = reach.current;
-    const targetLift = THREE.MathUtils.lerp(-0.42, -1.0, rr);
-    const targetElbow = THREE.MathUtils.lerp(1.0, 0.4, rr);
-    const targetWrist = THREE.MathUtils.lerp(0.4, 0.75, rr);
+    const targetLift = THREE.MathUtils.lerp(-0.2, ikLift, rr);
+    const targetElbow = THREE.MathUtils.lerp(1.05, ikElbow, rr);
+    const targetWrist = THREE.MathUtils.lerp(0.5, ikWrist, rr);
 
     // grab animation: hold open while reaching → snap shut → hold → release → retry
-    let targetGrip = 0.5; // jaws open while travelling
-    if (grabbing.current) {
+    let targetGrip = 0.5; // jaws open while travelling / reaching
+    if (grabbing.current && rr > 0.8) {
       grabClock.current += dt;
       const t = grabClock.current;
-      if (t < 0.45) targetGrip = 0.5; // arm still extending — keep jaws open
-      else if (t < 1.4) targetGrip = 0.04; // snap shut and hold the catch
+      if (t < 0.4) targetGrip = 0.5; // settling onto the target — keep jaws open
+      else if (t < 1.4) targetGrip = 0.06; // snap shut and hold the catch
       else {
         targetGrip = 0.5; // let go and try again while the cursor lingers
         grabClock.current = 0;
       }
+    } else if (!grabbing.current) {
+      grabClock.current = 0;
     }
 
     const ease = Math.min(1, 6 * dt);

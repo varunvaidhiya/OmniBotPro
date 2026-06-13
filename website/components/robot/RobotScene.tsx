@@ -32,7 +32,7 @@ export default function RobotScene() {
         toneMappingExposure: 1.0,
         powerPreference: "high-performance",
       }}
-      camera={{ position: [0.64, 0.42, 0.78], fov: 32, near: 0.05, far: 50 }}
+      camera={{ position: [0.78, 1.33, 0.9], fov: 32, near: 0.05, far: 50 }}
       style={{ width: "100%", height: "100%" }}
     >
       {/* subtle depth fade into the page background */}
@@ -122,17 +122,17 @@ export default function RobotScene() {
           infiniteGrid
         />
 
-        {/* drag to orbit · idle auto-rotate · scroll to zoom (clamped) */}
+        {/* drag to orbit · zoom locked · fixed zoomed-out elevated framing so
+            the arm can always reach down to the cursor */}
         <OrbitControls
           makeDefault
           enablePan={false}
-          minDistance={0.8}
+          enableZoom={false}
+          minDistance={1.7}
           maxDistance={1.7}
-          minPolarAngle={0.4}
-          maxPolarAngle={Math.PI / 2 - 0.08}
-          autoRotate
-          autoRotateSpeed={0.42}
-          target={[0, 0.1, 0]}
+          minPolarAngle={0.5}
+          maxPolarAngle={0.9}
+          target={[0, 0.12, 0]}
           enableDamping
           dampingFactor={0.08}
         />
