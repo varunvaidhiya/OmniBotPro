@@ -35,6 +35,9 @@ const WHEEL_R = 0.04;
 const WHEEL_W = 0.037;
 const WHEEL_X = 0.165 / 2;
 const WHEEL_Y = 0.215 / 2;
+// Render the wheels slightly outboard of the plate edge (as in the photos) so
+// the mecanum tread clears the chassis instead of clipping up through it.
+const WHEEL_Y_VIS = 0.142;
 
 /* convert URDF (x,y,z) → three position tuple */
 const P = (x: number, y: number, z: number): [number, number, number] => [x, z, -y];
@@ -194,17 +197,18 @@ function MecanumWheel({
           <torusGeometry args={[WHEEL_R * 0.8, 0.005, 10, 40]} />
         </mesh>
       ))}
-      {/* barrel rollers around the rim */}
+      {/* barrel rollers around the rim — tilted 45° in the tangent/axle plane
+          (the real mecanum tread), NOT pointing radially outward like spikes */}
       {rollers.map(({ phi, ringR, key }) => (
         <group key={key} rotation={[0, 0, phi]}>
           <mesh
             position={[ringR, 0, 0]}
-            rotation={[chir * (Math.PI / 4), 0, Math.PI / 2]}
+            rotation={[chir * (Math.PI / 4), 0, 0]}
             castShadow
             material={mats.roller}
           >
             {/* capsule reads as a barrel roller with rounded ends, no extra meshes */}
-            <capsuleGeometry args={[0.0072, WHEEL_W * 0.86, 4, 10]} />
+            <capsuleGeometry args={[0.0066, WHEEL_W * 0.62, 4, 10]} />
           </mesh>
         </group>
       ))}
@@ -445,42 +449,59 @@ export default function OmniBotModel() {
       {/* cyan status strip on the front edge of the top plate */}
       <RBox size={[0.006, 0.1, 0.004]} pos={[CHASSIS_L / 2 - 0.006, 0, TOP_Z]} mat={mats.accent} radius={0.001} />
 
-      {/* ── front/rear side cameras (OV9732) ── */}
-      <RBox size={[0.03, 0.03, 0.025]} pos={[CHASSIS_L / 2 - 0.015, 0, BASE_Z + 0.0155]} mat={mats.servo} radius={0.003} />
-      <RBox size={[0.03, 0.03, 0.025]} pos={[-(CHASSIS_L / 2 - 0.015), 0, BASE_Z + 0.0155]} mat={mats.servo} radius={0.003} />
+      {/* ── 4 base OV9732 cameras on the bottom-plate edges (BEV array) ── */}
+      {(
+        [
+          [CHASSIS_L / 2 - 0.015, 0, 0], // front → +x
+          [-(CHASSIS_L / 2 - 0.015), 0, Math.PI], // rear → −x
+          [0, CHASSIS_W / 2 - 0.015, Math.PI / 2], // left → +y
+          [0, -(CHASSIS_W / 2 - 0.015), -Math.PI / 2], // right → −y
+        ] as [number, number, number][]
+      ).map(([x, y, yaw], i) => (
+        <group key={i} position={P(x, y, BASE_Z + 0.0155)} rotation={[0, -yaw, 0]}>
+          <RoundedBox args={[0.03, 0.025, 0.03]} radius={0.003} smoothness={2} castShadow material={mats.servo} />
+          <mesh position={[0.016, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={mats.lens}>
+            <cylinderGeometry args={[0.008, 0.008, 0.004, 16]} />
+          </mesh>
+        </group>
+      ))}
 
-      {/* ── Orbbec Astra stereo depth camera on the top plate, facing forward ── */}
-      <group position={P(0.0, 0, TOP_SURFACE_Z + 0.028)}>
-        {/* horizontal bar body */}
-        <RoundedBox args={[0.034, 0.05, 0.165]} radius={0.01} smoothness={4} castShadow material={mats.chassis} />
-        {/* two stereo lenses + centre IR projector on the +x face */}
-        {[-0.05, 0.0, 0.05].map((z, i) => (
-          <group key={i} position={[0.018, 0, z]}>
-            <mesh rotation={[0, 0, Math.PI / 2]} material={mats.servo}>
-              <cylinderGeometry args={[0.013, 0.013, 0.006, 24]} />
-            </mesh>
-            <mesh position={[0.004, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={i === 1 ? mats.accent : mats.lens}>
-              <cylinderGeometry args={[0.0085, 0.0085, 0.003, 24]} />
-            </mesh>
-          </group>
-        ))}
-        {/* small support neck */}
-        <mesh position={[0, -0.03, 0]} material={mats.servo}>
-          <cylinderGeometry args={[0.01, 0.012, 0.02, 16]} />
+      {/* ── Orbbec Astra Pro depth camera — rear-centre of the top plate,
+          facing REARWARD (−X) with a 12° downward tilt (URDF + README) ── */}
+      <group position={P(-(CHASSIS_L / 2 - 0.04), 0, TOP_SURFACE_Z + 0.038)} rotation={[0, Math.PI, 0]}>
+        {/* tilt only the head 12° down; the neck stays upright */}
+        <group rotation={[0, 0, 0.21]}>
+          {/* horizontal bar body */}
+          <RoundedBox args={[0.034, 0.05, 0.165]} radius={0.01} smoothness={4} castShadow material={mats.chassis} />
+          {/* two stereo lenses + centre IR projector on the rear-facing side */}
+          {[-0.05, 0.0, 0.05].map((z, i) => (
+            <group key={i} position={[0.018, 0, z]}>
+              <mesh rotation={[0, 0, Math.PI / 2]} material={mats.servo}>
+                <cylinderGeometry args={[0.013, 0.013, 0.006, 24]} />
+              </mesh>
+              <mesh position={[0.004, 0, 0]} rotation={[0, 0, Math.PI / 2]} material={i === 1 ? mats.accent : mats.lens}>
+                <cylinderGeometry args={[0.0085, 0.0085, 0.003, 24]} />
+              </mesh>
+            </group>
+          ))}
+        </group>
+        {/* support neck down to the plate */}
+        <mesh position={[0, -0.036, 0]} material={mats.servo}>
+          <cylinderGeometry args={[0.011, 0.014, 0.034, 16]} />
         </mesh>
       </group>
 
       {/* ── four mecanum wheels (diagonal pairs share chirality) ── */}
-      <group position={P(WHEEL_X, WHEEL_Y, WHEEL_R)}>
+      <group position={P(WHEEL_X, WHEEL_Y_VIS, WHEEL_R)}>
         <MecanumWheel mats={mats} chir={1} hubGeo={hubGeo} outerSign={-1} innerRef={wheelFL} />
       </group>
-      <group position={P(WHEEL_X, -WHEEL_Y, WHEEL_R)}>
+      <group position={P(WHEEL_X, -WHEEL_Y_VIS, WHEEL_R)}>
         <MecanumWheel mats={mats} chir={-1} hubGeo={hubGeo} outerSign={1} innerRef={wheelFR} />
       </group>
-      <group position={P(-WHEEL_X, WHEEL_Y, WHEEL_R)}>
+      <group position={P(-WHEEL_X, WHEEL_Y_VIS, WHEEL_R)}>
         <MecanumWheel mats={mats} chir={-1} hubGeo={hubGeo} outerSign={-1} innerRef={wheelRL} />
       </group>
-      <group position={P(-WHEEL_X, -WHEEL_Y, WHEEL_R)}>
+      <group position={P(-WHEEL_X, -WHEEL_Y_VIS, WHEEL_R)}>
         <MecanumWheel mats={mats} chir={1} hubGeo={hubGeo} outerSign={1} innerRef={wheelRR} />
       </group>
 
