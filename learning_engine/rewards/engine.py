@@ -39,8 +39,9 @@ class RewardEngine:
         for t in self.terms:
             t.reset()
 
-    def compute(self, transition: Transition,
-                context: Optional[Dict[str, Any]] = None) -> RewardBreakdown:
+    def compute(
+        self, transition: Transition, context: Optional[Dict[str, Any]] = None
+    ) -> RewardBreakdown:
         context = context or {}
         breakdown = RewardBreakdown(
             terms={t.name: float(t.compute(transition, context)) for t in self.terms},
@@ -50,8 +51,9 @@ class RewardEngine:
         transition.reward = breakdown.total
         return breakdown
 
-    def annotate_episode(self, episode: Episode,
-                         context: Optional[Dict[str, Any]] = None) -> List[RewardBreakdown]:
+    def annotate_episode(
+        self, episode: Episode, context: Optional[Dict[str, Any]] = None
+    ) -> List[RewardBreakdown]:
         """Recompute rewards for every step of an episode (offline
         annotation of demos / execution logs that arrived without rewards)."""
         self.reset()

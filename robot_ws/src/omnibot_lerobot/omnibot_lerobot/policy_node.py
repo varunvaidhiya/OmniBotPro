@@ -375,9 +375,7 @@ class PolicyNode(Node):
         with self._cam_lock:
             camera_snapshot = dict(self.camera_images)
 
-        missing = [
-            k for k in self.adapter.image_keys if camera_snapshot.get(k) is None
-        ]
+        missing = [k for k in self.adapter.image_keys if camera_snapshot.get(k) is None]
         if missing:
             self.get_logger().warn(
                 f"Waiting for images: {missing}", throttle_duration_sec=2.0

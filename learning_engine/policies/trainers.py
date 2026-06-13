@@ -26,7 +26,7 @@ import numpy as np
 
 from ..core.interfaces import Policy, PolicyTrainer
 from ..core.registry import POLICIES, TRAINERS
-from ..core.types import Episode, TaskOutcome, TrainResult
+from ..core.types import Episode, TrainResult
 from ..data import schema
 from ..data.replay_dataset import ReplayDataset
 
@@ -52,9 +52,13 @@ class MlpPolicy(Policy):
     """Small state→action MLP (torch). The trainable policy for the
     in-process BC / offline-RL baselines."""
 
-    def __init__(self, state_dim: int = schema.MOBILE_MANIP_STATE_DIM,
-                 action_dim: int = schema.MOBILE_MANIP_ACTION_DIM,
-                 hidden: int = 256, device: str = "auto") -> None:
+    def __init__(
+        self,
+        state_dim: int = schema.MOBILE_MANIP_STATE_DIM,
+        action_dim: int = schema.MOBILE_MANIP_ACTION_DIM,
+        hidden: int = 256,
+        device: str = "auto",
+    ) -> None:
         torch, nn = _require_torch()
         from ..hardware import resolve_device
 
@@ -62,15 +66,19 @@ class MlpPolicy(Policy):
         self.action_dim = action_dim
         self.device = resolve_device(device)
         self.net = nn.Sequential(
-            nn.Linear(state_dim, hidden), nn.ReLU(),
-            nn.Linear(hidden, hidden), nn.ReLU(),
-            nn.Linear(hidden, action_dim), nn.Tanh(),
+            nn.Linear(state_dim, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, hidden),
+            nn.ReLU(),
+            nn.Linear(hidden, action_dim),
+            nn.Tanh(),
         ).to(device)
 
     def predict(self, observation, task: str = "") -> np.ndarray:
         torch = self._torch
-        x = torch.as_tensor(observation[schema.OBS_STATE],
-                            dtype=torch.float32, device=self.device).reshape(1, -1)
+        x = torch.as_tensor(
+            observation[schema.OBS_STATE], dtype=torch.float32, device=self.device
+        ).reshape(1, -1)
         with torch.no_grad():
             return self.net(x).cpu().numpy().reshape(-1)
 
@@ -92,8 +100,10 @@ def _state_action_arrays(
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     states, actions, returns = [], [], []
     for ep in episodes:
-        rewards = [s.reward.total if s.reward else s.info.get("env_reward", 0.0)
-                   for s in ep.steps]
+        rewards = [
+            s.reward.total if s.reward else s.info.get("env_reward", 0.0)
+            for s in ep.steps
+        ]
         # Discounted reward-to-go per step.
         rtg, acc = [], 0.0
         for r in reversed(rewards):
@@ -115,8 +125,14 @@ def _state_action_arrays(
 class _SupervisedTrainer(PolicyTrainer):
     """Shared minibatch loop for BC and AWR (both are weighted regression)."""
 
-    def __init__(self, epochs: int = 20, batch_size: int = 256, lr: float = 1e-3,
-                 device: str = "auto", checkpoint_dir: str = "~/models/learning_engine") -> None:
+    def __init__(
+        self,
+        epochs: int = 20,
+        batch_size: int = 256,
+        lr: float = 1e-3,
+        device: str = "auto",
+        checkpoint_dir: str = "~/models/learning_engine",
+    ) -> None:
         from ..hardware import resolve_device
 
         self.epochs = epochs
@@ -135,10 +151,15 @@ class _SupervisedTrainer(PolicyTrainer):
         weights = self._weights(returns)
 
         if policy is None:
-            policy = MlpPolicy(state_dim=states.shape[1], action_dim=actions.shape[1],
-                               device=self.device)
+            policy = MlpPolicy(
+                state_dim=states.shape[1],
+                action_dim=actions.shape[1],
+                device=self.device,
+            )
         if not isinstance(policy, MlpPolicy):
-            raise TypeError(f"{self.name} trains MlpPolicy, got {type(policy).__name__}")
+            raise TypeError(
+                f"{self.name} trains MlpPolicy, got {type(policy).__name__}"
+            )
 
         x = torch.as_tensor(states, device=self.device)
         y = torch.as_tensor(actions, device=self.device)
@@ -149,7 +170,7 @@ class _SupervisedTrainer(PolicyTrainer):
         for _ in range(self.epochs):
             perm = torch.randperm(n)
             for i in range(0, n, self.batch_size):
-                idx = perm[i:i + self.batch_size]
+                idx = perm[i : i + self.batch_size]
                 pred = policy.net(x[idx])
                 loss = (w[idx] * (pred - y[idx]) ** 2).mean()
                 opt.zero_grad()
@@ -160,10 +181,13 @@ class _SupervisedTrainer(PolicyTrainer):
         self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
         ckpt = self.checkpoint_dir / f"{self.name}_policy.pt"
         policy.save(str(ckpt))
-        return TrainResult(trainer=self.name, steps=steps, final_loss=last_loss,
-                           metrics={"transitions": float(n),
-                                    "episodes": float(len(episodes))},
-                           checkpoint_path=str(ckpt))
+        return TrainResult(
+            trainer=self.name,
+            steps=steps,
+            final_loss=last_loss,
+            metrics={"transitions": float(n), "episodes": float(len(episodes))},
+            checkpoint_path=str(ckpt),
+        )
 
 
 @TRAINERS.register("behavior_cloning")
@@ -186,7 +210,9 @@ class OfflineRLTrainer(_SupervisedTrainer):
 
     name = "offline_rl_awr"
 
-    def __init__(self, beta: float = 1.0, max_weight: float = 20.0, **kwargs: Any) -> None:
+    def __init__(
+        self, beta: float = 1.0, max_weight: float = 20.0, **kwargs: Any
+    ) -> None:
         super().__init__(**kwargs)
         self.beta = beta
         self.max_weight = max_weight
@@ -210,9 +236,14 @@ class OnlineRLTrainer(PolicyTrainer):
 
     name = "online_rl"
 
-    def __init__(self, task: str = "nav", num_envs: int = 512,
-                 max_iterations: int = 2000, repo_root: str = ".",
-                 export_path: str = "~/models/omnibot_policy.onnx") -> None:
+    def __init__(
+        self,
+        task: str = "nav",
+        num_envs: int = 512,
+        max_iterations: int = 2000,
+        repo_root: str = ".",
+        export_path: str = "~/models/omnibot_policy.onnx",
+    ) -> None:
         if task not in ("nav", "arm"):
             raise ValueError("task must be 'nav' or 'arm'")
         self.task = task
@@ -221,18 +252,29 @@ class OnlineRLTrainer(PolicyTrainer):
         self.repo_root = Path(repo_root).expanduser()
         self.export_path = export_path
 
-    def train(self, dataset: Any = None, policy: Optional[Policy] = None) -> TrainResult:
+    def train(
+        self, dataset: Any = None, policy: Optional[Policy] = None
+    ) -> TrainResult:
         script = self.repo_root / "rl_engine" / "scripts" / f"train_{self.task}.py"
-        cmd = [sys.executable, str(script), "--num_envs", str(self.num_envs),
-               "--max_iterations", str(self.max_iterations)]
+        cmd = [
+            sys.executable,
+            str(script),
+            "--num_envs",
+            str(self.num_envs),
+            "--max_iterations",
+            str(self.max_iterations),
+        ]
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
             raise RuntimeError(
                 f"rl_engine training failed ({proc.returncode}):\n{proc.stderr[-2000:]}"
             )
-        return TrainResult(trainer=self.name, steps=self.max_iterations,
-                           checkpoint_path=self.export_path,
-                           metrics={"num_envs": float(self.num_envs)})
+        return TrainResult(
+            trainer=self.name,
+            steps=self.max_iterations,
+            checkpoint_path=self.export_path,
+            metrics={"num_envs": float(self.num_envs)},
+        )
 
 
 @TRAINERS.register("finetune_smolvla")
@@ -243,9 +285,13 @@ class FineTuneTrainer(PolicyTrainer):
 
     name = "finetune_smolvla"
 
-    def __init__(self, steps: int = 20_000, repo_root: str = ".",
-                 base_checkpoint: str = "lerobot/smolvla_base",
-                 wandb_project: str = "omnibot_smolvla") -> None:
+    def __init__(
+        self,
+        steps: int = 20_000,
+        repo_root: str = ".",
+        base_checkpoint: str = "lerobot/smolvla_base",
+        wandb_project: str = "omnibot_smolvla",
+    ) -> None:
         self.steps = steps
         self.repo_root = Path(repo_root).expanduser()
         self.base_checkpoint = base_checkpoint
@@ -255,16 +301,29 @@ class FineTuneTrainer(PolicyTrainer):
         if not isinstance(dataset, str):
             raise TypeError("FineTuneTrainer expects a LeRobot dataset repo_id string")
         script = self.repo_root / "lerobot_engine" / "train.py"
-        cmd = [sys.executable, str(script), "--dataset", dataset,
-               "--policy", self.base_checkpoint, "--steps", str(self.steps),
-               "--wandb-project", self.wandb_project]
+        cmd = [
+            sys.executable,
+            str(script),
+            "--dataset",
+            dataset,
+            "--policy",
+            self.base_checkpoint,
+            "--steps",
+            str(self.steps),
+            "--wandb-project",
+            self.wandb_project,
+        ]
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
             raise RuntimeError(
                 f"lerobot_engine training failed ({proc.returncode}):\n{proc.stderr[-2000:]}"
             )
-        return TrainResult(trainer=self.name, steps=self.steps,
-                           metrics={}, checkpoint_path="(see lerobot_engine output dir)")
+        return TrainResult(
+            trainer=self.name,
+            steps=self.steps,
+            metrics={},
+            checkpoint_path="(see lerobot_engine output dir)",
+        )
 
 
 @TRAINERS.register("noop")
@@ -276,6 +335,9 @@ class NoOpTrainer(PolicyTrainer):
     def train(self, dataset: Any, policy: Optional[Policy] = None) -> TrainResult:
         episodes = _episodes_from(dataset)
         n = sum(len(e) for e in episodes)
-        return TrainResult(trainer=self.name, steps=0, final_loss=0.0,
-                           metrics={"episodes": float(len(episodes)),
-                                    "transitions": float(n)})
+        return TrainResult(
+            trainer=self.name,
+            steps=0,
+            final_loss=0.0,
+            metrics={"episodes": float(len(episodes)), "transitions": float(n)},
+        )

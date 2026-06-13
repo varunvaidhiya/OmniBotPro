@@ -19,12 +19,17 @@ from .helpers import make_episode
 
 
 def _transition(action=None, info=None, state=None):
-    state = state if state is not None else np.zeros(schema.MOBILE_MANIP_STATE_DIM,
-                                                     dtype=np.float32)
+    state = (
+        state
+        if state is not None
+        else np.zeros(schema.MOBILE_MANIP_STATE_DIM, dtype=np.float32)
+    )
     obs = {schema.OBS_STATE: state}
     return Transition(
         observation=obs,
-        action=np.asarray(action if action is not None else np.zeros(9), dtype=np.float32),
+        action=np.asarray(
+            action if action is not None else np.zeros(9), dtype=np.float32
+        ),
         reward=0.0,
         next_observation=obs,
         done=False,
@@ -34,11 +39,13 @@ def _transition(action=None, info=None, state=None):
 
 class TestRewardEngine(unittest.TestCase):
     def test_multi_objective_breakdown(self):
-        engine = RewardEngine.from_config([
-            {"name": "task_success", "weight": 1.0, "bonus": 10.0},
-            {"name": "energy", "weight": 0.5},
-            {"name": "time", "per_step": 0.01},
-        ])
+        engine = RewardEngine.from_config(
+            [
+                {"name": "task_success", "weight": 1.0, "bonus": 10.0},
+                {"name": "energy", "weight": 0.5},
+                {"name": "time", "per_step": 0.01},
+            ]
+        )
         t = _transition(action=np.ones(9), info={"success": True})
         b = engine.compute(t)
         self.assertEqual(b.terms["task_success"], 10.0)
@@ -57,10 +64,12 @@ class TestRewardEngine(unittest.TestCase):
         self.assertEqual(engine.compute(t2).terms["action_smoothness"], 0.0)
 
     def test_collision_and_joint_limit(self):
-        engine = RewardEngine.from_config([
-            {"name": "collision", "weight": 5.0},
-            {"name": "joint_limit"},
-        ])
+        engine = RewardEngine.from_config(
+            [
+                {"name": "collision", "weight": 5.0},
+                {"name": "joint_limit"},
+            ]
+        )
         bad_state = np.zeros(schema.MOBILE_MANIP_STATE_DIM, dtype=np.float32)
         bad_state[0] = 3.14  # shoulder_pan at its limit
         t = _transition(info={"collision": True}, state=bad_state)

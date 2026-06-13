@@ -108,12 +108,17 @@ class ContinualLearningScheduler:
         if not self.state_path:
             return
         self.state_path.parent.mkdir(parents=True, exist_ok=True)
-        self.state_path.write_text(json.dumps({
-            "last_train_time": self.state.last_train_time,
-            "episodes_at_last_train": self.state.episodes_at_last_train,
-            "known_tasks": sorted(self.state.known_tasks),
-            "known_environments": sorted(self.state.known_environments),
-        }, indent=1))
+        self.state_path.write_text(
+            json.dumps(
+                {
+                    "last_train_time": self.state.last_train_time,
+                    "episodes_at_last_train": self.state.episodes_at_last_train,
+                    "known_tasks": sorted(self.state.known_tasks),
+                    "known_environments": sorted(self.state.known_environments),
+                },
+                indent=1,
+            )
+        )
 
 
 class PolicyVersionManager:
@@ -126,9 +131,14 @@ class PolicyVersionManager:
         self.dir.mkdir(parents=True, exist_ok=True)
         self.path = self.dir / "versions.jsonl"
 
-    def record(self, checkpoint_path: str, trainer: str,
-               eval_success_rate: float, dataset_episodes: int,
-               notes: str = "") -> Dict:
+    def record(
+        self,
+        checkpoint_path: str,
+        trainer: str,
+        eval_success_rate: float,
+        dataset_episodes: int,
+        notes: str = "",
+    ) -> Dict:
         entry = {
             "version": len(self.all()) + 1,
             "checkpoint_path": checkpoint_path,
@@ -148,7 +158,9 @@ class PolicyVersionManager:
         return [json.loads(line) for line in self.path.read_text().splitlines() if line]
 
     def best(self) -> Optional[Dict]:
-        versions = [v for v in self.all() if v["eval_success_rate"] == v["eval_success_rate"]]
+        versions = [
+            v for v in self.all() if v["eval_success_rate"] == v["eval_success_rate"]
+        ]
         return max(versions, key=lambda v: v["eval_success_rate"]) if versions else None
 
     def latest(self) -> Optional[Dict]:

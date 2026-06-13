@@ -17,15 +17,20 @@ from ..data import schema
 class RandomPolicy(Policy):
     """Uniform random actions — exploration baseline and test stub."""
 
-    def __init__(self, action_dim: int = schema.MOBILE_MANIP_ACTION_DIM,
-                 scale: float = 0.1, seed: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        action_dim: int = schema.MOBILE_MANIP_ACTION_DIM,
+        scale: float = 0.1,
+        seed: Optional[int] = None,
+    ) -> None:
         self.action_dim = action_dim
         self.scale = scale
         self._rng = np.random.default_rng(seed)
 
     def predict(self, observation: Observation, task: str = "") -> np.ndarray:
-        return self._rng.uniform(-self.scale, self.scale,
-                                 size=self.action_dim).astype(np.float32)
+        return self._rng.uniform(-self.scale, self.scale, size=self.action_dim).astype(
+            np.float32
+        )
 
 
 @POLICIES.register("zero")
@@ -50,10 +55,14 @@ class OnnxPolicy(Policy):
     (TensorRT/CUDA on Jetson and dGPU, CoreML on Apple Silicon, CPU
     elsewhere) via ``learning_engine.hardware``."""
 
-    def __init__(self, model_path: str, obs_key: str = schema.OBS_STATE,
-                 action_dim: int = 3,
-                 providers: Optional[list] = None,
-                 prefer_tensorrt: bool = False) -> None:
+    def __init__(
+        self,
+        model_path: str,
+        obs_key: str = schema.OBS_STATE,
+        action_dim: int = 3,
+        providers: Optional[list] = None,
+        prefer_tensorrt: bool = False,
+    ) -> None:
         """``providers`` overrides EP selection outright; otherwise the best
         providers for this machine are chosen. Set ``prefer_tensorrt=True``
         to bake/run a TensorRT engine on a discrete GPU (it is already

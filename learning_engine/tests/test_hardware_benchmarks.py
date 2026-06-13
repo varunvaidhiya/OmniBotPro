@@ -47,8 +47,7 @@ class TestDeviceDetection(unittest.TestCase):
         self.assertTrue(providers)
         self.assertTrue(all(p.endswith("ExecutionProvider") for p in providers))
         # Explicit accelerator override
-        self.assertEqual(onnx_providers(AcceleratorType.CPU),
-                         ["CPUExecutionProvider"])
+        self.assertEqual(onnx_providers(AcceleratorType.CPU), ["CPUExecutionProvider"])
 
     def test_onnx_provider_preference_policy(self):
         # The preference table encodes the deployment-vs-dev intent and is
@@ -69,9 +68,10 @@ class TestDeviceDetection(unittest.TestCase):
 class TestProfiles(unittest.TestCase):
     def test_builtin_profiles_roles(self):
         for profile in BUILTIN_PROFILES.values():
-            self.assertTrue(profile.node_for("inference") or
-                            profile.node_for("control"),
-                            f"{profile.name} has no useful roles")
+            self.assertTrue(
+                profile.node_for("inference") or profile.node_for("control"),
+                f"{profile.name} has no useful roles",
+            )
         jetson = get_profile("jetson_single")
         self.assertEqual(jetson.node_for("inference").name, "jetson")
         self.assertIn(jetson.device_for("inference"), ("cpu", "cuda", "mps"))
@@ -116,13 +116,17 @@ class TestMonitorsAndBenchmarks(unittest.TestCase):
             RandomPolicy(action_dim=9), n=20, warmup=2, budget_ms=100.0
         ).run()
         m = result.metrics
-        for key in ("latency_ms_mean", "latency_ms_p95", "achievable_hz",
-                    "cold_latency_ms", "within_budget"):
+        for key in (
+            "latency_ms_mean",
+            "latency_ms_p95",
+            "achievable_hz",
+            "cold_latency_ms",
+            "within_budget",
+        ):
             self.assertIn(key, m)
         self.assertLessEqual(m["latency_ms_p50"], m["latency_ms_max"])
         self.assertEqual(m["within_budget"], 1.0)  # random policy is fast
-        self.assertEqual(result.system.to_dict()["hostname"],
-                         probe().hostname)
+        self.assertEqual(result.system.to_dict()["hostname"], probe().hostname)
 
     def test_training_benchmark(self):
         result = TrainingBenchmark(NoOpTrainer(), episodes_for_training(5, 10)).run()
@@ -131,8 +135,9 @@ class TestMonitorsAndBenchmarks(unittest.TestCase):
 
     def test_dataset_io_benchmark(self):
         with tempfile.TemporaryDirectory() as tmp:
-            result = DatasetIOBenchmark(tmp, episodes=2, steps=5,
-                                        with_images=False).run()
+            result = DatasetIOBenchmark(
+                tmp, episodes=2, steps=5, with_images=False
+            ).run()
             self.assertGreater(result.metrics["write_eps_per_s"], 0)
             self.assertGreater(result.metrics["read_steps_per_s"], 0)
 
@@ -149,8 +154,11 @@ class TestReporters(unittest.TestCase):
             files = os.listdir(tmp)
             self.assertTrue(any(f.endswith(".json") for f in files))
             self.assertIn("loop_metrics.jsonl", files)
-            doc = json.loads(open(os.path.join(
-                tmp, next(f for f in files if f.endswith(".json")))).read())
+            doc = json.loads(
+                open(
+                    os.path.join(tmp, next(f for f in files if f.endswith(".json")))
+                ).read()
+            )
             self.assertIn("system", doc)
             self.assertIn("latency_ms_p95", doc["metrics"])
 
@@ -168,9 +176,13 @@ class TestReporters(unittest.TestCase):
                 self.assertIn("omnibot_bench_loop_eval_success_rate 0.75", text)
                 # HTTP /metrics mode (ephemeral port)
                 self.assertGreater(reporter.port, 0)
-                body = urllib.request.urlopen(
-                    f"http://127.0.0.1:{reporter.port}/metrics", timeout=5
-                ).read().decode()
+                body = (
+                    urllib.request.urlopen(
+                        f"http://127.0.0.1:{reporter.port}/metrics", timeout=5
+                    )
+                    .read()
+                    .decode()
+                )
                 self.assertIn("# TYPE omnibot_bench_latency_ms_p95 gauge", body)
             finally:
                 reporter.close()

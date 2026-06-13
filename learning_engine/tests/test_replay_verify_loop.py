@@ -58,8 +58,12 @@ class TestBuffers(unittest.TestCase):
     def test_episodic_store_stratified(self):
         with tempfile.TemporaryDirectory() as root:
             ds = ReplayDataset(root, store_images=False)
-            for outcome in (TaskOutcome.SUCCESS, TaskOutcome.SUCCESS,
-                            TaskOutcome.FAILURE, TaskOutcome.NEAR_SUCCESS):
+            for outcome in (
+                TaskOutcome.SUCCESS,
+                TaskOutcome.SUCCESS,
+                TaskOutcome.FAILURE,
+                TaskOutcome.NEAR_SUCCESS,
+            ):
                 ep = make_episode(3)
                 ep.meta.outcome = outcome
                 ds.add_episode(ep)
@@ -76,12 +80,15 @@ class TestVerifier(unittest.TestCase):
     def _verifier(self):
         return InferenceVerifier(
             checks=[SafetyCheck(), ReachabilityCheck()],
-            n_candidates=4, horizon=5, fallback_policy=ZeroPolicy(action_dim=9),
+            n_candidates=4,
+            horizon=5,
+            fallback_policy=ZeroPolicy(action_dim=9),
         )
 
     def _obs(self):
-        return {schema.OBS_STATE: np.zeros(schema.MOBILE_MANIP_STATE_DIM,
-                                           dtype=np.float32)}
+        return {
+            schema.OBS_STATE: np.zeros(schema.MOBILE_MANIP_STATE_DIM, dtype=np.float32)
+        }
 
     def test_safe_policy_selected(self):
         result = self._verifier().select(
@@ -120,10 +127,14 @@ class TestVerifier(unittest.TestCase):
 
 class TestCurriculum(unittest.TestCase):
     def test_promotion(self):
-        sched = CurriculumScheduler([
-            CurriculumStage("easy", {"r": 1.0}, window=4, promote_success_rate=0.75),
-            CurriculumStage("hard", {"r": 3.0}, window=4),
-        ])
+        sched = CurriculumScheduler(
+            [
+                CurriculumStage(
+                    "easy", {"r": 1.0}, window=4, promote_success_rate=0.75
+                ),
+                CurriculumStage("hard", {"r": 3.0}, window=4),
+            ]
+        )
         self.assertEqual(sched.current.name, "easy")
         promoted = [sched.report(True) for _ in range(4)]
         self.assertTrue(promoted[-1])
@@ -133,31 +144,45 @@ class TestCurriculum(unittest.TestCase):
 class TestPostTrainingLoop(unittest.TestCase):
     def _components(self, root: str) -> LoopComponents:
         env = DummyEnv()
-        policy = RandomPolicy(action_dim=schema.MOBILE_MANIP_ACTION_DIM,
-                              scale=0.05, seed=1)
+        policy = RandomPolicy(
+            action_dim=schema.MOBILE_MANIP_ACTION_DIM, scale=0.05, seed=1
+        )
         dataset = ReplayDataset(root, store_images=False)
         return LoopComponents(
-            collectors=[SimRolloutCollector(env, policy, max_steps=10,
-                                            task_instruction="reach the goal",
-                                            environment_name="dummy")],
+            collectors=[
+                SimRolloutCollector(
+                    env,
+                    policy,
+                    max_steps=10,
+                    task_instruction="reach the goal",
+                    environment_name="dummy",
+                )
+            ],
             dataset=dataset,
-            reward_engine=RewardEngine.from_config([
-                {"name": "task_success"}, {"name": "time"},
-                {"name": "action_smoothness", "weight": 0.1},
-            ]),
+            reward_engine=RewardEngine.from_config(
+                [
+                    {"name": "task_success"},
+                    {"name": "time"},
+                    {"name": "action_smoothness", "weight": 0.1},
+                ]
+            ),
             trainer=NoOpTrainer(),
             policy=policy,
             evaluators=[HeuristicSelfEvaluator()],
             replay_store=EpisodicReplayStore(dataset, seed=0),
-            eval_collector=SimRolloutCollector(DummyEnv(), policy, max_steps=10,
-                                               task_instruction="reach the goal"),
+            eval_collector=SimRolloutCollector(
+                DummyEnv(), policy, max_steps=10, task_instruction="reach the goal"
+            ),
         )
 
     def test_full_iteration(self):
         with tempfile.TemporaryDirectory() as root:
-            loop = PostTrainingLoop(self._components(root),
-                                    collect_per_iteration=3, eval_episodes=2,
-                                    report_dir=f"{root}/reports")
+            loop = PostTrainingLoop(
+                self._components(root),
+                collect_per_iteration=3,
+                eval_episodes=2,
+                report_dir=f"{root}/reports",
+            )
             report = loop.run_iteration()
             self.assertEqual(report.episodes_collected, 3)
             self.assertEqual(report.outcomes.get("success"), 3)  # DummyEnv succeeds
@@ -172,6 +197,7 @@ class TestPostTrainingLoop(unittest.TestCase):
             self.assertIn("evaluation", ep.meta.extra)
             # Iteration report written to disk.
             import os
+
             self.assertTrue(os.path.exists(f"{root}/reports/iteration_00001.json"))
 
     def test_continual_scheduler_and_versioning(self):
@@ -179,7 +205,9 @@ class TestPostTrainingLoop(unittest.TestCase):
             comps = self._components(f"{root}/ds")
             loop = PostTrainingLoop(comps, collect_per_iteration=2, eval_episodes=1)
             sched = ContinualLearningScheduler(
-                loop, comps.dataset, min_new_episodes=1,
+                loop,
+                comps.dataset,
+                min_new_episodes=1,
                 state_path=f"{root}/state.json",
             )
             # Empty dataset, no triggers yet -> force the bootstrap run.
@@ -190,8 +218,10 @@ class TestPostTrainingLoop(unittest.TestCase):
             self.assertIsNone(sched.step())
             # New experience arriving (e.g. fresh demos) re-triggers training.
             comps.dataset.add_episode(make_episode(3, task="open the drawer"))
-            self.assertEqual(sorted(t.split(":")[0] for t in sched.pending_triggers()),
-                             ["new_episodes", "new_tasks"])
+            self.assertEqual(
+                sorted(t.split(":")[0] for t in sched.pending_triggers()),
+                ["new_episodes", "new_tasks"],
+            )
             report2 = sched.step()
             self.assertIsNotNone(report2)
             self.assertTrue(sched.state.known_tasks)

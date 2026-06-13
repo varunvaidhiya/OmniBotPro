@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+import numpy as np
 import pyarrow.parquet as pq  # guaranteed by setup_requires
 
 
@@ -73,9 +74,7 @@ class EpisodeDataset:
             ep_str = f"episode_{ep_idx:06d}"
 
             for key in self._image_keys:
-                video_path = str(
-                    self._root / "videos" / chunk / key / f"{ep_str}.mp4"
-                )
+                video_path = str(self._root / "videos" / chunk / key / f"{ep_str}.mp4")
                 row[key] = self._load_video_frame(video_path, frame_idx)
 
         if self._transform:
@@ -99,7 +98,6 @@ class EpisodeDataset:
         if not ret:
             return np.zeros((1, 1, 3), dtype=np.uint8)
 
-        import numpy as np
         return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     def as_torch_dataset(self):

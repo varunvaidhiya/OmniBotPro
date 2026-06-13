@@ -59,7 +59,8 @@ import time as _wall_time
 
 try:
     import tf2_ros
-    import tf2_geometry_msgs
+    import tf2_geometry_msgs  # noqa: F401 — import is the availability probe
+
     _TF2_AVAILABLE = True
 except ImportError:
     _TF2_AVAILABLE = False

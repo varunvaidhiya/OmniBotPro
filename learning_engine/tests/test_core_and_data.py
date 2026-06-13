@@ -71,8 +71,9 @@ class TestReplayDataset(unittest.TestCase):
                 loaded.steps[1].observation[schema.OBS_IMAGE_WRIST],
                 ep.steps[1].observation[schema.OBS_IMAGE_WRIST],
             )
-            self.assertAlmostEqual(loaded.steps[-1].reward.total,
-                                   ep.steps[-1].reward.total, places=5)
+            self.assertAlmostEqual(
+                loaded.steps[-1].reward.total, ep.steps[-1].reward.total, places=5
+            )
 
             # Relabel after evaluation, then filter.
             ds.update_meta(eid, outcome=TaskOutcome.SUCCESS, success_score=0.9)

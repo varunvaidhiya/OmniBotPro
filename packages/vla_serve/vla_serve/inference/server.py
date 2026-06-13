@@ -137,6 +137,7 @@ async def lifespan(app: FastAPI):
     if _model is not None:
         try:
             import torch
+
             torch.cuda.empty_cache()
         except Exception:
             pass
@@ -172,6 +173,7 @@ async def _limit_body_size(request: Request, call_next):
     if content_length and int(content_length) > _MAX_BODY:
         raise HTTPException(status_code=413, detail="Request body too large")
     return await call_next(request)
+
 
 # Instrument all HTTP routes with Prometheus metrics (/metrics endpoint).
 # Exposes: http_requests_total, http_request_duration_seconds, etc.

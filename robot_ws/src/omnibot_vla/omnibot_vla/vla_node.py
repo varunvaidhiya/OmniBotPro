@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import collections
+import os
 import statistics as _statistics
 import time
 import rclpy

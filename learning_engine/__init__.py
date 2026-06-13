@@ -20,5 +20,13 @@ from .core import (  # noqa: F401 — convenience re-exports
 )
 
 __version__ = "0.1.0"
-__all__ = ["core", "DataSource", "Episode", "EpisodeMeta", "Step",
-           "TaskOutcome", "Transition", "__version__"]
+__all__ = [
+    "core",
+    "DataSource",
+    "Episode",
+    "EpisodeMeta",
+    "Step",
+    "TaskOutcome",
+    "Transition",
+    "__version__",
+]

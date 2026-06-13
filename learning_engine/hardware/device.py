@@ -75,7 +75,9 @@ def apple_chip() -> str:
     try:
         return subprocess.run(
             ["sysctl", "-n", "machdep.cpu.brand_string"],
-            capture_output=True, text=True, timeout=5,
+            capture_output=True,
+            text=True,
+            timeout=5,
         ).stdout.strip()
     except (OSError, subprocess.SubprocessError):
         return "Apple Silicon"
@@ -98,15 +100,23 @@ def _nvidia_smi_gpu() -> Optional[Accelerator]:
         return None
     try:
         out = subprocess.run(
-            ["nvidia-smi", "--query-gpu=name,memory.total",
-             "--format=csv,noheader,nounits"],
-            capture_output=True, text=True, timeout=10,
+            [
+                "nvidia-smi",
+                "--query-gpu=name,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         if out.returncode != 0 or not out.stdout.strip():
             return None
         name, mem_mb = (s.strip() for s in out.stdout.splitlines()[0].split(",")[:2])
-        return Accelerator(AcceleratorType.NVIDIA_GPU, name=name,
-                           memory_gb=round(float(mem_mb) / 1024, 1))
+        return Accelerator(
+            AcceleratorType.NVIDIA_GPU,
+            name=name,
+            memory_gb=round(float(mem_mb) / 1024, 1),
+        )
     except (OSError, ValueError, subprocess.SubprocessError):
         return None
 
@@ -121,15 +131,23 @@ def detect_accelerators() -> tuple:
     """All accelerators on this machine, best first. Cached per process."""
     found: List[Accelerator] = []
     if is_jetson():
-        found.append(Accelerator(AcceleratorType.JETSON, name=jetson_model(),
-                                 memory_gb=_total_ram_gb()))
+        found.append(
+            Accelerator(
+                AcceleratorType.JETSON, name=jetson_model(), memory_gb=_total_ram_gb()
+            )
+        )
     else:
         gpu = _nvidia_smi_gpu()
         if gpu:
             found.append(gpu)
     if is_apple_silicon():
-        found.append(Accelerator(AcceleratorType.APPLE_SILICON, name=apple_chip(),
-                                 memory_gb=_total_ram_gb()))
+        found.append(
+            Accelerator(
+                AcceleratorType.APPLE_SILICON,
+                name=apple_chip(),
+                memory_gb=_total_ram_gb(),
+            )
+        )
     # USB/M.2 inference accelerators — present iff their runtime imports.
     for module, accel_type, name in (
         ("hailo_platform", AcceleratorType.HAILO, "Hailo-8"),
@@ -141,8 +159,11 @@ def detect_accelerators() -> tuple:
         except ImportError:
             pass
     if not found:
-        found.append(Accelerator(AcceleratorType.CPU, name=platform.processor()
-                                 or platform.machine()))
+        found.append(
+            Accelerator(
+                AcceleratorType.CPU, name=platform.processor() or platform.machine()
+            )
+        )
     return tuple(found)
 
 
@@ -197,8 +218,11 @@ def resolve_device(device: str = "auto") -> str:
 #     benchmarking a deployment build: OnnxPolicy(providers=[...]) or
 #     onnx_providers(prefer_tensorrt=True).
 _ONNX_PROVIDER_PREFERENCE: Dict[AcceleratorType, List[str]] = {
-    AcceleratorType.JETSON: ["TensorrtExecutionProvider", "CUDAExecutionProvider",
-                             "CPUExecutionProvider"],
+    AcceleratorType.JETSON: [
+        "TensorrtExecutionProvider",
+        "CUDAExecutionProvider",
+        "CPUExecutionProvider",
+    ],
     AcceleratorType.NVIDIA_GPU: ["CUDAExecutionProvider", "CPUExecutionProvider"],
     AcceleratorType.APPLE_SILICON: ["CoreMLExecutionProvider", "CPUExecutionProvider"],
     AcceleratorType.HAILO: ["CPUExecutionProvider"],  # Hailo runs via HEF, not ORT
@@ -207,8 +231,9 @@ _ONNX_PROVIDER_PREFERENCE: Dict[AcceleratorType, List[str]] = {
 }
 
 
-def onnx_providers(accelerator: Optional[AcceleratorType] = None,
-                   prefer_tensorrt: bool = False) -> List[str]:
+def onnx_providers(
+    accelerator: Optional[AcceleratorType] = None, prefer_tensorrt: bool = False
+) -> List[str]:
     """Execution providers for ONNX Runtime sessions on this machine,
     best-first, restricted to providers actually available in the installed
     onnxruntime build.
@@ -218,7 +243,10 @@ def onnx_providers(accelerator: Optional[AcceleratorType] = None,
     engine on a discrete GPU (TensorRT is already first on Jetson)."""
     accel = accelerator or primary_accelerator().type
     preferred = list(_ONNX_PROVIDER_PREFERENCE.get(accel, ["CPUExecutionProvider"]))
-    if prefer_tensorrt and accel in (AcceleratorType.NVIDIA_GPU, AcceleratorType.JETSON):
+    if prefer_tensorrt and accel in (
+        AcceleratorType.NVIDIA_GPU,
+        AcceleratorType.JETSON,
+    ):
         trt = "TensorrtExecutionProvider"
         preferred = [trt] + [p for p in preferred if p != trt]
     try:

@@ -39,15 +39,18 @@ class DummyEnv(SimulationEnv):
         self._t = 0
         return self._obs()
 
-    def step(self, action: np.ndarray) -> Tuple[Observation, float, bool, Dict[str, Any]]:
+    def step(
+        self, action: np.ndarray
+    ) -> Tuple[Observation, float, bool, Dict[str, Any]]:
         self._t += 1
         done = self._t >= self.episode_len
         info = {"success": done and self.succeed}
         return self._obs(), 1.0 if info["success"] else 0.0, done, info
 
 
-def make_episode(n_steps: int = 5, task: str = "pick up the red cup",
-                 success: bool = True) -> Episode:
+def make_episode(
+    n_steps: int = 5, task: str = "pick up the red cup", success: bool = True
+) -> Episode:
     steps = []
     for t in range(n_steps):
         state = np.arange(schema.MOBILE_MANIP_STATE_DIM, dtype=np.float32) * 0.01 * t
@@ -57,14 +60,16 @@ def make_episode(n_steps: int = 5, task: str = "pick up the red cup",
                     schema.OBS_STATE: state,
                     schema.OBS_IMAGE_WRIST: np.full((4, 4, 3), t, dtype=np.uint8),
                 },
-                action=np.full(schema.MOBILE_MANIP_ACTION_DIM, 0.01 * t,
-                               dtype=np.float32),
+                action=np.full(
+                    schema.MOBILE_MANIP_ACTION_DIM, 0.01 * t, dtype=np.float32
+                ),
                 timestamp=float(t),
                 info={"success": success and t == n_steps - 1},
             )
         )
     return Episode(
-        meta=EpisodeMeta(task_instruction=task, source=DataSource.SIMULATION,
-                         environment="dummy"),
+        meta=EpisodeMeta(
+            task_instruction=task, source=DataSource.SIMULATION, environment="dummy"
+        ),
         steps=steps,
     )

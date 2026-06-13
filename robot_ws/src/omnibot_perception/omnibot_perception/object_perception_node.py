@@ -79,9 +79,21 @@ def _quat_to_rot(qx, qy, qz, qw):
     qx, qy, qz, qw = qx / n, qy / n, qz / n, qw / n
     return np.array(
         [
-            [1 - 2 * (qy * qy + qz * qz), 2 * (qx * qy - qz * qw), 2 * (qx * qz + qy * qw)],
-            [2 * (qx * qy + qz * qw), 1 - 2 * (qx * qx + qz * qz), 2 * (qy * qz - qx * qw)],
-            [2 * (qx * qz - qy * qw), 2 * (qy * qz + qx * qw), 1 - 2 * (qx * qx + qy * qy)],
+            [
+                1 - 2 * (qy * qy + qz * qz),
+                2 * (qx * qy - qz * qw),
+                2 * (qx * qz + qy * qw),
+            ],
+            [
+                2 * (qx * qy + qz * qw),
+                1 - 2 * (qx * qx + qz * qz),
+                2 * (qy * qz - qx * qw),
+            ],
+            [
+                2 * (qx * qz - qy * qw),
+                2 * (qy * qz + qx * qw),
+                1 - 2 * (qx * qx + qy * qy),
+            ],
         ]
     )
 
@@ -170,9 +182,7 @@ class ObjectPerceptionNode(Node):
         self._pub_query = self.create_publisher(
             PoseStamped, "/perception/query_result", 10
         )
-        self._pub_markers = self.create_publisher(
-            MarkerArray, "/perception/markers", 5
-        )
+        self._pub_markers = self.create_publisher(MarkerArray, "/perception/markers", 5)
 
         self.create_timer(1.0 / self._rate, self._timer_cb)
         backend = "yolo" if self._yolo is not None else "depth-clustering"
@@ -320,7 +330,7 @@ class ObjectPerceptionNode(Node):
                 if stats[i, cv2.CC_STAT_AREA] < self._cluster_min_px:
                     continue
                 u, v = centroids[i]
-                blob = (labels == i)
+                blob = labels == i
                 z = float(np.median(depth[blob]))
                 if not (self._rmin < z < self._rmax):
                     continue
@@ -369,7 +379,9 @@ class ObjectPerceptionNode(Node):
     def _timer_cb(self):
         if self._depth is None or self._fx is None:
             return
-        dets = self._detect_yolo() if self._yolo is not None else self._detect_clusters()
+        dets = (
+            self._detect_yolo() if self._yolo is not None else self._detect_clusters()
+        )
 
         now = self.get_clock().now().to_msg()
         pa = PoseArray()

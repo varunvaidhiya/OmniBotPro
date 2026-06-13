@@ -25,6 +25,7 @@ from ..data import schema
 
 # ---------------------------------------------------------------- task
 
+
 @REWARD_TERMS.register("task_success")
 class TaskSuccessReward(RewardTerm):
     """Sparse success/failure: +bonus when info['success'], -penalty on
@@ -32,8 +33,9 @@ class TaskSuccessReward(RewardTerm):
 
     name = "task_success"
 
-    def __init__(self, weight: float = 1.0, bonus: float = 10.0,
-                 failure_penalty: float = 0.0) -> None:
+    def __init__(
+        self, weight: float = 1.0, bonus: float = 10.0, failure_penalty: float = 0.0
+    ) -> None:
         super().__init__(weight)
         self.bonus = bonus
         self.failure_penalty = failure_penalty
@@ -47,6 +49,7 @@ class TaskSuccessReward(RewardTerm):
 
 
 # ---------------------------------------------------------------- dense
+
 
 def _robot_xy(transition: Transition, context: Dict[str, Any]) -> Optional[np.ndarray]:
     if "robot_xy" in context:
@@ -104,6 +107,7 @@ class GoalProgressReward(RewardTerm):
 
 # ---------------------------------------------------------------- safety
 
+
 @REWARD_TERMS.register("collision")
 class CollisionPenalty(RewardTerm):
     """−1 per collision step (info['collision'] or min lidar sector below
@@ -150,6 +154,7 @@ class JointLimitPenalty(RewardTerm):
 
 # ------------------------------------------------------------- efficiency
 
+
 @REWARD_TERMS.register("energy")
 class EnergyPenalty(RewardTerm):
     """−‖action‖² — proxy for actuation energy."""
@@ -176,6 +181,7 @@ class ExecutionTimePenalty(RewardTerm):
 
 # ------------------------------------------------------------- smoothness
 
+
 @REWARD_TERMS.register("action_smoothness")
 class ActionSmoothnessPenalty(RewardTerm):
     """−‖aₜ − aₜ₋₁‖² — discourages jerky commands (protects the Feetech bus
@@ -192,7 +198,9 @@ class ActionSmoothnessPenalty(RewardTerm):
 
     def compute(self, transition: Transition, context: Dict[str, Any]) -> float:
         a = np.asarray(transition.action, dtype=np.float64)
-        penalty = 0.0 if self._prev is None else -float(np.sum(np.square(a - self._prev)))
+        penalty = (
+            0.0 if self._prev is None else -float(np.sum(np.square(a - self._prev)))
+        )
         self._prev = a
         return penalty
 
@@ -216,8 +224,12 @@ class TrajectorySmoothnessPenalty(RewardTerm):
         state = transition.next_observation.get(schema.OBS_STATE)
         if state is None or state.shape[-1] < schema.MOBILE_MANIP_STATE_DIM:
             return 0.0
-        vel = np.asarray(state[self.vel_slice:self.vel_slice + schema.BASE_STATE_DIM],
-                         dtype=np.float64)
-        penalty = 0.0 if self._prev is None else -float(np.sum(np.square(vel - self._prev)))
+        vel = np.asarray(
+            state[self.vel_slice : self.vel_slice + schema.BASE_STATE_DIM],
+            dtype=np.float64,
+        )
+        penalty = (
+            0.0 if self._prev is None else -float(np.sum(np.square(vel - self._prev)))
+        )
         self._prev = vel
         return penalty

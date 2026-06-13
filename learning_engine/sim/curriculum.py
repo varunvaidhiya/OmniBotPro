@@ -75,8 +75,12 @@ class DomainRandomizer:
     ``data_engine/isaac_sim/randomization_config.yaml`` — keep parameter
     names aligned when adding new ones."""
 
-    def __init__(self, ranges: Optional[Dict[str, Tuple[float, float]]] = None,
-                 enabled: bool = True, seed: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        ranges: Optional[Dict[str, Tuple[float, float]]] = None,
+        enabled: bool = True,
+        seed: Optional[int] = None,
+    ) -> None:
         self.ranges = dict(ranges or {})
         self.enabled = enabled
         self._rng = random.Random(seed)

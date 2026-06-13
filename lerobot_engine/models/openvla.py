@@ -30,12 +30,14 @@ except ImportError:
 def _select_attn() -> str:
     """Select the best available attention implementation."""
     try:
-        import flash_attn
+        import flash_attn  # noqa: F401 — import is the availability probe
+
         return "flash_attention_2"
     except ImportError:
         pass
     try:
         import torch
+
         major, minor = map(int, torch.__version__.split(".")[:2])
         if major >= 2 and minor >= 0:
             return "sdpa"  # PyTorch 2.0+ native scaled dot-product attention

@@ -71,12 +71,15 @@ class IterationReport:
 
 
 class PostTrainingLoop:
-    def __init__(self, components: LoopComponents,
-                 collect_per_iteration: int = 10,
-                 train_episodes_per_iteration: int = 50,
-                 eval_episodes: int = 5,
-                 report_dir: str = "",
-                 reporters: Sequence[Any] = ()) -> None:
+    def __init__(
+        self,
+        components: LoopComponents,
+        collect_per_iteration: int = 10,
+        train_episodes_per_iteration: int = 50,
+        eval_episodes: int = 5,
+        report_dir: str = "",
+        reporters: Sequence[Any] = (),
+    ) -> None:
         """``reporters``: benchmark Reporter instances (W&B, Prometheus,
         JSON) that receive each iteration's scalar metrics."""
         self.c = components
@@ -143,8 +146,9 @@ class PostTrainingLoop:
                 # Ingest-style collectors take no num_episodes argument.
                 episodes.extend(collector.collect())
             except Exception:
-                log.exception("collector %s failed; continuing",
-                              type(collector).__name__)
+                log.exception(
+                    "collector %s failed; continuing", type(collector).__name__
+                )
         report.episodes_collected = len(episodes)
         return episodes
 
@@ -159,8 +163,9 @@ class PostTrainingLoop:
                 if result.outcome is not TaskOutcome.UNKNOWN:
                     return result
             except Exception:
-                log.exception("evaluator %s failed; falling back",
-                              type(evaluator).__name__)
+                log.exception(
+                    "evaluator %s failed; falling back", type(evaluator).__name__
+                )
         return self._fallback_evaluator.evaluate(episode)
 
     def _train(self) -> Optional[TrainResult]:
@@ -204,8 +209,7 @@ class PostTrainingLoop:
             try:
                 reporter.log_metrics(metrics, step=self.iteration, context="loop")
             except Exception:
-                log.exception("reporter %s failed; continuing",
-                              type(reporter).__name__)
+                log.exception("reporter %s failed; continuing", type(reporter).__name__)
 
     def _persist_report(self, report: IterationReport) -> None:
         if not self.report_dir:

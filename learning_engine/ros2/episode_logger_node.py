@@ -66,20 +66,36 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
         # Observation sources
         self.create_subscription(Odometry, topics.ODOM, self._on_odom, 10)
         self.create_subscription(JointState, topics.ARM_JOINT_STATES, self._on_arm, 10)
-        self.create_subscription(Image, topics.CAMERA_WRIST,
-                                 lambda m: self._on_image(schema.OBS_IMAGE_WRIST, m), 5)
-        self.create_subscription(Image, topics.CAMERA_FRONT,
-                                 lambda m: self._on_image(schema.OBS_IMAGE_FRONT, m), 5)
-        self.create_subscription(Image, topics.CAMERA_BEV,
-                                 lambda m: self._on_image(schema.OBS_IMAGE_BEV, m), 5)
+        self.create_subscription(
+            Image,
+            topics.CAMERA_WRIST,
+            lambda m: self._on_image(schema.OBS_IMAGE_WRIST, m),
+            5,
+        )
+        self.create_subscription(
+            Image,
+            topics.CAMERA_FRONT,
+            lambda m: self._on_image(schema.OBS_IMAGE_FRONT, m),
+            5,
+        )
+        self.create_subscription(
+            Image,
+            topics.CAMERA_BEV,
+            lambda m: self._on_image(schema.OBS_IMAGE_BEV, m),
+            5,
+        )
         # Executed actions (post-mux = what the hardware actually received)
         self.create_subscription(Twist, topics.CMD_VEL_OUT, self._on_cmd_vel, 10)
-        self.create_subscription(JointState, topics.ARM_COMMANDS_OUT, self._on_arm_cmd, 10)
+        self.create_subscription(
+            JointState, topics.ARM_COMMANDS_OUT, self._on_arm_cmd, 10
+        )
         # Context / control
         self.create_subscription(Bool, topics.EMERGENCY_STOP, self._on_estop, 10)
         self.create_subscription(String, topics.EPISODE_START, self._on_start, 10)
         self.create_subscription(String, topics.EPISODE_STOP, self._on_stop, 10)
-        self.create_subscription(String, topics.MISSION_STATUS, self._on_mission_status, 10)
+        self.create_subscription(
+            String, topics.MISSION_STATUS, self._on_mission_status, 10
+        )
 
         self.status_pub = self.create_publisher(String, topics.EPISODE_STATUS, 10)
         self.create_timer(1.0 / self.record_hz, self._record_tick)
@@ -89,8 +105,9 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
     # ------------------------------------------------------------ callbacks
     def _on_odom(self, msg: Any) -> None:
         t = msg.twist.twist
-        self._latest["base_vel"] = np.array([t.linear.x, t.linear.y, t.angular.z],
-                                            dtype=np.float32)
+        self._latest["base_vel"] = np.array(
+            [t.linear.x, t.linear.y, t.angular.z], dtype=np.float32
+        )
 
     def _on_arm(self, msg: Any) -> None:
         pos = dict(zip(msg.name, msg.position))
@@ -126,7 +143,11 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
 
     def _on_stop(self, msg: Any) -> None:
         hint = (msg.data or "").strip().lower()
-        outcome = TaskOutcome(hint) if hint in TaskOutcome._value2member_map_ else TaskOutcome.UNKNOWN
+        outcome = (
+            TaskOutcome(hint)
+            if hint in TaskOutcome._value2member_map_
+            else TaskOutcome.UNKNOWN
+        )
         self._finish(outcome)
 
     def _on_mission_status(self, msg: Any) -> None:
@@ -143,9 +164,12 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
         if self._episode is not None:
             self._finish(TaskOutcome.UNKNOWN)
         self._episode = Episode(
-            meta=EpisodeMeta(task_instruction=instruction,
-                             source=DataSource.REAL_EXECUTION,
-                             environment="real", fps=self.record_hz)
+            meta=EpisodeMeta(
+                task_instruction=instruction,
+                source=DataSource.REAL_EXECUTION,
+                environment="real",
+                fps=self.record_hz,
+            )
         )
         self._episode_started = time.time()
         self.get_logger().info(f"recording episode: '{instruction}'")
@@ -171,14 +195,24 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
         base = self._latest.get("base_vel")
         if arm is None and base is None:
             return  # nothing observed yet
-        state = np.concatenate([
-            arm if arm is not None else np.zeros(schema.ARM_DIM, dtype=np.float32),
-            base if base is not None else np.zeros(schema.BASE_STATE_DIM, dtype=np.float32),
-        ])
-        action = np.concatenate([
-            self._latest.get("arm_action", np.zeros(schema.ARM_DIM, dtype=np.float32)),
-            self._latest.get("base_action", np.zeros(schema.BASE_ACTION_DIM, dtype=np.float32)),
-        ])
+        state = np.concatenate(
+            [
+                arm if arm is not None else np.zeros(schema.ARM_DIM, dtype=np.float32),
+                base
+                if base is not None
+                else np.zeros(schema.BASE_STATE_DIM, dtype=np.float32),
+            ]
+        )
+        action = np.concatenate(
+            [
+                self._latest.get(
+                    "arm_action", np.zeros(schema.ARM_DIM, dtype=np.float32)
+                ),
+                self._latest.get(
+                    "base_action", np.zeros(schema.BASE_ACTION_DIM, dtype=np.float32)
+                ),
+            ]
+        )
         obs: Dict[str, np.ndarray] = {schema.OBS_STATE: state}
         for key in schema.IMAGE_KEYS:
             if key in self._latest:
@@ -189,8 +223,9 @@ class EpisodeLoggerNode(Node):  # type: ignore[misc]
 
     def _publish_status(self) -> None:
         msg = String()
-        msg.data = (f"recording:{self._episode.meta.episode_id}"
-                    if self._episode else "idle")
+        msg.data = (
+            f"recording:{self._episode.meta.episode_id}" if self._episode else "idle"
+        )
         self.status_pub.publish(msg)
 
 

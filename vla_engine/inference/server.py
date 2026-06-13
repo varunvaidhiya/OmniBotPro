@@ -74,6 +74,7 @@ async def lifespan(app: FastAPI):
     if model_instance is not None:
         try:
             import torch
+
             torch.cuda.empty_cache()
         except Exception:
             pass
@@ -106,7 +107,10 @@ async def _limit_body_size(request: Request, call_next):
 
 @app.get("/health")
 def health_check():
-    loaded = model_instance is not None and getattr(model_instance, "model", None) is not None
+    loaded = (
+        model_instance is not None
+        and getattr(model_instance, "model", None) is not None
+    )
     return {"status": "ok", "model_loaded": loaded}
 
 

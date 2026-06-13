@@ -27,11 +27,14 @@ from .ai_benchmark import BenchmarkResult
 
 class Reporter(abc.ABC):
     @abc.abstractmethod
-    def publish(self, result: BenchmarkResult) -> None:
-        ...
+    def publish(self, result: BenchmarkResult) -> None: ...
 
-    def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None,
-                    context: str = "loop") -> None:
+    def log_metrics(
+        self,
+        metrics: Dict[str, float],
+        step: Optional[int] = None,
+        context: str = "loop",
+    ) -> None:
         """Stream scalar metrics (e.g. learning-loop iterations)."""
 
     def close(self) -> None:
@@ -61,9 +64,14 @@ class WandbReporter(Reporter):
     the run config, so W&B's grouping/filtering compares hardware directly.
     """
 
-    def __init__(self, project: str = "omnibot_benchmarks",
-                 entity: str = "", run_name: str = "",
-                 tags: Sequence[str] = (), group: str = "") -> None:
+    def __init__(
+        self,
+        project: str = "omnibot_benchmarks",
+        entity: str = "",
+        run_name: str = "",
+        tags: Sequence[str] = (),
+        group: str = "",
+    ) -> None:
         try:
             import wandb
         except ImportError as e:
@@ -110,8 +118,12 @@ class PrometheusReporter(Reporter):
     setup_pi_agents.sh picks it up with --collector.textfile.directory).
     """
 
-    def __init__(self, port: Optional[int] = None, textfile: str = "",
-                 prefix: str = "omnibot_bench") -> None:
+    def __init__(
+        self,
+        port: Optional[int] = None,
+        textfile: str = "",
+        prefix: str = "omnibot_bench",
+    ) -> None:
         """``port=None`` disables the HTTP server; ``port=0`` binds an
         ephemeral port (see ``.port``)."""
         if port is None and not textfile:
@@ -160,7 +172,8 @@ class PrometheusReporter(Reporter):
                 lines.append(f"# TYPE {name} gauge")
                 lines.append(
                     f"{name}{{{label_str}}} {self._gauges[name]}"
-                    if label_str else f"{name} {self._gauges[name]}"
+                    if label_str
+                    else f"{name} {self._gauges[name]}"
                 )
         return "\n".join(lines) + "\n"
 

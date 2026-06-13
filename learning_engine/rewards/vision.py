@@ -15,7 +15,7 @@ ReplayDataset → train LearnedRewardModel on them → use it densely.
 from __future__ import annotations
 
 import re
-from typing import Optional, Sequence
+from typing import Sequence
 
 import numpy as np
 

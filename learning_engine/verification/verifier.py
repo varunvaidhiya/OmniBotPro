@@ -37,18 +37,25 @@ class SafetyCheck(PlanCheck):
     name = "safety"
     hard = True
 
-    def __init__(self, max_linear: float = schema.MAX_LINEAR_VEL,
-                 max_angular: float = schema.MAX_ANGULAR_VEL,
-                 max_arm_delta: float = schema.MAX_ARM_DELTA_PER_STEP) -> None:
+    def __init__(
+        self,
+        max_linear: float = schema.MAX_LINEAR_VEL,
+        max_angular: float = schema.MAX_ANGULAR_VEL,
+        max_arm_delta: float = schema.MAX_ARM_DELTA_PER_STEP,
+    ) -> None:
         self.max_linear = max_linear
         self.max_angular = max_angular
         self.max_arm_delta = max_arm_delta
 
-    def check(self, plan: CandidatePlan, observation: Observation,
-              context: Dict[str, Any]) -> Tuple[float, str]:
+    def check(
+        self, plan: CandidatePlan, observation: Observation, context: Dict[str, Any]
+    ) -> Tuple[float, str]:
         a = np.asarray(plan.actions, dtype=np.float64)
         if a.shape[-1] >= schema.MOBILE_MANIP_ACTION_DIM:
-            arm, base = a[:, : schema.ARM_DIM], a[:, schema.ARM_DIM:schema.ARM_DIM + 3]
+            arm, base = (
+                a[:, : schema.ARM_DIM],
+                a[:, schema.ARM_DIM : schema.ARM_DIM + 3],
+            )
         else:
             arm, base = None, a[:, :3]
 
@@ -65,7 +72,9 @@ class SafetyCheck(PlanCheck):
             if state is not None and state.shape[-1] >= schema.ARM_DIM:
                 q = np.asarray(state[: schema.ARM_DIM], dtype=np.float64)
                 q_final = q + np.sum(deltas, axis=0)
-                if np.any(q_final < schema.JOINT_MIN) or np.any(q_final > schema.JOINT_MAX):
+                if np.any(q_final < schema.JOINT_MIN) or np.any(
+                    q_final > schema.JOINT_MAX
+                ):
                     return 0.0, "plan drives arm past URDF joint limits"
         # Feasible — score by margin to limits (gentler plans score higher).
         margin = 1.0 - float(np.mean(np.abs(base[:, :2])) / self.max_linear)
@@ -85,10 +94,13 @@ class ReachabilityCheck(PlanCheck):
         self.max_displacement_m = max_displacement_m
         self.dt = dt
 
-    def check(self, plan: CandidatePlan, observation: Observation,
-              context: Dict[str, Any]) -> Tuple[float, str]:
+    def check(
+        self, plan: CandidatePlan, observation: Observation, context: Dict[str, Any]
+    ) -> Tuple[float, str]:
         a = np.asarray(plan.actions, dtype=np.float64)
-        base = a[:, schema.ARM_DIM:schema.ARM_DIM + 2] if a.shape[-1] >= 9 else a[:, :2]
+        base = (
+            a[:, schema.ARM_DIM : schema.ARM_DIM + 2] if a.shape[-1] >= 9 else a[:, :2]
+        )
         displacement = np.sum(base, axis=0) * self.dt  # crude dead-reckoning
         if np.linalg.norm(displacement) > self.max_displacement_m:
             return 0.0, f"plan displaces base > {self.max_displacement_m} m"
@@ -110,13 +122,15 @@ class TaskLikelihoodCheck(PlanCheck):
     name = "task_likelihood"
     hard = False
 
-    def __init__(self, reward_model: RewardModel,
-                 image_key: str = schema.OBS_IMAGE_WRIST) -> None:
+    def __init__(
+        self, reward_model: RewardModel, image_key: str = schema.OBS_IMAGE_WRIST
+    ) -> None:
         self.reward_model = reward_model
         self.image_key = image_key
 
-    def check(self, plan: CandidatePlan, observation: Observation,
-              context: Dict[str, Any]) -> Tuple[float, str]:
+    def check(
+        self, plan: CandidatePlan, observation: Observation, context: Dict[str, Any]
+    ) -> Tuple[float, str]:
         frame = observation.get(self.image_key)
         task = str(context.get("task", ""))
         if frame is None or not task:
@@ -144,11 +158,15 @@ class InferenceVerifier:
     single-sample VLA outliers.
     """
 
-    def __init__(self, checks: Sequence[PlanCheck], n_candidates: int = 4,
-                 horizon: int = 10,
-                 score_weights: Optional[Dict[str, float]] = None,
-                 consistency_weight: float = 0.5,
-                 fallback_policy: Optional[Policy] = None) -> None:
+    def __init__(
+        self,
+        checks: Sequence[PlanCheck],
+        n_candidates: int = 4,
+        horizon: int = 10,
+        score_weights: Optional[Dict[str, float]] = None,
+        consistency_weight: float = 0.5,
+        fallback_policy: Optional[Policy] = None,
+    ) -> None:
         self.checks = list(checks)
         self.n_candidates = n_candidates
         self.horizon = horizon
@@ -156,12 +174,18 @@ class InferenceVerifier:
         self.consistency_weight = consistency_weight
         self.fallback_policy = fallback_policy or ZeroPolicy()
 
-    def select(self, policy: Policy, observation: Observation, task: str = "",
-               context: Optional[Dict[str, Any]] = None) -> VerificationResult:
+    def select(
+        self,
+        policy: Policy,
+        observation: Observation,
+        task: str = "",
+        context: Optional[Dict[str, Any]] = None,
+    ) -> VerificationResult:
         context = dict(context or {})
         context.setdefault("task", task)
-        candidates = policy.sample_plans(observation, task,
-                                         n=self.n_candidates, horizon=self.horizon)
+        candidates = policy.sample_plans(
+            observation, task, n=self.n_candidates, horizon=self.horizon
+        )
         for plan in candidates:
             for check in self.checks:
                 score, reason = check.check(plan, observation, context)
@@ -174,12 +198,15 @@ class InferenceVerifier:
         feasible = [p for p in candidates if p.feasible]
         if not feasible:
             safe = CandidatePlan(
-                actions=np.tile(self.fallback_policy.predict(observation, task),
-                                (self.horizon, 1)),
-                source="fallback", feasible=True,
+                actions=np.tile(
+                    self.fallback_policy.predict(observation, task), (self.horizon, 1)
+                ),
+                source="fallback",
+                feasible=True,
             )
-            return VerificationResult(plan=safe, fallback_used=True,
-                                      candidates=candidates)
+            return VerificationResult(
+                plan=safe, fallback_used=True, candidates=candidates
+            )
 
         if len(feasible) > 1 and self.consistency_weight > 0:
             self._apply_consistency_bonus(feasible)
@@ -193,4 +220,6 @@ class InferenceVerifier:
         dists = np.linalg.norm(firsts - centroid, axis=1)
         scale = float(dists.max()) or 1.0
         for plan, d in zip(plans, dists):
-            plan.scores["consistency"] = self.consistency_weight * (1.0 - float(d) / scale)
+            plan.scores["consistency"] = self.consistency_weight * (
+                1.0 - float(d) / scale
+            )

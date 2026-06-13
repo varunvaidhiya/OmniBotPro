@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import urllib.request
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 
@@ -30,8 +30,12 @@ class VlaServePolicy(Policy):
     This is how the learning loop evaluates whatever VLA the robot is
     actually serving, regardless of which model class is loaded."""
 
-    def __init__(self, url: str = "http://localhost:8000",
-                 image_key: str = schema.OBS_IMAGE_FRONT, action_dim: int = 7) -> None:
+    def __init__(
+        self,
+        url: str = "http://localhost:8000",
+        image_key: str = schema.OBS_IMAGE_FRONT,
+        action_dim: int = 7,
+    ) -> None:
         self.url = url.rstrip("/")
         self.image_key = image_key
         self.action_dim = action_dim
@@ -40,13 +44,16 @@ class VlaServePolicy(Policy):
         import base64
 
         img = np.asarray(observation[self.image_key], dtype=np.uint8)
-        payload = json.dumps({
-            "instruction": task,
-            "image_b64": base64.b64encode(img.tobytes()).decode(),
-            "image_shape": list(img.shape),
-        }).encode()
+        payload = json.dumps(
+            {
+                "instruction": task,
+                "image_b64": base64.b64encode(img.tobytes()).decode(),
+                "image_shape": list(img.shape),
+            }
+        ).encode()
         req = urllib.request.Request(
-            f"{self.url}/predict", data=payload,
+            f"{self.url}/predict",
+            data=payload,
             headers={"Content-Type": "application/json"},
         )
         with urllib.request.urlopen(req, timeout=30) as resp:
@@ -60,13 +67,18 @@ class SmolVLAPolicy(Policy):
     policy. Mirrors smolvla_node.py's observation mapping so a policy
     evaluated here behaves identically when deployed via ROS."""
 
-    def __init__(self, checkpoint_path: str = "lerobot/smolvla_base",
-                 device: str = "auto") -> None:
+    def __init__(
+        self, checkpoint_path: str = "lerobot/smolvla_base", device: str = "auto"
+    ) -> None:
         try:
             import torch  # noqa: F401
-            from lerobot.common.policies.smolvla.modeling_smolvla import SmolVLAPolicy as _LP
+            from lerobot.common.policies.smolvla.modeling_smolvla import (
+                SmolVLAPolicy as _LP,
+            )
         except ImportError as e:
-            raise RuntimeError("SmolVLAPolicy requires `pip install lerobot torch`") from e
+            raise RuntimeError(
+                "SmolVLAPolicy requires `pip install lerobot torch`"
+            ) from e
         from ..hardware import resolve_device
 
         self.device = resolve_device(device)
@@ -83,7 +95,9 @@ class SmolVLAPolicy(Policy):
         batch = {
             "observation.state": torch.as_tensor(
                 observation[schema.OBS_STATE], dtype=torch.float32
-            ).reshape(1, -1).to(self.device),
+            )
+            .reshape(1, -1)
+            .to(self.device),
             "observation.images.wrist": img(schema.OBS_IMAGE_WRIST),
             "observation.images.bev": img(schema.OBS_IMAGE_BEV),
             "task": task,
@@ -99,8 +113,12 @@ class OpenVLAPolicy(Policy):
     (packages/vla_serve/vla_serve/models/openvla.py). 7-D action; the base
     mapping (action[0]→vx, action[1]→vy, action[5]→ωz) matches vla_node."""
 
-    def __init__(self, model_path: str = "openvla/openvla-7b",
-                 device: str = "auto", load_in_4bit: bool = False) -> None:
+    def __init__(
+        self,
+        model_path: str = "openvla/openvla-7b",
+        device: str = "auto",
+        load_in_4bit: bool = False,
+    ) -> None:
         try:
             from vla_serve.models.openvla import OpenVLAModel
         except ImportError as e:
@@ -111,8 +129,9 @@ class OpenVLAPolicy(Policy):
         from ..hardware import resolve_device
 
         self.device = resolve_device(device)
-        self._model = OpenVLAModel(model_path=model_path, device=self.device,
-                                   load_in_4bit=load_in_4bit)
+        self._model = OpenVLAModel(
+            model_path=model_path, device=self.device, load_in_4bit=load_in_4bit
+        )
         self._model.load()
         self.action_dim = 7
 

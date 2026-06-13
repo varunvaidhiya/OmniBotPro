@@ -58,9 +58,11 @@ def episode_stats(episode: Episode) -> Dict[str, Any]:
     if episode.steps:
         actions = np.stack([s.action for s in episode.steps])
         stats["mean_abs_action"] = round(float(np.mean(np.abs(actions))), 4)
-        stats["action_jerk"] = round(
-            float(np.mean(np.abs(np.diff(actions, axis=0)))), 4
-        ) if len(actions) > 1 else 0.0
+        stats["action_jerk"] = (
+            round(float(np.mean(np.abs(np.diff(actions, axis=0)))), 4)
+            if len(actions) > 1
+            else 0.0
+        )
     return stats
 
 
@@ -79,7 +81,9 @@ class HeuristicSelfEvaluator(EpisodeEvaluator):
             # Positive accumulated reward suggests partial progress.
             total = stats.get("total_reward", 0.0)
             confidence = float(np.clip(0.4 + 0.1 * np.tanh(total), 0.0, 0.7))
-        outcome = TaskOutcome.ABORTED if stats["aborted"] else classify_outcome(confidence)
+        outcome = (
+            TaskOutcome.ABORTED if stats["aborted"] else classify_outcome(confidence)
+        )
 
         failures = []
         if stats["collisions"]:
@@ -98,7 +102,9 @@ class HeuristicSelfEvaluator(EpisodeEvaluator):
                 f"total_reward={stats.get('total_reward', 'n/a')}; "
                 f"env_success={stats['env_success']}"
             ),
-            success_analysis="environment reported success" if stats["env_success"] else "",
+            success_analysis="environment reported success"
+            if stats["env_success"]
+            else "",
             failure_analysis="; ".join(failures),
             judge="heuristic_self_eval",
             extra={"stats": stats},

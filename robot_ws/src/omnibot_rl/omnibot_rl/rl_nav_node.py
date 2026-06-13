@@ -411,7 +411,8 @@ def _pointcloud_to_sectors(
     y_off, y_dt = field_map["y"]
     z_off, z_dt = field_map["z"]
     if x_dt not in _DTYPE_MAP or y_dt not in _DTYPE_MAP or z_dt not in _DTYPE_MAP:
-        self.get_logger().error(
+        # Module-level helper (no `self`): log via the named rclpy logger.
+        rclpy.logging.get_logger("rl_nav_node").error(
             f"Unsupported PointCloud2 field types (x={x_dt}, y={y_dt}, z={z_dt}). "
             "Expected FLOAT32 (7) or FLOAT64 (8)."
         )

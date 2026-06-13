@@ -14,8 +14,6 @@ Episodes with ``source=DataSource.HUMAN_DEMO``.
 
 from __future__ import annotations
 
-import json
-import time
 from pathlib import Path
 from typing import Any, Iterable, Iterator, Optional
 
@@ -62,7 +60,11 @@ class SimRolloutCollector(DataCollector):
                         observation=obs,
                         action=np.asarray(action, dtype=np.float32),
                         timestamp=float(t),
-                        info={"env_reward": float(env_reward), "done": bool(done), **info},
+                        info={
+                            "env_reward": float(env_reward),
+                            "done": bool(done),
+                            **info,
+                        },
                     )
                 )
                 obs = next_obs
@@ -115,8 +117,12 @@ class TeleopDatasetCollector(DataCollector):
     reports clearly instead of failing at import time.
     """
 
-    def __init__(self, repo_id: str, root: Optional[str] = None,
-                 source: DataSource = DataSource.TELEOP) -> None:
+    def __init__(
+        self,
+        repo_id: str,
+        root: Optional[str] = None,
+        source: DataSource = DataSource.TELEOP,
+    ) -> None:
         self.repo_id = repo_id
         self.root = root
         self.source = source
@@ -146,7 +152,9 @@ class TeleopDatasetCollector(DataCollector):
                 for lerobot_key, ours in inv_map.items():
                     if lerobot_key in frame:
                         arr = frame[lerobot_key]
-                        obs[ours] = arr.numpy() if hasattr(arr, "numpy") else np.asarray(arr)
+                        obs[ours] = (
+                            arr.numpy() if hasattr(arr, "numpy") else np.asarray(arr)
+                        )
                 steps.append(
                     Step(
                         observation=obs,

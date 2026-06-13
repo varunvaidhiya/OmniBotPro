@@ -68,56 +68,78 @@ BUILTIN_PROFILES: Dict[str, HardwareProfile] = {
     "pi_workstation": HardwareProfile(
         name="pi_workstation",
         description="Raspberry Pi 5 (control+perception) + NVIDIA GPU "
-                    "workstation (inference+training). deploy.py --mode multi.",
+        "workstation (inference+training). deploy.py --mode multi.",
         nodes=[
-            NodeSpec("pi5", ["control", "perception"], device="cpu",
-                     accelerator="cpu"),
-            NodeSpec("workstation", ["inference", "training", "simulation"],
-                     device="cuda", accelerator="nvidia_gpu"),
+            NodeSpec("pi5", ["control", "perception"], device="cpu", accelerator="cpu"),
+            NodeSpec(
+                "workstation",
+                ["inference", "training", "simulation"],
+                device="cuda",
+                accelerator="nvidia_gpu",
+            ),
         ],
     ),
     "pi_accelerator_workstation": HardwareProfile(
         name="pi_accelerator_workstation",
         description="Pi 5 + Hailo/Coral accelerator for on-robot perception "
-                    "inference; GPU workstation for VLA + training.",
+        "inference; GPU workstation for VLA + training.",
         nodes=[
-            NodeSpec("pi5", ["control", "perception"], device="cpu",
-                     accelerator="hailo",
-                     notes="perception models compiled to HEF/Edge-TPU run "
-                           "on the accelerator; ROS nodes stay on CPU"),
-            NodeSpec("workstation", ["inference", "training", "simulation"],
-                     device="cuda", accelerator="nvidia_gpu"),
+            NodeSpec(
+                "pi5",
+                ["control", "perception"],
+                device="cpu",
+                accelerator="hailo",
+                notes="perception models compiled to HEF/Edge-TPU run "
+                "on the accelerator; ROS nodes stay on CPU",
+            ),
+            NodeSpec(
+                "workstation",
+                ["inference", "training", "simulation"],
+                device="cuda",
+                accelerator="nvidia_gpu",
+            ),
         ],
     ),
     "jetson_single": HardwareProfile(
         name="jetson_single",
         description="Everything on one Jetson (Orin NX / AGX): control, "
-                    "perception and on-board VLA/RL inference. Training "
-                    "stays off-robot or runs in low-priority windows.",
+        "perception and on-board VLA/RL inference. Training "
+        "stays off-robot or runs in low-priority windows.",
         nodes=[
-            NodeSpec("jetson", ["control", "perception", "inference", "training"],
-                     device="cuda", accelerator="jetson",
-                     notes="prefer TensorRT EPs for ONNX policies"),
+            NodeSpec(
+                "jetson",
+                ["control", "perception", "inference", "training"],
+                device="cuda",
+                accelerator="jetson",
+                notes="prefer TensorRT EPs for ONNX policies",
+            ),
         ],
     ),
     "workstation_single": HardwareProfile(
         name="workstation_single",
         description="Single GPU workstation runs everything (sim-only "
-                    "development, RTX-class GPU). deploy.py --mode single.",
+        "development, RTX-class GPU). deploy.py --mode single.",
         nodes=[
-            NodeSpec("workstation",
-                     ["control", "perception", "inference", "training", "simulation"],
-                     device="cuda", accelerator="nvidia_gpu"),
+            NodeSpec(
+                "workstation",
+                ["control", "perception", "inference", "training", "simulation"],
+                device="cuda",
+                accelerator="nvidia_gpu",
+            ),
         ],
     ),
     "mac_dev": HardwareProfile(
         name="mac_dev",
         description="Apple M-series development box: MPS inference/training, "
-                    "CoreML for ONNX policies. No CUDA sim backends.",
+        "CoreML for ONNX policies. No CUDA sim backends.",
         nodes=[
-            NodeSpec("mac", ["inference", "training"], device="mps",
-                     accelerator="apple_silicon",
-                     notes="Isaac Lab unavailable; use MuJoCo/ManiSkill envs"),
+            NodeSpec(
+                "mac",
+                ["inference", "training"],
+                device="mps",
+                accelerator="apple_silicon",
+                notes="Isaac Lab unavailable; use MuJoCo/ManiSkill envs",
+            ),
         ],
     ),
 }
@@ -128,8 +150,7 @@ def get_profile(name: str) -> HardwareProfile:
         return BUILTIN_PROFILES[name]
     except KeyError:
         raise KeyError(
-            f"Unknown hardware profile '{name}'. "
-            f"Available: {sorted(BUILTIN_PROFILES)}"
+            f"Unknown hardware profile '{name}'. Available: {sorted(BUILTIN_PROFILES)}"
         ) from None
 
 

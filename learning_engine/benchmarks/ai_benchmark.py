@@ -62,8 +62,7 @@ def _latency_stats(samples_ms: List[float]) -> Dict[str, float]:
 def default_observation(with_images: bool = True) -> Dict[str, np.ndarray]:
     """Synthetic observation matching the canonical schema (used when no
     dataset is supplied)."""
-    obs = {schema.OBS_STATE: np.zeros(schema.MOBILE_MANIP_STATE_DIM,
-                                      dtype=np.float32)}
+    obs = {schema.OBS_STATE: np.zeros(schema.MOBILE_MANIP_STATE_DIM, dtype=np.float32)}
     if with_images:
         obs[schema.OBS_IMAGE_WRIST] = np.zeros((240, 320, 3), dtype=np.uint8)
         obs[schema.OBS_IMAGE_FRONT] = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -126,9 +125,13 @@ class InferenceBenchmark:
 class TrainingBenchmark:
     """Trainer throughput (transitions/sec) under telemetry."""
 
-    def __init__(self, trainer: PolicyTrainer, dataset,
-                 policy: Optional[Policy] = None,
-                 system: Optional[SystemInfo] = None) -> None:
+    def __init__(
+        self,
+        trainer: PolicyTrainer,
+        dataset,
+        policy: Optional[Policy] = None,
+        system: Optional[SystemInfo] = None,
+    ) -> None:
         self.trainer = trainer
         self.dataset = dataset
         self.policy = policy
@@ -163,9 +166,14 @@ class DatasetIOBenchmark:
     """ReplayDataset write/read throughput — storage matters on SD-card
     targets (Pi, Jetson) far more than on the workstation."""
 
-    def __init__(self, root: str, episodes: int = 10, steps: int = 100,
-                 with_images: bool = True,
-                 system: Optional[SystemInfo] = None) -> None:
+    def __init__(
+        self,
+        root: str,
+        episodes: int = 10,
+        steps: int = 100,
+        with_images: bool = True,
+        system: Optional[SystemInfo] = None,
+    ) -> None:
         self.root = root
         self.episodes = episodes
         self.steps = steps
@@ -182,10 +190,13 @@ class DatasetIOBenchmark:
             return Ep(
                 meta=EpisodeMeta(task_instruction="io benchmark"),
                 steps=[
-                    Step(observation=default_observation(self.with_images),
-                         action=np.zeros(schema.MOBILE_MANIP_ACTION_DIM,
-                                         dtype=np.float32),
-                         timestamp=float(t))
+                    Step(
+                        observation=default_observation(self.with_images),
+                        action=np.zeros(
+                            schema.MOBILE_MANIP_ACTION_DIM, dtype=np.float32
+                        ),
+                        timestamp=float(t),
+                    )
                     for t in range(self.steps)
                 ],
             )
@@ -227,14 +238,19 @@ def episodes_for_training(n_episodes: int = 20, n_steps: int = 50) -> List[Episo
     for _ in range(n_episodes):
         steps = [
             Step(
-                observation={schema.OBS_STATE: rng.normal(
-                    size=schema.MOBILE_MANIP_STATE_DIM).astype(np.float32)},
-                action=rng.normal(size=schema.MOBILE_MANIP_ACTION_DIM)
-                .astype(np.float32),
+                observation={
+                    schema.OBS_STATE: rng.normal(
+                        size=schema.MOBILE_MANIP_STATE_DIM
+                    ).astype(np.float32)
+                },
+                action=rng.normal(size=schema.MOBILE_MANIP_ACTION_DIM).astype(
+                    np.float32
+                ),
                 timestamp=float(t),
             )
             for t in range(n_steps)
         ]
-        out.append(Ep(meta=EpisodeMeta(task_instruction="train benchmark"),
-                      steps=steps))
+        out.append(
+            Ep(meta=EpisodeMeta(task_instruction="train benchmark"), steps=steps)
+        )
     return out

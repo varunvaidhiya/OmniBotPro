@@ -20,7 +20,6 @@ Parameters
 
 import datetime
 import os
-import shlex
 import signal
 import subprocess
 

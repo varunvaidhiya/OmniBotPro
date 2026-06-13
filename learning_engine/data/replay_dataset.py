@@ -67,9 +67,7 @@ class ReplayDataset:
         for key in obs_keys:
             if not self.store_images and key in schema.IMAGE_KEYS:
                 continue
-            arrays[f"obs/{key}"] = np.stack(
-                [s.observation[key] for s in episode.steps]
-            )
+            arrays[f"obs/{key}"] = np.stack([s.observation[key] for s in episode.steps])
         np.savez_compressed(ep_dir / "steps.npz", **arrays)
 
         meta_doc = {
@@ -78,7 +76,9 @@ class ReplayDataset:
             "outcome": meta.outcome.value,
             "length": len(episode),
             "schema_version": schema.SCHEMA_VERSION,
-            "rewards": [s.reward.to_dict() if s.reward else None for s in episode.steps],
+            "rewards": [
+                s.reward.to_dict() if s.reward else None for s in episode.steps
+            ],
             "step_infos": [_jsonable(s.info) for s in episode.steps],
         }
         (ep_dir / "meta.json").write_text(json.dumps(meta_doc, indent=1))
@@ -122,7 +122,9 @@ class ReplayDataset:
                     observation={k: data[f"obs/{k}"][t] for k in obs_keys},
                     action=data["actions"][t],
                     timestamp=float(data["timestamps"][t]),
-                    reward=RewardBreakdown(**{k: reward_doc[k] for k in ("terms", "weights")})
+                    reward=RewardBreakdown(
+                        **{k: reward_doc[k] for k in ("terms", "weights")}
+                    )
                     if reward_doc
                     else None,
                     info=meta_doc["step_infos"][t],
@@ -157,7 +159,9 @@ class ReplayDataset:
     def stats(self) -> Dict[str, int]:
         s: Dict[str, int] = {"episodes": len(self._index)}
         for entry in self._index.values():
-            s[f"outcome/{entry['outcome']}"] = s.get(f"outcome/{entry['outcome']}", 0) + 1
+            s[f"outcome/{entry['outcome']}"] = (
+                s.get(f"outcome/{entry['outcome']}", 0) + 1
+            )
             s[f"source/{entry['source']}"] = s.get(f"source/{entry['source']}", 0) + 1
         return s
 
@@ -183,8 +187,15 @@ class ReplayDataset:
         entry = {
             k: meta_doc[k]
             for k in (
-                "episode_id", "task_instruction", "source", "outcome",
-                "success_score", "length", "created_at", "environment", "tags",
+                "episode_id",
+                "task_instruction",
+                "source",
+                "outcome",
+                "success_score",
+                "length",
+                "created_at",
+                "environment",
+                "tags",
             )
         }
         self._index[entry["episode_id"]] = entry

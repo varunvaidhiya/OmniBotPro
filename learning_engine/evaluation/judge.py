@@ -26,7 +26,9 @@ class ClaudeVLMClient(VLMClient):
         try:
             import anthropic
         except ImportError as e:
-            raise RuntimeError("ClaudeVLMClient requires `pip install anthropic`") from e
+            raise RuntimeError(
+                "ClaudeVLMClient requires `pip install anthropic`"
+            ) from e
         self.model = model
         self.max_tokens = max_tokens
         self._client = anthropic.Anthropic(

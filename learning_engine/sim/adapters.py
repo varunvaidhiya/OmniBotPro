@@ -44,7 +44,9 @@ class _GymnasiumAdapter(SimulationEnv):
         obs, _info = self._env.reset(**kwargs)
         return _gym_obs_to_dict(obs)
 
-    def step(self, action: np.ndarray) -> Tuple[Observation, float, bool, Dict[str, Any]]:
+    def step(
+        self, action: np.ndarray
+    ) -> Tuple[Observation, float, bool, Dict[str, Any]]:
         obs, reward, terminated, truncated, info = self._env.step(action)
         info = dict(info)
         info["truncated"] = bool(truncated)
@@ -61,7 +63,9 @@ class MuJoCoEnv(_GymnasiumAdapter):
         try:
             import gymnasium
         except ImportError as e:
-            raise RuntimeError("MuJoCoEnv requires `pip install gymnasium[mujoco]`") from e
+            raise RuntimeError(
+                "MuJoCoEnv requires `pip install gymnasium[mujoco]`"
+            ) from e
         super().__init__(gymnasium.make(env_id, **env_kwargs))
 
 
@@ -102,7 +106,9 @@ class IsaacLabEnv(SimulationEnv):
         obs, _ = self.vec_env.reset(**kwargs)
         return _gym_obs_to_dict(_first(obs))
 
-    def step(self, action: np.ndarray) -> Tuple[Observation, float, bool, Dict[str, Any]]:
+    def step(
+        self, action: np.ndarray
+    ) -> Tuple[Observation, float, bool, Dict[str, Any]]:
         import torch
 
         batch = torch.as_tensor(action, dtype=torch.float32).unsqueeze(0)

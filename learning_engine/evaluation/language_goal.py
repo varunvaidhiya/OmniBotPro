@@ -41,11 +41,15 @@ def classify_outcome(confidence: float) -> TaskOutcome:
     return TaskOutcome.FAILURE
 
 
-def episode_frames(episode: Episode, max_frames: int = 4,
-                   camera_priority: Optional[List[str]] = None) -> List[np.ndarray]:
+def episode_frames(
+    episode: Episode, max_frames: int = 4, camera_priority: Optional[List[str]] = None
+) -> List[np.ndarray]:
     """Pull the best available camera stream from an episode."""
-    cameras = camera_priority or [schema.OBS_IMAGE_WRIST, schema.OBS_IMAGE_FRONT,
-                                  schema.OBS_IMAGE_BEV]
+    cameras = camera_priority or [
+        schema.OBS_IMAGE_WRIST,
+        schema.OBS_IMAGE_FRONT,
+        schema.OBS_IMAGE_BEV,
+    ]
     for cam in cameras:
         frames = [s.observation[cam] for s in episode.steps if cam in s.observation]
         if frames:
@@ -88,7 +92,9 @@ def _parse_reply(reply: str) -> tuple:
     try:
         m = re.search(r"\{.*\}", reply, re.DOTALL)
         doc = json.loads(m.group()) if m else {}
-        return (float(np.clip(float(doc.get("confidence", 0.0)), 0.0, 1.0)),
-                str(doc.get("rationale", "")))
+        return (
+            float(np.clip(float(doc.get("confidence", 0.0)), 0.0, 1.0)),
+            str(doc.get("rationale", "")),
+        )
     except (ValueError, TypeError):
         return 0.0, f"unparseable judge reply: {reply[:120]}"

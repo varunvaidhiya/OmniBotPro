@@ -125,7 +125,7 @@ def _geometric_ipm(
         dx, dy = gX - px, gY - py
         xl = cos_y * dx + sin_y * dy
         yl = -sin_y * dx + cos_y * dy
-        zo = xl          # optical depth
+        zo = xl  # optical depth
         xo = -yl
         yo = cam_height  # ground is cam_height below the optical centre
         with np.errstate(divide="ignore", invalid="ignore"):

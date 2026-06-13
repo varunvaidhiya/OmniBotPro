@@ -31,6 +31,7 @@ Usage (CLI):
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -332,12 +333,11 @@ def _update_stats(dataset_root: Path, rows: list[dict]) -> None:
             # Combined mean
             mc = (n_old * m_a + n_new * m_b) / (n_old + n_new)
             # Combined variance (parallel algorithm)
-            var_a = s_a ** 2
-            var_b = s_b ** 2
+            var_a = s_a**2
+            var_b = s_b**2
             vc = (
-                (n_old * (var_a + (m_a - mc) ** 2) + n_new * (var_b + (m_b - mc) ** 2))
-                / (n_old + n_new)
-            )
+                n_old * (var_a + (m_a - mc) ** 2) + n_new * (var_b + (m_b - mc) ** 2)
+            ) / (n_old + n_new)
             merged_mean.append(mc)
             merged_std.append(math.sqrt(vc))
         old[key]["mean"] = merged_mean

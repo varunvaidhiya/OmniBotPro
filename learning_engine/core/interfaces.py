@@ -46,11 +46,12 @@ class SimulationEnv(abc.ABC):
     action_dim: int = 9
 
     @abc.abstractmethod
-    def reset(self, **kwargs: Any) -> Observation:
-        ...
+    def reset(self, **kwargs: Any) -> Observation: ...
 
     @abc.abstractmethod
-    def step(self, action: np.ndarray) -> Tuple[Observation, float, bool, Dict[str, Any]]:
+    def step(
+        self, action: np.ndarray
+    ) -> Tuple[Observation, float, bool, Dict[str, Any]]:
         """Returns (next_observation, reward, done, info)."""
 
     def set_goal(self, goal: Dict[str, Any]) -> None:
@@ -111,16 +112,14 @@ class VLMClient(abc.ABC):
         prompt: str,
         images: Optional[Sequence[np.ndarray]] = None,
         system: str = "",
-    ) -> str:
-        ...
+    ) -> str: ...
 
 
 class EpisodeEvaluator(abc.ABC):
     """Judges an episode: language-goal verification, self-critique, etc."""
 
     @abc.abstractmethod
-    def evaluate(self, episode: Episode) -> EvaluationReport:
-        ...
+    def evaluate(self, episode: Episode) -> EvaluationReport: ...
 
 
 # ---------------------------------------------------------------------------
@@ -130,16 +129,13 @@ class EpisodeEvaluator(abc.ABC):
 
 class ReplayBuffer(abc.ABC):
     @abc.abstractmethod
-    def add(self, transition: Transition, priority: Optional[float] = None) -> None:
-        ...
+    def add(self, transition: Transition, priority: Optional[float] = None) -> None: ...
 
     @abc.abstractmethod
-    def sample(self, batch_size: int) -> List[Transition]:
-        ...
+    def sample(self, batch_size: int) -> List[Transition]: ...
 
     @abc.abstractmethod
-    def __len__(self) -> int:
-        ...
+    def __len__(self) -> int: ...
 
 
 # ---------------------------------------------------------------------------
@@ -154,8 +150,7 @@ class Policy(abc.ABC):
     action_dim: int = 9
 
     @abc.abstractmethod
-    def predict(self, observation: Observation, task: str = "") -> np.ndarray:
-        ...
+    def predict(self, observation: Observation, task: str = "") -> np.ndarray: ...
 
     def sample_plans(
         self,
@@ -175,10 +170,17 @@ class Policy(abc.ABC):
         base = self.predict(observation, task)
         plans = []
         for i in range(n):
-            noise = 0.0 if i == 0 else np.random.normal(0.0, noise_scale, size=base.shape[-1])
+            noise = (
+                0.0
+                if i == 0
+                else np.random.normal(0.0, noise_scale, size=base.shape[-1])
+            )
             actions = np.tile(base + noise, (horizon, 1))
-            plans.append(CandidatePlan(actions=actions.astype(np.float32),
-                                       source=type(self).__name__))
+            plans.append(
+                CandidatePlan(
+                    actions=actions.astype(np.float32), source=type(self).__name__
+                )
+            )
         return plans
 
     def save(self, path: str) -> None:

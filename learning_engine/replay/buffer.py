@@ -152,8 +152,11 @@ class EpisodicReplayStore:
             # exponentially more likely.
             ranks = np.arange(len(ids), dtype=np.float64)
             w = np.exp((ranks - len(ids)) * np.log(2) / self.recency_half_life)
-            picks.extend(self._rng.choice(ids, size=min(k, len(ids)),
-                                          replace=False, p=w / w.sum()))
+            picks.extend(
+                self._rng.choice(
+                    ids, size=min(k, len(ids)), replace=False, p=w / w.sum()
+                )
+            )
         self._rng.shuffle(picks)  # type: ignore[arg-type]
         return list(picks)[:n]
 

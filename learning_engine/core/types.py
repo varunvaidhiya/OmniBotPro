@@ -64,17 +64,18 @@ class RewardBreakdown:
 
     @property
     def total(self) -> float:
-        return float(
-            sum(self.weights.get(k, 1.0) * v for k, v in self.terms.items())
-        )
+        return float(sum(self.weights.get(k, 1.0) * v for k, v in self.terms.items()))
 
     def as_vector(self, order: Optional[List[str]] = None) -> np.ndarray:
         keys = order if order is not None else sorted(self.terms)
         return np.array([self.terms.get(k, 0.0) for k in keys], dtype=np.float32)
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"terms": dict(self.terms), "weights": dict(self.weights),
-                "total": self.total}
+        return {
+            "terms": dict(self.terms),
+            "weights": dict(self.weights),
+            "total": self.total,
+        }
 
 
 # ---------------------------------------------------------------------------

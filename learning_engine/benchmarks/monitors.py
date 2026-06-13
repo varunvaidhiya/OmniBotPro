@@ -19,7 +19,6 @@ import platform
 import re
 import subprocess
 import threading
-import time
 from collections import defaultdict
 from typing import Dict, List, Optional
 
@@ -69,7 +68,9 @@ class _TegrastatsSampler:
     def __init__(self, interval_ms: int = 500) -> None:
         self._proc = subprocess.Popen(
             ["tegrastats", "--interval", str(interval_ms)],
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
         )
         self._latest: Dict[str, float] = {}
         self._reader = threading.Thread(target=self._read, daemon=True)
@@ -123,9 +124,9 @@ def _cpu_mem_sample() -> Dict[str, float]:
 class ResourceMonitor:
     """Background sampler. Usage::
 
-        with ResourceMonitor(interval_s=0.2) as mon:
-            run_benchmark()
-        metrics.update(mon.summary())   # resource/cpu_util_pct_mean, ...
+    with ResourceMonitor(interval_s=0.2) as mon:
+        run_benchmark()
+    metrics.update(mon.summary())   # resource/cpu_util_pct_mean, ...
     """
 
     def __init__(self, interval_s: float = 0.25) -> None:
