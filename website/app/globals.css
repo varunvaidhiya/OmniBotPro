@@ -113,10 +113,10 @@ ul { list-style: none; }
     rgba(10,14,26,.92) 0%, rgba(10,14,26,.55) 45%, transparent 100%);
 }
 .hero-fade-bottom {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 36%;
   z-index: 6; pointer-events: none;
   background: linear-gradient(to top,
-    var(--bg) 2%, rgba(10,14,26,.80) 38%, transparent 100%);
+    var(--bg) 0%, rgba(10,14,26,.62) 34%, transparent 100%);
 }
 
 /* ── HERO CONTROL-HINT KEYCAPS ─────────────────────────────────── */

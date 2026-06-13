@@ -9,14 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.5",
-    "react": "^18",
-    "react-dom": "^18",
+    "@react-three/drei": "^9.114.0",
+    "@react-three/fiber": "^8.16.8",
+    "@react-three/postprocessing": "^2.16.3",
     "framer-motion": "^11.3.0",
     "lucide-react": "^0.400.0",
-    "three": "^0.160.1",
-    "@react-three/fiber": "^8.16.8",
-    "@react-three/drei": "^9.114.0"
+    "next": "14.2.5",
+    "postprocessing": "^6.36.4",
+    "react": "^18",
+    "react-dom": "^18",
+    "three": "^0.160.1"
   },
   "devDependencies": {
     "@types/node": "^20",
