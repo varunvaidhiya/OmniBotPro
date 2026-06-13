@@ -12,8 +12,11 @@
  *     three.z = -urdf.y   (right)
  *
  * Interaction (driven from useFrame):
- *   • Arrow keys / WASD  → drive the base (mecanum: forward, strafe, turn)
- *   • Mouse pointer      → the SO-101 arm aims toward the cursor
+ *   • Mouse pointer      → the mecanum base chases the cursor's spot on the
+ *                          floor and, once it arrives, the SO-101 arm reaches
+ *                          out and tries to grab it (open → snap shut →
+ *                          release → retry)
+ *   • Arrow keys / WASD  → optional manual override of the base
  */
 
 import { useFrame, useThree } from "@react-three/fiber";
@@ -256,7 +259,15 @@ function RBox({
 export default function OmniBotModel() {
   const mats = useMaterials();
   const hubGeo = useHubcapGeometry();
-  const { pointer } = useThree();
+  const { pointer, camera } = useThree();
+
+  /* project the screen cursor onto the floor (y=0) → the spot the base chases.
+     We raycast through the live camera every frame so the goal stays correct
+     even while the scene slowly auto-orbits. */
+  const ray = useMemo(() => new THREE.Raycaster(), []);
+  const groundPlane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), []);
+  const hit = useMemo(() => new THREE.Vector3(), []);
+  const goal = useRef(new THREE.Vector3(0.3, 0, 0)); // smoothed cursor-on-floor goal
 
   /* group refs */
   const root = useRef<THREE.Group>(null);
@@ -279,8 +290,13 @@ export default function OmniBotModel() {
   const heading = useRef(0);
   const wheelSpin = useRef(0);
 
+  /* pursue-and-grab state machine */
+  const grabbing = useRef(false); // true once the base is close enough to grab
+  const grabClock = useRef(0); // seconds elapsed in the current grab attempt
+  const reach = useRef(0); // 0 = arm tucked for travel, 1 = fully extended to grab
+
   /* arm target angles (smoothed) */
-  const arm = useRef({ pan: 0, lift: -0.5, elbow: 1.0, wrist: 0.4, grip: 0 });
+  const arm = useRef({ pan: 0, lift: -0.5, elbow: 1.0, wrist: 0.4, grip: 0.45 });
 
   useEffect(() => {
     const tracked = [
@@ -320,19 +336,74 @@ export default function OmniBotModel() {
     const dt = Math.min(dtRaw, 0.05);
     const k = keys.current;
 
-    /* ── target body velocities from keys ── */
+    /* ── 1. where is the cursor sitting on the floor? ── */
+    ray.setFromCamera(pointer, camera);
+    if (ray.ray.intersectPlane(groundPlane, hit)) {
+      // keep the goal inside the arena so the base never chases out of frame
+      const GR = 0.58;
+      const gd = Math.hypot(hit.x, hit.z);
+      if (gd > GR) {
+        hit.x = (hit.x / gd) * GR;
+        hit.z = (hit.z / gd) * GR;
+      }
+      // smooth the goal so a quick mouse flick doesn't make the base jitter
+      const gl = Math.min(1, 8 * dt);
+      goal.current.x += (hit.x - goal.current.x) * gl;
+      goal.current.z += (hit.z - goal.current.z) * gl;
+    }
+
+    /* ── 2. decide target body velocities ── */
     const FWD = 0.55;
     const STRAFE = 0.5;
     const TURN = 1.6;
     let tx = 0,
       ty = 0,
       tw = 0;
-    if (k["arrowup"] || k["w"]) tx += FWD;
-    if (k["arrowdown"] || k["s"]) tx -= FWD;
-    if (k["q"]) ty += STRAFE;
-    if (k["e"]) ty -= STRAFE;
-    if (k["arrowleft"] || k["a"]) tw += TURN;
-    if (k["arrowright"] || k["d"]) tw -= TURN;
+
+    // arrow keys / WASD take over as a manual override
+    const manual =
+      k["arrowup"] || k["arrowdown"] || k["arrowleft"] || k["arrowright"] ||
+      k["w"] || k["a"] || k["s"] || k["d"] || k["q"] || k["e"];
+
+    // body-frame vector to the goal (forward = +x_body, left strafe = +y_body)
+    const h = heading.current;
+    const dx = goal.current.x - (root.current?.position.x ?? 0);
+    const dz = goal.current.z - (root.current?.position.z ?? 0);
+    const dist = Math.hypot(dx, dz);
+    const bvx = dx * Math.cos(h) - dz * Math.sin(h);
+    const bvy = -dx * Math.sin(h) - dz * Math.cos(h);
+
+    if (manual) {
+      if (k["arrowup"] || k["w"]) tx += FWD;
+      if (k["arrowdown"] || k["s"]) tx -= FWD;
+      if (k["q"]) ty += STRAFE;
+      if (k["e"]) ty -= STRAFE;
+      if (k["arrowleft"] || k["a"]) tw += TURN;
+      if (k["arrowright"] || k["d"]) tw -= TURN;
+      grabbing.current = false;
+      grabClock.current = 0;
+    } else {
+      // autonomous pursuit — drive toward the cursor and rotate to face it.
+      // Hysteresis (enter <0.18 m, leave >0.34 m) keeps the base from buzzing
+      // on the boundary once it settles into grab range.
+      if (grabbing.current ? dist > 0.34 : dist < 0.18) {
+        grabbing.current = !grabbing.current;
+        grabClock.current = 0;
+      }
+
+      if (!grabbing.current && dist > 1e-3) {
+        const speed = Math.min(0.5, dist * 2.6); // ease off as we close in
+        tx = (bvx / dist) * speed;
+        ty = (bvy / dist) * speed;
+      }
+      // turn to face the goal; fade the turn out on arrival so it never spins
+      // in place once parked next to the cursor
+      const faceYaw = Math.atan2(-dz, dx);
+      const yawErr = Math.atan2(Math.sin(faceYaw - h), Math.cos(faceYaw - h));
+      tw =
+        THREE.MathUtils.clamp(yawErr * 2.6, -TURN, TURN) *
+        THREE.MathUtils.clamp(dist / 0.22, 0, 1);
+    }
 
     // smooth (the Yahboom board ramp-limits — mimic it)
     const ramp = Math.min(1, 4 * dt);
@@ -340,16 +411,16 @@ export default function OmniBotModel() {
     vel.current.y += (ty - vel.current.y) * ramp;
     vel.current.w += (tw - vel.current.w) * ramp;
 
-    /* ── integrate pose ── */
+    /* ── 3. integrate pose ── */
     heading.current += vel.current.w * dt;
-    const h = heading.current;
-    const dxWorld = (vel.current.x * Math.cos(h) - vel.current.y * Math.sin(h)) * dt;
-    const dyWorld = (vel.current.x * Math.sin(h) + vel.current.y * Math.cos(h)) * dt;
+    const hh = heading.current;
+    const dxWorld = (vel.current.x * Math.cos(hh) - vel.current.y * Math.sin(hh)) * dt;
+    const dyWorld = (vel.current.x * Math.sin(hh) + vel.current.y * Math.cos(hh)) * dt;
 
     if (root.current) {
       root.current.position.x += dxWorld;
       root.current.position.z += -dyWorld;
-      root.current.rotation.y = h;
+      root.current.rotation.y = hh;
 
       // keep the robot inside a tight arena so it never leaves the frame
       const R = 0.62;
@@ -362,7 +433,7 @@ export default function OmniBotModel() {
       }
     }
 
-    /* ── wheel spin ── */
+    /* ── 4. wheel spin ── */
     wheelSpin.current += (vel.current.x / WHEEL_R) * dt;
     const baseSpin = wheelSpin.current;
     const turn = (vel.current.w * WHEEL_Y) / WHEEL_R;
@@ -371,20 +442,36 @@ export default function OmniBotModel() {
     if (wheelRL.current) wheelRL.current.rotation.z = -(baseSpin - turn);
     if (wheelRR.current) wheelRR.current.rotation.z = -(baseSpin + turn);
 
-    /* ── arm follows the pointer ── */
-    const targetPan = THREE.MathUtils.clamp(-pointer.x * 1.4, -1.9, 1.9);
-    const reach = THREE.MathUtils.clamp(pointer.y, -1, 1);
-    const targetLift = THREE.MathUtils.clamp(-0.35 - reach * 0.85, -1.6, 0.7);
-    const targetElbow = THREE.MathUtils.clamp(0.95 - reach * 0.7, -0.2, 1.6);
-    const targetWrist = THREE.MathUtils.clamp(0.4 + reach * 0.5, -1.0, 1.4);
-    const targetGrip = 0.25 + Math.sin(performance.now() / 700) * 0.2;
+    /* ── 5. arm: aim at the cursor, then reach out & grab once parked ── */
+    // pan tracks the goal's bearing in the body frame (≈0 once the base faces it)
+    const targetPan = THREE.MathUtils.clamp(Math.atan2(bvy, bvx), -1.7, 1.7);
+
+    // extend the arm as we settle into grab range, tuck it for travel
+    reach.current += ((grabbing.current ? 1 : 0) - reach.current) * Math.min(1, 4 * dt);
+    const rr = reach.current;
+    const targetLift = THREE.MathUtils.lerp(-0.42, -1.0, rr);
+    const targetElbow = THREE.MathUtils.lerp(1.0, 0.4, rr);
+    const targetWrist = THREE.MathUtils.lerp(0.4, 0.75, rr);
+
+    // grab animation: hold open while reaching → snap shut → hold → release → retry
+    let targetGrip = 0.5; // jaws open while travelling
+    if (grabbing.current) {
+      grabClock.current += dt;
+      const t = grabClock.current;
+      if (t < 0.45) targetGrip = 0.5; // arm still extending — keep jaws open
+      else if (t < 1.4) targetGrip = 0.04; // snap shut and hold the catch
+      else {
+        targetGrip = 0.5; // let go and try again while the cursor lingers
+        grabClock.current = 0;
+      }
+    }
 
     const ease = Math.min(1, 6 * dt);
     arm.current.pan += (targetPan - arm.current.pan) * ease;
     arm.current.lift += (targetLift - arm.current.lift) * ease;
     arm.current.elbow += (targetElbow - arm.current.elbow) * ease;
     arm.current.wrist += (targetWrist - arm.current.wrist) * ease;
-    arm.current.grip += (targetGrip - arm.current.grip) * ease;
+    arm.current.grip += (targetGrip - arm.current.grip) * Math.min(1, 10 * dt);
 
     if (panG.current) panG.current.rotation.y = arm.current.pan;
     if (liftG.current) liftG.current.rotation.z = arm.current.lift;
