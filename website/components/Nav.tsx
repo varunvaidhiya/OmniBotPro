@@ -33,10 +33,10 @@ export default function Nav() {
       </a>
 
       <div className="hidden md:flex items-center gap-1">
-        {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "News"].map((link) => (
+        {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"].map((link) => (
           <a
             key={link}
-            href={link === "Products" ? "/#products" : link === "Pricing" ? "/#pricing" : link === "How it Works" ? "/#how" : link === "About" ? "/about" : link === "News" ? "/news/omnivla-engine" : "#"}
+            href={link === "Products" ? "/#products" : link === "Pricing" ? "/#pricing" : link === "How it Works" ? "/#how" : link === "About" ? "/about" : link === "Team" ? "/team" : link === "News" ? "/news/omnivla-engine" : "#"}
             className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
             style={{ color: "rgba(255,255,255,0.52)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
