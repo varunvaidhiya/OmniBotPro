@@ -24,7 +24,7 @@ yahboom_debug.log
 coverage.xml
 htmlcov/
 *.egg-info/
-.claude/settings.json
+
 
 # Secrets and deployment config
 .env

@@ -24,7 +24,7 @@ export default function Nav() {
       }}
     >
       <a
-        href="#home"
+        href="/"
         className="font-display font-bold text-[21px] tracking-tight flex items-center group"
       >
         <span className="text-cyan transition-all duration-350 group-hover:scale-110 group-hover:[text-shadow:0_0_16px_rgba(0,212,255,0.22)] inline-block">O</span>
@@ -33,10 +33,10 @@ export default function Nav() {
       </a>
 
       <div className="hidden md:flex items-center gap-1">
-        {["Products", "Pricing", "How it Works", "Docs", "GitHub"].map((link) => (
+        {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "News"].map((link) => (
           <a
             key={link}
-            href={link === "Products" ? "#products" : link === "Pricing" ? "#pricing" : link === "How it Works" ? "#how" : "#"}
+            href={link === "Products" ? "/#products" : link === "Pricing" ? "/#pricing" : link === "How it Works" ? "/#how" : link === "About" ? "/about" : link === "News" ? "/news/omnivla-engine" : "#"}
             className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
             style={{ color: "rgba(255,255,255,0.52)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}

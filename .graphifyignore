@@ -1,0 +1,45 @@
+# Images & binaries
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.bmp
+*.svg
+*.ico
+*.pdf
+*.stl
+*.dae
+*.mp4
+*.mov
+*.mp3
+*.wav
+*.usd
+*.usda
+*.usdc
+*.usdz
+
+# Website static assets
+website/public/*
+website/.next/*
+
+# Docs
+*.md
+*.html
+*.htm
+*.rst
+*.txt
+
+# Config/data formats (save for later with LLM)
+*.yaml
+*.yml
+*.xml
+*.sdf
+*.rviz
+*.urdf
+*.xacro
+*.launch
+*.msg
+*.srv
+*.action
+*.json
