@@ -147,7 +147,7 @@ edges:
    ReplayDataset-format episodes that `ExecutionLogCollector` ingests.
 2. **Policy deployment** is unchanged: trainers emit ONNX (consumed by the
    existing `omnibot_rl` nodes) or SmolVLA checkpoints (consumed by
-   `smolvla_node`), so the deployment path is the one already in production.
+   `policy_node`), so the deployment path is the one already in production.
 3. **`VlaServePolicy`** evaluates whatever model the `vla_serve` FastAPI
    server is serving, keeping eval and deployment on the same weights.
 4. New topics are namespaced under `/learning/*` (see `ros2/topics.py`);

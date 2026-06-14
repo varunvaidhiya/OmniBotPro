@@ -33,13 +33,13 @@ Mission Command (/mission/command)
         │          SmolVLA → /cmd_vel/vla ─────────┘  │
         │          Teleop → /cmd_vel/teleop ───────────┘
         │
-        ├── /smolvla/task + /smolvla/enable ──► smolvla_node ──► /arm/joint_commands
+        ├── /policy/task + /policy/enable ──► policy_node ──► /arm/joint_commands
         │                                                    └──► /cmd_vel/vla
         │
         └── /arm/cmd_mode ──► arm_cmd_mux ──► /arm/joint_commands/out ──► arm_driver_node
 
 Control Modes: "nav2" | "vla" | "teleop" | "rl_nav"
-Arm Modes:     "smolvla" | "rl_arm"
+Arm Modes:     "policy" | "rl_arm"
 ```
 
 **Key rule**: SmolVLA is the unified 9-DOF policy (6 arm + 3 base). It is active when `control_mode = "vla"`. Nav2 handles long-range navigation; SmolVLA handles fine manipulation and short-range tasks.
@@ -92,14 +92,14 @@ source install/setup.bash
 export ROS_DOMAIN_ID=30
 export ROS_STATIC_PEERS=<pi-ip>
 
-ros2 launch omnibot_lerobot smolvla_inference.launch.py \
+ros2 launch omnibot_lerobot policy_inference.launch.py \
   checkpoint:=lerobot/smolvla_base \
   device:=cuda
 ```
 
 After fine-tuning, replace `checkpoint` with your trained model path:
 ```bash
-ros2 launch omnibot_lerobot smolvla_inference.launch.py \
+ros2 launch omnibot_lerobot policy_inference.launch.py \
   checkpoint:=~/checkpoints/smolvla_mobile/best_model
 ```
 
@@ -134,7 +134,7 @@ ros2 topic hz /arm/joint_states
 ros2 launch omnibot_bringup simulation.launch.py
 
 # Terminal 2 (Desktop GPU): SmolVLA inference
-ros2 launch omnibot_lerobot smolvla_inference.launch.py
+ros2 launch omnibot_lerobot policy_inference.launch.py
 
 # Terminal 3: Full hybrid mission planner
 ros2 launch omnibot_hybrid hybrid_robot.launch.py use_sim_time:=true
@@ -441,7 +441,7 @@ python lerobot_engine/train.py \
 
 ```bash
 # Desktop GPU PC:
-ros2 launch omnibot_lerobot smolvla_inference.launch.py \
+ros2 launch omnibot_lerobot policy_inference.launch.py \
   checkpoint:=~/checkpoints/smolvla_mobile/best_model \
   device:=cuda
 
@@ -459,12 +459,12 @@ python -m vla_engine.trt.build_engine \
   --output ~/models/smolvla_mobile.trt
 
 # Launch with TRT encoder
-ros2 launch omnibot_lerobot smolvla_inference.launch.py \
+ros2 launch omnibot_lerobot policy_inference.launch.py \
   checkpoint:=~/checkpoints/smolvla_mobile/best_model \
   device:=cuda
 # Then set params:
-ros2 param set /smolvla_node use_trt true
-ros2 param set /smolvla_node trt_engine_path ~/models/smolvla_mobile.trt
+ros2 param set /policy_node use_trt true
+ros2 param set /policy_node trt_engine_path ~/models/smolvla_mobile.trt
 ```
 
 ---
@@ -484,10 +484,10 @@ ros2 param set /smolvla_node trt_engine_path ~/models/smolvla_mobile.trt
 ### SmolVLA policy outputs all zeros
 - Check both camera topics are live: `ros2 topic hz /camera/wrist/image_raw` and `/camera/base/bev/image_raw`
 - SmolVLA requires BOTH wrist and BEV images — run `perception.launch.py` or `bev_stitcher_node`
-- Enable the policy: `ros2 topic pub --once /smolvla/enable std_msgs/msg/Bool "data: true"`
+- Enable the policy: `ros2 topic pub --once /policy/enable std_msgs/msg/Bool "data: true"`
 
 ### Arm not responding to SmolVLA commands
-- Check arm_cmd_mux mode: `ros2 topic echo /arm/cmd_mode/active` (should be `"smolvla"`)
+- Check arm_cmd_mux mode: `ros2 topic echo /arm/cmd_mode/active` (should be `"policy"`)
 - Verify arm_driver is running: `ros2 node list | grep arm_driver`
 - Check `/arm/joint_commands/out` is publishing: `ros2 topic hz /arm/joint_commands/out`
 

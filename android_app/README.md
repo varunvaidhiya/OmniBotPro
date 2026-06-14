@@ -1,51 +1,15 @@
 # OmniBot Android App
 
 Native Kotlin MVVM controller app for the OmniBot mecanum-wheel mobile-manipulation robot.
-Connects over ROSBridge WebSocket (`ws://robot:9090`) and provides full robot control, 3D
-visualisation, real-time mapping, and natural-language AI mission control.
+Connects over ROSBridge WebSocket (default `ws://192.168.1.100:9090`) and provides full
+robot control, 3D visualisation, real-time mapping, and natural-language AI mission control.
 
 <p align="left">
   <img src="https://img.shields.io/badge/Android-SDK_24+-brightgreen"/>
-  <img src="https://img.shields.io/badge/Kotlin-1.9-purple"/>
-  <img src="https://img.shields.io/badge/SceneView-2.2.1-blue"/>
+  <img src="https://img.shields.io/badge/Kotlin-2.1.0-purple"/>
+  <img src="https://img.shields.io/badge/SceneView-4.8.0-blue"/>
   <img src="https://img.shields.io/badge/Hilt-DI-orange"/>
 </p>
-
----
-
-## App Demo
-
-<!-- TODO: Record demo video and replace placeholders with actual GIFs -->
-
-**Dashboard — Live camera, velocity, odometry**
-
-![Dashboard screen](../assets/app_dashboard.gif)
-<!-- Placeholder: record gif showing camera feed, BEV overlay toggle, live velocity charts, odometry readout -->
-
-**AI Chat — Natural language robot control**
-
-![AI chat screen](../assets/app_ai_chat.gif)
-<!-- Placeholder: record gif typing "go to the kitchen and pick up the red cup", robot executing mission -->
-
-**2D SLAM Map — Real-time occupancy grid**
-
-![SLAM map screen](../assets/app_slam_map.gif)
-<!-- Placeholder: record gif showing robot building map in real time, pose overlay updating -->
-
-**3D Point Cloud — Depth camera visualisation**
-
-![Point cloud screen](../assets/app_point_cloud.gif)
-<!-- Placeholder: record gif showing live PointCloud2 from Orbbec, pinch-to-zoom, Jet colormap -->
-
-**3D Robot Viewer — Live animated model**
-
-![3D robot viewer screen](../assets/app_robot_viewer.gif)
-<!-- Placeholder: record gif showing robot.glb in SceneView, arm joints moving, tap-to-navigate -->
-
-**Controls — Joystick + arm panel**
-
-![Controls screen](../assets/app_controls.gif)
-<!-- Placeholder: record gif showing virtual joystick driving robot, arm sliders moving servos -->
 
 ---
 
@@ -58,9 +22,11 @@ visualisation, real-time mapping, and natural-language AI mission control.
 | Live camera feed (MJPEG) | ✅ | `web_video_server`, Content-Length + JPEG-marker parser |
 | Camera fullscreen dialog | ✅ | Tap fullscreen button; dark overlay with close btn |
 | BEV map overlay on camera | ✅ | Toggle BEV icon; robot footprint on camera card |
-| Dataset recording button | ✅ | REC badge in camera card; publishes to `record_start/stop` |
+| Dataset recording button | ✅ | REC badge in camera card; publishes to `/rosbag_recorder/start` and `/rosbag_recorder/stop` |
 | Dark mode | ✅ | Force-dark Night mode; `values-night/colors.xml` |
 | OmniBot logo in toolbar | ✅ | Custom robot-head vector drawable |
+| **Observability tab** | ✅ | Grafana-style health / training / logs / alerts via Prometheus, Loki, AlertManager, W&B HTTP APIs |
+| **OTA update tab** | ✅ | Check / apply / rollback robot workspace + models via `/ota/*` ROS services |
 | **2D SLAM map tab** | ✅ | Full-screen `SlamMapView` with robot pose overlay |
 | SLAM map — robot pose panel | ✅ | X / Y / θ live readout, bottom-left |
 | SLAM map — map stats panel | ✅ | Resolution, explored area m², occupied cells, bottom-right |
@@ -68,20 +34,19 @@ visualisation, real-time mapping, and natural-language AI mission control.
 | **3D Point Cloud tab** | ✅ | Canvas-based `PointCloudView`, Jet colormap depth render |
 | Point cloud — pinch to zoom | ✅ | ScaleGestureDetector, min/max zoom clamped |
 | Point cloud — stats overlay | ✅ | Point count, max range, render FPS |
-| **3D Robot Viewer tab** | ✅ | SceneView 2.2.1 (Google Filament), loads `robot.glb` |
+| **3D Robot Viewer tab** | ✅ | SceneView 4.8.0 (Google Filament), loads `robot.glb` |
 | Robot viewer — GLB model | ✅ | Named nodes match URDF link names; `tools/urdf_to_glb.py` |
 | Robot viewer — live pose | ✅ | Model moves on floor plane from `/odom` |
 | Robot viewer — arm animation | ✅ | Per-joint rotation applied from `/arm/joint_states` |
 | Robot viewer — tap to navigate | ✅ | Ray-cast vs y=0 plane → Nav2 goal published |
 | Robot viewer — no-model banner | ✅ | Instructions shown when `robot.glb` not in assets |
 | **AI chat interface** | ✅ | "Hi Varun, what do you want me to do?" greeting |
-| AI chat — natural language commands | ✅ | Routes to `mission_planner` via `/mission/command` |
+| AI chat — natural language commands | ✅ | Structured commands → `/mission/command`; free-form → `/ai/command` (LangGraph), with `/mission/command` fallback |
 | AI chat — quick chips | ✅ | One-tap: Navigate Home / Pick Up Object / Return to Dock |
 | AI chat — mission status updates | ✅ | Robot replies streamed from `/mission/status` |
 | AI chat — dataset recording toggle | ✅ | Start/stop recording from chat panel |
-| Velocity charts (vx / vy / vz) | ✅ | Rolling 60-point line chart, bottom of Dashboard |
+| Velocity charts (vx / vy / vz) | ✅ | Rolling line chart (300 points), bottom of Dashboard |
 | Odometry readout | ✅ | X / Y / θ on Dashboard |
-| Bottom navigation (5 tabs) | ✅ | Dashboard / Map / AI / Controls / Settings |
 | Hilt dependency injection | ✅ | All ViewModels inject `RobotRepository` singleton |
 | Coroutines + StateFlow | ✅ | All live data as StateFlow |
 
@@ -90,15 +55,18 @@ visualisation, real-time mapping, and natural-language AI mission control.
 ## Navigation Structure
 
 ```
-MainActivity
-├── Dashboard      — camera feed, BEV overlay, velocity chart, odometry
-├── Map            — ViewPager2 (3 sub-tabs)
-│   ├── 2D SLAM    — OccupancyGrid map with live robot pose
-│   ├── 3D Cloud   — PointCloud2 depth visualisation
-│   └── 3D Robot   — SceneView GLB model + tap-to-navigate
-├── AI             — natural language chat + dataset recording
-├── Controls       — virtual joystick + arm joint sliders
-└── Settings       — robot IP, port, camera URL
+MainActivity  (Navigation Component — destinations in mobile_navigation.xml)
+├── Home          — landing screen
+├── Dashboard     — camera feed, BEV overlay, velocity chart, odometry
+├── Map           — ViewPager2 (3 sub-tabs)
+│   ├── 2D SLAM   — OccupancyGrid map with live robot pose
+│   ├── 3D Cloud  — PointCloud2 depth visualisation
+│   └── 3D Robot  — SceneView GLB model + tap-to-navigate
+├── AI            — natural language chat + dataset recording
+├── Controls      — virtual joystick + arm joint sliders
+├── Observability — ViewPager2: Health / Training / Logs / Alerts
+├── OTA           — over-the-air workspace + model updates
+└── Settings      — robot IP, port, camera URL
 ```
 
 ---
@@ -109,35 +77,36 @@ MainActivity
 app/src/main/
 ├── kotlin/com/varunvaidhiya/robotcontrol/
 │   ├── MainActivity.kt
+│   ├── RobotApplication.kt           # @HiltAndroidApp entry point
+│   ├── di/                           # Hilt modules: AppModule, NetworkModule, RepositoryModule
 │   ├── data/
-│   │   ├── models/                   # OdomData, MapData, JointState, …
+│   │   ├── models/                   # OdomData, MapData, MotorData, ObservabilityModels, …
+│   │   ├── preferences/AppPreferences.kt   # DataStore-backed settings
+│   │   ├── remote/                   # Retrofit APIs: Prometheus, Loki, AlertManager, WandB
 │   │   └── repository/
-│   │       └── RobotRepository.kt    # Single source of truth, all StateFlows
+│   │       ├── RobotRepository.kt    # Single source of truth, all StateFlows (ROS + OTA)
+│   │       └── ObservabilityRepository.kt  # Metrics / logs / alerts / training runs
 │   ├── network/
-│   │   ├── ROSBridgeManager.kt       # OkHttp WebSocket + ROSBridge v2 JSON
+│   │   ├── ROSBridgeManager.kt       # OkHttp WebSocket + ROSBridge v2 JSON (publish/subscribe/callService)
 │   │   └── ROSBridgeListener.kt
+│   ├── utils/
+│   │   ├── Constants.kt              # IP/port defaults, topic + service names, ARM_JOINT_NAMES
+│   │   └── DataLogger.kt
 │   └── ui/
-│       ├── common/BaseFragment.kt
-│       ├── dashboard/
-│       │   ├── DashboardFragment.kt  # Camera, BEV overlay, charts
-│       │   └── DashboardViewModel.kt
-│       ├── mapping/
-│       │   ├── MapFragment.kt        # ViewPager2: 3 tabs
-│       │   └── PointCloudFragment.kt + PointCloudViewModel.kt
-│       ├── slam/
-│       │   ├── SlamMapFragment.kt    # SLAM map + pose overlay
-│       │   └── SlamViewModel.kt
-│       ├── viewer/
-│       │   ├── RobotViewerFragment.kt  # SceneView 3D viewer
-│       │   └── RobotViewerViewModel.kt
-│       ├── ai/
-│       │   ├── AIFragment.kt         # Chat UI + recording toggle
-│       │   ├── AIViewModel.kt        # sendCommand(), toggleRecording()
-│       │   └── ChatAdapter.kt        # ListAdapter with DiffUtil
-│       └── views/
-│           ├── PointCloudView.kt     # Canvas + Jet colormap
-│           ├── SlamMapView.kt        # OccupancyGrid canvas
-│           └── MjpegView.kt          # MJPEG frame decoder
+│       ├── common/                   # BaseFragment, ViewModelFactory
+│       ├── home/HomeFragment.kt      # Landing screen (start destination)
+│       ├── dashboard/                # DashboardFragment (camera, BEV, charts) + ViewModel
+│       ├── camera/CameraViewModel.kt # MJPEG stream URL builder
+│       ├── mapping/                  # MapFragment (ViewPager2), PointCloudFragment + ViewModel
+│       ├── slam/                     # SlamMapFragment + SlamViewModel
+│       ├── viewer/                   # RobotViewerFragment (SceneView 3D) + ViewModel
+│       ├── ai/                       # AIFragment (chat + recording), AIViewModel, ChatAdapter
+│       ├── controls/                 # ControlsFragment (joystick + arm sliders) + ViewModel
+│       ├── observability/            # ObservabilityFragment (ViewPager2) + health/training/logs/alerts
+│       ├── ota/                      # OTAFragment + OTAViewModel
+│       ├── settings/                 # SettingsFragment + SettingsViewModel
+│       └── views/                    # PointCloudView, SlamMapView, MjpegView, VirtualJoystickView,
+│                                     # JarvisView, CameraHudOverlay
 ├── res/
 │   ├── layout/                       # All XML layouts
 │   ├── drawable/                     # Vector icons + backgrounds
@@ -145,7 +114,7 @@ app/src/main/
 │   ├── values-night/colors.xml       # Dark mode color overrides
 │   └── navigation/mobile_navigation.xml
 └── assets/
-    └── robot.glb                     # Generated — see 3D Robot Viewer Setup below
+    └── robot.glb                     # Generated — see 3D Robot Viewer Setup below (not checked in)
 ```
 
 ---
@@ -176,17 +145,18 @@ overlays, and displays setup instructions.
 ## Dataset Recording (from the App)
 
 Tap the **REC** button on the Dashboard camera card, or use the toggle in the AI chat
-panel. This publishes `true` to `/record_start` and `true` to `/record_stop`.
+panel. This publishes a bag name (`std_msgs/String`) to `/rosbag_recorder/start` and an
+`std_msgs/Empty` to `/rosbag_recorder/stop`.
 
-On the robot side, start the recorder node first:
+On the robot side, the `rosbag_recorder` node (in `omnibot_hybrid`) handles these signals;
+it is started by the hybrid bringup:
 
 ```bash
-ros2 launch omnibot_lerobot teleop_record.launch.py \
-    output_dir:=/data/episodes \
-    task_name:="pick up the red cube"
+ros2 launch omnibot_hybrid hybrid_robot.launch.py
 ```
 
-The node begins writing when it receives the `/record_start` signal.
+It writes a `ros2 bag` to the configured directory when it receives the start signal and
+finalises on stop. Status is reported on `/rosbag_recorder/status`.
 
 ---
 
@@ -196,11 +166,11 @@ The node begins writing when it receives the `/record_start` signal.
 
 | Tool | Version |
 |------|---------|
-| Android Studio | Hedgehog (2023.1.1)+ |
+| Android Studio | Ladybug (2024.2)+ |
 | Minimum SDK | 24 (Android 7.0) |
-| Target SDK | 34 (Android 14) |
-| Kotlin | 1.9.20+ |
-| Gradle | 8.2.0+ |
+| Compile / Target SDK | 35 (Android 15) |
+| Kotlin | 2.1.0 |
+| Android Gradle Plugin | 8.13.2 |
 | JDK | 17 |
 
 ### Steps
@@ -231,48 +201,70 @@ ros2 run web_video_server web_video_server
 
 | Library | Purpose |
 |---------|---------|
-| `io.github.sceneview:sceneview:2.2.1` | Filament 3D rendering for robot viewer |
-| `com.squareup.okhttp3:okhttp` | WebSocket (ROSBridge) |
-| `com.github.PhilJay:MPAndroidChart` | Velocity charts |
-| `androidx.viewpager2` | Map tab pager |
-| `androidx.recyclerview` | Chat message list |
-| `com.google.dagger:hilt-android` | Dependency injection |
-| `com.jakewharton.timber:timber` | Logging |
+| `io.github.sceneview:sceneview:4.8.0` | Filament 3D rendering for robot viewer |
+| `com.squareup.okhttp3:okhttp:4.12.0` | WebSocket (ROSBridge) |
+| `com.github.PhilJay:MPAndroidChart:v3.1.0` | Velocity charts |
+| `com.google.code.gson:gson:2.11.0` | JSON parsing (ROSBridge + OTA payloads) |
+| `androidx.viewpager2:viewpager2:1.1.0` | Map + Observability tab pagers |
+| `androidx.recyclerview:recyclerview:1.4.0` | Chat / logs / runs lists |
+| `androidx.datastore:datastore-preferences:1.1.1` | Persisted settings |
+| `com.google.dagger:hilt-android:2.57.2` | Dependency injection |
+| `com.jakewharton.timber:timber:5.0.1` | Logging |
 
 ---
 
 ## ROS Topics
 
+All topic and service names live in `utils/Constants.kt`.
+
 ### Published by the app (Android → robot)
 
 | Topic | Type | Notes |
 |-------|------|-------|
-| `/cmd_vel` | Twist | 20 Hz, clamped ±1.5 m/s / ±2.0 rad/s |
+| `/cmd_vel/teleop` | Twist | 20 Hz, clamped ±1.5 m/s / ±2.0 rad/s. Routed by `cmd_vel_mux`; set `/control_mode` to `"teleop"` first |
+| `/control_mode` | String | `"nav2"` / `"vla"` / `"teleop"` / `"rl_nav"` — drives `cmd_vel_mux` |
+| `/robot_mode` | String | monitoring only; does not control the mux |
 | `/arm/joint_commands` | JointState | joint names must be `arm_*` prefixed |
 | `/arm/enable` | Bool | |
-| `/vla/prompt` | String | |
-| `/mission/command` | String | natural language or `navigate:pose:x,y,0.0` |
-| `/record_start` | Bool | dataset recording start |
-| `/record_stop` | Bool | dataset recording stop |
-| `/emergency_stop` | Bool | published but not yet consumed robot-side |
+| `/mission/command` | String | structured (`navigate:X,vla:Y`) or natural language |
+| `/ai/command` | String | natural language → LangGraph agent (requires `omnibot_orchestration`) |
+| `/rosbag_recorder/start` | String | dataset recording start (bag name) |
+| `/rosbag_recorder/stop` | Empty | dataset recording stop |
+| `/emergency_stop` | Bool | |
 
 ### Subscribed by the app (robot → Android)
 
-| Topic | Type |
-|-------|------|
-| `/odom` | Odometry |
-| `/map` | OccupancyGrid |
-| `/imu/data` | Imu |
-| `/arm/joint_states` | JointState |
-| `/camera/depth/points` | PointCloud2 |
-| `/mission/status` | String |
-| `/diagnostics` | DiagnosticArray |
+| Topic | Type | Notes |
+|-------|------|-------|
+| `/odom` | Odometry | |
+| `/map` | OccupancyGrid | |
+| `/imu/data` | Imu | |
+| `/arm/joint_states` | JointState | |
+| `/camera/depth/points` | PointCloud2 | base64-decoded for the 3D cloud view |
+| `/mission/status` | String | |
+| `/ai/status` | String | from `langchain_agent_node` when running |
+| `/ai/response_needed` | String | clarification requests from the AI agent |
+| `/diagnostics` | DiagnosticArray | |
+| `/ota/status` | String (JSON) | from `omnibot_ota` node when running |
+| `/ota/progress` | String (JSON) | OTA download/apply progress |
+
+### ROS services called by the app (OTA)
+
+| Service | Purpose |
+|---------|---------|
+| `/ota/check` | Query for an available update |
+| `/ota/apply_workspace` | Apply a new ROS workspace bundle |
+| `/ota/apply_models` | Apply new model artifacts |
+| `/ota/rollback_workspace` | Roll back to the previous workspace |
+
+> The app also declares legacy custom topics in `Constants.kt`
+> (`/robot_status`, `/wheel_speeds`, `/motor_pwm`) that have no publisher in the
+> current robot stack — they are subscribed but never receive data.
 
 ---
 
 ## Future Work
 
-- [ ] **Emergency stop wiring** — Android publishes `/emergency_stop` but no ROS node subscribes yet.
 - [ ] **ARCore mode** — AR overlay of robot model on live camera using ARCore + SceneView AR session.
 - [ ] **Voice input** — Android SpeechRecognizer feeding the AI chat interface.
 - [ ] **Multi-camera switcher** — Swipe between wrist / front / BEV camera on Dashboard.

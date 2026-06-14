@@ -186,8 +186,12 @@ The bridge provides:
 - `GET  http://<robot>:8765/health` — health check
 - `POST http://<robot>:8765/upload_episode` — multipart form upload (field: `file`)
 
-It also mirrors robot sensor data to `/vr/obs` (JSON string) for any
-external VR monitoring tools.
+It also bridges the VR app's ROS recording signals to `teleop_recorder_node`:
+- `/vr/record_start` (`std_msgs/String`) — episode name → start recording
+- `/vr/record_stop` (`std_msgs/Bool`) — `true` = save, `false` = discard
+
+and mirrors `/arm/joint_states`, `/odom`, and `/cmd_vel/teleop` to `/vr/obs`
+(JSON string) for any external VR monitoring tools.
 
 ---
 

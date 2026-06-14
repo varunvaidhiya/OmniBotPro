@@ -22,7 +22,8 @@ from hardware captures and published here for the community.
 TX packet:  [0xFF, 0xFC, LEN, FUNC, PAYLOAD..., CHECKSUM]
 RX packet:  [0xFF, 0xFB, LEN, TYPE, PAYLOAD..., CS]
 
-CHECKSUM = (sum(all bytes) + 5) & 0xFF
+TX CHECKSUM = (sum(all packet bytes) + 5) & 0xFF   # 5 = 257 - 0xFC
+RX CS       = sum(LEN, TYPE, PAYLOAD...) & 0xFF     # header bytes excluded
 ```
 
 | Function Code | Value | Description |
@@ -44,8 +45,8 @@ CHECKSUM = (sum(all bytes) + 5) & 0xFF
 ```bash
 # In your ROS 2 workspace
 cd ~/ros2_ws/src
-git clone https://github.com/varunvaidhiya/Mecanum-Wheel-Robot.git
-ln -s Mecanum-Wheel-Robot/packages/yahboom_ros2 .
+git clone https://github.com/varunvaidhiya/OmniBotPro.git
+ln -s OmniBotPro/packages/yahboom_ros2 .
 cd ~/ros2_ws
 colcon build --packages-select yahboom_ros2
 source install/setup.bash

@@ -65,7 +65,7 @@ sudo apt install ros-jazzy-joy ros-jazzy-teleop-twist-joy joystick
 ### Step 2: Build Workspace
 Ensure you have built the latest changes (with the new launch files):
 ```bash
-cd ~/Mecanum-Wheel-Robot
+cd ~/OmniBotPro
 colcon build --packages-select omnibot_bringup
 source install/setup.bash
 ```

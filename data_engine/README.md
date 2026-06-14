@@ -23,10 +23,16 @@ dataset/
       observation.images.wrist/episode_000000.mp4
 ```
 
+State and action are the unified **9-D** mobile-manipulation spec (6 arm joints
++ 3 base velocities), defined in `schema/constants.py`
+(`MOBILE_MANIP_STATE_SPEC` / `MOBILE_MANIP_ACTION_SPEC`). Camera streams written
+to the dataset are `observation.images.front` and `observation.images.wrist`.
+
 ## Setup
 
 ```bash
-pip install -e .
+pip install -e .          # installs the `vla_data_engine` package
+# or: pip install -r requirements.txt
 ```
 
 ## Usage

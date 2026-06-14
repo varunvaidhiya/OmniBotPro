@@ -90,8 +90,8 @@ rosdep update
 ### Clone the repository
 
 ```bash
-git clone https://github.com/varunvaidhiya/Mecanum-Wheel-Robot.git
-cd Mecanum-Wheel-Robot
+git clone https://github.com/varunvaidhiya/OmniBotPro.git
+cd OmniBotPro
 ```
 
 ---
@@ -1253,7 +1253,7 @@ def test_vla_node_mock_inference(ros_context):
 
 ## 11. omnibot_lerobot — SmolVLA Node
 
-**File:** `robot_ws/src/omnibot_lerobot/omnibot_lerobot/smolvla_node.py`
+**File:** `robot_ws/src/omnibot_lerobot/omnibot_lerobot/policy_node.py`
 
 **GPU required. Both `/camera/wrist/image_raw` and `/camera/base/bev/image_raw` must be available.**
 
@@ -1265,7 +1265,7 @@ Unified 9-DOF policy (6 arm + 3 base velocities) using SmolVLA. Requires both wr
 
 ```bash
 source robot_ws/install/setup.bash
-ros2 launch omnibot_lerobot smolvla_inference.launch.py
+ros2 launch omnibot_lerobot policy_inference.launch.py
 ```
 
 ### 11.3 Prerequisites
@@ -1280,7 +1280,7 @@ ros2 run ros2_bev_stitcher bev_stitcher_node
 ### 11.4 Verify topics
 
 ```bash
-ros2 node info /smolvla_node
+ros2 node info /policy_node
 ```
 
 **Expected subscriptions:**
@@ -1288,8 +1288,8 @@ ros2 node info /smolvla_node
 - `/camera/base/bev/image_raw`
 - `/arm/joint_states`
 - `/odom`
-- `/smolvla/task`
-- `/smolvla/enable`
+- `/policy/task`
+- `/policy/enable`
 
 **Expected publications:**
 - `/arm/joint_commands`
@@ -1299,10 +1299,10 @@ ros2 node info /smolvla_node
 
 ```bash
 # Enable
-ros2 topic pub --once /smolvla/enable std_msgs/msg/Bool "data: true"
+ros2 topic pub --once /policy/enable std_msgs/msg/Bool "data: true"
 
 # Set task (triggers policy reset)
-ros2 topic pub --once /smolvla/task std_msgs/msg/String \
+ros2 topic pub --once /policy/task std_msgs/msg/String \
   "data: 'pick up the red block'"
 
 # Monitor output
@@ -1322,7 +1322,7 @@ ros2 topic echo /rosout | grep -i "missing\|wrist\|bev"
 ### 11.7 Test base velocity clamping
 
 ```python
-# test_smolvla_node.py
+# test_policy_node.py
 import pytest
 
 
@@ -2029,7 +2029,7 @@ ros2 run rosbridge_server rosbridge_websocket
 ### Issue 5 — BEV stitcher not in default launch
 
 ```bash
-# smolvla_node requires /camera/base/bev/image_raw
+# policy_node requires /camera/base/bev/image_raw
 # but no default launch starts bev_stitcher_node
 ros2 topic info /camera/base/bev/image_raw
 # If no publisher: start stitcher manually

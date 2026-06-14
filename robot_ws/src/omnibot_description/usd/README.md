@@ -32,10 +32,12 @@ xacro robot_ws/src/omnibot_description/urdf/omnibot.urdf.xacro \
 
 In the Isaac Sim stage tree:
 - `/World/OmniBot` should appear as an **Articulation** root.
-- Four wheel joints (`wheel_fl_joint`, `wheel_fr_joint`, `wheel_rl_joint`,
-  `wheel_rr_joint`) should be **DriveAPI** revolute joints.
-- Six arm joints (`arm_shoulder_pan_joint`, …, `arm_gripper_joint`) should
-  also be **DriveAPI** revolute joints.
+- Four wheel joints (`front_left_wheel_joint`, `front_right_wheel_joint`,
+  `rear_left_wheel_joint`, `rear_right_wheel_joint`) should be **DriveAPI**
+  continuous joints.
+- Six arm joints (`arm_shoulder_pan`, `arm_shoulder_lift`, `arm_elbow_flex`,
+  `arm_wrist_flex`, `arm_wrist_roll`, `arm_gripper`) should also be **DriveAPI**
+  revolute joints.
 
 ### Step 4 — Configure ROS 2 Bridge OmniGraph
 
@@ -46,7 +48,7 @@ Inside Isaac Sim, create an OmniGraph Action Graph:
 3. **ROS2PublishJointState** — publishes `/joint_states`.
 4. **ROS2PublishImu** — publishes `/imu/data`.
 5. **ROS2PublishImage** (×5) — publishes each camera topic listed in
-   `config/isaac_ros_bridge.yaml`.
+   `omnibot_bringup/config/isaac_ros_bridge.yaml`.
 6. **ROS2PublishTransformTree** — publishes `/tf`.
 
 Save the stage.  The file is now ready to use with:
