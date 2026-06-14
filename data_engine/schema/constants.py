@@ -169,9 +169,10 @@ ALL_CAMERAS = [
     CAMERA_DEPTH,
 ]
 
-# LeRobot feature key → CameraConfig mapping (used in bag_to_omnibot.py)
+# LeRobot feature key → CameraConfig mapping.
+# Mirrors the camera streams written by bag_to_omnibot.py (front + wrist).
 LEROBOT_CAMERA_KEYS = {
-    "observation.images.bev": CAMERA_BEV,
+    "observation.images.front": CAMERA_FRONT,
     "observation.images.wrist": CAMERA_WRIST,
 }
 

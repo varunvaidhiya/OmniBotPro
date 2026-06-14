@@ -153,9 +153,9 @@ ros2 topic echo /odom --once
 ### 5. Record teleoperation episodes
 
 ```bash
-ros2 launch omnibot_lerobot teleop_record.launch.py \
-    output_dir:=/data/episodes \
-    task_name:="pick up the red cube"
+ros2 launch omnibot_lerobot teleop_record.launch.py
+# Recorder settings (output_dir, repo_id, record_hz, ...) come from
+# omnibot_lerobot/config/policy_params.yaml — edit there before recording.
 # Xbox RB = start/stop  |  LB = discard
 # Leader arm mirrors to follower arm in real time
 ```
@@ -176,9 +176,11 @@ python lerobot_engine/train.py \
 ### 7. Run inference
 
 ```bash
-ros2 launch omnibot_lerobot smolvla_inference.launch.py
-ros2 topic pub /smolvla/enable std_msgs/Bool "data: true" --once
-ros2 topic pub /smolvla/task std_msgs/String "data: 'pick up the red cube'" --once
+# Model-agnostic policy node (model_type:=smolvla|act|diffusion|openvla)
+ros2 launch omnibot_lerobot policy_inference.launch.py model_type:=smolvla \
+    checkpoint:=/data/checkpoints/smolvla_v1/best
+ros2 topic pub /policy/enable std_msgs/Bool "data: true" --once
+ros2 topic pub /policy/task std_msgs/String "data: 'pick up the red cube'" --once
 ```
 
 ---
@@ -187,7 +189,7 @@ ros2 topic pub /smolvla/task std_msgs/String "data: 'pick up the red cube'" --on
 
 ```
 Teleop hardware
-  ├── Xbox controller  → base (vx, vy, vz)
+  ├── Xbox controller  → base (vx, vy, ω)
   └── SO-101 leader arm → follower arm (6 joints)
             │
             ▼
@@ -202,7 +204,7 @@ Teleop hardware
                                  │
                        SmolVLA checkpoint
                                  │
-                        smolvla_node.py
+                     policy_node.py (model-agnostic)
                     ┌────────────┴────────────┐
            /arm/joint_commands          /cmd_vel
                  │                         │
@@ -214,7 +216,7 @@ Teleop hardware
 
 ```
 [shoulder_pan, shoulder_lift, elbow_flex, wrist_flex, wrist_roll, gripper,
- base_vx,      base_vy,       base_vz]
+ base_vx,      base_vy,       base_wz]
   ◄────────────── arm (rad) ──────────────►  ◄──── base (m/s, rad/s) ────►
 ```
 
@@ -227,9 +229,15 @@ SmolVLA visual inputs: **BEV image** (800×800, from 4 base cameras) + **wrist i
 | `omnibot_bringup` | Launch files, RViz config, Gazebo bridge |
 | `omnibot_driver` | Yahboom serial driver, mecanum kinematics, odometry |
 | `omnibot_arm` | SO-101 arm driver (FeetechMotorsBus, 100 Hz joint states) |
-| `omnibot_lerobot` | SmolVLA inference node, teleop recorder, BEV stitcher |
-| `omnibot_hybrid` | cmd_vel multiplexer, mission planner (teleop ↔ Nav2 ↔ VLA) |
+| `omnibot_lerobot` | Model-agnostic `policy_node` (SmolVLA/ACT/diffusion), teleop recorder, BEV stitcher |
+| `omnibot_hybrid` | cmd_vel multiplexer, mission planner (teleop ↔ Nav2 ↔ VLA ↔ RL) |
 | `omnibot_navigation` | SLAM (slam_toolbox + RTAB-Map), Nav2, EKF localization |
+| `omnibot_rl` | RL policy inference (nav + arm ONNX), arm_cmd_mux, ArUco object pose |
+| `omnibot_perception` | AI object distance + pose estimation from the depth camera |
+| `omnibot_orchestration` | LangGraph/LangChain natural-language mission agent (Claude-backed) |
+| `omnibot_metrics` | Prometheus bridge for ROS 2 telemetry (observability stack) |
+| `omnibot_ota` | Over-the-air workspace + ONNX model updater (atomic, rollback) |
+| `omnibot_vr` | VR teleop/recording bridge for the Unity `vr_app/` |
 | `omnibot_description` | URDF/xacro, SO-101 STL meshes |
 | `omnibot_vla` | Legacy OpenVLA node |
 
@@ -268,7 +276,7 @@ ros2 launch omnibot_navigation rtabmap.launch.py
 # Hybrid: navigate to location → VLA task
 ros2 launch omnibot_hybrid hybrid_robot.launch.py
 # Send a mission:
-ros2 topic pub /mission std_msgs/String \
+ros2 topic pub /mission/command std_msgs/String \
     "data: 'navigate:kitchen,vla:pick up the red cup'" --once
 ```
 
@@ -291,9 +299,15 @@ See **[data_engine/TRAINING_GUIDE.md](data_engine/TRAINING_GUIDE.md)** for the f
 ├── robot_ws/src/
 │   ├── omnibot_driver/         # Yahboom serial driver, odometry
 │   ├── omnibot_arm/            # SO-101 arm driver
-│   ├── omnibot_lerobot/        # SmolVLA inference, recorder, BEV stitcher
+│   ├── omnibot_lerobot/        # Model-agnostic policy node, recorder, BEV stitcher
 │   ├── omnibot_hybrid/         # cmd_vel mux, mission planner
 │   ├── omnibot_navigation/     # SLAM + Nav2
+│   ├── omnibot_rl/             # RL nav/arm ONNX inference, arm_cmd_mux
+│   ├── omnibot_perception/     # Object distance + pose from depth camera
+│   ├── omnibot_orchestration/  # LangGraph natural-language mission agent
+│   ├── omnibot_metrics/        # Prometheus telemetry bridge
+│   ├── omnibot_ota/            # Over-the-air updater
+│   ├── omnibot_vr/             # VR teleop/recording bridge
 │   ├── omnibot_bringup/        # Launch files
 │   └── omnibot_description/    # URDF + SO-101 STL meshes
 ├── packages/
@@ -305,9 +319,13 @@ See **[data_engine/TRAINING_GUIDE.md](data_engine/TRAINING_GUIDE.md)** for the f
 │   └── vla_serve/              # VLA HTTP inference server
 ├── data_engine/                # ROS bag → LeRobot v2.0 dataset pipeline
 ├── lerobot_engine/             # SmolVLA train / infer scripts
+├── rl_engine/                  # Isaac Lab RL training + ONNX export
+├── learning_engine/            # Post-training & continual-learning framework
 ├── vla_engine/                 # Legacy OpenVLA stack
+├── digital_twin/               # Gazebo / Isaac Sim simulation environment
 ├── android_app/                # Kotlin MVVM controller app
-└── infra/                      # Docker, CI/CD
+├── vr_app/                     # Unity VR teleop app
+└── infra/                      # Docker, CI/CD, observability
 ```
 
 ---

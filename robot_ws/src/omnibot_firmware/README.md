@@ -1,70 +1,72 @@
-# OmniBot STM32 Firmware
+# OmniBot STM32 Firmware (LEGACY — not active)
 
-This directory contains the firmware code for the STM32F407VG Discovery board used in the OmniBot mecanum wheel robot.
+Firmware for an STM32F4 board, retained from the original STM32-based drive
+chain. **The active robot uses the Yahboom expansion board** driven by
+`omnibot_driver` (`yahboom_controller_node`) over USB serial; this firmware is
+not part of the active build. See the repo-root `MIGRATION_GUIDE.md` for the
+STM32 → Yahboom migration.
 
-## Overview
+This is **not** a ROS 2 package — there is no `package.xml` and it is not built
+by `colcon`.
 
-The firmware handles the low-level control of the four mecanum wheels, reading encoder values, and communicating with the Raspberry Pi via serial (UART).
+## What the current firmware does
 
-## Features
+`Core/Src/main.c` initializes peripherals and runs a simple loop that:
 
-- PWM generation for motor control
-- Quadrature encoder reading
-- Serial communication protocol with the Raspberry Pi
-- PID control for wheel velocity
+1. Starts PWM on TIM2–TIM5 (two channels each — one per motor direction pin).
+2. Starts the four encoder interfaces on TIM1, TIM8, TIM9, TIM10.
+3. Every 10 ms reads the four encoder counters (`TIMx->CNT`) and transmits
+   them to the host over UART2 (115200 baud, 8N1):
 
-## Development Environment
+   ```
+   <ENCODERS,fl,fr,rl,rr>\n     # raw 32-bit timer counts (ticks)
+   ```
 
-- STM32CubeIDE 1.15.0+
-- STM32CubeMX for peripheral configuration
-- STM32F4 HAL libraries
+> The encoder values are raw timer counts, not rad/s. There is **no UART
+> receive / command-parsing code** in the current sources — the motor command
+> and heartbeat protocol described in earlier revisions is not implemented, and
+> `wheel_velocities[]` is declared but never applied to the PWM outputs.
 
-## Hardware Connections
+## Build files
 
-### Motor Drivers (L298N)
+Only a partial CubeMX-style tree is checked in (`Core/Inc/main.h`,
+`Core/Src/{main,gpio,tim,usart}.c`). There is no project/IDE file or build
+script in the repo; it must be reconstructed in STM32CubeIDE / CubeMX before it
+can be built or flashed.
 
-- Motor 1 (Front Left): PA0, PA1 (PWM), PB0, PB1 (Direction)
-- Motor 2 (Front Right): PA2, PA3 (PWM), PB2, PB3 (Direction)
-- Motor 3 (Rear Left): PA6, PA7 (PWM), PB4, PB5 (Direction)
-- Motor 4 (Rear Right): PA8, PA9 (PWM), PB6, PB7 (Direction)
+## Pin / peripheral map (from `Core/Inc/main.h` + `Core/Src/tim.c`)
 
-### Encoders
+### PWM (motor speed) — TIM2–TIM5, period 8399
 
-- Encoder 1 (Front Left): PC0, PC1
-- Encoder 2 (Front Right): PC2, PC3
-- Encoder 3 (Rear Left): PC4, PC5
-- Encoder 4 (Rear Right): PC6, PC7
+| Motor | PWM pins |
+|---|---|
+| M1 | `M1_PWM1` (PIN_0), `M1_PWM2` (PIN_1) |
+| M2 | `M2_PWM1` (PIN_2), `M2_PWM2` (PIN_3) |
+| M3 | `M3_PWM1` (PIN_6), `M3_PWM2` (PIN_7) |
+| M4 | `M4_PWM1` (PIN_8), `M4_PWM2` (PIN_9) |
 
-### Serial Communication
+### Direction pins
 
-- UART2: PA2 (TX), PA3 (RX) - Connected to Raspberry Pi
+`M1_DIR1/2` … `M4_DIR1/2` on PIN_0–PIN_7.
 
-## Building and Flashing
+### Encoders — TIM1, TIM8, TIM9, TIM10 (period 65535)
 
-1. Open the project in STM32CubeIDE
-2. Build the project
-3. Connect the STM32F407VG Discovery board via ST-LINK
-4. Flash the firmware using the IDE or OpenOCD:
+`ENC1_A/B` … `ENC4_A/B` on PIN_0–PIN_7.
+
+### Serial
+
+UART2 — `USART_TX` (PIN_2), `USART_RX` (PIN_3), 115200 baud → host.
+
+### Status LED
+
+`LED` on PIN_12.
+
+## Flashing
+
+There is no provided build artifact. After reconstructing and building the
+project in STM32CubeIDE, flash via ST-LINK, e.g.:
 
 ```bash
-openocd -f interface/stlink.cfg -f target/stm32f4x.cfg -c "program build/omnibot_firmware.elf verify reset exit"
+openocd -f interface/stlink.cfg -f target/stm32f4x.cfg \
+  -c "program build/<firmware>.elf verify reset exit"
 ```
-
-## Communication Protocol
-
-The firmware communicates with the Raspberry Pi using a simple text-based protocol over UART:
-
-### Commands from Raspberry Pi to STM32
-
-- `<FL,FR,RL,RR>\n`: Set wheel velocities (rad/s)
-- `<CMD_VEL,x,y,z>\n`: Set robot velocity (m/s, m/s, rad/s)
-- `<HEARTBEAT>\n`: Heartbeat message
-
-### Messages from STM32 to Raspberry Pi
-
-- `<ENCODERS,fl,fr,rl,rr>\n`: Encoder values (ticks)
-- `<STATUS,message>\n`: Status messages
-
-## License
-
-MIT License

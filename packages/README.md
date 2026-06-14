@@ -18,9 +18,9 @@ releasable to the broader robotics community.
 ```bash
 cd ~/ros2_ws/src
 # Symlink the packages you want
-ln -s /path/to/Mecanum-Wheel-Robot/packages/yahboom_ros2 .
-ln -s /path/to/Mecanum-Wheel-Robot/packages/mecanum_drive_ros2 .
-ln -s /path/to/Mecanum-Wheel-Robot/packages/ros2_bev_stitcher .
+ln -s /path/to/OmniBotPro/packages/yahboom_ros2 .
+ln -s /path/to/OmniBotPro/packages/mecanum_drive_ros2 .
+ln -s /path/to/OmniBotPro/packages/ros2_bev_stitcher .
 cd ~/ros2_ws && colcon build
 ```
 
@@ -31,7 +31,7 @@ pip install vla-serve robot-episode-dataset
 
 ### Android (JitPack)
 ```gradle
-implementation 'com.github.varunvaidhiya.Mecanum-Wheel-Robot:rosbridge-android:1.0.0'
+implementation 'com.github.varunvaidhiya.OmniBotPro:lib:1.0.0'
 ```
 
 ## Release Status

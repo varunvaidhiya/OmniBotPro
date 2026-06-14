@@ -23,7 +23,7 @@ SSH into your Pi or open a terminal on it.
 
 ### Step 2: Build (If code changed)
 ```bash
-cd ~/Mecanum-Wheel-Robot
+cd ~/OmniBotPro
 colcon build --packages-select omnibot_bringup omnibot_driver
 source install/setup.bash
 ```
@@ -64,7 +64,7 @@ ros2 topic list
 ### Step 2: Run OpenVLA (AI Control)
 If you want the AI to control the robot:
 ```bash
-cd ~/Mecanum-Wheel-Robot
+cd ~/OmniBotPro
 source install/setup.bash
 ros2 launch omnibot_vla vla_desktop.launch.py
 ```

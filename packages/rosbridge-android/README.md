@@ -6,13 +6,16 @@
 ## Features
 
 - **`ROSBridgeManager`** — Kotlin coroutines WebSocket client with:
-  - subscribe / unsubscribe / publish / call_service
+  - `subscribe` / `unsubscribe` / `publish` / `callService`
   - Exponential-backoff auto-reconnect (5 attempts: 1 s, 2 s, 4 s, 8 s, 16 s)
   - 5-second keep-alive heartbeat
-- **`VirtualJoystickView`** — Custom `View` with configurable deadzone and clamping,
-  outputs normalized (x, y) in [-1, 1]
+  - Observable `connectionState` (`DISCONNECTED` / `CONNECTING` / `CONNECTED` / `ERROR`)
+- **`ROSBridgeListener`** — callback interface: `onConnected()`, `onDisconnected()`,
+  `onError(error: String)`, `onMessageReceived(topic: String, message: Map<String, Any>)`
+- **`VirtualJoystickView`** — Custom `View` with configurable `deadzone`,
+  outputs normalized (x, y) in [-1, 1] (Y inverted for ROS REP 103)
 - **`SlamMapView`** — Renders ROS OccupancyGrid with robot pose overlay,
-  supports pinch-zoom and drag-pan
+  supports pinch-zoom, drag-pan, and double-tap to reset
 
 ## Install via JitPack
 
@@ -26,7 +29,7 @@ dependencyResolutionManagement {
 
 // app/build.gradle
 dependencies {
-    implementation 'com.github.varunvaidhiya.Mecanum-Wheel-Robot:rosbridge-android:1.0.0'
+    implementation 'com.github.varunvaidhiya.OmniBotPro:lib:1.0.0'
 }
 ```
 
@@ -62,7 +65,16 @@ manager.publish("/cmd_vel", mapOf(
     "angular" to mapOf("x" to 0.0, "y" to 0.0, "z" to 0.0),
 ))
 
-// Cleanup
+// Call a service (args and id are optional)
+manager.callService("/clear", args = emptyMap(), id = null)
+
+// Inspect connection state
+if (manager.connectionState == ROSBridgeManager.ConnectionState.CONNECTED) {
+    // ...
+}
+
+// Unsubscribe / cleanup
+manager.unsubscribe("/odom")
 manager.disconnect()
 ```
 

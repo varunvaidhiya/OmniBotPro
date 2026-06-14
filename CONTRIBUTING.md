@@ -46,8 +46,8 @@ Hardware is **not required** for most engineering contributions — Gazebo simul
 ### Clone and install
 
 ```bash
-git clone https://github.com/varunvaidhiya/Mecanum-Wheel-Robot.git
-cd Mecanum-Wheel-Robot
+git clone https://github.com/varunvaidhiya/OmniBotPro.git
+cd OmniBotPro
 
 # Install standalone Python packages in editable mode
 pip install -e packages/yahboom_ros2

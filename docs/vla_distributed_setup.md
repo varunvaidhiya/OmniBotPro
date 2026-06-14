@@ -32,7 +32,7 @@ You need to install the heavy AI libraries on your PC.
 
 3.  **Build the VLA Package**:
     ```bash
-    cd ~/Mecanum-Wheel-Robot
+    cd ~/OmniBotPro
     colcon build --packages-select omnibot_vla
     source install/setup.bash
     ```

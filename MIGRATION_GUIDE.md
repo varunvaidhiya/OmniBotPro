@@ -97,7 +97,7 @@ Raspberry Pi → USB → Yahboom Board → Motors
 ### Step 2: Software Installation
 1. **Build the updated workspace**:
    ```bash
-   cd Mecanum-Wheel-Robot
+   cd OmniBotPro
    colcon build
    source install/setup.bash
    ```

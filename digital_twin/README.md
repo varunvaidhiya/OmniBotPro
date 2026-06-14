@@ -17,7 +17,9 @@ digital_twin/
 │   └── nav_corridor.yaml            # navigation benchmark scenarios
 ├── docker/
 │   ├── Dockerfile.sim               # Ubuntu 24.04 + ROS Jazzy + Gazebo Harmonic
-│   └── docker-compose.yml           # sim + foxglove services
+│   ├── docker-compose.yml           # sim + foxglove services
+│   ├── docker-compose.gpu.yml       # NVIDIA GPU override for the sim service
+│   └── post_create.sh              # DevContainer postCreate: deps + colcon build
 ├── configs/
 │   ├── rviz/
 │   │   ├── perception.rviz          # camera feeds, depth, BEV
@@ -39,19 +41,32 @@ digital_twin/
 1. Install [VS Code](https://code.visualstudio.com/) and the
    [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers).
 2. `git clone https://github.com/varunvaidhiya/OmniBot && cd OmniBot`
-3. Open VS Code → **Reopen in Container** — the image installs automatically.
+3. Open VS Code → **Reopen in Container**. The root `.devcontainer/devcontainer.json`
+   builds `digital_twin/docker/Dockerfile.sim` and runs `docker/post_create.sh`,
+   which installs deps and runs `colcon build` automatically.
 4. Inside the container:
    ```bash
-   cd robot_ws && colcon build --symlink-install && source install/setup.bash
+   source robot_ws/install/setup.bash
    ros2 launch omnibot_bringup simulation.launch.py
    ```
+   The DevContainer enables GPU passthrough via `--gpus=all` on Linux hosts;
+   remove those `runArgs` on Windows/Mac (see the comment in `devcontainer.json`).
 
 ### Option B — Docker Compose (headless)
 ```bash
-# GPU machine (Gazebo renders off-screen, Foxglove serves in browser)
+# Gazebo renders off-screen, Foxglove serves in browser
 docker compose -f digital_twin/docker/docker-compose.yml up
 # Open https://app.foxglove.dev → Connect → ws://localhost:8765
+
+# NVIDIA host (GPU-accelerated Gazebo) — layer the GPU override:
+docker compose \
+  -f digital_twin/docker/docker-compose.yml \
+  -f digital_twin/docker/docker-compose.gpu.yml up
 ```
+
+The compose `sim` service launches `simulation.launch.py rviz:=false foxglove:=false`
+and runs `foxglove_bridge` as a separate service; ROSBridge (port 9090) is exposed
+for the Android app.
 
 ### Option C — Native Ubuntu 24.04
 ```bash
@@ -105,10 +120,10 @@ rviz2 -d digital_twin/configs/rviz/manipulation.rviz
 | `omnibot_world.sdf` (default) | Basic physics + sensor test | `robot_ws/src/omnibot_bringup/worlds/` |
 | `omnibot_lab.sdf` | Manipulation + navigation with objects | `digital_twin/worlds/` |
 
-To launch with the lab world:
+To launch with the lab world (run from the repo root):
 ```bash
 ros2 launch omnibot_bringup simulation.launch.py \
-  world:=$(ros2 pkg prefix omnibot_bringup)/../../../digital_twin/worlds/omnibot_lab.sdf
+  world:=$(pwd)/digital_twin/worlds/omnibot_lab.sdf
 ```
 
 ---
@@ -145,7 +160,7 @@ python3 data_engine/isaac_sim/collect_episodes.py \
 
 | Topic | Type | Notes |
 |-------|------|-------|
-| `/scan` | LaserScan | 2D lidar — SLAM, Nav2 obstacle layer |
+| `/scan` | LaserScan | synthesized from depth via `depthimage_to_laserscan` (no physical 2D lidar) — SLAM, Nav2 |
 | `/camera/front/image_raw` | Image | 640×480, 30 Hz |
 | `/camera/base/bev/image_raw` | Image | 800×800 BEV composite |
 | `/camera/wrist/image_raw` | Image | 320×240 gripper cam |

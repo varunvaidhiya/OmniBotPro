@@ -23,7 +23,7 @@ Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - ROSBridge WebSocket node (`use_rosbridge` arg, default `true`) to
   `robot.launch.py` and `hybrid_robot.launch.py`
 - BEV stitcher node (`use_bev` arg, default `true`) to
-  `hybrid_robot.launch.py` — required by `smolvla_node`
+  `hybrid_robot.launch.py` — required by `policy_node`
 - Lint and coverage CI jobs to `.github/workflows/ros2_ci.yml`
 - Separate `vla_serve_test` CI job with 60% coverage gate
 - Structured logging (`logging` module, `LOG_LEVEL` env var) in `vla_serve`

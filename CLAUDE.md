@@ -46,10 +46,14 @@ OmniBot/
 │       ├── omnibot_vla/           # OpenVLA ROS 2 node
 │       ├── omnibot_arm/           # SO-101 arm driver (LeRobot)
 │       ├── omnibot_hybrid/        # cmd_vel mux + mission planner
-│       ├── omnibot_lerobot/       # SmolVLA unified 9-DOF policy
+│       ├── omnibot_lerobot/       # Model-agnostic policy_node (SmolVLA/ACT/diffusion) + recorder + BEV
 │       ├── omnibot_rl/            # RL inference nodes (nav + arm) + arm_cmd_mux
 │       ├── omnibot_orchestration/ # LangGraph AI orchestration (Claude-backed)
 │       ├── omnibot_perception/    # AI perception: object distance + pose (depth cam)
+│       ├── omnibot_metrics/       # Prometheus telemetry bridge (observability)
+│       ├── omnibot_ota/           # Over-the-air workspace + ONNX model updater
+│       ├── omnibot_vr/            # VR teleop/recording bridge (Unity vr_app)
+│       ├── ros2_astra_camera/     # Orbbec Astra driver (build-from-source placeholder)
 │       └── omnibot_firmware/      # Legacy STM32 (not active)
 ├── packages/
 │   ├── yahboom_ros2/              # Pure-Python Yahboom protocol encoder/decoder
@@ -173,7 +177,7 @@ ros2 launch omnibot_navigation autonomous_robot.launch.py
 ros2 launch omnibot_hybrid hybrid_robot.launch.py               # driver+SLAM+Nav2+VLA+mux
 ros2 launch omnibot_hybrid hybrid_robot.launch.py use_rl:=true  # + RL nodes
 ros2 launch omnibot_hybrid hybrid_robot.launch.py use_langchain:=true
-ros2 launch omnibot_lerobot smolvla_inference.launch.py
+ros2 launch omnibot_lerobot policy_inference.launch.py
 ros2 launch omnibot_vla vla_desktop.launch.py    # GPU machine only
 ros2 launch omnibot_arm arm.launch.py
 ros2 launch omnibot_rl rl_inference.launch.py    # 4 RL nodes standalone
@@ -234,25 +238,25 @@ VLA Desktop (GPU PC)
 | Topic | Type | Publisher | Subscriber(s) |
 |---|---|---|---|
 | `/cmd_vel` | Twist | Nav2, teleop_twist_joy, Android | `yahboom_controller_node`, `cmd_vel_mux` |
-| `/cmd_vel/vla` | Twist | `vla_node`, `smolvla_node` | `cmd_vel_mux` |
+| `/cmd_vel/vla` | Twist | `vla_node`, `policy_node` | `cmd_vel_mux` |
 | `/cmd_vel/teleop` | Twist | `teleop_twist_joy` | `cmd_vel_mux` |
 | `/cmd_vel/out` | Twist | `cmd_vel_mux` | `yahboom_controller_node` (via remap) |
 | `/control_mode` | String | `mission_planner`, manual pub | `cmd_vel_mux` |
 | `/control_mode/active` | String | `cmd_vel_mux` | monitoring |
 | `/vla/prompt` | String | Android, `mission_planner` | `vla_node` |
-| `/smolvla/task` | String | `mission_planner` | `smolvla_node` |
-| `/smolvla/enable` | Bool | `mission_planner` | `smolvla_node` |
+| `/policy/task` | String | `mission_planner` | `policy_node` |
+| `/policy/enable` | Bool | `mission_planner` | `policy_node` |
 | `/mission/command` | String | Android, manual pub | `mission_planner` |
 | `/mission/cancel` | String | Android | `mission_planner` |
 | `/mission/status` | String | `mission_planner` | Android |
-| `/odom` | Odometry | `yahboom_controller_node` | Nav2, `smolvla_node`, Android |
+| `/odom` | Odometry | `yahboom_controller_node` | Nav2, `policy_node`, Android |
 | `/imu/data` | Imu | `yahboom_controller_node` | Nav2 EKF, Android |
 | `/map` | OccupancyGrid | `slam_toolbox` | Nav2, Android |
 | `/tf` | TFMessage | `robot_state_publisher`, driver | all navigation |
 | `/joint_states` | JointState | `robot_state_publisher`, Gazebo | `robot_state_publisher` |
-| `/arm/joint_states` | JointState | `arm_driver_node` | `smolvla_node`, Android |
+| `/arm/joint_states` | JointState | `arm_driver_node` | `policy_node`, Android |
 | `/arm/leader_states` | JointState | `arm_driver_node` (teleop) | `teleop_recorder_node` |
-| `/arm/joint_commands` | JointState | Android, `smolvla_node` | `arm_cmd_mux` |
+| `/arm/joint_commands` | JointState | Android, `policy_node` | `arm_cmd_mux` |
 | `/arm/joint_commands/rl` | JointState | `rl_arm_node` | `arm_cmd_mux` |
 | `/arm/joint_commands/out` | JointState | `arm_cmd_mux` | `arm_driver_node` |
 | `/arm/cmd_mode` | String | `mission_planner`, manual pub | `arm_cmd_mux` |
@@ -274,8 +278,8 @@ VLA Desktop (GPU PC)
 | `/robot_mode` | String | Android | *(monitoring only — does not control mux)* |
 | `/joy` | Joy | `joy_node` | `yahboom_controller_node`, `teleop_recorder_node` |
 | `/camera/front/image_raw` | Image | USB camera / Gazebo | `vla_node` (via `/image_raw` remap), `langchain_agent_node` |
-| `/camera/wrist/image_raw` | Image | wrist camera | `smolvla_node`, `teleop_recorder_node`, `rl_object_pose_node`, `langchain_agent_node` |
-| `/camera/base/bev/image_raw` | Image | `bev_stitcher_node` | `smolvla_node`, `teleop_recorder_node` |
+| `/camera/wrist/image_raw` | Image | wrist camera | `policy_node`, `teleop_recorder_node`, `rl_object_pose_node`, `langchain_agent_node` |
+| `/camera/base/bev/image_raw` | Image | `bev_stitcher_node` | `policy_node`, `teleop_recorder_node` |
 | `/ai/command` | String | Android, manual pub | `langchain_agent_node` |
 | `/ai/status` | String | `langchain_agent_node` | Android |
 | `/ai/response_needed` | String | `langchain_agent_node` | Android |
@@ -381,7 +385,7 @@ SO-101 6-DOF arm via LeRobot's `FeetechMotorsBus`.
 | `joint_max` | `[3.14,1.57,1.57,1.57,3.14,0.8]` |
 
 Joint names include the `arm_` prefix in both `arm_driver_node.py` defaults and
-`smolvla_node.py` — they are kept in sync. Do not change one without the other.
+`policy_node.py` — they are kept in sync. Do not change one without the other.
 
 Falls back to passthrough/simulation mode if `lerobot` is not installed.
 
@@ -417,10 +421,15 @@ Publishers added for RL: `/rl_nav/goal` (PoseStamped), `/arm/cmd_mode` (String).
 
 ### `omnibot_lerobot`
 
-**`smolvla_node.py`** — unified 9-DOF SmolVLA policy (6 arm + 3 base).
+**`policy_node.py`** — model-agnostic unified 9-DOF policy (6 arm + 3 base).
+The model backend is selected by the `model_type` parameter (registry names:
+`smolvla` | `act` | `diffusion` | `openvla`); SmolVLA is the default.
+Config: `config/policy_params.yaml`. Launch: `policy_inference.launch.py`
+(`model_type:=`, `checkpoint:=`, `device:=`, `include_arm_mux:=`).
 
 | Parameter | Default |
 |---|---|
+| `model_type` | `'smolvla'` |
 | `checkpoint_path` | `'lerobot/smolvla_base'` |
 | `device` | `'cuda'` |
 | `policy_hz` | `10.0` |
@@ -429,7 +438,10 @@ Publishers added for RL: `/rl_nav/goal` (PoseStamped), `/arm/cmd_mode` (String).
 | `image_width` / `image_height` | `320` / `240` |
 | `task_description` | `'pick up the object and place it'` |
 | `base_vel_scale` | `0.3` |
+| `use_trt` | `False` (TRT vision-encoder patch) |
 
+Control topics: `/policy/task` (String, update task description) and
+`/policy/enable` (Bool, enable/disable inference).
 Both `/camera/wrist/image_raw` **and** `/camera/base/bev/image_raw` must be
 available — no graceful degradation if either is missing.
 `bev_stitcher_node` must be running to provide the BEV topic.
@@ -659,7 +671,7 @@ Endpoints: `GET /health`, `POST /load_model`, `POST /predict`.
 
 Stitches 4 base-mounted cameras into a single bird's-eye-view image.
 Publishes `/camera/base/bev/image_raw`.
-Must be running whenever `smolvla_node` or `teleop_recorder_node` is active.
+Must be running whenever `policy_node` or `teleop_recorder_node` is active.
 Config: `packages/ros2_bev_stitcher/config/bev_params.yaml`.
 
 ### `mecanum_drive_ros2`
@@ -959,7 +971,7 @@ Overall coverage is very low (~5%). Priority areas:
 | `serial_bridge_node.py` | 0% | High — mecanum kinematics just added |
 | `mission_planner.py` | 0% | High — command parser, state machine |
 | `arm_driver_node.py` | 0% | High — tick↔rad conversion, clamping |
-| `smolvla_node.py` | 0% | High — action mapping, image preprocessing |
+| `policy_node.py` | 0% | High — action mapping, image preprocessing |
 | `openvla.py` | ~30% | Medium — only tested via mocks |
 | Android (all Kotlin) | ~1% | High — repository layer untestable due to singleton |
 

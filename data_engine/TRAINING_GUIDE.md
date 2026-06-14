@@ -74,7 +74,7 @@ ros2 run ros2_bev_stitcher bev_calibrate
 ```bash
 # Check USB devices
 ls /dev/ttyACM*        # should see ACM0 (follower) + ACM1 (leader)
-ls /dev/video*         # should see video0 + video1 (or video2)
+ls /dev/video*         # one device per USB camera (see §1.1 device table)
 
 # Test cameras individually
 ros2 run image_tools showimage --ros-args -r /image:=/camera/front/image_raw
@@ -142,10 +142,13 @@ The `teleop_recorder_node` captures at `fps` Hz and stores:
 ```
 state  [9D]: current arm joint angles + base odom velocities
 action [9D]: arm commands sent + base cmd_vel issued this step
-obs/front_image  : JPEG (640×480)
-obs/wrist_image  : JPEG (320×240)
+obs/front_image  : 640×480 (CAMERA_FRONT)
+obs/wrist_image  : 640×480 (CAMERA_WRIST)
 timestamp        : ROS time in nanoseconds
 ```
+
+Image resolutions come from `data_engine/schema/constants.py` — update that
+file if your cameras differ.
 
 Each episode is saved as a **ROS 2 bag** under:
 ```
@@ -220,6 +223,10 @@ python -m data_engine.scripts.ingest_dataset \
         episode_000000.mp4
 ```
 
+> The ingestion pipeline (`bag_to_omnibot.py`) writes the **front** and
+> **wrist** camera streams. The BEV stream is consumed live by the inference
+> node but is not currently exported into the training dataset.
+
 ### 4.5 Validate the Dataset
 
 ```bash
@@ -248,33 +255,41 @@ pip install -r requirements.txt
 
 ### 5.2 Run Fine-Tuning
 
+`lerobot_engine/train.py` selects the policy from a registry (`--model`); the
+default is `smolvla`.
+
 ```bash
 python train.py \
-    --dataset-path /data/lerobot_dataset/pick_and_place_cube \
-    --config configs/smolvla_mobile_manip.yaml \
+    --model smolvla \
+    --dataset-path /data/lerobot/pick_and_place_cube \
     --output-dir /data/checkpoints/smolvla_manip_v1 \
-    --epochs 100 \
+    --num-epochs 100 \
     --batch-size 16 \
     --lr 1e-4 \
+    --chunk-size 50 \
     --wandb-project omnibot-smolvla   # optional, requires wandb login
+
+python train.py --list-models           # show all registered policy types
 ```
 
-### 5.3 Key Config Parameters (`configs/smolvla_mobile_manip.yaml`)
+### 5.3 Key Training Arguments
 
-```yaml
-policy:
-  chunk_size: 50          # predict 50 future steps at once
-  n_action_steps: 50      # execute all 50 before re-querying
-  state_dim: 9            # 6 arm + 3 base
-  action_dim: 9
+| Flag | Default | Notes |
+|------|---------|-------|
+| `--model` | `smolvla` | also: `act`, `diffusion`, `openvla` |
+| `--checkpoint` | (model default) | HF hub ID or local path to start from / resume |
+| `--num-epochs` | 100 | |
+| `--batch-size` | 8 | lower if you hit GPU OOM |
+| `--lr` | 1e-4 | |
+| `--chunk-size` | 50 | predicted future steps per query |
+| `--save-every` | 10 | checkpoint every N epochs |
+| `--device` | cuda | |
 
-normalization:
-  # These ranges must match your actual robot's operating envelope
-  state_min:  [-3.14, -3.14, -3.14, -3.14, -3.14, 0.0, -0.5, -0.5, -1.5]
-  state_max:  [ 3.14,  3.14,  3.14,  3.14,  3.14, 1.0,  0.5,  0.5,  1.5]
-  action_min: [-3.14, -3.14, -3.14, -3.14, -3.14, 0.0, -0.5, -0.5, -1.5]
-  action_max: [ 3.14,  3.14,  3.14,  3.14,  3.14, 1.0,  0.5,  0.5,  1.5]
-```
+Per-model architecture/config files live in
+`lerobot_engine/configs/models/` (`smolvla.yaml`, `act.yaml`, `diffusion.yaml`)
+and the robot/feature config in
+`lerobot_engine/configs/robot/omnibot_mobile_manip.yaml`. State and action are
+the fixed 9-D mobile-manipulation spec (6 arm + 3 base).
 
 ### 5.4 Training on a Cloud GPU (if no local GPU)
 
@@ -316,13 +331,14 @@ Key metrics to watch:
 ### 6.1 Update Checkpoint Path
 
 ```yaml
-# robot_ws/src/omnibot_lerobot/config/smolvla_params.yaml
-smolvla_node:
+# robot_ws/src/omnibot_lerobot/config/policy_params.yaml
+policy_node:
   ros__parameters:
-    checkpoint_path: "/data/checkpoints/smolvla_manip_v1/best/model.pt"
+    model_type: "smolvla"        # smolvla | act | diffusion | openvla
+    checkpoint_path: "/data/checkpoints/smolvla_manip_v1/best"
     task_description: "pick up the red cube and place it in the bin"
-    action_scale_base: 1.0
-    enable_on_start: false
+    base_vel_scale: 0.3          # scales base velocity output (start low)
+    policy_hz: 10.0
 ```
 
 ### 6.2 Launch Inference
@@ -331,21 +347,24 @@ smolvla_node:
 # Terminal 1 — full system
 ./launch_mobile_manipulation.sh
 
-# Terminal 2 — SmolVLA inference
-ros2 launch omnibot_lerobot smolvla_inference.launch.py
+# Terminal 2 — policy inference (smolvla by default)
+ros2 launch omnibot_lerobot policy_inference.launch.py
+# or override the checkpoint / model:
+ros2 launch omnibot_lerobot policy_inference.launch.py \
+    model_type:=smolvla checkpoint:=/data/checkpoints/smolvla_manip_v1/best
 
 # Terminal 3 — enable the policy (robot will start moving)
-ros2 topic pub /smolvla/enable std_msgs/Bool "data: true" --once
+ros2 topic pub /policy/enable std_msgs/Bool "data: true" --once
 
 # To change task at runtime:
-ros2 topic pub /smolvla/task std_msgs/String \
+ros2 topic pub /policy/task std_msgs/String \
     "data: 'pick up the blue block'" --once
 ```
 
 ### 6.3 Safety During Inference
 
 - Keep Xbox controller in hand — **left stick click = emergency stop** via `/emergency_stop`
-- First test with `action_scale_base: 0.3` (30% base speed) until confident
+- Start with a low `base_vel_scale` (e.g. 0.3) until confident
 - Run in a clear 2m × 2m area
 
 ---
@@ -369,11 +388,12 @@ python -m data_engine.scripts.ingest_dataset \
     --output-dir /data/lerobot/pick_and_place_cube \
     --task "pick up the red cube and place it in the bin"
 
-# Resume training from best checkpoint
+# Continue training from a previous checkpoint
 python lerobot_engine/train.py \
+    --model smolvla \
     --dataset-path /data/lerobot/pick_and_place_cube \
     --output-dir /data/checkpoints/smolvla_manip_v2 \
-    --resume-from /data/checkpoints/smolvla_manip_v1/best \
+    --checkpoint /data/checkpoints/smolvla_manip_v1/best \
     --num-epochs 50
 ```
 
@@ -402,11 +422,13 @@ SmolVLA conditions on the task string at inference time, so multi-task training 
 | File | Purpose |
 |------|---------|
 | `lerobot_engine/record.py` | Standalone recorder (no ROS, for bench testing) |
-| `lerobot_engine/train.py` | Fine-tune SmolVLA on collected dataset |
+| `lerobot_engine/train.py` | Fine-tune a registry policy (smolvla/act/diffusion/openvla) |
 | `lerobot_engine/infer.py` | Standalone inference test (no robot) |
-| `lerobot_engine/configs/smolvla_mobile_manip.yaml` | Policy config (dims, normalisation, hyperparams) |
+| `lerobot_engine/configs/models/smolvla.yaml` | SmolVLA architecture/config |
+| `lerobot_engine/configs/robot/omnibot_mobile_manip.yaml` | Robot feature/normalisation config |
 | `robot_ws/src/omnibot_lerobot/omnibot_lerobot/teleop_recorder_node.py` | ROS 2 recorder (live robot) |
-| `robot_ws/src/omnibot_lerobot/omnibot_lerobot/smolvla_node.py` | ROS 2 inference node |
+| `robot_ws/src/omnibot_lerobot/omnibot_lerobot/policy_node.py` | ROS 2 inference node (multi-backend) |
+| `robot_ws/src/omnibot_lerobot/config/policy_params.yaml` | Inference node parameters |
 | `robot_ws/src/omnibot_arm/config/arm_params.yaml` | Arm motor IDs, ports, home ticks |
 | `data_engine/ingestion/bag_to_omnibot.py` | ROS bag → LeRobot Parquet + MP4 |
 | `data_engine/ingestion/ros_parser.py` | Low-level ROS bag parsing (cameras, odom, cmd_vel) |
@@ -423,10 +445,10 @@ SmolVLA conditions on the task string at inference time, so multi-task training 
 
 | Symptom | Likely Cause | Fix |
 |---------|-------------|-----|
-| Arm jitters during inference | `action_scale_arm` too high | Lower to 0.5 in `smolvla_params.yaml` |
-| Base drifts unexpectedly | Odom not calibrated | Check wheel diameter in `yahboom_params.yaml` |
-| `chunk_size` mismatch error | Config vs checkpoint mismatch | Ensure same `chunk_size=50` at record + train + infer |
+| Base moves too fast during inference | `base_vel_scale` too high | Lower it in `policy_params.yaml` |
+| Base drifts unexpectedly | Odom not calibrated | Check wheel geometry in `omnibot_driver` params |
+| `chunk_size` mismatch error | Config vs checkpoint mismatch | Ensure same `chunk_size=50` at train + infer |
 | Low val accuracy despite many demos | Insufficient task variation | Vary object position, lighting, start pose |
-| GPU OOM during training | Batch too large | Reduce `batch_size` to 8, enable `fp16: true` |
+| GPU OOM during training | Batch too large | Reduce `--batch-size` |
 | Camera topics missing at record time | USB cam not detected | Check `ls /dev/video*`, update device in `mobile_manipulation.launch.py` |
-| HDF5 validation fails (`frame_count mismatch`) | Recording dropped frames | Reduce `fps` to 15 or improve USB bandwidth (dedicated USB controller) |
+| Dataset validation fails (`frame_count mismatch`) | Recording dropped frames | Reduce `fps` to 15 or improve USB bandwidth (dedicated USB controller) |
