@@ -107,16 +107,17 @@ ul { list-style: none; }
 
 /* ── HERO 3D LEGIBILITY GRADIENTS ──────────────────────────────── */
 .hero-fade-top {
-  position: absolute; top: 0; left: 0; right: 0; height: 38%;
+  position: absolute; top: 0; left: 0; right: 0; height: 34%;
   z-index: 6; pointer-events: none;
   background: linear-gradient(to bottom,
-    rgba(10,14,26,.92) 0%, rgba(10,14,26,.55) 45%, transparent 100%);
+    rgba(10,14,26,.80) 0%, rgba(10,14,26,.30) 48%, transparent 100%);
 }
+/* kept gentle so the robot flows continuously into the sections below */
 .hero-fade-bottom {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 36%;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 30%;
   z-index: 6; pointer-events: none;
   background: linear-gradient(to top,
-    var(--bg) 0%, rgba(10,14,26,.62) 34%, transparent 100%);
+    rgba(10,14,26,.50) 0%, rgba(10,14,26,.16) 45%, transparent 100%);
 }
 
 /* ── HERO CONTROL-HINT KEYCAPS ─────────────────────────────────── */
@@ -154,4 +155,109 @@ ul { list-style: none; }
 }
 .pc-link-arrow {
   transition: transform 0.2s;
+}
+
+/* ── PAGE LAYERING ─────────────────────────────────────────────────
+   The 3-D OmniBot is a fixed background that follows the cursor on every
+   section; all page content sits above it so the robot never hides the text. */
+.robot-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+}
+.content-layer {
+  position: relative; z-index: 10;
+}
+
+/* text that floats directly over the live 3-D scene */
+.legible {
+  text-shadow: 0 2px 26px rgba(2,4,10,0.55), 0 1px 3px rgba(2,4,10,0.5);
+}
+
+/* ── LIQUID GLASS TILES (Apple-style) ──────────────────────────────
+   .glass-reveal   — perspective wrapper + scroll-reveal entrance
+   .glass-tile     — the frosted, 3-D-tilting glass surface
+   ::before        — specular sheen that tracks the cursor (the "liquid")
+   ::after         — crisp top gloss / glass rim
+   .glass-pop      — lift inner content forward for real depth            */
+.glass-reveal { perspective: 1100px; }
+
+.glass-tile {
+  --rx: 0deg; --ry: 0deg; --ty: 0px;
+  --mx: 50%; --my: -20%;
+  position: relative;
+  isolation: isolate;
+  border-radius: 20px;
+  background: linear-gradient(155deg, rgba(255,255,255,0.10), rgba(255,255,255,0.025) 60%);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(16px) saturate(165%);
+  -webkit-backdrop-filter: blur(16px) saturate(165%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 18px 40px -16px rgba(0,0,0,0.6);
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) translateY(var(--ty));
+  transform-style: preserve-3d;
+  transition: transform .3s cubic-bezier(.18,.7,.2,1),
+              box-shadow .35s ease, border-color .35s ease;
+  will-change: transform;
+}
+/* cursor-tracking specular highlight — sits above the frosted fill, below text */
+.glass-tile::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none; z-index: -1;
+  background: radial-gradient(240px circle at var(--mx) var(--my),
+    rgba(255,255,255,0.22), rgba(255,255,255,0.06) 32%, transparent 62%);
+  opacity: .9; transition: opacity .4s ease;
+}
+/* glass rim: bright top edge fading down */
+.glass-tile::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none; z-index: -1;
+  background: linear-gradient(180deg, rgba(255,255,255,0.16), transparent 20%);
+}
+.glass-tile:hover { --ty: -7px; border-color: rgba(255,255,255,0.22); }
+.glass-tile:hover::before { opacity: 1; }
+
+/* content pushed forward in 3-D so it floats above the glass */
+.glass-pop { transform: translateZ(34px); }
+
+/* accent tints + coloured glow on hover */
+.glass-cyan {
+  background: linear-gradient(155deg, rgba(0,212,255,0.12), rgba(255,255,255,0.025) 62%);
+  border-color: rgba(0,212,255,0.20);
+}
+.glass-cyan:hover {
+  border-color: rgba(0,212,255,0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 0 46px rgba(0,212,255,0.20),
+    0 22px 60px -18px rgba(0,0,0,0.7);
+}
+.glass-violet {
+  background: linear-gradient(155deg, rgba(124,58,237,0.16), rgba(255,255,255,0.025) 62%);
+  border-color: rgba(124,58,237,0.24);
+}
+.glass-violet:hover {
+  border-color: rgba(124,58,237,0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.22),
+    0 0 46px rgba(124,58,237,0.22),
+    0 22px 60px -18px rgba(0,0,0,0.7);
+}
+
+/* featured (e.g. "most popular") tiles keep a persistent glow */
+.glass-featured.glass-cyan {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    0 0 36px rgba(0,212,255,0.12),
+    0 22px 60px -18px rgba(0,0,0,0.6);
+}
+.glass-featured.glass-violet {
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.24),
+    0 0 36px rgba(124,58,237,0.16),
+    0 22px 60px -18px rgba(0,0,0,0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-tile { transform: none !important; transition: box-shadow .3s, border-color .3s; }
+  .glass-pop { transform: none; }
 }

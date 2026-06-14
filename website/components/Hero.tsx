@@ -2,13 +2,6 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
-import dynamic from "next/dynamic";
-
-// react-three-fiber must only run in the browser (static export friendly)
-const RobotScene = dynamic(() => import("./robot/RobotScene"), {
-  ssr: false,
-  loading: () => null,
-});
 
 export default function Hero() {
   return (
@@ -21,16 +14,13 @@ export default function Hero() {
       <div className="hero-orb-2" />
       <div className="hero-orb-3" />
 
-      {/* ── interactive 3D OmniBot — fills the hero, receives mouse/drag ── */}
-      <div className="absolute inset-0 z-[5]">
-        <RobotScene />
-      </div>
-
-      {/* legibility gradients top & bottom */}
+      {/* The interactive 3D OmniBot now lives in a fixed background layer
+          (components/robot/RobotBackground) so it follows the cursor on every
+          section, not just the hero. Legibility gradients top & bottom. */}
       <div className="hero-fade-top" />
       <div className="hero-fade-bottom" />
 
-      {/* ── overlay content (pointer-events pass through to the canvas) ── */}
+      {/* ── overlay content (pointer-events pass through to the scene) ── */}
       <div className="relative z-10 flex flex-col min-h-screen pointer-events-none px-6 pt-28 pb-10">
         {/* TOP — badge, wordmark, tagline */}
         <div className="flex flex-col items-center text-center">
@@ -86,8 +76,8 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[560px] mx-auto mb-6"
-            style={{ color: "rgba(255,255,255,0.66)" }}
+            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[560px] mx-auto mb-6 legible"
+            style={{ color: "rgba(255,255,255,0.72)" }}
           >
             From <strong className="text-white font-semibold">VR teleoperation</strong> to{" "}
             <strong className="text-white font-semibold">AI inference</strong> — one platform to
@@ -140,9 +130,9 @@ export default function Hero() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.7 }}
             className="flex items-center gap-x-5 gap-y-2 flex-wrap justify-center font-mono text-[11px] tracking-[0.04em]"
-            style={{ color: "rgba(255,255,255,0.40)" }}
+            style={{ color: "rgba(255,255,255,0.45)" }}
           >
-            <span>move your mouse — OmniBot chases it &amp; grabs</span>
+            <span>move your mouse — OmniBot follows you on every section</span>
             <span className="hidden sm:inline opacity-40">·</span>
             <span className="inline-flex items-center gap-1.5">
               <kbd className="hero-kbd">↑</kbd>
@@ -151,8 +141,6 @@ export default function Hero() {
               <kbd className="hero-kbd">→</kbd>
               manual drive
             </span>
-            <span className="hidden sm:inline opacity-40">·</span>
-            <span>drag to orbit</span>
           </motion.div>
         </div>
       </div>

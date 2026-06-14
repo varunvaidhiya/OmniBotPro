@@ -1,6 +1,7 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import GlassCard from "@/components/GlassCard";
 import { Check } from "lucide-react";
 
 const plans = [
@@ -84,10 +85,10 @@ export default function Pricing() {
           <div className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase mb-[14px]" style={{ color: "var(--violet-lite)" }}>
             Pricing
           </div>
-          <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4">
+          <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4 legible">
             Simple pricing.<br />Scale as you grow.
           </h2>
-          <p className="text-[16px] leading-[1.7] max-w-[520px] mx-auto" style={{ color: "rgba(255,255,255,0.52)" }}>
+          <p className="text-[16px] leading-[1.7] max-w-[520px] mx-auto legible" style={{ color: "rgba(255,255,255,0.62)" }}>
             All plans include OhhO Frame. Add products à la carte.
           </p>
         </div>
@@ -103,50 +104,23 @@ export default function Pricing() {
 }
 
 function PricingCard({ plan, delay }: { plan: typeof plans[0]; delay: number }) {
-  const { ref, inView } = useScrollReveal();
   const isPop = plan.variant === "pop";
   const isFleet = plan.variant === "fleet";
   const isViolet = isFleet;
-
-  const cardStyle: React.CSSProperties = {
-    background: isPop
-      ? "linear-gradient(175deg, rgba(0,212,255,.06) 0%, var(--surf) 38%)"
-      : isFleet
-      ? "linear-gradient(175deg, rgba(124,58,237,.07) 0%, var(--surf) 38%)"
-      : "var(--surf)",
-    border: isPop
-      ? "1px solid rgba(0,212,255,.32)"
-      : isFleet
-      ? "1px solid rgba(124,58,237,.32)"
-      : "1px solid rgba(255,255,255,0.07)",
-    opacity: inView ? 1 : 0,
-    transform: inView ? "translateY(0)" : "translateY(22px)",
-    transition: "opacity 0.65s ease, transform 0.65s ease, box-shadow 0.3s, border-color 0.3s",
-    transitionDelay: `${delay}s`,
-  };
+  const accent: "none" | "cyan" | "violet" = isPop ? "cyan" : isFleet ? "violet" : "none";
 
   return (
-    <div
-      ref={ref}
-      className="relative flex flex-col gap-[22px] p-[26px_22px] rounded-[14px]"
-      style={cardStyle}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = "translateY(-3px)";
-        if (isPop) el.style.boxShadow = "0 0 48px rgba(0,212,255,0.22), 0 20px 56px rgba(0,0,0,.5)";
-        else if (isFleet) el.style.boxShadow = "0 0 48px rgba(124,58,237,0.22), 0 20px 56px rgba(0,0,0,.5)";
-        else el.style.boxShadow = "0 8px 32px rgba(0,0,0,.5)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.transform = inView ? "translateY(0)" : "translateY(22px)";
-        el.style.boxShadow = "";
-      }}
+    <GlassCard
+      accent={accent}
+      featured={isPop || isFleet}
+      delay={delay}
+      padding="26px 22px"
+      className="relative flex flex-col gap-[22px]"
     >
       {plan.badge && (
         <div
           className="absolute -top-[11px] left-1/2 -translate-x-1/2 font-mono text-[9px] font-semibold px-3 py-[3px] rounded-full whitespace-nowrap tracking-[0.07em]"
-          style={{ background: "var(--cyan)", color: "var(--bg)" }}
+          style={{ background: "var(--cyan)", color: "var(--bg)", boxShadow: "0 4px 16px rgba(0,212,255,.4)" }}
         >
           {plan.badge}
         </div>
@@ -154,25 +128,25 @@ function PricingCard({ plan, delay }: { plan: typeof plans[0]; delay: number }) 
 
       <div>
         <div className="font-display text-[19px] font-bold">{plan.name}</div>
-        <div className="text-[11px] mt-[3px]" style={{ color: "rgba(255,255,255,0.52)" }}>{plan.hl}</div>
+        <div className="text-[11px] mt-[3px]" style={{ color: "rgba(255,255,255,0.6)" }}>{plan.hl}</div>
       </div>
 
-      <div>
+      <div className="glass-pop">
         <div
           className="font-display font-bold tracking-[-0.03em] leading-none"
           style={{ fontSize: plan.price === "Custom" ? "30px" : "44px", marginTop: plan.price === "Custom" ? "6px" : 0 }}
         >
           {plan.price !== "Free" && plan.price !== "Custom" && (
-            <sup className="text-[18px] font-medium align-super leading-[2.2]" style={{ color: "rgba(255,255,255,0.52)" }}>$</sup>
+            <sup className="text-[18px] font-medium align-super leading-[2.2]" style={{ color: "rgba(255,255,255,0.6)" }}>$</sup>
           )}
           {plan.price === "Free" || plan.price === "Custom" ? plan.price : plan.price.replace("$", "")}
         </div>
-        <div className="text-[12px] mt-[5px]" style={{ color: "rgba(255,255,255,0.52)" }}>{plan.period}</div>
+        <div className="text-[12px] mt-[5px]" style={{ color: "rgba(255,255,255,0.6)" }}>{plan.period}</div>
       </div>
 
       <div className="flex flex-col gap-[9px] flex-1">
         {plan.features.map((f) => (
-          <div key={f} className="flex items-start gap-[10px] text-[12px] leading-[1.55]" style={{ color: "rgba(255,255,255,0.52)" }}>
+          <div key={f} className="flex items-start gap-[10px] text-[12px] leading-[1.55]" style={{ color: "rgba(255,255,255,0.66)" }}>
             <span
               className="w-[15px] h-[15px] rounded-full flex-shrink-0 mt-[1px] flex items-center justify-center"
               style={{
@@ -192,7 +166,7 @@ function PricingCard({ plan, delay }: { plan: typeof plans[0]; delay: number }) 
       </div>
 
       <CtaButton style={plan.ctaStyle as string} label={plan.cta} />
-    </div>
+    </GlassCard>
   );
 }
 
@@ -241,13 +215,13 @@ function CtaButton({ style, label }: { style: string; label: string }) {
     <a
       href="#"
       className={base}
-      style={{ border: "1px solid rgba(255,255,255,0.13)", color: "var(--text)" }}
+      style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
       onMouseEnter={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,.28)";
-        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,.04)";
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,.34)";
+        (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,.06)";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.13)";
+        (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.18)";
         (e.currentTarget as HTMLElement).style.background = "";
       }}
     >

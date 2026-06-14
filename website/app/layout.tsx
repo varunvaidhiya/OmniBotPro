@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import RobotBackground from "@/components/robot/RobotBackground";
 
 export const metadata: Metadata = {
   title: "OhhO — Robotics, Operated.",
@@ -14,7 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/* live 3-D OmniBot — fixed behind every section, follows the cursor */}
+        <RobotBackground />
+        <div className="content-layer">{children}</div>
+      </body>
     </html>
   );
 }
