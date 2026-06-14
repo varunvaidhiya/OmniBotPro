@@ -23,6 +23,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { robotParallax } from "./robotParallax";
 
 /* ── URDF constants (metres) ─────────────────────────────────────── */
 const PLATE_T = 0.006;
@@ -354,12 +355,14 @@ export default function OmniBotModel() {
     };
   }, []);
 
-  /* Track the cursor across the whole page. The canvas is fixed and fills the
-     viewport, so window coords map straight to NDC regardless of scroll. */
+  /* Track the cursor across the whole page. The canvas fills the viewport, but
+     it is translated vertically as the page scrolls (robotParallax.offsetPx),
+     so subtract that offset to keep the cursor → floor projection accurate. */
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
       pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      pointer.current.y =
+        -((e.clientY - robotParallax.offsetPx) / window.innerHeight) * 2 + 1;
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
