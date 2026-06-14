@@ -23,6 +23,7 @@ import { useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox } from "@react-three/drei";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { robotParallax } from "./robotParallax";
 
 /* ── URDF constants (metres) ─────────────────────────────────────── */
 const PLATE_T = 0.006;
@@ -275,7 +276,13 @@ function RBox({
 export default function OmniBotModel() {
   const mats = useMaterials();
   const hubGeo = useHubcapGeometry();
-  const { pointer, camera } = useThree();
+  const { camera } = useThree();
+
+  /* Global cursor in normalized device coords (−1..1), tracked from the whole
+     window — not just the canvas. The 3-D layer is a fixed, pointer-events:none
+     background, so R3F's built-in `pointer` never updates; tracking the window
+     directly is what lets OmniBot keep chasing the mouse over every section. */
+  const pointer = useRef(new THREE.Vector2(0, 0));
 
   /* project the screen cursor onto the floor (y=0) → the spot the base chases.
      We raycast through the live camera every frame so the goal stays correct
@@ -348,12 +355,25 @@ export default function OmniBotModel() {
     };
   }, []);
 
+  /* Track the cursor across the whole page. The canvas fills the viewport, but
+     it is translated vertically as the page scrolls (robotParallax.offsetPx),
+     so subtract that offset to keep the cursor → floor projection accurate. */
+  useEffect(() => {
+    const onMove = (e: PointerEvent) => {
+      pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.current.y =
+        -((e.clientY - robotParallax.offsetPx) / window.innerHeight) * 2 + 1;
+    };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    return () => window.removeEventListener("pointermove", onMove);
+  }, []);
+
   useFrame((_, dtRaw) => {
     const dt = Math.min(dtRaw, 0.05);
     const k = keys.current;
 
     /* ── 1. cursor → floor goal (for the base) + keep the ray (for the arm) ── */
-    ray.setFromCamera(pointer, camera);
+    ray.setFromCamera(pointer.current, camera);
     if (ray.ray.intersectPlane(groundPlane, hit)) {
       // keep the goal inside the arena so the base never chases out of frame
       const GR = 0.58;

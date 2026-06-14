@@ -1,6 +1,7 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import GlassCard from "@/components/GlassCard";
 
 const steps = [
   {
@@ -41,10 +42,7 @@ export default function HowItWorks() {
   const { ref: headRef, inView: headIn } = useScrollReveal();
 
   return (
-    <section
-      id="how"
-      style={{ padding: "112px 24px", background: "var(--surf)" }}
-    >
+    <section id="how" style={{ padding: "112px 24px" }}>
       <div className="max-w-content mx-auto">
         <div className="text-center mb-[60px]">
           <div
@@ -55,14 +53,13 @@ export default function HowItWorks() {
             <div className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase mb-[14px]" style={{ color: "var(--cyan)" }}>
               Workflow
             </div>
-            <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12]">
+            <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] legible">
               Up and running in hours,<br />not months.
             </h2>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-0 relative">
-          <div className="step-join hidden md:block" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {steps.map((step, i) => (
             <StepItem key={step.n} step={step} delay={[0, 0.16, 0.32][i]} />
           ))}
@@ -73,34 +70,33 @@ export default function HowItWorks() {
 }
 
 function StepItem({ step, delay }: { step: typeof steps[0]; delay: number }) {
-  const { ref, inView } = useScrollReveal();
-
   return (
-    <div
-      ref={ref}
-      className="flex flex-col items-center text-center px-8 transition-all duration-[650ms]"
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? "none" : "translateY(22px)",
-        transitionDelay: `${delay}s`,
-      }}
+    <GlassCard
+      accent="cyan"
+      delay={delay}
+      padding="40px 28px"
+      className="flex flex-col items-center text-center"
     >
       <div
-        className="relative w-20 h-20 rounded-full flex items-center justify-center mb-7 flex-shrink-0 z-[2]"
-        style={{ background: "var(--bg)", border: "1px solid rgba(255,255,255,0.13)" }}
+        className="glass-pop relative w-20 h-20 rounded-full flex items-center justify-center mb-7 flex-shrink-0"
+        style={{
+          background: "rgba(0,212,255,.08)",
+          border: "1px solid rgba(0,212,255,.24)",
+          boxShadow: "inset 0 0 30px rgba(0,212,255,.16)",
+        }}
       >
         <span
           className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center font-mono text-[10px] font-medium"
-          style={{ background: "var(--cyan)", color: "var(--bg)" }}
+          style={{ background: "var(--cyan)", color: "var(--bg)", boxShadow: "0 2px 10px rgba(0,212,255,.45)" }}
         >
           {step.n}
         </span>
         {step.icon}
       </div>
       <div className="font-display text-[18px] font-semibold mb-3">{step.title}</div>
-      <p className="text-[14px] leading-[1.7]" style={{ color: "rgba(255,255,255,0.52)" }}>
+      <p className="text-[14px] leading-[1.7]" style={{ color: "rgba(255,255,255,0.66)" }}>
         {step.desc}
       </p>
-    </div>
+    </GlassCard>
   );
 }

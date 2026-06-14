@@ -1,6 +1,6 @@
 "use client";
 
-import { useScrollReveal } from "@/hooks/useScrollReveal";
+import GlassCard from "@/components/GlassCard";
 
 const stats = [
   { n: "25K+", label: "Lines of production code" },
@@ -11,29 +11,25 @@ const stats = [
 
 export default function StatsBar() {
   return (
-    <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-      <div className="grid grid-cols-2 md:grid-cols-4">
-        {stats.map((s, i) => (
-          <StatItem key={s.n} stat={s} delay={i * 0.08} last={i === stats.length - 1} />
-        ))}
-      </div>
+    <div className="max-w-content mx-auto px-6" style={{ paddingTop: "64px", paddingBottom: "8px" }}>
+      <GlassCard interactive={false} padding="0" radius={22} className="overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-4">
+          {stats.map((s, i) => (
+            <StatItem key={s.n} stat={s} last={i === stats.length - 1} />
+          ))}
+        </div>
+      </GlassCard>
     </div>
   );
 }
 
-function StatItem({ stat, delay, last }: { stat: { n: string; label: string }; delay: number; last: boolean }) {
-  const { ref, inView } = useScrollReveal();
-
+function StatItem({ stat, last }: { stat: { n: string; label: string }; last: boolean }) {
   return (
     <div
-      ref={ref}
-      className="text-center transition-all duration-[650ms]"
+      className="text-center"
       style={{
-        padding: "44px 28px",
-        borderRight: last ? "none" : "1px solid rgba(255,255,255,0.07)",
-        opacity: inView ? 1 : 0,
-        transform: inView ? "translateY(0)" : "translateY(22px)",
-        transitionDelay: `${delay}s`,
+        padding: "40px 28px",
+        borderRight: last ? "none" : "1px solid rgba(255,255,255,0.10)",
       }}
     >
       <div
@@ -42,7 +38,7 @@ function StatItem({ stat, delay, last }: { stat: { n: string; label: string }; d
       >
         {stat.n}
       </div>
-      <div className="text-[13px] leading-[1.5]" style={{ color: "rgba(255,255,255,0.52)" }}>
+      <div className="text-[13px] leading-[1.5]" style={{ color: "rgba(255,255,255,0.66)" }}>
         {stat.label}
       </div>
     </div>

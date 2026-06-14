@@ -2,7 +2,13 @@
 
 export default function Footer() {
   return (
-    <footer style={{ borderTop: "1px solid rgba(255,255,255,0.07)", padding: "52px 40px 32px" }}>
+    <footer
+      style={{
+        borderTop: "1px solid rgba(255,255,255,0.07)",
+        padding: "52px 40px 32px",
+        background: "linear-gradient(to top, rgba(10,14,26,.82) 0%, rgba(10,14,26,.5) 55%, transparent 100%)",
+      }}
+    >
       <div className="max-w-content mx-auto">
         <div
           className="grid gap-12 mb-10"

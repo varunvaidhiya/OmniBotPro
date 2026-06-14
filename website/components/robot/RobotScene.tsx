@@ -122,10 +122,12 @@ export default function RobotScene() {
           infiniteGrid
         />
 
-        {/* drag to orbit · zoom locked · fixed zoomed-out elevated framing so
-            the arm can always reach down to the cursor */}
+        {/* Fixed elevated framing so the arm can always reach toward the
+            cursor. Rotation is disabled: the canvas is a pointer-events:none
+            background layer, so it must never swallow scroll/drag from the page. */}
         <OrbitControls
           makeDefault
+          enableRotate={false}
           enablePan={false}
           enableZoom={false}
           minDistance={1.7}

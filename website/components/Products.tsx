@@ -1,6 +1,7 @@
 "use client";
 
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import GlassCard from "@/components/GlassCard";
 import { ArrowRight } from "lucide-react";
 
 const products = [
@@ -99,10 +100,10 @@ export default function Products() {
             <div className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase mb-[14px]" style={{ color: "var(--cyan)" }}>
               Platform
             </div>
-            <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4">
+            <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4 legible">
               Everything you need to<br />build and operate robots.
             </h2>
-            <p className="text-[16px] leading-[1.7] max-w-[520px]" style={{ color: "rgba(255,255,255,0.52)" }}>
+            <p className="text-[16px] leading-[1.7] max-w-[520px] legible" style={{ color: "rgba(255,255,255,0.62)" }}>
               Six purpose-built products. One unified platform. Works with any ROS 2 compatible hardware.
             </p>
           </div>
@@ -119,42 +120,24 @@ export default function Products() {
 }
 
 function ProductCard({ product, delay }: { product: typeof products[0]; delay: number }) {
-  const { ref, inView } = useScrollReveal();
   const isCyan = product.accent === "cyan";
 
   return (
-    <div
-      ref={ref}
-      className="pc-card group flex flex-col gap-[14px] p-7 rounded-[14px] cursor-default transition-all duration-[250ms]"
-      style={{
-        background: "var(--surf)",
-        border: "1px solid rgba(255,255,255,0.07)",
-        opacity: inView ? 1 : 0,
-        transform: inView ? "translateY(0)" : "translateY(22px)",
-        transition: "opacity 0.65s ease, transform 0.65s ease, border-color 0.25s, box-shadow 0.25s",
-        transitionDelay: `${delay}s`,
-      }}
-      onMouseEnter={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        if (isCyan) {
-          el.style.borderColor = "rgba(0,212,255,.22)";
-          el.style.boxShadow = "0 0 0 1px rgba(0,212,255,.06) inset, 0 12px 36px rgba(0,0,0,.5)";
-        } else {
-          el.style.borderColor = "rgba(124,58,237,.28)";
-          el.style.boxShadow = "0 0 0 1px rgba(124,58,237,.06) inset, 0 12px 36px rgba(0,0,0,.5)";
-        }
-        el.style.transform = "translateY(-3px)";
-      }}
-      onMouseLeave={(e) => {
-        const el = e.currentTarget as HTMLElement;
-        el.style.borderColor = "rgba(255,255,255,0.07)";
-        el.style.boxShadow = "";
-        el.style.transform = inView ? "translateY(0)" : "translateY(22px)";
-      }}
+    <GlassCard
+      accent={isCyan ? "cyan" : "violet"}
+      delay={delay}
+      padding="28px"
+      className="pc-card group flex flex-col gap-[14px] cursor-default"
     >
       <div
-        className="w-[42px] h-[42px] rounded-[10px] flex items-center justify-center"
-        style={{ background: isCyan ? "rgba(0,212,255,.10)" : "rgba(124,58,237,.12)" }}
+        className="glass-pop w-[44px] h-[44px] rounded-[12px] flex items-center justify-center"
+        style={{
+          background: isCyan ? "rgba(0,212,255,.12)" : "rgba(124,58,237,.14)",
+          border: isCyan ? "1px solid rgba(0,212,255,.24)" : "1px solid rgba(124,58,237,.26)",
+          boxShadow: isCyan
+            ? "inset 0 0 22px rgba(0,212,255,.18)"
+            : "inset 0 0 22px rgba(124,58,237,.20)",
+        }}
       >
         <svg className="w-[19px] h-[19px]">{product.icon.props.children}</svg>
       </div>
@@ -169,7 +152,7 @@ function ProductCard({ product, delay }: { product: typeof products[0]; delay: n
         </div>
       </div>
 
-      <p className="text-[13px] leading-[1.65] flex-1" style={{ color: "rgba(255,255,255,0.52)" }}>
+      <p className="text-[13px] leading-[1.65] flex-1" style={{ color: "rgba(255,255,255,0.66)" }}>
         {product.desc}
       </p>
 
@@ -181,6 +164,6 @@ function ProductCard({ product, delay }: { product: typeof products[0]; delay: n
         Learn more{" "}
         <ArrowRight size={12} strokeWidth={2.5} className="pc-link-arrow" />
       </a>
-    </div>
+    </GlassCard>
   );
 }
