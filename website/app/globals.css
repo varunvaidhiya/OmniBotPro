@@ -162,13 +162,13 @@ ul { list-style: none; }
    section; all page content sits above it so the robot never hides the text. */
 .robot-bg {
   position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-  /* feather the top & bottom so the robot dissolves as it scrolls out of frame */
+  /* feather the top & bottom so the robot dissolves into the page edges */
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 90%, transparent 100%);
           mask-image: linear-gradient(to bottom, transparent 0%, #000 10%, #000 90%, transparent 100%);
 }
-/* inner layer is translated vertically on scroll (see RobotBackground.tsx) */
+/* inner layer fills the fixed background; it does not move on scroll */
 .robot-bg-inner {
-  position: absolute; inset: 0; will-change: transform;
+  position: absolute; inset: 0;
 }
 .content-layer {
   position: relative; z-index: 10;
