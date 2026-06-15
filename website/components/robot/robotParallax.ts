@@ -1,9 +1,9 @@
 /*
- * Shared scroll-parallax state for the 3-D robot layer.
+ * Shared vertical-offset state for the 3-D robot layer.
  *
- * RobotBackground writes the current vertical offset (in px) that the robot
- * layer is translated by as the page scrolls; OmniBotModel reads it so the
- * cursor → floor projection stays accurate even while the layer is shifted
- * up/down off the viewport.
+ * The robot background is now fixed and does not move on scroll, so this stays
+ * 0. OmniBotModel still reads it when mapping the cursor → floor projection;
+ * keeping the hook here means re-introducing a layer shift later only requires
+ * writing to offsetPx, with the cursor math already accounting for it.
  */
 export const robotParallax = { offsetPx: 0 };
