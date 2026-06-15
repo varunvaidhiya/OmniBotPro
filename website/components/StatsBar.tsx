@@ -4,7 +4,7 @@ import GlassCard from "@/components/GlassCard";
 
 const stats = [
   { n: "25K+", label: "Lines of production code" },
-  { n: "6", label: "Standalone products" },
+  { n: "7", label: "Standalone products" },
   { n: "9-DOF", label: "Unified robot policy" },
   { n: "Jazzy", label: "Built on ROS 2 — production ready" },
 ];

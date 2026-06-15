@@ -13,6 +13,7 @@ const plans = [
     features: [
       "OhhO Frame (simulation only)",
       "OhhO View (open source)",
+      "OhhO Build (basic parts library)",
       "1 robot, local only",
       "Community support",
     ],
@@ -28,6 +29,7 @@ const plans = [
     features: [
       "Everything in Spark",
       "OhhO Pilot (mobile, up to 3 robots)",
+      "OhhO Build (full library, 10 designs)",
       "OhhO Data (cloud sync, 1K episodes)",
       "OhhO Serve (500 API calls/day)",
       "Email support",
@@ -45,6 +47,7 @@ const plans = [
       "Everything in Builder",
       "OhhO Pilot (VR + mobile, unlimited)",
       "OhhO Fleet (up to 100 robots, OTA)",
+      "OhhO Build (unlimited designs, suppliers)",
       "OhhO Data (unlimited + annotation)",
       "OhhO Serve (10K API calls/day)",
       "Priority support + Slack channel",
@@ -62,6 +65,7 @@ const plans = [
       "Everything in Fleet",
       "Unlimited robots",
       "On-prem OhhO Serve license",
+      "OhhO Build (custom catalog, white-label)",
       "Custom robot profile integration",
       "Dedicated SLA + onboarding",
       "White-label OhhO Pilot",

@@ -83,6 +83,23 @@ const products = [
       </svg>
     ),
   },
+  {
+    name: "OhhO Build",
+    tag: "Design any robot. For any industry.",
+    desc: "Browser-based 3-D robot designer. Pick components, identify required materials, source from suppliers — then bring your design to life with the full OhhO stack.",
+    accent: "cyan",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M3 9h18"/>
+        <path d="M9 21V9"/>
+        <circle cx="8" cy="5.5" r=".8" fill="var(--cyan)" stroke="none"/>
+        <circle cx="11.5" cy="5.5" r=".8" fill="var(--cyan)" stroke="none"/>
+        <path d="m15 15 2.5 2.5"/>
+        <path d="m17.5 15-2.5 2.5"/>
+      </svg>
+    ),
+  },
 ];
 
 export default function Products() {
@@ -104,14 +121,14 @@ export default function Products() {
               Everything you need to<br />build and operate robots.
             </h2>
             <p className="text-[16px] leading-[1.7] max-w-[520px] legible" style={{ color: "rgba(255,255,255,0.62)" }}>
-              Six purpose-built products. One unified platform. Works with any ROS 2 compatible hardware.
+              Seven purpose-built products. One unified platform. Works with any ROS 2 compatible hardware.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-[18px]">
           {products.map((p, i) => (
-            <ProductCard key={p.name} product={p} delay={[0, 0.08, 0.16, 0.08, 0.16, 0.24][i]} />
+            <ProductCard key={p.name} product={p} delay={[0, 0.08, 0.16, 0.08, 0.16, 0.24, 0.32][i]} />
           ))}
         </div>
       </div>
