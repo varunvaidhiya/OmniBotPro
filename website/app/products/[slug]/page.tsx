@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowLeft, Check, Minus, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
@@ -13,9 +13,8 @@ import {
   accentColor,
   PRODUCT_SLUGS,
   type Product,
-  type PlanName,
 } from "@/lib/products";
-import { contactMailto, PRICING_HREF, PRODUCTS_HREF, productHref } from "@/lib/site";
+import { contactMailto, PRODUCTS_HREF, productHref } from "@/lib/site";
 
 // Static export: pre-render one page per product, nothing else.
 export const dynamicParams = false;
@@ -32,14 +31,6 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   };
 }
 
-// Pricing summary (mirrors components/Pricing.tsx) so the plan-chooser can show
-// price + best-fit guidance right where the user is reading about the product.
-const PLAN_META: Record<PlanName, { price: string; period: string }> = {
-  Spark: { price: "Free", period: "forever" },
-  Builder: { price: "$49", period: "/ mo" },
-  Fleet: { price: "$199", period: "/ mo" },
-  Forge: { price: "Custom", period: "contact us" },
-};
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
   const product = getProduct(params.slug);
@@ -101,19 +92,12 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
               <div className="flex flex-wrap items-center gap-3 mt-8">
                 <a
-                  href="#plans"
+                  href={contactMailto(`Interest in ${product.name}`)}
                   className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
                   style={{ background: aColor, color: "var(--bg)" }}
                 >
-                  Choose your plan <ArrowRight size={15} strokeWidth={2.5} />
+                  Get in touch <ArrowRight size={15} strokeWidth={2.5} />
                 </a>
-                <Link
-                  href={PRICING_HREF}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
-                  style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
-                >
-                  Compare all plans
-                </Link>
               </div>
             </div>
 
@@ -216,94 +200,6 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
             </GlassCard>
           </Section>
 
-          {/* ── PLAN CHOOSER ─────────────────────────────────────────────── */}
-          <section id="plans" className="mt-[88px] scroll-mt-24">
-            <SectionHead kicker="Pricing" title={`Which plan do I need for ${product.name}?`} accent={aColor} />
-            <div
-              className="flex items-start gap-3 mb-7 p-4 rounded-xl max-w-[760px]"
-              style={{ background: "rgba(255,255,255,.03)", border: `1px solid ${accent === "cyan" ? "rgba(0,212,255,.22)" : "rgba(124,58,237,.26)"}` }}
-            >
-              <Sparkles size={18} style={{ color: aColor, flexShrink: 0, marginTop: 2 }} />
-              <p className="text-[14px] leading-[1.65]" style={{ color: "rgba(255,255,255,0.78)" }}>
-                <span className="font-semibold" style={{ color: "#fff" }}>
-                  We recommend the {product.recommendedPlan} plan.
-                </span>{" "}
-                {product.planRationale}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[14px]">
-              {product.plans.map((pl) => {
-                const meta = PLAN_META[pl.plan];
-                const recommended = pl.plan === product.recommendedPlan;
-                return (
-                  <GlassCard
-                    key={pl.plan}
-                    accent={recommended ? accent : "none"}
-                    featured={recommended}
-                    interactive={false}
-                    padding="20px"
-                    radius={16}
-                    className="relative flex flex-col"
-                  >
-                    {recommended && (
-                      <div
-                        className="absolute -top-[10px] left-1/2 -translate-x-1/2 font-mono text-[8.5px] font-semibold px-2.5 py-[3px] rounded-full whitespace-nowrap tracking-[0.06em]"
-                        style={{ background: aColor, color: "var(--bg)" }}
-                      >
-                        RECOMMENDED
-                      </div>
-                    )}
-                    <div className="font-display text-[16px] font-bold">{pl.plan}</div>
-                    <div className="flex items-baseline gap-1 mt-1.5 mb-4">
-                      <span className="font-display text-[22px] font-bold">{meta.price}</span>
-                      <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.5)" }}>
-                        {meta.period}
-                      </span>
-                    </div>
-                    <div className="flex items-start gap-2 text-[12.5px] leading-[1.5] flex-1" style={{ color: pl.included ? "rgba(255,255,255,0.78)" : "rgba(255,255,255,0.4)" }}>
-                      <span
-                        className="w-[15px] h-[15px] rounded-full flex-shrink-0 mt-[1px] flex items-center justify-center"
-                        style={{
-                          background: pl.included ? (accent === "cyan" ? "rgba(0,212,255,.12)" : "rgba(124,58,237,.14)") : "rgba(255,255,255,.05)",
-                          border: pl.included ? `1px solid ${aColor}` : "1px solid rgba(255,255,255,.12)",
-                        }}
-                      >
-                        {pl.included ? (
-                          <Check size={8} strokeWidth={3} style={{ color: aColor }} />
-                        ) : (
-                          <Minus size={8} strokeWidth={3} style={{ color: "rgba(255,255,255,0.4)" }} />
-                        )}
-                      </span>
-                      {pl.level}
-                    </div>
-                    <a
-                      href={pl.plan === "Forge" || pl.plan === "Fleet" ? contactMailto(`OhhO ${pl.plan} plan — ${product.name}`) : contactMailto(`Get started with OhhO ${pl.plan}`)}
-                      className="mt-4 block text-center py-[9px] rounded-lg text-[12.5px] font-semibold transition-all duration-200"
-                      style={
-                        recommended
-                          ? { background: aColor, color: "var(--bg)" }
-                          : { border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }
-                      }
-                    >
-                      {pl.plan === "Spark" ? "Start free" : pl.plan === "Forge" ? "Talk to us" : `Choose ${pl.plan}`}
-                    </a>
-                  </GlassCard>
-                );
-              })}
-            </div>
-
-            <div className="mt-7">
-              <Link
-                href={PRICING_HREF}
-                className="inline-flex items-center gap-2 text-[13px] font-semibold font-mono"
-                style={{ color: aColor }}
-              >
-                See the full pricing comparison <ArrowRight size={13} strokeWidth={2.5} />
-              </Link>
-            </div>
-          </section>
-
           {/* ── FAQ ──────────────────────────────────────────────────────── */}
           {product.faq.length > 0 && (
             <Section kicker="FAQ" title="Common questions" accent={aColor}>
@@ -348,13 +244,6 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 >
                   Get started free <ArrowRight size={15} strokeWidth={2.5} />
                 </a>
-                <Link
-                  href={PRICING_HREF}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
-                  style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
-                >
-                  View pricing
-                </Link>
               </div>
             </GlassCard>
           </div>

@@ -33,7 +33,7 @@ export default function Nav() {
       </a>
 
       <div className="hidden md:flex items-center gap-1">
-        {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"].map((link) => (
+        {["Products", "How it Works", "Docs", "GitHub", "About", "Team", "News"].map((link) => (
           <a
             key={link}
             href={link === "Products" ? "/#products" : link === "Pricing" ? "/#pricing" : link === "How it Works" ? "/#how" : link === "About" ? "/about" : link === "Team" ? "/team" : link === "News" ? "/news/omnivla-engine" : "#"}
@@ -46,7 +46,7 @@ export default function Nav() {
           </a>
         ))}
         <a
-          href="/#pricing"
+          href="/#products"
           className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
           style={{
             background: "var(--cyan)",

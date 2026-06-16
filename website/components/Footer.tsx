@@ -30,10 +30,10 @@ export default function Footer() {
           {/* Right */}
           <div className="flex flex-col items-end gap-[22px]">
             <nav className="flex gap-[22px] flex-wrap">
-              {["Products", "Pricing", "Docs", "GitHub", "Team", "Contact"].map((link) => (
+              {["Products", "Docs", "GitHub", "Team", "Contact"].map((link) => (
                 <a
                   key={link}
-                  href={link === "Products" ? "#products" : link === "Pricing" ? "#pricing" : link === "Team" ? "/team" : "#"}
+                  href={link === "Products" ? "#products" : link === "Team" ? "/team" : "#"}
                   className="text-[13px] transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.52)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
