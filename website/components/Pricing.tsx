@@ -3,6 +3,7 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import GlassCard from "@/components/GlassCard";
 import { Check } from "lucide-react";
+import { contactMailto } from "@/lib/site";
 
 const plans = [
   {
@@ -14,6 +15,7 @@ const plans = [
       "OhhO Frame (simulation only)",
       "OhhO View (open source)",
       "OhhO Build (basic parts library)",
+      "OhhO Proof (single-scenario tests)",
       "1 robot, local only",
       "Community support",
     ],
@@ -32,6 +34,8 @@ const plans = [
       "OhhO Build (full library, 10 designs)",
       "OhhO Data (cloud sync, 1K episodes)",
       "OhhO Serve (500 API calls/day)",
+      "OhhO Shield (encrypted links + signed OTA)",
+      "OhhO Proof (test suites + regression)",
       "Email support",
     ],
     cta: "Start Building",
@@ -50,6 +54,8 @@ const plans = [
       "OhhO Build (unlimited designs, suppliers)",
       "OhhO Data (unlimited + annotation)",
       "OhhO Serve (10K API calls/day)",
+      "OhhO Comply (CE / ISO standards + docs)",
+      "OhhO Shield (device identity + CVE watch)",
       "Priority support + Slack channel",
     ],
     cta: "Deploy Your Fleet",
@@ -66,6 +72,8 @@ const plans = [
       "Unlimited robots",
       "On-prem OhhO Serve license",
       "OhhO Build (custom catalog, white-label)",
+      "OhhO Comply (custom standards + cert partner)",
+      "OhhO Shield (secure boot + SSO)",
       "Custom robot profile integration",
       "Dedicated SLA + onboarding",
       "White-label OhhO Pilot",
@@ -169,18 +177,18 @@ function PricingCard({ plan, delay }: { plan: typeof plans[0]; delay: number }) 
         ))}
       </div>
 
-      <CtaButton style={plan.ctaStyle as string} label={plan.cta} />
+      <CtaButton style={plan.ctaStyle as string} label={plan.cta} href={contactMailto(`OhhO ${plan.name} plan`)} />
     </GlassCard>
   );
 }
 
-function CtaButton({ style, label }: { style: string; label: string }) {
+function CtaButton({ style, label, href }: { style: string; label: string; href: string }) {
   const base = "block text-center py-[11px] rounded-lg text-[13px] font-semibold cursor-pointer transition-all duration-200";
 
   if (style === "cyan") {
     return (
       <a
-        href="#"
+        href={href}
         className={base}
         style={{ background: "var(--cyan)", color: "var(--bg)" }}
         onMouseEnter={(e) => {
@@ -199,7 +207,7 @@ function CtaButton({ style, label }: { style: string; label: string }) {
   if (style === "violet") {
     return (
       <a
-        href="#"
+        href={href}
         className={base}
         style={{ background: "var(--violet)", color: "#fff" }}
         onMouseEnter={(e) => {
@@ -217,7 +225,7 @@ function CtaButton({ style, label }: { style: string; label: string }) {
   }
   return (
     <a
-      href="#"
+      href={href}
       className={base}
       style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
       onMouseEnter={(e) => {

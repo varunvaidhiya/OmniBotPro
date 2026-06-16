@@ -2,6 +2,7 @@
 
 import GlassCard from "@/components/GlassCard";
 import { ArrowRight } from "lucide-react";
+import { contactMailto } from "@/lib/site";
 
 export default function CtaBanner() {
   return (
@@ -24,7 +25,7 @@ export default function CtaBanner() {
             Start free. No hardware required — simulate first.
           </p>
           <a
-            href="#"
+            href={contactMailto("Get started with OhhO")}
             className="inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg mx-auto transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
             style={{ background: "var(--cyan)", color: "var(--bg)" }}
             onMouseEnter={(e) => {

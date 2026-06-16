@@ -1,0 +1,843 @@
+/*
+ * ProductDashboard — a bespoke, on-brand SVG "screenshot" of each product's
+ * interface, embedded on its Learn-more page. Pure SVG (vector, crisp at any
+ * size, version-controlled, no binary assets) which suits this statically
+ * exported site with no /public directory.
+ *
+ * Add a product => add a <XDash/> and one row in DASHBOARDS.
+ */
+
+import {
+  DashboardFrame,
+  Panel,
+  Ring,
+  Bar,
+  StatusPill,
+  Dot,
+  sparkPath,
+  accentHex,
+  C,
+  MONO,
+  DISPLAY,
+  BODY,
+  type Accent,
+} from "./dashboardKit";
+
+type DashProps = { accent: Accent };
+
+// ── OhhO Build ────────────────────────────────────────────────────────────────
+function BuildDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const parts = ["Mecanum base", "SO-101 arm", "Depth camera", "2-D LiDAR", "Li-ion battery", "Jetson Orin"];
+  const req = [
+    { l: "Payload", v: 0.78, t: "5.0 kg" },
+    { l: "Reach", v: 0.62, t: "0.62 m" },
+    { l: "Top speed", v: 0.55, t: "1.2 m/s" },
+    { l: "Runtime", v: 0.7, t: "6.4 h" },
+  ];
+  return (
+    <DashboardFrame title="ohho-build · warehouse-amr" accent={accent} tools={["3-D", "BOM"]}>
+      {/* parts palette */}
+      <Panel x={14} y={12} w={120} h={250} label="Parts" />
+      {parts.map((p, i) => {
+        const sel = i === 1;
+        return (
+          <g key={p}>
+            <rect x={22} y={34 + i * 35} width={104} height={26} rx={6} fill={sel ? "rgba(0,212,255,0.10)" : "rgba(255,255,255,0.03)"} stroke={sel ? a : C.border} />
+            <circle cx={33} cy={47 + i * 35} r={1.3} fill={C.faint} />
+            <circle cx={33} cy={47 + i * 35 - 4} r={1.3} fill={C.faint} />
+            <circle cx={33} cy={47 + i * 35 + 4} r={1.3} fill={C.faint} />
+            <circle cx={38} cy={47 + i * 35} r={1.3} fill={C.faint} />
+            <circle cx={38} cy={47 + i * 35 - 4} r={1.3} fill={C.faint} />
+            <circle cx={38} cy={47 + i * 35 + 4} r={1.3} fill={C.faint} />
+            <text x={48} y={51 + i * 35} fontFamily={BODY} fontSize={9.5} fill={sel ? C.text : C.muted}>
+              {p}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* 3-D canvas */}
+      <rect x={144} y={12} width={246} height={250} rx={9} fill="#0B1120" stroke={C.border} />
+      {/* perspective floor */}
+      {[0, 1, 2, 3].map((i) => (
+        <line key={`h${i}`} x1={158 + i * 14} y1={150 + i * 24} x2={376 - i * 14} y2={150 + i * 24} stroke={C.grid} />
+      ))}
+      {[0, 1, 2, 3, 4].map((i) => (
+        <line key={`v${i}`} x1={172 + i * 46} y1={150} x2={196 + i * 30} y2={222} stroke={C.grid} />
+      ))}
+      {/* robot base */}
+      <rect x={232} y={150} width={70} height={22} rx={5} fill={C.panelHi} stroke={a} />
+      <rect x={236} y={170} width={12} height={8} rx={2} fill={C.surfHi} stroke={C.borderHi} />
+      <rect x={286} y={170} width={12} height={8} rx={2} fill={C.surfHi} stroke={C.borderHi} />
+      <rect x={250} y={172} width={12} height={7} rx={2} fill={C.surfHi} stroke={C.borderHi} />
+      <rect x={272} y={172} width={12} height={7} rx={2} fill={C.surfHi} stroke={C.borderHi} />
+      {/* arm */}
+      <polyline points="267,150 280,116 304,100 322,108" fill="none" stroke={a} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx={267} cy={150} r={4} fill={C.surf} stroke={a} strokeWidth={2} />
+      <circle cx={280} cy={116} r={3.4} fill={C.surf} stroke={a} strokeWidth={2} />
+      <circle cx={304} cy={100} r={3.4} fill={C.surf} stroke={a} strokeWidth={2} />
+      <path d="M322 102 l7 -4 M322 114 l7 4" stroke={a} strokeWidth={2.4} strokeLinecap="round" />
+      {/* dragged ghost part */}
+      <rect x={196} y={60} width={70} height={24} rx={6} fill="rgba(0,212,255,0.08)" stroke={a} strokeDasharray="4 3" />
+      <text x={231} y={75} fontFamily={BODY} fontSize={9} fill={a} textAnchor="middle">
+        Gripper · drop
+      </text>
+      <text x={158} y={250} fontFamily={MONO} fontSize={8} fill={C.faint}>
+        drag · scroll to zoom
+      </text>
+
+      {/* requirements */}
+      <Panel x={400} y={12} w={146} h={132} label="Requirements" accent={a} />
+      {req.map((r, i) => (
+        <g key={r.l}>
+          <text x={412} y={42 + i * 26} fontFamily={BODY} fontSize={9} fill={C.muted}>
+            {r.l}
+          </text>
+          <text x={534} y={42 + i * 26} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+            {r.t}
+          </text>
+          <Bar x={412} y={47 + i * 26} w={122} frac={r.v} color={a} h={4} />
+        </g>
+      ))}
+
+      {/* AI recommendation */}
+      <rect x={400} y={152} width={146} height={110} rx={9} fill="rgba(124,58,237,0.10)" stroke={C.violetLite} strokeOpacity={0.5} />
+      <path d="M414 170 l-7 9 h6 l-1 8 7 -10 h-6 z" fill={C.violetLite} />
+      <text x={426} y={177} fontFamily={MONO} fontSize={8.5} fill={C.violetLite}>
+        AI RECOMMENDATION
+      </text>
+      <Dot cx={414} cy={196} r={2.4} color={C.green} />
+      <text x={422} y={199} fontFamily={BODY} fontSize={9} fill={C.text}>
+        Design is valid
+      </text>
+      <text x={412} y={218} fontFamily={BODY} fontSize={8.7} fill={C.muted}>
+        Swap to an 11.1 V pack
+      </text>
+      <text x={412} y={230} fontFamily={BODY} fontSize={8.7} fill={C.muted}>
+        for +18% runtime, −90 g.
+      </text>
+      <rect x={412} y={240} width={84} height={15} rx={7} fill={C.violetLite} />
+      <text x={454} y={250} fontFamily={BODY} fontSize={8.5} fontWeight={600} fill={C.bg} textAnchor="middle">
+        Apply &amp; re-check
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Frame ────────────────────────────────────────────────────────────────
+function FrameDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const tree = [
+    { t: "robot_ws/", d: 0, dir: true },
+    { t: "src/", d: 1, dir: true },
+    { t: "omnibot_driver", d: 2 },
+    { t: "omnibot_navigation", d: 2 },
+    { t: "omnibot_bringup", d: 2 },
+    { t: "docker/", d: 0, dir: true },
+    { t: "Dockerfile", d: 1 },
+    { t: ".github/workflows", d: 0, dir: true },
+  ];
+  const nodes = [
+    { x: 250, y: 40, l: "driver" },
+    { x: 340, y: 40, l: "ekf" },
+    { x: 430, y: 40, l: "nav2" },
+    { x: 250, y: 96, l: "sim" },
+    { x: 340, y: 96, l: "mux" },
+    { x: 430, y: 96, l: "bringup" },
+  ];
+  const log = [
+    { t: "colcon build --symlink-install", c: C.muted },
+    { t: "Starting >>> omnibot_driver", c: C.faint },
+    { t: "Finished <<< omnibot_navigation", c: C.faint },
+    { t: "Summary: 12 packages finished", c: C.green },
+    { t: "build complete · 0 errors", c: C.green },
+  ];
+  return (
+    <DashboardFrame title="ohho-frame · robot_ws" accent={accent} tools={["ROS 2", "Docker", "CI"]}>
+      {/* file tree */}
+      <Panel x={14} y={12} w={128} h={250} label="Workspace" />
+      {tree.map((n, i) => (
+        <g key={n.t + i}>
+          <text x={24 + n.d * 12} y={44 + i * 26} fontFamily={MONO} fontSize={9} fill={n.dir ? a : C.muted}>
+            {n.dir ? "▸ " : ""}
+            {n.t}
+          </text>
+        </g>
+      ))}
+
+      {/* node graph */}
+      <Panel x={150} y={12} w={396} h={128} label="Node graph" />
+      <line x1={282} y1={77} x2={308} y2={77} stroke={C.border} />
+      <line x1={372} y1={77} x2={398} y2={77} stroke={C.border} />
+      <line x1={282} y1={133} x2={308} y2={133} stroke={C.border} />
+      <line x1={372} y1={133} x2={398} y2={133} stroke={C.border} />
+      <line x1={265} y1={92} x2={265} y2={113} stroke={C.border} />
+      <line x1={445} y1={92} x2={445} y2={113} stroke={C.border} />
+      {nodes.map((n) => (
+        <g key={n.l}>
+          <rect x={n.x} y={n.y + 18} width={64} height={30} rx={7} fill={C.panelHi} stroke={C.borderHi} />
+          <circle cx={n.x + 12} cy={n.y + 33} r={2.6} fill={a} />
+          <text x={n.x + 20} y={n.y + 36} fontFamily={MONO} fontSize={8.5} fill={C.text}>
+            {n.l}
+          </text>
+        </g>
+      ))}
+
+      {/* terminal */}
+      <rect x={150} y={150} width={396} height={112} rx={9} fill="#0A0F1C" stroke={C.border} />
+      <text x={162} y={170} fontFamily={MONO} fontSize={8.5} fill={C.faint}>
+        ~/robot_ws · bash
+      </text>
+      {log.map((l, i) => (
+        <text key={i} x={162} y={188 + i * 14} fontFamily={MONO} fontSize={8.5} fill={l.c}>
+          {i >= 3 ? "" : "$ "}
+          {l.t}
+        </text>
+      ))}
+      <rect x={162} y={250} width={6} height={9} fill={a} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Serve ────────────────────────────────────────────────────────────────
+function ServeDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const lat = [0.4, 0.45, 0.38, 0.5, 0.42, 0.6, 0.48, 0.52, 0.44, 0.4, 0.58, 0.46];
+  const eps = [
+    { m: "POST", p: "/predict", c: C.green },
+    { m: "GET", p: "/health", c: C.blue },
+    { m: "POST", p: "/load_model", c: C.amber },
+  ];
+  return (
+    <DashboardFrame title="ohho-serve · inference" accent={accent} tools={["smolvla", "GPU 0"]}>
+      {/* endpoints */}
+      <Panel x={14} y={12} w={150} h={250} label="Endpoints" />
+      {eps.map((e, i) => (
+        <g key={e.p}>
+          <rect x={22} y={34 + i * 34} width={134} height={26} rx={6} fill="rgba(255,255,255,0.03)" stroke={C.border} />
+          <rect x={28} y={40 + i * 34} width={32} height={14} rx={4} fill={e.c} fillOpacity={0.18} stroke={e.c} strokeOpacity={0.5} />
+          <text x={44} y={50 + i * 34} fontFamily={MONO} fontSize={7} fill={e.c} textAnchor="middle">
+            {e.m}
+          </text>
+          <text x={66} y={51 + i * 34} fontFamily={MONO} fontSize={8.5} fill={C.text}>
+            {e.p}
+          </text>
+        </g>
+      ))}
+      {/* request/response */}
+      <rect x={22} y={146} width={134} height={108} rx={7} fill="#0A0F1C" stroke={C.border} />
+      <text x={30} y={162} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        POST /predict
+      </text>
+      <text x={30} y={178} fontFamily={MONO} fontSize={7.5} fill={C.muted}>
+        {"{ image, prompt }"}
+      </text>
+      <text x={30} y={198} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        200 OK · 41 ms
+      </text>
+      <text x={30} y={214} fontFamily={MONO} fontSize={7.5} fill={a}>
+        {"action: ["}
+      </text>
+      <text x={36} y={226} fontFamily={MONO} fontSize={7.5} fill={C.muted}>
+        0.12, 0.0, -0.4,
+      </text>
+      <text x={36} y={238} fontFamily={MONO} fontSize={7.5} fill={C.muted}>
+        0.0, 0.0, 0.08 ]
+      </text>
+
+      {/* latency chart */}
+      <Panel x={176} y={12} w={224} h={150} label="Latency · p50" />
+      <text x={388} y={30} fontFamily={DISPLAY} fontSize={15} fontWeight={700} fill={C.text} textAnchor="end">
+        41 ms
+      </text>
+      {[0, 1, 2].map((i) => (
+        <line key={i} x1={188} y1={56 + i * 30} x2={388} y2={56 + i * 30} stroke={C.grid} />
+      ))}
+      <path d={sparkPath(lat, 188, 50, 200, 86, true)} fill={a} fillOpacity={0.12} stroke="none" />
+      <path d={sparkPath(lat, 188, 50, 200, 86)} fill="none" stroke={a} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <text x={188} y={152} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        −60s
+      </text>
+      <text x={388} y={152} fontFamily={MONO} fontSize={7.5} fill={C.faint} textAnchor="end">
+        now
+      </text>
+
+      {/* throughput */}
+      <Panel x={176} y={172} w={224} h={90} label="Throughput" />
+      <text x={188} y={216} fontFamily={DISPLAY} fontSize={20} fontWeight={700} fill={a}>
+        23.6
+      </text>
+      <text x={250} y={216} fontFamily={MONO} fontSize={8.5} fill={C.muted}>
+        req/s
+      </text>
+      <text x={188} y={240} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        4,812 today · 500 / day limit
+      </text>
+      <Bar x={188} y={246} w={200} frac={0.62} color={C.green} h={4} />
+
+      {/* GPU */}
+      <Panel x={412} y={12} w={134} h={250} label="GPU" />
+      <Ring cx={479} cy={86} r={36} frac={0.74} color={a} width={9} label="74%" sub="UTIL" />
+      <text x={428} y={150} fontFamily={BODY} fontSize={9} fill={C.muted}>
+        VRAM
+      </text>
+      <text x={532} y={150} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+        11.8 / 16 GB
+      </text>
+      <Bar x={428} y={156} w={104} frac={0.74} color={a} h={5} />
+      <text x={428} y={184} fontFamily={BODY} fontSize={9} fill={C.muted}>
+        Temp
+      </text>
+      <text x={532} y={184} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+        61°C
+      </text>
+      <Bar x={428} y={190} w={104} frac={0.55} color={C.green} h={5} />
+      <StatusPill x={428} y={214} label="4-bit · loaded" color={C.green} />
+      <StatusPill x={428} y={236} label="healthy" color={a} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO View ─────────────────────────────────────────────────────────────────
+function ViewDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const cams = ["FRONT", "REAR", "LEFT", "RIGHT"];
+  return (
+    <DashboardFrame title="ohho-view · surround-bev" accent={accent} tools={["4 cams", "CPU"]}>
+      {/* raw cameras */}
+      <Panel x={14} y={12} w={150} h={250} label="Cameras" />
+      {cams.map((c, i) => {
+        const cx = 24 + (i % 2) * 70;
+        const cy = 36 + Math.floor(i / 2) * 108;
+        return (
+          <g key={c}>
+            <rect x={cx} y={cy} width={62} height={92} rx={6} fill="#0B1322" stroke={C.border} />
+            {/* faux scene */}
+            <rect x={cx} y={cy + 56} width={62} height={36} rx={6} fill="rgba(255,255,255,0.04)" />
+            <circle cx={cx + 20} cy={cy + 44} r={7} fill="rgba(255,255,255,0.07)" />
+            <rect x={cx + 38} y={cy + 30} width={14} height={20} rx={2} fill="rgba(255,255,255,0.07)" />
+            <circle cx={cx + 6} cy={cy + 8} r={2} fill={C.green} />
+            <text x={cx + 14} y={cy + 11} fontFamily={MONO} fontSize={6.5} fill={C.muted}>
+              {c}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* fused BEV */}
+      <Panel x={176} y={12} w={370} h={250} label="Fused bird's-eye-view" accent={a} />
+      <text x={534} y={29} fontFamily={MONO} fontSize={8} fill={C.green} textAnchor="end">
+        ● calibrated
+      </text>
+      <circle cx={361} cy={148} r={104} fill="#0A1424" stroke={C.border} />
+      <circle cx={361} cy={148} r={104} fill={a} fillOpacity={0.04} />
+      {/* range rings */}
+      <circle cx={361} cy={148} r={70} fill="none" stroke={C.grid} />
+      <circle cx={361} cy={148} r={36} fill="none" stroke={C.grid} />
+      <line x1={361} y1={44} x2={361} y2={252} stroke={C.grid} />
+      <line x1={257} y1={148} x2={465} y2={148} stroke={C.grid} />
+      {/* robot footprint */}
+      <rect x={345} y={132} width={32} height={32} rx={5} fill={C.panelHi} stroke={a} strokeWidth={1.6} />
+      <path d="M361 138 v8" stroke={a} strokeWidth={2} strokeLinecap="round" />
+      {/* obstacles */}
+      <circle cx={410} cy={110} r={9} fill={C.amber} fillOpacity={0.5} stroke={C.amber} />
+      <rect x={300} y={185} width={20} height={12} rx={3} fill={C.red} fillOpacity={0.4} stroke={C.red} />
+      <circle cx={320} cy={96} r={6} fill="rgba(255,255,255,0.18)" />
+      {/* stitch seams */}
+      <line x1={361} y1={148} x2={300} y2={70} stroke={a} strokeOpacity={0.25} strokeDasharray="3 3" />
+      <line x1={361} y1={148} x2={430} y2={70} stroke={a} strokeOpacity={0.25} strokeDasharray="3 3" />
+      <line x1={361} y1={148} x2={300} y2={226} stroke={a} strokeOpacity={0.25} strokeDasharray="3 3" />
+      <line x1={361} y1={148} x2={430} y2={226} stroke={a} strokeOpacity={0.25} strokeDasharray="3 3" />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Data ─────────────────────────────────────────────────────────────────
+function DataDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const rows = [
+    { id: "ep_0148", f: "412", s: "kept", c: C.green },
+    { id: "ep_0149", f: "388", s: "kept", c: C.green },
+    { id: "ep_0150", f: "97", s: "discard", c: C.red },
+    { id: "ep_0151", f: "455", s: "review", c: C.amber },
+  ];
+  const keys = [0.18, 0.34, 0.5, 0.66, 0.82];
+  return (
+    <DashboardFrame title="ohho-data · mobile_manipulation" accent={accent} tools={["LeRobot", "1,043 eps"]}>
+      {/* episode table */}
+      <Panel x={14} y={12} w={244} h={250} label="Episodes" />
+      <text x={26} y={44} fontFamily={MONO} fontSize={8} fill={C.faint}>
+        ID
+      </text>
+      <text x={150} y={44} fontFamily={MONO} fontSize={8} fill={C.faint}>
+        FRAMES
+      </text>
+      <text x={210} y={44} fontFamily={MONO} fontSize={8} fill={C.faint}>
+        STATUS
+      </text>
+      <line x1={24} y1={52} x2={248} y2={52} stroke={C.border} />
+      {rows.map((r, i) => (
+        <g key={r.id}>
+          <rect x={22} y={60 + i * 34} width={228} height={28} rx={5} fill={i === 1 ? "rgba(0,212,255,0.06)" : "transparent"} />
+          <text x={28} y={78 + i * 34} fontFamily={MONO} fontSize={9} fill={C.text}>
+            {r.id}
+          </text>
+          <text x={156} y={78 + i * 34} fontFamily={MONO} fontSize={9} fill={C.muted}>
+            {r.f}
+          </text>
+          <circle cx={216} cy={74 + i * 34} r={2.6} fill={r.c} />
+          <text x={224} y={78 + i * 34} fontFamily={BODY} fontSize={8.5} fill={r.c}>
+            {r.s}
+          </text>
+        </g>
+      ))}
+
+      {/* viewer */}
+      <Panel x={270} y={12} w={276} h={150} label="Episode viewer · ep_0149" accent={a} />
+      <rect x={280} y={40} width={120} height={92} rx={6} fill="#0B1322" stroke={C.border} />
+      <circle cx={326} cy={78} r={14} fill="rgba(255,255,255,0.08)" />
+      <rect x={356} y={92} width={28} height={28} rx={3} fill={C.amber} fillOpacity={0.4} stroke={C.amber} />
+      <text x={286} y={52} fontFamily={MONO} fontSize={6.5} fill={C.green}>
+        ● wrist cam
+      </text>
+      {/* state plot */}
+      <rect x={410} y={40} width={126} height={92} rx={6} fill="#0A0F1C" stroke={C.border} />
+      <text x={418} y={52} fontFamily={MONO} fontSize={6.5} fill={C.faint}>
+        9-DOF state
+      </text>
+      <path d={sparkPath([0.5, 0.6, 0.55, 0.7, 0.62, 0.5, 0.45, 0.58], 418, 60, 110, 30)} fill="none" stroke={a} strokeWidth={1.6} />
+      <path d={sparkPath([0.3, 0.35, 0.5, 0.45, 0.6, 0.65, 0.55, 0.5], 418, 96, 110, 30)} fill="none" stroke={C.violetLite} strokeWidth={1.6} />
+
+      {/* timeline */}
+      <Panel x={270} y={172} w={276} h={90} label="Timeline" />
+      <line x1={282} y1={216} x2={534} y2={216} stroke={C.track} strokeWidth={4} strokeLinecap="round" />
+      <line x1={282} y1={216} x2={420} y2={216} stroke={a} strokeWidth={4} strokeLinecap="round" />
+      {keys.map((k, i) => (
+        <circle key={i} cx={282 + k * 252} cy={216} r={3} fill={C.violetLite} />
+      ))}
+      <circle cx={420} cy={216} r={5.5} fill={C.text} stroke={a} strokeWidth={2} />
+      <text x={282} y={240} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        00:00
+      </text>
+      <text x={534} y={240} fontFamily={MONO} fontSize={7.5} fill={C.faint} textAnchor="end">
+        00:13
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Pilot ────────────────────────────────────────────────────────────────
+function PilotDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const joints = ["pan", "lift", "elbow", "wrist", "roll", "grip"];
+  const jv = [0.55, 0.4, 0.62, 0.5, 0.7, 0.3];
+  return (
+    <DashboardFrame title="ohho-pilot · teleop" accent={accent} tools={["VR", "28 ms"]}>
+      {/* main robot view */}
+      <rect x={14} y={12} width={340} height={250} rx={9} fill="#0A1322" stroke={C.border} />
+      {/* horizon / scene */}
+      <rect x={14} y={150} width={340} height={112} rx={9} fill="rgba(255,255,255,0.03)" />
+      <line x1={14} y1={150} x2={354} y2={150} stroke={C.grid} />
+      <ellipse cx={184} cy={205} rx={70} ry={20} fill="rgba(255,255,255,0.04)" />
+      {/* target object + bbox */}
+      <rect x={196} y={150} width={44} height={48} rx={4} fill={C.amber} fillOpacity={0.25} stroke={C.amber} strokeWidth={1.4} />
+      <rect x={192} y={146} width={52} height={56} rx={3} fill="none" stroke={a} strokeWidth={1.6} strokeDasharray="5 3" />
+      <text x={192} y={140} fontFamily={MONO} fontSize={8} fill={a}>
+        cup · 0.94
+      </text>
+      {/* crosshair */}
+      <circle cx={184} cy={130} r={16} fill="none" stroke={C.text} strokeOpacity={0.4} />
+      <line x1={184} y1={108} x2={184} y2={120} stroke={C.text} strokeOpacity={0.4} />
+      <line x1={184} y1={140} x2={184} y2={152} stroke={C.text} strokeOpacity={0.4} />
+      <line x1={162} y1={130} x2={174} y2={130} stroke={C.text} strokeOpacity={0.4} />
+      <line x1={194} y1={130} x2={206} y2={130} stroke={C.text} strokeOpacity={0.4} />
+      <StatusPill x={24} y={24} label="● REC · front cam" color={C.red} />
+      {/* hand tracking */}
+      <text x={344} y={36} fontFamily={MONO} fontSize={7.5} fill={a} textAnchor="end">
+        ✋ hand-tracking
+      </text>
+      <path d="M300 230 q6 -22 14 -2 q4 -18 10 -2 q4 -14 9 0 l1 16 q-2 12 -14 12 q-16 0 -20 -16 z" fill="rgba(0,212,255,0.10)" stroke={a} strokeWidth={1.4} strokeLinejoin="round" />
+
+      {/* arm joints */}
+      <Panel x={364} y={12} w={182} h={150} label="Arm · joint targets" accent={a} />
+      {joints.map((j, i) => (
+        <g key={j}>
+          <text x={374} y={44 + i * 18} fontFamily={MONO} fontSize={8.5} fill={C.muted}>
+            {j}
+          </text>
+          <Bar x={410} y={38 + i * 18} w={104} frac={jv[i]} color={a} h={4} />
+          <text x={522} y={44 + i * 18} fontFamily={MONO} fontSize={7.5} fill={C.faint} textAnchor="end">
+            {Math.round((jv[i] - 0.5) * 180)}°
+          </text>
+        </g>
+      ))}
+
+      {/* drive + status */}
+      <Panel x={364} y={172} w={182} h={90} label="Drive" />
+      <circle cx={398} cy={222} r={26} fill="rgba(255,255,255,0.03)" stroke={C.border} />
+      <circle cx={406} cy={214} r={8} fill={a} />
+      <line x1={398} y1={222} x2={406} y2={214} stroke={a} strokeWidth={2} />
+      <text x={440} y={206} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        latency
+      </text>
+      <text x={534} y={206} fontFamily={MONO} fontSize={8.5} fill={C.green} textAnchor="end">
+        28 ms
+      </text>
+      <rect x={440} y={230} width={94} height={22} rx={6} fill="rgba(248,113,113,0.14)" stroke={C.red} />
+      <text x={487} y={244} fontFamily={DISPLAY} fontSize={9} fontWeight={700} fill={C.red} textAnchor="middle">
+        E-STOP
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Fleet ────────────────────────────────────────────────────────────────
+function FleetDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const pins = [
+    { x: 70, y: 70, c: C.green },
+    { x: 150, y: 110, c: C.green },
+    { x: 110, y: 170, c: C.amber },
+    { x: 220, y: 80, c: C.green },
+    { x: 250, y: 165, c: C.red },
+    { x: 180, y: 200, c: C.green },
+  ];
+  const rollout = [
+    { l: "v2.4.0 · canary", v: 0.18, c: a },
+    { l: "v2.3.1 · stable", v: 0.82, c: C.green },
+  ];
+  const alerts = [
+    { t: "amr-17 · offline 4m", c: C.red },
+    { t: "amr-05 · VLA latency ↑", c: C.amber },
+    { t: "fleet · OTA 18% rolled", c: a },
+  ];
+  return (
+    <DashboardFrame title="ohho-fleet · mission-control" accent={accent} tools={["48 online", "live"]}>
+      {/* map */}
+      <Panel x={14} y={12} w={300} h={250} label="Fleet map" />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <line key={`mh${i}`} x1={20} y1={40 + i * 44} x2={308} y2={40 + i * 44} stroke={C.grid} />
+      ))}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <line key={`mv${i}`} x1={30 + i * 48} y1={30} x2={30 + i * 48} y2={254} stroke={C.grid} />
+      ))}
+      {pins.map((p, i) => (
+        <g key={i}>
+          <circle cx={p.x + 14} cy={p.y + 30} r={9} fill={p.c} fillOpacity={0.18} />
+          <circle cx={p.x + 14} cy={p.y + 30} r={4} fill={p.c} />
+        </g>
+      ))}
+
+      {/* health donut */}
+      <Panel x={322} y={12} w={224} h={104} label="Fleet health" accent={a} />
+      <Ring cx={368} cy={70} r={30} frac={0.92} color={C.green} width={8} label="92%" sub="HEALTHY" />
+      <g fontFamily={MONO} fontSize={8.5}>
+        <Dot cx={414} cy={48} r={3} color={C.green} />
+        <text x={422} y={51} fill={C.muted}>44 online</text>
+        <Dot cx={414} cy={66} r={3} color={C.amber} />
+        <text x={422} y={69} fill={C.muted}>3 degraded</text>
+        <Dot cx={414} cy={84} r={3} color={C.red} />
+        <text x={422} y={87} fill={C.muted}>1 offline</text>
+      </g>
+
+      {/* OTA rollout */}
+      <Panel x={322} y={124} w={224} h={70} label="OTA rollout" />
+      {rollout.map((r, i) => (
+        <g key={r.l}>
+          <text x={332} y={150 + i * 22} fontFamily={MONO} fontSize={8} fill={C.muted}>
+            {r.l}
+          </text>
+          <text x={534} y={150 + i * 22} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+            {Math.round(r.v * 48)}
+          </text>
+          <Bar x={332} y={154 + i * 22} w={202} frac={r.v} color={r.c} h={4} />
+        </g>
+      ))}
+
+      {/* alerts */}
+      <Panel x={322} y={202} w={224} h={60} label="Alerts" />
+      {alerts.map((al, i) => (
+        <g key={al.t}>
+          <Dot cx={336} cy={226 + i * 14} r={2.4} color={al.c} />
+          <text x={344} y={229 + i * 14} fontFamily={BODY} fontSize={8.3} fill={C.muted}>
+            {al.t}
+          </text>
+        </g>
+      ))}
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Comply ───────────────────────────────────────────────────────────────
+function ComplyDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const stds = [
+    { l: "EU Machinery Reg · CE", v: 1, s: "done", c: C.green },
+    { l: "ISO 10218-1/2", v: 0.85, s: "12/14", c: C.green },
+    { l: "ISO 13849 · PL d", v: 0.6, s: "review", c: C.amber },
+    { l: "UL / IEC 60204", v: 0.4, s: "open", c: C.amber },
+  ];
+  const docs = [
+    { l: "Technical file", c: C.green },
+    { l: "Risk assessment", c: C.green },
+    { l: "Declaration of Conformity", c: C.amber },
+  ];
+  return (
+    <DashboardFrame title="ohho-comply · warehouse-amr" accent={accent} tools={["EU", "audit"]}>
+      {/* standards checklist */}
+      <Panel x={14} y={12} w={304} h={250} label="Applicable standards" accent={a} />
+      {stds.map((st, i) => (
+        <g key={st.l}>
+          <rect x={24} y={36 + i * 50} width={284} height={40} rx={6} fill="rgba(255,255,255,0.02)" stroke={C.border} />
+          {st.v >= 1 ? (
+            <g>
+              <circle cx={42} cy={56 + i * 50} r={8} fill={C.green} fillOpacity={0.2} stroke={C.green} />
+              <path d={`M38 ${56 + i * 50} l3 3 l5 -6`} fill="none" stroke={C.green} strokeWidth={1.6} strokeLinecap="round" />
+            </g>
+          ) : (
+            <circle cx={42} cy={56 + i * 50} r={8} fill="none" stroke={st.c} strokeWidth={1.6} strokeDasharray="2 2" />
+          )}
+          <text x={58} y={52 + i * 50} fontFamily={BODY} fontSize={9.5} fill={C.text}>
+            {st.l}
+          </text>
+          <text x={300} y={52 + i * 50} fontFamily={MONO} fontSize={8} fill={st.c} textAnchor="end">
+            {st.s}
+          </text>
+          <Bar x={58} y={62 + i * 50} w={242} frac={st.v} color={st.c} h={4} />
+        </g>
+      ))}
+
+      {/* certification progress */}
+      <Panel x={326} y={12} w={220} h={120} label="Certification" />
+      <Ring cx={372} cy={76} r={32} frac={0.71} color={a} width={9} label="71%" sub="READY" />
+      <text x={418} y={56} fontFamily={BODY} fontSize={9} fill={C.muted}>
+        Requirements
+      </text>
+      <text x={418} y={70} fontFamily={DISPLAY} fontSize={13} fontWeight={700} fill={C.text}>
+        38 / 54
+      </text>
+      <text x={418} y={92} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        Notified body
+      </text>
+      <StatusPill x={418} y={98} label="booked" color={C.green} />
+
+      {/* documents */}
+      <Panel x={326} y={140} w={220} h={68} label="Documents" />
+      {docs.map((d, i) => (
+        <g key={d.l}>
+          <Dot cx={340} cy={166 + i * 14} r={2.6} color={d.c} />
+          <text x={348} y={169 + i * 14} fontFamily={BODY} fontSize={8.3} fill={C.muted}>
+            {d.l}
+          </text>
+        </g>
+      ))}
+
+      {/* audit trail */}
+      <Panel x={326} y={216} w={220} h={46} label="Audit trail" />
+      <text x={338} y={244} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        2026-06-14 14:02 · PLd evidence added
+      </text>
+      <text x={338} y={255} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        signed · immutable
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Shield ───────────────────────────────────────────────────────────────
+function ShieldDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const devices = [
+    { id: "amr-01", s: "verified", c: C.green },
+    { id: "amr-02", s: "verified", c: C.green },
+    { id: "amr-07", s: "rotate key", c: C.amber },
+    { id: "amr-12", s: "verified", c: C.green },
+  ];
+  const cves = [
+    { p: "libssl 3.0.2", s: "HIGH", c: C.red },
+    { p: "ros-rmw 6.1", s: "MED", c: C.amber },
+    { p: "opencv 4.9", s: "LOW", c: C.green },
+  ];
+  const toggles = ["Secure boot", "Signed OTA", "Encrypted DDS"];
+  return (
+    <DashboardFrame title="ohho-shield · fleet-security" accent={accent} tools={["48 nodes", "zero-trust"]}>
+      {/* risk score */}
+      <Panel x={14} y={12} w={150} h={250} label="Risk posture" accent={a} />
+      <Ring cx={89} cy={92} r={42} frac={0.86} color={C.green} width={10} label="A−" sub="SECURE" />
+      <text x={89} y={158} fontFamily={BODY} fontSize={8.5} fill={C.muted} textAnchor="middle">
+        86 / 100
+      </text>
+      {toggles.map((t, i) => (
+        <g key={t}>
+          <text x={26} y={188 + i * 24} fontFamily={BODY} fontSize={8.7} fill={C.muted}>
+            {t}
+          </text>
+          <rect x={130} y={180 + i * 24} width={22} height={12} rx={6} fill={C.green} fillOpacity={0.3} stroke={C.green} />
+          <circle cx={146} cy={186 + i * 24} r={4} fill={C.green} />
+        </g>
+      ))}
+
+      {/* device identity */}
+      <Panel x={176} y={12} w={190} h={250} label="Device identity" />
+      {devices.map((d, i) => (
+        <g key={d.id}>
+          <rect x={186} y={38 + i * 40} width={170} height={32} rx={6} fill="rgba(255,255,255,0.02)" stroke={C.border} />
+          <path d="M198 50 a5 5 0 0 1 10 0 v3 h-10 z M200 53 h6 v8 h-6 z" transform={`translate(-2 ${i * 40})`} fill="none" stroke={d.c} strokeWidth={1.3} />
+          <text x={218} y={50 + i * 40} fontFamily={MONO} fontSize={9} fill={C.text}>
+            {d.id}
+          </text>
+          <text x={218} y={62 + i * 40} fontFamily={MONO} fontSize={7} fill={C.faint}>
+            sha256·a91f…
+          </text>
+          <text x={348} y={55 + i * 40} fontFamily={MONO} fontSize={7.5} fill={d.c} textAnchor="end">
+            {d.s}
+          </text>
+        </g>
+      ))}
+
+      {/* SBOM / CVE */}
+      <Panel x={374} y={12} w={172} h={250} label="SBOM · CVE watch" />
+      <text x={384} y={44} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        PACKAGE
+      </text>
+      <text x={536} y={44} fontFamily={MONO} fontSize={7.5} fill={C.faint} textAnchor="end">
+        SEV
+      </text>
+      <line x1={384} y1={50} x2={536} y2={50} stroke={C.border} />
+      {cves.map((c, i) => (
+        <g key={c.p}>
+          <text x={384} y={72 + i * 26} fontFamily={MONO} fontSize={8.3} fill={C.muted}>
+            {c.p}
+          </text>
+          <rect x={502} y={62 + i * 26} width={34} height={14} rx={4} fill={c.c} fillOpacity={0.18} stroke={c.c} strokeOpacity={0.5} />
+          <text x={519} y={72 + i * 26} fontFamily={MONO} fontSize={7} fill={c.c} textAnchor="middle">
+            {c.s}
+          </text>
+        </g>
+      ))}
+      <line x1={384} y1={148} x2={536} y2={148} stroke={C.border} />
+      <text x={384} y={170} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        Packages tracked
+      </text>
+      <text x={536} y={170} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.text} textAnchor="end">
+        312
+      </text>
+      <text x={384} y={196} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        Open CVEs
+      </text>
+      <text x={536} y={196} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.amber} textAnchor="end">
+        2
+      </text>
+      <StatusPill x={384} y={214} label="OTA signature OK" color={C.green} />
+      <StatusPill x={384} y={236} label="all links encrypted" color={a} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Proof ────────────────────────────────────────────────────────────────
+function ProofDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const suites = [
+    { l: "Navigation", v: 0.98, c: C.green },
+    { l: "Manipulation", v: 0.94, c: C.green },
+    { l: "Edge cases", v: 0.87, c: C.amber },
+    { l: "Fault injection", v: 0.76, c: C.amber },
+  ];
+  // deterministic coverage heatmap (0=miss,1=partial,2=pass)
+  const cov = [
+    [2, 2, 2, 1, 2, 2, 2, 0],
+    [2, 2, 1, 2, 2, 2, 1, 2],
+    [2, 1, 2, 2, 0, 2, 2, 2],
+    [1, 2, 2, 2, 2, 1, 2, 2],
+    [2, 2, 2, 1, 2, 2, 2, 1],
+  ];
+  const heat = (v: number) => (v === 2 ? C.green : v === 1 ? C.amber : C.red);
+  const reg = [0.9, 0.92, 0.88, 0.94, 0.93, 0.95, 0.91, 0.96, 0.94, 0.97];
+  return (
+    <DashboardFrame title="ohho-proof · release-candidate" accent={accent} tools={["12,480 runs", "sim"]}>
+      {/* suites */}
+      <Panel x={14} y={12} w={196} h={150} label="Suites · pass rate" accent={a} />
+      {suites.map((s, i) => (
+        <g key={s.l}>
+          <text x={24} y={44 + i * 28} fontFamily={BODY} fontSize={9} fill={C.muted}>
+            {s.l}
+          </text>
+          <text x={200} y={44 + i * 28} fontFamily={MONO} fontSize={8.5} fill={s.c} textAnchor="end">
+            {Math.round(s.v * 100)}%
+          </text>
+          <Bar x={24} y={49 + i * 28} w={176} frac={s.v} color={s.c} h={5} />
+        </g>
+      ))}
+
+      {/* overall + safety case */}
+      <Panel x={14} y={172} w={196} h={90} label="Verdict" />
+      <Ring cx={56} cy={222} r={30} frac={0.93} color={C.green} width={8} label="93%" />
+      <text x={98} y={206} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        Safety case
+      </text>
+      <StatusPill x={98} y={212} label="ready to ship" color={C.green} />
+      <text x={98} y={244} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        Regressions
+      </text>
+      <text x={186} y={244} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.amber} textAnchor="end">
+        1
+      </text>
+
+      {/* coverage heatmap */}
+      <Panel x={218} y={12} w={328} h={150} label="Scenario coverage" />
+      {cov.map((row, r) =>
+        row.map((v, c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={230 + c * 37}
+            y={40 + r * 22}
+            width={32}
+            height={17}
+            rx={3}
+            fill={heat(v)}
+            fillOpacity={v === 0 ? 0.5 : 0.22}
+            stroke={heat(v)}
+            strokeOpacity={0.5}
+          />
+        ))
+      )}
+      <text x={230} y={156} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        speed × payload × layout × lighting
+      </text>
+
+      {/* regression trend */}
+      <Panel x={218} y={172} w={328} h={90} label="Sim-to-real regression" />
+      {[0, 1, 2].map((i) => (
+        <line key={i} x1={230} y1={210 + i * 16} x2={534} y2={210 + i * 16} stroke={C.grid} />
+      ))}
+      <path d={sparkPath(reg, 230, 200, 304, 50, true)} fill={a} fillOpacity={0.1} stroke="none" />
+      <path d={sparkPath(reg, 230, 200, 304, 50)} fill="none" stroke={a} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <text x={230} y={254} fontFamily={MONO} fontSize={7.5} fill={C.faint}>
+        build 0142
+      </text>
+      <text x={534} y={254} fontFamily={MONO} fontSize={7.5} fill={C.green} textAnchor="end">
+        0152 · +6%
+      </text>
+    </DashboardFrame>
+  );
+}
+
+const DASHBOARDS: Record<string, (p: DashProps) => JSX.Element> = {
+  build: BuildDash,
+  frame: FrameDash,
+  serve: ServeDash,
+  view: ViewDash,
+  data: DataDash,
+  pilot: PilotDash,
+  fleet: FleetDash,
+  comply: ComplyDash,
+  shield: ShieldDash,
+  proof: ProofDash,
+};
+
+export default function ProductDashboard({ slug, accent }: { slug: string; accent: Accent }) {
+  const Dash = DASHBOARDS[slug];
+  if (!Dash) return null;
+  return <Dash accent={accent} />;
+}
