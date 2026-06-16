@@ -31,9 +31,7 @@ class AdvantageResult(BaseModel):
     where_unbeatable: str = Field(
         description="The exact customer segment or market position where you win"
     )
-    gap_exploiting: str = Field(
-        description="What competitors miss that you own"
-    )
+    gap_exploiting: str = Field(description="What competitors miss that you own")
     raw_response: Optional[str] = None
 
 
@@ -41,15 +39,9 @@ class PositioningInput(BaseModel):
     competitive_advantage: str = Field(
         description="Your identified competitive advantage"
     )
-    current_marketing: str = Field(
-        description="How you currently market yourself"
-    )
-    feels_generic: str = Field(
-        description="Where you feel like just another option"
-    )
-    feels_unique: str = Field(
-        description="Where you feel unique and winning"
-    )
+    current_marketing: str = Field(description="How you currently market yourself")
+    feels_generic: str = Field(description="Where you feel like just another option")
+    feels_unique: str = Field(description="Where you feel unique and winning")
 
 
 class PositioningResult(BaseModel):

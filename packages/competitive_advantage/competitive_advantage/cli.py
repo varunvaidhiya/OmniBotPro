@@ -86,7 +86,9 @@ def cmd_advantage(args, advisor: AdvantageAdvisor) -> None:
         strengths = _prompt_list("Your three biggest strengths")
         competitors = _prompt_list("Your main competitors")
         comp_adv = _prompt("What competitors do better than you", multiline=True)
-        segment = _prompt("Who you serve best (the segment where you win)", multiline=True)
+        segment = _prompt(
+            "Who you serve best (the segment where you win)", multiline=True
+        )
         data = AdvantageInput(
             business_description=business,
             core_strengths=strengths,
