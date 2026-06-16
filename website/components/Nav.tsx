@@ -46,7 +46,7 @@ export default function Nav() {
           </a>
         ))}
         <a
-          href="#"
+          href="/#pricing"
           className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
           style={{
             background: "var(--cyan)",
