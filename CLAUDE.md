@@ -985,10 +985,21 @@ When adding tests:
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+This project has a knowledge graph at graphify-out/ with god nodes, community
+structure, and cross-file relationships (4,034 nodes / 6,875 links). See
+`docs/AI_TOOLING.md` for the full cross-IDE tooling setup.
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+Orient with the graph before grepping, in this order of preference. This is a
+preference, **not a hard gate** — if none are available, fall back to normal
+Read/Grep/Glob:
+- **CodeGraphContext MCP** (preferred; portable, works in every IDE; wired in
+  `.mcp.json`). Use its code-graph tools to find callers, dependencies, and
+  definitions.
+- **`graphify` CLI** — `graphify query "<question>"`, `graphify path "<A>" "<B>"`,
+  `graphify explain "<concept>"`. Only if installed locally — it is a private pip
+  package, absent in CI, fresh clones, and non-Windows machines.
+- **Read the data directly** — `graphify-out/graph.json`, or
+  `graphify-out/GRAPH_REPORT.md` for broad architecture review.
+
+After changing code, refresh via the CodeGraphContext indexer (or `graphify
+update .` if the CLI is installed) to keep the graph current.
