@@ -156,7 +156,8 @@ jobs:
         run: |
           pip3 install -e packages/yahboom_ros2 -e packages/vla_serve \
                        -e packages/robot_episode_dataset \
-                       -e packages/mecanum_drive_ros2 --break-system-packages
+                       -e packages/mecanum_drive_ros2 \
+                       -e packages/competitive_advantage --break-system-packages
           # Enforce 60% threshold on tested packages only.
           # ros2_bev_stitcher and robot_episode_dataset have no unit tests yet
           # (they require ROS or large deps) — include them in the XML for

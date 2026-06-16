@@ -1,8 +1,6 @@
 import re
 from typing import Optional
 
-import anthropic
-
 from .models import (
     AdvantageInput,
     AdvantageResult,
@@ -21,6 +19,8 @@ _MODEL = "claude-sonnet-4-6"
 
 class AdvantageAdvisor:
     def __init__(self, api_key: Optional[str] = None, model: str = _MODEL):
+        import anthropic  # lazy: not needed for parser-only usage or tests
+
         self._client = anthropic.Anthropic(api_key=api_key)
         self._model = model
 
