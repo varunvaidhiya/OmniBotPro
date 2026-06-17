@@ -75,6 +75,11 @@ export interface Product {
   related: string[];
   /** Caption shown under the embedded dashboard mockup. */
   dashboardCaption: string;
+  /**
+   * Live, shipped app for this product (if any). When set, the detail page
+   * surfaces a "launch" CTA and the dashboard mockup becomes a link into it.
+   */
+  app?: { href: string; label: string };
 }
 
 const stroke = {
@@ -156,6 +161,7 @@ export const PRODUCTS: Product[] = [
     related: ["frame", "view", "serve"],
     dashboardCaption:
       "OhhO Build — drag parts onto the 3-D canvas; the requirements panel and AI recommendation update live.",
+    app: { href: "/build", label: "Launch the studio" },
   },
 
   // ── FOUNDATION ──────────────────────────────────────────────────────────────
@@ -293,6 +299,7 @@ export const PRODUCTS: Product[] = [
     related: ["data", "view", "pilot"],
     dashboardCaption:
       "OhhO Serve — endpoint console with live latency, throughput and GPU utilization.",
+    app: { href: "/serve", label: "Open the console" },
   },
   {
     slug: "view",

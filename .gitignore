@@ -1,4 +1,11 @@
 build/
+# OhhO Build (the website robot designer) lives in directories literally named
+# `build/`. Re-include their source so the broad colcon `build/` ignore above
+# doesn't swallow it. (Negating the directory itself — not just files inside —
+# is what makes git re-scan it.)
+!website/app/build/
+!website/components/build/
+!website/lib/build/
 install/
 log/
 *.log
