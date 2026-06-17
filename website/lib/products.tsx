@@ -232,6 +232,7 @@ export const PRODUCTS: Product[] = [
       { q: "Is it locked to your hardware?", a: "No. Frame works with any ROS 2-compatible hardware; the reference drivers are a starting point you can swap." },
     ],
     related: ["build", "fleet", "data"],
+    app: { href: "/frame", label: "Open device console" },
     dashboardCaption:
       "OhhO Frame — workspace scaffold, containerized build and the node graph that ships ready to run.",
   },
@@ -362,6 +363,7 @@ export const PRODUCTS: Product[] = [
       { q: "Will it slow down my AI?", a: "No — View is CPU-only by design, leaving the GPU free for OhhO Serve." },
     ],
     related: ["build", "serve", "pilot"],
+    app: { href: "/view", label: "Open perception viewer" },
     dashboardCaption:
       "OhhO View — four raw camera feeds fused into one calibrated bird's-eye-view.",
   },
