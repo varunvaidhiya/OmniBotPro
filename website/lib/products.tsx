@@ -427,6 +427,7 @@ export const PRODUCTS: Product[] = [
       { q: "Can I collect in simulation?", a: "Yes. Data records from Gazebo and Isaac Sim with the same schema as the real robot." },
     ],
     related: ["serve", "pilot", "proof"],
+    app: { href: "/data", label: "Open episode viewer" },
     dashboardCaption:
       "OhhO Data — dataset table, episode timeline and per-frame camera + label inspection.",
   },
