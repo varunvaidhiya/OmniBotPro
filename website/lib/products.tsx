@@ -300,6 +300,7 @@ export const PRODUCTS: Product[] = [
     related: ["build", "frame", "view"],
     dashboardCaption:
       "OhhO Bench — assembly checklist, wiring map and the hardware self-test board going green subsystem by subsystem.",
+    app: { href: "/bench", label: "Open bring-up console" },
   },
 
   // ── INTELLIGENCE ────────────────────────────────────────────────────────────
@@ -564,6 +565,7 @@ export const PRODUCTS: Product[] = [
     related: ["data", "serve", "proof"],
     dashboardCaption:
       "OhhO Train — run config, the live loss / success-rate curves and the export-to-Serve step on a passing checkpoint.",
+    app: { href: "/train", label: "Open training console" },
   },
   {
     slug: "autonomy",
@@ -631,6 +633,7 @@ export const PRODUCTS: Product[] = [
     related: ["serve", "view", "pilot"],
     dashboardCaption:
       "OhhO Autonomy — the live SLAM map with a planned Nav2 path, the mission state machine and the natural-language agent's plan.",
+    app: { href: "/autonomy", label: "Open mission control" },
   },
 
   // ── OPERATIONS ──────────────────────────────────────────────────────────────
