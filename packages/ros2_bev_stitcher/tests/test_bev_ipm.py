@@ -216,8 +216,9 @@ class TestComputeIpmHomography:
         y_hi = c_hi[1] / c_hi[2]
 
         # Higher ppm means farther from center
-        assert abs(y_hi - 400) > abs(y_lo - 400), \
+        assert abs(y_hi - 400) > abs(y_lo - 400), (
             f"ppm=80 should push farther from center than ppm=40"
+        )
 
     def test_homography_shape_and_dtype(self):
         """Output should be 3x3 float64."""

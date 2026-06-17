@@ -174,7 +174,14 @@ class BevCalUI(Node):
         cv2.createTrackbar(TBAR_CAM_SEL, ctrl_win, 0, max_cam, self._on_cam_sel)
 
         # Per-camera DOF trackbars
-        for name in [TBAR_POS_X, TBAR_POS_Y, TBAR_POS_Z, TBAR_ROLL, TBAR_PITCH, TBAR_YAW]:
+        for name in [
+            TBAR_POS_X,
+            TBAR_POS_Y,
+            TBAR_POS_Z,
+            TBAR_ROLL,
+            TBAR_PITCH,
+            TBAR_YAW,
+        ]:
             _, _, steps = SCALES[name]
             cv2.createTrackbar(name, ctrl_win, 0, steps, self._on_trackbar)
 
@@ -242,13 +249,23 @@ class BevCalUI(Node):
 
         # Read global params
         self._ppm = _trackbar_to_value(TBAR_PPM, cv2.getTrackbarPos(TBAR_PPM, ctrl))
-        self._ground_z = _trackbar_to_value(TBAR_GROUND, cv2.getTrackbarPos(TBAR_GROUND, ctrl))
+        self._ground_z = _trackbar_to_value(
+            TBAR_GROUND, cv2.getTrackbarPos(TBAR_GROUND, ctrl)
+        )
 
         # Read intrinsics for selected camera
-        self._params["fx"][ci] = _trackbar_to_value(TBAR_FX, cv2.getTrackbarPos(TBAR_FX, ctrl))
-        self._params["fy"][ci] = _trackbar_to_value(TBAR_FY, cv2.getTrackbarPos(TBAR_FY, ctrl))
-        self._params["cx"][ci] = _trackbar_to_value(TBAR_CX, cv2.getTrackbarPos(TBAR_CX, ctrl))
-        self._params["cy"][ci] = _trackbar_to_value(TBAR_CY, cv2.getTrackbarPos(TBAR_CY, ctrl))
+        self._params["fx"][ci] = _trackbar_to_value(
+            TBAR_FX, cv2.getTrackbarPos(TBAR_FX, ctrl)
+        )
+        self._params["fy"][ci] = _trackbar_to_value(
+            TBAR_FY, cv2.getTrackbarPos(TBAR_FY, ctrl)
+        )
+        self._params["cx"][ci] = _trackbar_to_value(
+            TBAR_CX, cv2.getTrackbarPos(TBAR_CX, ctrl)
+        )
+        self._params["cy"][ci] = _trackbar_to_value(
+            TBAR_CY, cv2.getTrackbarPos(TBAR_CY, ctrl)
+        )
 
         self._dirty = False
         self._blend_weights = None  # force recompute
@@ -279,7 +296,9 @@ class BevCalUI(Node):
             cv2.setTrackbarPos(tb_name, ctrl, _value_to_trackbar(tb_name, val))
 
         cv2.setTrackbarPos(TBAR_PPM, ctrl, _value_to_trackbar(TBAR_PPM, self._ppm))
-        cv2.setTrackbarPos(TBAR_GROUND, ctrl, _value_to_trackbar(TBAR_GROUND, self._ground_z))
+        cv2.setTrackbarPos(
+            TBAR_GROUND, ctrl, _value_to_trackbar(TBAR_GROUND, self._ground_z)
+        )
 
     # ── Homographies & rendering ──────────────────────────────────────────────
 
@@ -293,7 +312,11 @@ class BevCalUI(Node):
                 self._params["roll"][i],
             )
             t = np.array(
-                [self._params["pos_x"][i], self._params["pos_y"][i], self._params["pos_z"][i]],
+                [
+                    self._params["pos_x"][i],
+                    self._params["pos_y"][i],
+                    self._params["pos_z"][i],
+                ],
                 dtype=np.float64,
             )
             K = np.array(
@@ -315,12 +338,16 @@ class BevCalUI(Node):
             Hs[name] = H
         return Hs
 
-    def _compute_blend_weights(self, homographies: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+    def _compute_blend_weights(
+        self, homographies: Dict[str, np.ndarray]
+    ) -> Dict[str, np.ndarray]:
         """Compute per-camera blend-weight maps for the current homographies."""
         weights: Dict[str, np.ndarray] = {}
         src_ones = np.ones((self._src_h, self._src_w), dtype=np.float32)
         for name in self._names:
-            w = cv2.warpPerspective(src_ones, homographies[name], (self._canvas, self._canvas))
+            w = cv2.warpPerspective(
+                src_ones, homographies[name], (self._canvas, self._canvas)
+            )
             weights[name] = w
         return weights
 
@@ -426,8 +453,12 @@ class BevCalUI(Node):
                 f.write(f"src_height: {self._src_h}\n\n")
                 for i, name in enumerate(self._names):
                     f.write(f"{name}:\n")
-                    f.write(f"  position: [{self._params['pos_x'][i]:.4f}, {self._params['pos_y'][i]:.4f}, {self._params['pos_z'][i]:.4f}]\n")
-                    f.write(f"  orientation_rpy: [{self._params['yaw'][i]:.4f}, {self._params['pitch'][i]:.4f}, {self._params['roll'][i]:.4f}]\n")
+                    f.write(
+                        f"  position: [{self._params['pos_x'][i]:.4f}, {self._params['pos_y'][i]:.4f}, {self._params['pos_z'][i]:.4f}]\n"
+                    )
+                    f.write(
+                        f"  orientation_rpy: [{self._params['yaw'][i]:.4f}, {self._params['pitch'][i]:.4f}, {self._params['roll'][i]:.4f}]\n"
+                    )
                     f.write(f"  fx: {self._params['fx'][i]:.1f}\n")
                     f.write(f"  fy: {self._params['fy'][i]:.1f}\n")
                     f.write(f"  cx: {self._params['cx'][i]:.1f}\n")
@@ -440,15 +471,15 @@ class BevCalUI(Node):
 
     def run(self) -> None:
         """Run the interactive calibration loop."""
-        print(f"\n{'='*50}")
+        print(f"\n{'=' * 50}")
         print("  OhhO View — BEV Calibration UI")
         print(f"  Cameras: {', '.join(self._names)}")
         print(f"  Output:  {self._output}")
-        print(f"{'='*50}")
+        print(f"{'=' * 50}")
         print("  s      = save & continue")
         print("  q/ESC  = quit")
         print("  Use the Controls window trackbars to align cameras.")
-        print(f"{'='*50}\n")
+        print(f"{'=' * 50}\n")
 
         while rclpy.ok():
             rclpy.spin_once(self, timeout_sec=0.01)
