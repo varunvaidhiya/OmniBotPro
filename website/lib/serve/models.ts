@@ -10,6 +10,48 @@
 export type Backend = "openvla" | "smolvla" | "act" | "diffusion" | "custom";
 export type Device = "cuda" | "cpu";
 
+/** Where inference actually runs. */
+export type BackendMode = "server" | "webgpu" | "transformers";
+
+export interface BackendModeMeta {
+  id: BackendMode;
+  name: string;
+  desc: string;
+  /** Icon for the picker (lucide icon name for reference). */
+  icon: "server" | "cpu" | "sparkles";
+  /** Whether this mode is ready to use (vs "coming soon"). */
+  available: boolean;
+  /** Setup instructions shown in the UI. */
+  setupHint: string;
+}
+
+export const BACKEND_MODES: BackendModeMeta[] = [
+  {
+    id: "server",
+    name: "VLA Serve (FastAPI)",
+    desc: "Call your existing vla_serve FastAPI GPU server — real inference, lowest latency.",
+    icon: "server",
+    available: true,
+    setupHint: "Point at a running vla_serve instance (docker run ohho/serve:latest, port 8000).",
+  },
+  {
+    id: "webgpu",
+    name: "ONNX Runtime WebGPU",
+    desc: "Run a quantized ONNX policy directly in Chrome — no server, browser-GPU only.",
+    icon: "cpu",
+    available: false,
+    setupHint: "Export your ONNX model from rl_engine, then drop it into the browser. Coming soon.",
+  },
+  {
+    id: "transformers",
+    name: "Transformers.js",
+    desc: "HuggingFace models in the browser via ONNX Runtime — works on CPU/WebGPU.",
+    icon: "sparkles",
+    available: false,
+    setupHint: "Load a SmolVLA or ACT checkpoint from HuggingFace Hub. Requires model download on first visit.",
+  },
+];
+
 export interface ModelSpec {
   id: Backend;
   name: string;
@@ -124,6 +166,10 @@ export interface ServeConfig {
   port: number;
   apiKey: string;
   rateLimit: number;
+  /** Where inference runs. */
+  backendMode: BackendMode;
+  /** Server URL (used when backendMode === "server"). */
+  serverUrl: string;
 }
 
 export const DEFAULT_CONFIG: ServeConfig = {
@@ -136,6 +182,8 @@ export const DEFAULT_CONFIG: ServeConfig = {
   port: 8000,
   apiKey: "",
   rateLimit: 10,
+  backendMode: "server",
+  serverUrl: "http://localhost:8000",
 };
 
 export function getModel(backend: Backend): ModelSpec {

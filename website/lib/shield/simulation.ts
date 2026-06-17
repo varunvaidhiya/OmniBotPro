@@ -23,8 +23,8 @@ export function useSecuritySimulation() {
 
   const rotateKey = useCallback((deviceId: string) => {
     setDevices(prev => prev.map(d => {
-      if (d.id === deviceId && d.status === "rotate_key") {
-        return { ...d, status: "verified", fingerprint: `sha256·${Math.random().toString(16).substr(2, 8)}` };
+      if (d.id === deviceId && (d.status === "rotate_key" || d.status === "untrusted")) {
+        return { ...d, status: "verified", fingerprint: `sha256·${Math.random().toString(16).substr(2, 8)}`, lastSeen: "just now" };
       }
       return d;
     }));
@@ -32,12 +32,28 @@ export function useSecuritySimulation() {
 
   const triggerScan = useCallback(() => {
     setIsScanning(true);
-    setTimeout(() => {
-      // randomly patch a medium CVE
-      setCves(prev => prev.map(c => c.severity === "medium" && c.status === "open" ? { ...c, status: "patched" } : c));
+    const toResolve = cves.filter((c) => c.status === "open");
+    if (toResolve.length === 0) {
       setIsScanning(false);
-    }, 2000);
-  }, []);
+      return;
+    }
+    let resolved = 0;
+    const interval = setInterval(() => {
+      resolved++;
+      setCves((prev) => {
+        const open = prev.filter((c) => c.status === "open");
+        if (open.length === 0) return prev;
+        const target = open[Math.floor(Math.random() * open.length)];
+        return prev.map((c) =>
+          c.id === target.id ? { ...c, status: "patched" as const } : c,
+        );
+      });
+      if (resolved >= toResolve.length) {
+        clearInterval(interval);
+        setIsScanning(false);
+      }
+    }, 400);
+  }, [cves]);
 
   const riskScore = useMemo(() => {
     let score = 100;

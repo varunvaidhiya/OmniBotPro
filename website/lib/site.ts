@@ -12,6 +12,11 @@ export const CONTACT_EMAIL = "hello@ohho.ai";
 export const PRICING_HREF = "/#pricing";
 export const PRODUCTS_HREF = "/#products";
 
+export const DOCS_HREF = "https://docs.ohho.ai";
+export const GITHUB_HREF = "https://github.com/anomalyco/OmniBotPro";
+export const TWITTER_HREF = "https://x.com/ohho_ai";
+export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";
+
 /** mailto: link with a pre-filled subject (used by Get Started / plan CTAs). */
 export function contactMailto(subject: string): string {
   return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;

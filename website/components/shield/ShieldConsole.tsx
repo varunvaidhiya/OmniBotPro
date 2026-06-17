@@ -151,9 +151,9 @@ export default function ShieldConsole() {
                     <td className="py-4 text-right">
                       {d.status === "verified" && <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded"><ShieldCheck size={12} /> VERIFIED</span>}
                       {d.status === "untrusted" && <span className="inline-flex items-center gap-1.5 text-[10px] font-mono text-red-400 bg-red-400/10 px-2 py-1 rounded"><ShieldAlert size={12} /> UNTRUSTED</span>}
-                      {d.status === "rotate_key" && (
+                      {(d.status === "rotate_key" || d.status === "untrusted") && (
                         <button onClick={() => rotateKey(d.id)} className="inline-flex items-center gap-1.5 text-[10px] font-mono text-amber-400 border border-amber-400/30 hover:bg-amber-400/10 px-2 py-1 rounded transition-colors">
-                          <RefreshCw size={10} /> ROTATE KEY
+                          <RefreshCw size={10} /> {d.status === "untrusted" ? "RE-ENROLL" : "ROTATE KEY"}
                         </button>
                       )}
                     </td>

@@ -6,6 +6,8 @@
  * generators for the state plots.
  */
 
+import { useState, useCallback } from "react";
+
 export type EpisodeStatus = "kept" | "discard" | "review";
 
 export interface Episode {
@@ -79,4 +81,50 @@ export const EPISODES: Episode[] = [
 
 export function getEpisode(id: string): Episode {
   return EPISODES.find((e) => e.id === id) ?? EPISODES[0];
+}
+
+export function useEpisodeCatalog() {
+  const [episodes, setEpisodes] = useState<Episode[]>([...EPISODES]);
+
+  const setStatus = useCallback((episodeId: string, status: EpisodeStatus) => {
+    setEpisodes((prev) =>
+      prev.map((ep) => (ep.id === episodeId ? { ...ep, status } : ep)),
+    );
+  }, []);
+
+  return { episodes, setStatus };
+}
+
+export function exportParquet(episode: Episode): void {
+  if (typeof window === "undefined") return;
+  const header = [
+    "# OhhO Data — LeRobot-format dataset export",
+    `# Episode: ${episode.id}`,
+    `# Instruction: ${episode.instruction}`,
+    `# Frames: ${episode.frames}, Duration: ${episode.durationSec.toFixed(1)}s`,
+    `# Status: ${episode.status}`,
+    `# Cameras: ${episode.cameras.join(", ")}`,
+    "",
+    "# Schema: 9-DOF mobile-manipulation (arm ×6 + base ×3)",
+    "# Columns: frame,arm_shoulder_pan,arm_shoulder_lift,arm_elbow_flex,arm_wrist_flex,arm_wrist_roll,arm_gripper,base_vx,base_vy,base_omega",
+    "",
+  ];
+
+  const rows: string[] = [];
+  for (let f = 0; f < episode.frames; f++) {
+    const arm = episode.states.arm[f] ?? episode.states.arm[episode.states.arm.length - 1];
+    const base = episode.states.base[f] ?? episode.states.base[episode.states.base.length - 1];
+    rows.push([f, ...arm.slice(0, 6).map((v) => v.toFixed(4)), ...base.slice(0, 3).map((v) => v.toFixed(4))].join(","));
+  }
+
+  const content = [...header, ...rows].join("\n");
+  const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${episode.id}_export.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

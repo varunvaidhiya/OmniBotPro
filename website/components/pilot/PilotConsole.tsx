@@ -3,11 +3,18 @@
 /*
  * PilotConsole — the OhhO Pilot application shell.
  *
- * A simulated teleoperation cockpit for operating a robot remotely. Three
- * surfaces: robot profile picker + connection (left), live camera view +
- * virtual joystick (centre), and arm joints + telemetry + e-stop (right).
- * Fully client-side; connection is a deterministic simulation — no WebSocket
- * is opened.
+ * A teleoperation cockpit for operating a robot remotely. Three surfaces:
+ * robot profile picker + sim provider + connection (left), live camera view +
+ * virtual joystick (centre), and arm joints + telemetry + e-stop + recording
+ * (right).
+ *
+ * Provider model:
+ *   Free tier:  Simulated (built-in), Gazebo Harmonic (ROSBridge)
+ *   Pro tier:   NVIDIA Isaac Sim, MuJoCo (requires Fleet/Forge plan)
+ *   Enterprise: Isaac Sim 4.0 cloud (requires Forge plan)
+ *
+ * Recording: any connected provider can record episodes to LeRobot-compatible
+ * CSV — building training datasets from simulated or real teleop sessions.
  */
 
 import Link from "next/link";
@@ -16,12 +23,16 @@ import {
   Activity,
   ArrowLeft,
   Check,
+  Circle,
+  Download,
   Gauge,
   Hand,
   Loader2,
   Plug,
   Power,
   Radio,
+  Server,
+  Video,
   Wifi,
   WifiOff,
   Zap,
@@ -36,7 +47,6 @@ import {
 import {
   CONTROL_MODES,
   applyJoystick,
-  createConnectionSim,
   initialTeleopState,
   zeroVelocity,
   type ControlMode,
@@ -50,6 +60,15 @@ import {
 
 import CameraView from "./CameraView";
 import VirtualJoystick from "./VirtualJoystick";
+import PilotThreeScene from "./PilotThreeScene";
+import { SIM_PROVIDERS, tierAccessible, type SimulatorProvider, type SimulatorStatus, type SimProviderMeta, type RecordedEpisode, type ThreeSceneState } from "@/lib/pilot/sim/types";
+import { SimulatedProvider } from "@/lib/pilot/sim/simulated";
+import { ThreePhysicsProvider } from "@/lib/pilot/sim/three-physics";
+import { HybridProvider } from "@/lib/pilot/sim/hybrid";
+import { GazeboProvider } from "@/lib/pilot/sim/gazebo";
+import { IsaacSimProvider } from "@/lib/pilot/sim/isaac";
+import { MuJoCoProvider } from "@/lib/pilot/sim/mujoco";
+import { createRecorder } from "@/lib/pilot/sim/recorder";
 
 const VIOLET = "#A78BFA";
 const VIOLET_DIM = "rgba(124,58,237,0.10)";
@@ -65,10 +84,76 @@ export default function PilotConsole() {
   );
   const [activeCamera, setActiveCamera] = useState("front");
 
+  // ── Sim provider state ──
+  const [providerId, setProviderId] = useState("simulated");
+  const [providerUrl, setProviderUrl] = useState("ws://localhost:9090");
+  const [providerStatus, setProviderStatus] = useState<SimulatorStatus>({
+    connected: false, connecting: false, label: "Offline", latency: 0, fps: 0,
+  });
+
+  // ── Recording state ──
+  const [recording, setRecording] = useState(false);
+  const [lastEpisode, setLastEpisode] = useState<RecordedEpisode | null>(null);
+
   const profile = useMemo(() => getProfile(profileId), [profileId]);
   const scene = useMemo(() => getScene(sceneId), [sceneId]);
   const joints = useMemo(() => jointsForProfile(profile), [profile]);
-  const simRef = useRef(createConnectionSim());
+
+  // ── Sim provider instance (recreated when providerId changes) ──
+  const provider = useMemo((): SimulatorProvider => {
+    switch (providerId) {
+      case "three-physics": return new ThreePhysicsProvider();
+      case "hybrid": return new HybridProvider();
+      case "gazebo": return new GazeboProvider();
+      case "isaac": return new IsaacSimProvider();
+      case "mujoco": return new MuJoCoProvider();
+      default: return new SimulatedProvider();
+    }
+  }, [providerId]);
+
+  const providerMeta = useMemo(() => SIM_PROVIDERS.find((p) => p.id === providerId)!, [providerId]);
+  const tierInfo = useMemo(() => tierAccessible(providerMeta.tier, "Builder"), [providerMeta.tier]);
+
+  // ── Hybrid bridge state ──
+  const [bridgeActive, setBridgeActive] = useState(false);
+  const toggleBridge = useCallback(() => {
+    if (provider instanceof HybridProvider) {
+      provider.toggleBridge(bridgeActive ? undefined : providerUrl);
+      setBridgeActive(!bridgeActive);
+    }
+  }, [provider, providerUrl, bridgeActive]);
+
+  // ── 3-D scene state (for Three.js Physics provider) ──
+  const [scene3d, setScene3d] = useState<ThreeSceneState | null>(null);
+  useEffect(() => {
+    if (!state.connected || providerId !== "three-physics") { setScene3d(null); return; }
+    const iv = setInterval(() => {
+      if (provider.getSceneObjects) setScene3d(provider.getSceneObjects());
+    }, 50);
+    return () => clearInterval(iv);
+  }, [provider, providerId, state.connected]);
+
+  // listen to provider status changes
+  useEffect(() => {
+    const unsub = provider.onStatusChange((s) => setProviderStatus(s));
+    return unsub;
+  }, [provider]);
+
+  // ── Connection sim tick ──
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setState((s) => {
+        if (!s.connected) return s;
+        return {
+          ...s,
+          latency: providerStatus.latency,
+          uptime: s.uptime + 1,
+          msgRate: providerStatus.fps,
+        };
+      });
+    }, 500);
+    return () => clearInterval(iv);
+  }, [providerStatus]);
 
   // Re-initialise state when profile changes
   useEffect(() => {
@@ -76,23 +161,28 @@ export default function PilotConsole() {
     setActiveCamera(profile.cameras[0] ?? "front");
   }, [profile]);
 
-  // Connection sim tick (every 500ms)
-  useEffect(() => {
-    const iv = setInterval(() => {
-      setState((s) => simRef.current.tick(s));
-    }, 500);
-    return () => clearInterval(iv);
-  }, []);
-
   // ── Connect / disconnect ──
-  const connect = useCallback(() => {
+  const connect = useCallback(async () => {
     setState((s) => ({ ...s, connecting: true }));
-    setTimeout(() => {
-      setState((s) => ({ ...s, connecting: false, connected: true }));
-    }, 800 + Math.random() * 400);
-  }, []);
+    try {
+      const status = await provider.connect(providerUrl);
+      if (status.connected || providerId === "simulated") {
+        setState((s) => ({ ...s, connecting: false, connected: true }));
+      } else {
+        setState((s) => ({ ...s, connecting: false, connected: false }));
+      }
+      setProviderStatus(status);
+    } catch {
+      setState((s) => ({ ...s, connecting: false, connected: false }));
+    }
+  }, [provider, providerUrl, providerId]);
 
   const disconnect = useCallback(() => {
+    provider.disconnect();
+    if (recording) {
+      provider.stopRecording();
+      setRecording(false);
+    }
     setState((s) => ({
       ...s,
       connected: false,
@@ -102,16 +192,39 @@ export default function PilotConsole() {
       uptime: 0,
       msgRate: 0,
     }));
-  }, []);
+  }, [provider, recording]);
 
   // ── E-stop ──
   const toggleEStop = useCallback(() => {
-    setState((s) => ({
-      ...s,
-      eStop: !s.eStop,
-      vel: !s.eStop ? zeroVelocity() : s.vel,
-    }));
-  }, []);
+    setState((s) => {
+      const nextEStop = !s.eStop;
+      if (nextEStop) provider.emergencyStop();
+      else provider.releaseStop();
+      return {
+        ...s,
+        eStop: nextEStop,
+        vel: nextEStop ? zeroVelocity() : s.vel,
+      };
+    });
+  }, [provider]);
+
+  // ── Recording ──
+  const toggleRecording = useCallback(() => {
+    if (recording) {
+      const ep = provider.stopRecording();
+      if (ep) setLastEpisode(ep);
+      setRecording(false);
+    } else {
+      provider.startRecording("pilot teleop episode");
+      setRecording(true);
+      setLastEpisode(null);
+    }
+  }, [provider, recording]);
+
+  const downloadEpisode = useCallback(() => {
+    if (!lastEpisode) return;
+    provider.downloadLastEpisode();
+  }, [provider, lastEpisode]);
 
   // ── Joystick ──
   const onJoystickMove = useCallback(
@@ -169,11 +282,11 @@ export default function PilotConsole() {
           style={{ background: "var(--border-med)" }}
         />
 
-        <span
+          <span
           className="text-[12.5px] font-mono truncate"
           style={{ color: "var(--muted)" }}
         >
-          ws://robot:9090
+          {providerMeta.name}
         </span>
 
         <span className="ml-auto flex items-center gap-2">
@@ -231,6 +344,19 @@ export default function PilotConsole() {
           connecting={state.connecting}
           onConnect={connect}
           onDisconnect={disconnect}
+          providerId={providerId}
+          providerMeta={providerMeta}
+          onProviderId={setProviderId}
+          providerUrl={providerUrl}
+          onProviderUrl={setProviderUrl}
+          providerStatus={providerStatus}
+          recording={recording}
+          onToggleRecording={toggleRecording}
+          lastEpisode={lastEpisode}
+          onDownloadEpisode={downloadEpisode}
+          tierInfo={tierInfo}
+          bridgeActive={bridgeActive}
+          onToggleBridge={toggleBridge}
         />
 
         {/* CENTER — Camera + joystick */}
@@ -272,12 +398,18 @@ export default function PilotConsole() {
 
           {/* Camera view */}
           <div className="relative flex-1 min-h-[240px] lg:min-h-0 p-3">
-            <CameraView
-              scene={scene}
-              activeCamera={activeCamera}
-              connected={state.connected}
-              eStop={state.eStop}
-            />
+            {providerId === "three-physics" && scene3d ? (
+              <div className="rounded-xl overflow-hidden" style={{ width: "100%", height: "100%" }}>
+                <PilotThreeScene sceneState={scene3d} width={560} height={320} />
+              </div>
+            ) : (
+              <CameraView
+                scene={scene}
+                activeCamera={activeCamera}
+                connected={state.connected}
+                eStop={state.eStop}
+              />
+            )}
           </div>
 
           {/* Joystick + velocity strip */}
@@ -418,6 +550,19 @@ function ProfilePanel({
   connecting,
   onConnect,
   onDisconnect,
+  providerId,
+  providerMeta,
+  onProviderId,
+  providerUrl,
+  onProviderUrl,
+  providerStatus,
+  recording,
+  onToggleRecording,
+  lastEpisode,
+  onDownloadEpisode,
+  tierInfo,
+  bridgeActive,
+  onToggleBridge,
 }: {
   profileId: string;
   onProfile: (id: string) => void;
@@ -429,6 +574,19 @@ function ProfilePanel({
   connecting: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
+  providerId: string;
+  providerMeta: SimProviderMeta;
+  onProviderId: (id: string) => void;
+  providerUrl: string;
+  onProviderUrl: (url: string) => void;
+  providerStatus: SimulatorStatus;
+  recording: boolean;
+  onToggleRecording: () => void;
+  lastEpisode: RecordedEpisode | null;
+  onDownloadEpisode: () => void;
+  tierInfo: { allowed: boolean; badge: string; upgradeMessage?: string };
+  bridgeActive: boolean;
+  onToggleBridge: () => void;
 }) {
   return (
     <aside
@@ -438,6 +596,178 @@ function ProfilePanel({
         maxHeight: "calc(100vh - 56px)",
       }}
     >
+      {/* Sim provider picker */}
+      <SectionHead icon={<Server size={15} />} title="Simulation provider" />
+      <div className="px-3 flex flex-col gap-1.5">
+        {SIM_PROVIDERS.map((p) => {
+          const on = providerId === p.id;
+          const ti = tierAccessible(p.tier, "Builder");
+          const dimmed = !p.available || !ti.allowed;
+          const tierColor = p.tier === "free" ? GREEN : p.tier === "pro" ? AMBER : "#A78BFA";
+          return (
+            <button
+              key={p.id}
+              onClick={() => {
+                if (dimmed) return;
+                if (connected) onDisconnect();
+                onProviderId(p.id);
+              }}
+              disabled={dimmed}
+              className="text-left p-2.5 rounded-xl transition-all disabled:opacity-45 disabled:cursor-not-allowed"
+              style={{
+                background: on ? "var(--violet-dim)" : "rgba(255,255,255,.02)",
+                border: `1px solid ${on ? "rgba(124,58,237,.4)" : "var(--border)"}`,
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[12.5px] font-semibold font-display flex-1">
+                  {p.name}
+                </span>
+                <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: `${tierColor}22`, color: tierColor }}>
+                  {ti.badge}
+                </span>
+                {on && (
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: VIOLET }} />
+                )}
+              </div>
+              <p className="text-[10.5px] leading-[1.45] mt-1" style={{ color: "var(--muted)" }}>
+                {p.desc}
+              </p>
+              {!ti.allowed && (
+                <p className="text-[10px] mt-1" style={{ color: AMBER }}>
+                  {ti.upgradeMessage}
+                </p>
+              )}
+              {!p.available && ti.allowed && (
+                <p className="text-[10px] mt-1" style={{ color: AMBER }}>
+                  Coming soon — {p.setupHint}
+                </p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Provider URL + Bridge toggle (server-based or hybrid providers) */}
+      {providerMeta.requiresServer && (
+        <div className="px-3 pt-3">
+          <div className="text-[10px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--faint)" }}>Connection URL</div>
+          <input
+            value={providerUrl}
+            onChange={(e) => onProviderUrl(e.target.value)}
+            className="w-full bg-transparent text-[11.5px] font-mono px-2 py-2 rounded-lg outline-none focus:border-violet"
+            style={{ border: "1px solid var(--border)", color: "#fff" }}
+          />
+        </div>
+      )}
+
+      {/* Hybrid bridge toggle */}
+      {providerId === "hybrid" && connected && (
+        <div className="px-3 pt-2">
+          <div className="text-[10px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--faint)" }}>Bridge to real robot</div>
+          <div className="flex gap-1.5">
+            <input
+              value={providerUrl}
+              onChange={(e) => onProviderUrl(e.target.value)}
+              placeholder="ws://robot:9090"
+              className="flex-1 bg-transparent text-[11px] font-mono px-2 py-2 rounded-lg outline-none focus:border-violet disabled:opacity-40"
+              style={{ border: "1px solid var(--border)", color: "#fff" }}
+              disabled={bridgeActive}
+            />
+            <button
+              onClick={onToggleBridge}
+              className="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-2 rounded-lg transition-all"
+              style={{
+                background: bridgeActive ? "rgba(52,211,153,.16)" : VIOLET,
+                color: bridgeActive ? GREEN : "var(--bg)",
+                border: bridgeActive ? `1px solid ${GREEN}66` : "none",
+              }}
+            >
+              {bridgeActive ? "Disconnect" : "Bridge"}
+            </button>
+          </div>
+          {bridgeActive && (
+            <p className="text-[10px] mt-1" style={{ color: GREEN }}>
+              Bridging messages to {providerUrl} — real robot state overrides simulated.
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Status line */}
+      {providerMeta.requiresServer && providerStatus.error && (
+        <p className="px-3 pt-1 text-[10.5px] leading-[1.4]" style={{ color: RED }}>
+          {providerStatus.error}
+        </p>
+      )}
+
+      {/* Connect button */}
+      <div className="px-3 py-3">
+        <button
+          onClick={connected ? onDisconnect : onConnect}
+          disabled={connecting || (!tierInfo.allowed && providerId !== "simulated")}
+          className="w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-px"
+          style={{
+            background: connected
+              ? "rgba(52,211,153,.16)"
+              : VIOLET,
+            color: connected ? GREEN : "var(--bg)",
+            border: connected
+              ? `1px solid ${GREEN}66`
+              : "none",
+          }}
+        >
+          {connecting ? (
+            <Loader2 size={14} className="animate-spin" />
+          ) : connected ? (
+            <Check size={14} />
+          ) : (
+            <Plug size={14} />
+          )}
+          {connecting
+            ? "Connecting…"
+            : connected
+              ? "Connected · Disconnect"
+              : "Connect"}
+        </button>
+      </div>
+
+      {/* Recording controls */}
+      {connected && (
+        <div className="border-t" style={{ borderColor: "var(--border)" }}>
+          <SectionHead icon={<Video size={15} />} title="Recording" hint={recording ? "● REC" : undefined} />
+          <div className="px-3 pb-3 flex flex-col gap-2">
+            <button
+              onClick={onToggleRecording}
+              className="w-full inline-flex items-center justify-center gap-2 text-[12px] font-semibold py-2 rounded-lg transition-all hover:-translate-y-px"
+              style={{
+                background: recording ? "rgba(248,113,113,0.18)" : "rgba(52,211,153,0.12)",
+                color: recording ? RED : GREEN,
+                border: `1px solid ${recording ? RED + "55" : GREEN + "55"}`,
+              }}
+            >
+              <Circle size={10} fill={recording ? RED : "transparent"} />
+              {recording ? "Stop Recording" : "Start Recording"}
+            </button>
+            {recording && (
+              <p className="text-[10px] text-center" style={{ color: RED }}>
+                Recording episode data for training…
+              </p>
+            )}
+            {lastEpisode && !recording && (
+              <button
+                onClick={onDownloadEpisode}
+                className="w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-medium py-2 rounded-lg transition-all hover:bg-white/5"
+                style={{ color: GREEN, border: `1px solid ${GREEN}44` }}
+              >
+                <Download size={12} />
+                Download {lastEpisode.id} ({lastEpisode.frameCount} frames)
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Robot profiles */}
       <SectionHead icon={<Radio size={15} />} title="Robot profile" />
       <div className="px-3 flex flex-col gap-2">
@@ -539,37 +869,6 @@ function ProfilePanel({
           );
         })}
       </div>
-
-      {/* Connect button */}
-      <div className="px-3 py-4 mt-auto">
-        <button
-          onClick={connected ? onDisconnect : onConnect}
-          disabled={connecting}
-          className="w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-px"
-          style={{
-            background: connected
-              ? "rgba(52,211,153,.16)"
-              : VIOLET,
-            color: connected ? GREEN : "var(--bg)",
-            border: connected
-              ? `1px solid ${GREEN}66`
-              : "none",
-          }}
-        >
-          {connecting ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : connected ? (
-            <Check size={14} />
-          ) : (
-            <Plug size={14} />
-          )}
-          {connecting
-            ? "Connecting…"
-            : connected
-              ? "Connected · Disconnect"
-              : "Connect"}
-        </button>
-      </div>
     </aside>
   );
 }
@@ -637,6 +936,16 @@ function ArmPanel({
         title="Arm · joint targets"
         hint={`${joints.length}-DOF`}
       />
+      {!connected && (
+        <p className="px-4 pb-2 text-[11px] flex items-center gap-1.5" style={{ color: "rgba(248,113,113,0.6)" }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: RED }} /> Connect to enable arm control
+        </p>
+      )}
+      {connected && eStop && (
+        <p className="px-4 pb-2 text-[11px] flex items-center gap-1.5" style={{ color: RED }}>
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: RED }} /> Release E-STOP to move arm
+        </p>
+      )}
       <div className="px-4 pb-4 flex flex-col gap-3">
         {joints.map((j, i) => {
           const val = positions[i] ?? j.home;

@@ -21,9 +21,10 @@ import {
   ListVideo,
   UploadCloud,
   XCircle,
+  Loader2,
 } from "lucide-react";
 
-import { EPISODES, getEpisode, type Episode, type EpisodeStatus } from "@/lib/data/episodes";
+import { EPISODES, getEpisode, useEpisodeCatalog, exportParquet, type Episode, type EpisodeStatus } from "@/lib/data/episodes";
 import { usePlayback } from "@/lib/data/playback";
 import CameraFeed from "./CameraFeed";
 import EpisodeTimeline from "./EpisodeTimeline";
@@ -38,14 +39,31 @@ export default function DataConsole() {
   const [activeEpisodeId, setActiveEpisodeId] = useState(EPISODES[0].id);
   const [filter, setFilter] = useState<EpisodeStatus | "all">("all");
   const [activeCamera, setActiveCamera] = useState("wrist");
+  const [pushing, setPushing] = useState(false);
+  const [pushDone, setPushDone] = useState(false);
 
-  const episode = useMemo(() => getEpisode(activeEpisodeId), [activeEpisodeId]);
+  const { episodes: mutableEpisodes, setStatus } = useEpisodeCatalog();
+
+  const episode = useMemo(() => {
+    const ep = mutableEpisodes.find((e) => e.id === activeEpisodeId) ?? mutableEpisodes[0];
+    return ep;
+  }, [mutableEpisodes, activeEpisodeId]);
   const playback = usePlayback(episode);
 
   const filteredEpisodes = useMemo(() => {
-    if (filter === "all") return EPISODES;
-    return EPISODES.filter((e) => e.status === filter);
-  }, [filter]);
+    if (filter === "all") return mutableEpisodes;
+    return mutableEpisodes.filter((e) => e.status === filter);
+  }, [mutableEpisodes, filter]);
+
+  const handlePushToHF = () => {
+    setPushing(true);
+    setPushDone(false);
+    setTimeout(() => {
+      setPushing(false);
+      setPushDone(true);
+      setTimeout(() => setPushDone(false), 3000);
+    }, 1500);
+  };
 
   return (
     <div className="min-h-screen relative" style={{ background: "var(--bg)" }}>
@@ -148,7 +166,7 @@ export default function DataConsole() {
         {/* RIGHT — Telemetry & Actions */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
           <TelemetryPanel episode={episode} frame={playback.frame} />
-          <ActionsPanel episode={episode} />
+          <ActionsPanel episode={episode} onSetStatus={(s) => setStatus(episode.id, s)} pushing={pushing} pushDone={pushDone} onPushToHF={handlePushToHF} />
         </aside>
       </div>
     </div>
@@ -321,7 +339,19 @@ function TelemetryPanel({ episode, frame }: { episode: Episode; frame: number })
 
 // ── Right panel: Actions ────────────────────────────────────────────────────
 
-function ActionsPanel({ episode }: { episode: Episode }) {
+function ActionsPanel({
+  episode,
+  onSetStatus,
+  pushing,
+  pushDone,
+  onPushToHF,
+}: {
+  episode: Episode;
+  onSetStatus: (status: EpisodeStatus) => void;
+  pushing: boolean;
+  pushDone: boolean;
+  onPushToHF: () => void;
+}) {
   const statusColor = episode.status === "kept" ? GREEN : episode.status === "discard" ? RED : AMBER;
   const StatusIcon = episode.status === "kept" ? CheckCircle2 : episode.status === "discard" ? XCircle : Eye;
 
@@ -336,24 +366,41 @@ function ActionsPanel({ episode }: { episode: Episode }) {
       </div>
 
       <div className="grid grid-cols-2 gap-2 mt-2">
-        <button className="flex flex-col items-center justify-center py-3 rounded-lg border transition-colors hover:bg-white/5" style={{ borderColor: "var(--border)" }}>
+        <button
+          onClick={() => onSetStatus("kept")}
+          className="flex flex-col items-center justify-center py-3 rounded-lg border transition-all hover:bg-white/5 hover:border-green-400/30"
+          style={{ borderColor: episode.status === "kept" ? "rgba(52,211,153,0.5)" : "var(--border)" }}
+        >
           <CheckCircle2 size={16} className="mb-1" color={GREEN} />
-          <span className="text-[10px] font-mono text-gray-400">Mark Kept</span>
+          <span className="text-[10px] font-mono" style={{ color: episode.status === "kept" ? GREEN : "var(--muted)" }}>Mark Kept</span>
         </button>
-        <button className="flex flex-col items-center justify-center py-3 rounded-lg border transition-colors hover:bg-white/5" style={{ borderColor: "var(--border)" }}>
+        <button
+          onClick={() => onSetStatus("discard")}
+          className="flex flex-col items-center justify-center py-3 rounded-lg border transition-all hover:bg-white/5 hover:border-red-400/30"
+          style={{ borderColor: episode.status === "discard" ? "rgba(248,113,113,0.5)" : "var(--border)" }}
+        >
           <XCircle size={16} className="mb-1" color={RED} />
-          <span className="text-[10px] font-mono text-gray-400">Mark Discard</span>
+          <span className="text-[10px] font-mono" style={{ color: episode.status === "discard" ? RED : "var(--muted)" }}>Mark Discard</span>
         </button>
       </div>
 
-      <button className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all hover:-translate-y-px" style={{ background: CYAN, color: "var(--bg)" }}>
-        <UploadCloud size={14} />
-        Push to Hugging Face
+      <button
+        onClick={onPushToHF}
+        disabled={pushing || pushDone}
+        className="mt-4 w-full inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all hover:-translate-y-px disabled:opacity-70"
+        style={{ background: pushDone ? "rgba(52,211,153,0.16)" : CYAN, color: pushDone ? GREEN : "var(--bg)" }}
+      >
+        {pushing ? <Loader2 size={14} className="animate-spin" /> : pushDone ? <CheckCircle2 size={14} /> : <UploadCloud size={14} />}
+        {pushing ? "Pushing..." : pushDone ? "Pushed to HF!" : "Push to Hugging Face"}
       </button>
 
-      <button className="mt-1 w-full inline-flex items-center justify-center gap-2 text-[12px] font-medium py-2 rounded-lg transition-all hover:bg-white/5" style={{ color: "var(--muted)" }}>
+      <button
+        onClick={() => exportParquet(episode)}
+        className="mt-1 w-full inline-flex items-center justify-center gap-2 text-[12px] font-medium py-2 rounded-lg transition-all hover:bg-white/5"
+        style={{ color: "var(--muted)" }}
+      >
         <FileCode2 size={13} />
-        Export Parquet
+        Export Parquet (.csv)
       </button>
     </div>
   );

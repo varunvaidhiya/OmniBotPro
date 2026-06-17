@@ -2,7 +2,7 @@
  * Mock process manager for OhhO Frame.
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export interface Process {
   id: string;
@@ -12,6 +12,8 @@ export interface Process {
   ram: number;
   uptime: string;
 }
+
+const STORAGE_KEY = "ohho.frame.processes";
 
 const INITIAL_PROCESSES: Process[] = [
   { id: "p1", name: "omnivla_node", status: "running", cpu: 45.2, ram: 2048, uptime: "4h 12m" },
@@ -23,8 +25,38 @@ const INITIAL_PROCESSES: Process[] = [
   { id: "p7", name: "teleop_recorder", status: "failed", cpu: 0, ram: 0, uptime: "-" },
 ];
 
+function loadPersisted(): Process[] {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return INITIAL_PROCESSES;
+    const parsed = JSON.parse(raw) as Process[];
+    if (!Array.isArray(parsed) || parsed.length === 0) return INITIAL_PROCESSES;
+    return parsed;
+  } catch {
+    return INITIAL_PROCESSES;
+  }
+}
+
+function persist(processes: Process[]): void {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(processes));
+  } catch {
+    /* storage unavailable — non-fatal */
+  }
+}
+
 export function useProcessManager() {
   const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setProcesses(loadPersisted());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (hydrated) persist(processes);
+  }, [processes, hydrated]);
 
   const toggleProcess = useCallback((id: string) => {
     setProcesses(prev => prev.map(p => {

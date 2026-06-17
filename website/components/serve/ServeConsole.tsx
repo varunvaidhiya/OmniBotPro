@@ -32,13 +32,15 @@ import {
   DEFAULT_CONFIG,
   GPUS,
   MODELS,
+  BACKEND_MODES,
   effectiveQuant,
   estimate,
   getModel,
   type Backend,
+  type BackendMode,
   type ServeConfig,
 } from "@/lib/serve/models";
-import { SCENES, actionLabels, getScene, predict, type PredictResult } from "@/lib/serve/inference";
+import { SCENES, actionLabels, getScene, predictWithMeta, type PredictResult, type PredictMeta } from "@/lib/serve/inference";
 import { MetricsSim, type MetricsSnapshot } from "@/lib/serve/metrics";
 import { snippets } from "@/lib/serve/client";
 
@@ -52,6 +54,7 @@ interface LogEntry {
   scene: string;
   instruction: string;
   result: PredictResult;
+  source: string;
   ok: boolean;
 }
 
@@ -90,7 +93,7 @@ export default function ServeConsole() {
     setSnap(sim.current?.snapshot() ?? null);
   }, [config, loaded]);
 
-  // ── config helpers (model-affecting changes require a reload) ──
+  // ── config helpers ──
   const patch = useCallback((p: Partial<ServeConfig>, requiresReload = false) => {
     setConfig((c) => ({ ...c, ...p }));
     if (requiresReload) setLoaded(false);
@@ -99,6 +102,11 @@ export default function ServeConsole() {
   const chooseBackend = (b: Backend) => {
     const m = getModel(b);
     setConfig((c) => ({ ...c, backend: b, checkpoint: m.checkpoint, quant4bit: c.quant4bit && m.supports4bit }));
+    setLoaded(false);
+  };
+
+  const chooseBackendMode = (mode: BackendMode) => {
+    setConfig((c) => ({ ...c, backendMode: mode }));
     setLoaded(false);
   };
 
@@ -113,17 +121,20 @@ export default function ServeConsole() {
     }, ms);
   };
 
-  const sendPredict = () => {
+  const sendPredict = async () => {
     if (!loaded || predicting || !instruction.trim()) return;
     setPredicting(true);
-    const result = predict(config, { sceneId, instruction });
-    const wait = Math.min(1600, Math.max(120, result.latency_ms));
-    setTimeout(() => {
+    try {
+      const meta: PredictMeta = await predictWithMeta(config, { sceneId, instruction });
+      const { result, source } = meta;
       sim.current?.record(result.latency_ms);
       setSnap(sim.current?.snapshot() ?? null);
-      setLog((l) => [{ id: logId.current++, scene: sceneId, instruction, result, ok: true }, ...l].slice(0, 8));
+      setLog((l) => [{ id: logId.current++, scene: sceneId, instruction, result, source, ok: true }, ...l].slice(0, 8));
+    } catch {
+      setLog((l) => [{ id: logId.current++, scene: sceneId, instruction, result: { action: { vector: [] }, raw_output: "error", latency_ms: 0 }, source: "error", ok: false }, ...l].slice(0, 8));
+    } finally {
       setPredicting(false);
-    }, wait);
+    }
   };
 
   const latest = log[0];
@@ -137,12 +148,12 @@ export default function ServeConsole() {
         className="sticky top-0 z-30 flex items-center gap-3 px-4 md:px-6 h-[56px] border-b"
         style={{ background: "rgba(10,14,26,.86)", backdropFilter: "blur(18px)", borderColor: "var(--border)" }}
       >
-        <Link href="/products/serve" className="inline-flex items-center gap-2 text-[12px] font-mono tracking-wider uppercase shrink-0" style={{ color: CYAN }}>
+          <Link href="/products/serve" className="inline-flex items-center gap-2 text-[12px] font-mono tracking-wider uppercase shrink-0" style={{ color: CYAN }}>
           <ArrowLeft size={14} /> <span className="hidden sm:inline">OhhO Serve</span>
         </Link>
         <div className="h-5 w-px mx-1" style={{ background: "var(--border-med)" }} />
         <span className="text-[12.5px] font-mono truncate" style={{ color: "var(--muted)" }}>
-          http://localhost:{config.port}
+          {config.backendMode === "server" ? config.serverUrl : config.backendMode === "webgpu" ? "ONNX · WebGPU" : "Transformers.js"}
         </span>
         <span className="ml-auto flex items-center gap-2">
           <HealthPill loaded={loaded} />
@@ -162,6 +173,7 @@ export default function ServeConsole() {
           loaded={loaded}
           loading={loading}
           onBackend={chooseBackend}
+          onBackendMode={chooseBackendMode}
           onPatch={patch}
           onLoad={loadModel}
         />
@@ -208,7 +220,10 @@ export default function ServeConsole() {
                 <div className="flex flex-col gap-1">
                   {log.map((e) => (
                     <div key={e.id} className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-[11.5px]" style={{ background: "rgba(255,255,255,.02)", border: "1px solid var(--border)" }}>
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: GREEN }} />
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: e.source === "simulated" ? AMBER : GREEN }} />
+                      <span className="font-mono shrink-0 text-[10px] px-1 py-0.5 rounded" style={{ background: e.source === "server" ? "rgba(52,211,153,.12)" : "rgba(251,191,36,.12)", color: e.source === "server" ? GREEN : AMBER }}>
+                        {e.source}
+                      </span>
                       <span className="font-mono shrink-0" style={{ color: GREEN }}>200</span>
                       <span className="truncate flex-1" style={{ color: "var(--muted)" }}>{e.instruction}</span>
                       <span className="font-mono tabular-nums shrink-0" style={{ color: "var(--faint)" }}>{e.result.latency_ms} ms</span>
@@ -236,6 +251,7 @@ function ConfigPanel({
   loaded,
   loading,
   onBackend,
+  onBackendMode,
   onPatch,
   onLoad,
 }: {
@@ -245,12 +261,101 @@ function ConfigPanel({
   loaded: boolean;
   loading: boolean;
   onBackend: (b: Backend) => void;
+  onBackendMode: (m: BackendMode) => void;
   onPatch: (p: Partial<ServeConfig>, requiresReload?: boolean) => void;
   onLoad: () => void;
 }) {
   const quantOn = effectiveQuant(config);
   return (
     <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+      {/* Backend mode picker */}
+      <SectionHead icon={<Zap size={15} />} title="Inference runtime" />
+      <div className="px-3 flex flex-col gap-2">
+        {BACKEND_MODES.map((m) => {
+          const on = config.backendMode === m.id;
+          const dimmed = !m.available;
+          return (
+            <button
+              key={m.id}
+              onClick={() => m.available && onBackendMode(m.id)}
+              disabled={dimmed}
+              className="text-left p-2.5 rounded-xl transition-all disabled:opacity-45 disabled:cursor-not-allowed"
+              style={{
+                background: on ? "var(--cyan-dim)" : "rgba(255,255,255,.02)",
+                border: `1px solid ${on ? "rgba(0,212,255,.4)" : "var(--border)"}`,
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-[13px] font-semibold font-display flex-1">
+                  {m.name}
+                </span>
+                {!m.available && (
+                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded" style={{ background: "rgba(251,191,36,.12)", color: AMBER }}>
+                    coming soon
+                  </span>
+                )}
+                {on && (
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: CYAN }} />
+                )}
+              </div>
+              <p className="text-[11px] leading-[1.45] mt-1" style={{ color: "var(--muted)" }}>
+                {m.desc}
+              </p>
+              {!m.available && (
+                <p className="text-[10.5px] leading-[1.45] mt-1" style={{ color: AMBER }}>
+                  {m.setupHint}
+                </p>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Server URL (visible only in server mode) */}
+      {config.backendMode === "server" && (
+        <>
+          <SectionHead icon={<Server size={15} />} title="Server endpoint" />
+          <div className="px-4 pb-2">
+            <Field label="Server URL (VLA_SERVE_URL)">
+              <input
+                value={config.serverUrl}
+                onChange={(e) => onPatch({ serverUrl: e.target.value })}
+                className="w-full bg-transparent text-[12px] font-mono px-2.5 py-2 rounded-lg outline-none focus:border-cyan"
+                style={{ border: "1px solid var(--border-med)", color: "#fff" }}
+              />
+            </Field>
+            <button
+              onClick={() => {
+                const url = config.serverUrl.replace(/\/+$/, "");
+                fetch(`${url}/health`, { signal: AbortSignal.timeout(5000) })
+                  .then(async (r) => {
+                    if (r.ok) {
+                      try {
+                        const data = await r.json();
+                        return `vla_serve ok · ${data.model_loaded ? "model loaded" : "no model"} · ${url}`;
+                      } catch { return `vla_serve ok · ${url}`; }
+                    }
+                    return `HTTP ${r.status} · ${url}`;
+                  })
+                  .then((msg) => {
+                    alert(`Health check: ${msg}`);
+                  })
+                  .catch((err) => {
+                    alert(`Unreachable — ${err instanceof Error ? err.message : String(err)}\n\nStart vla_serve:\ndocker run --gpus all -p 8000:8000 ohho/serve:latest`);
+                  });
+              }}
+              className="w-full mt-2 inline-flex items-center justify-center gap-1.5 text-[11px] font-medium py-2 rounded-lg transition-all hover:bg-white/[0.06]"
+              style={{ border: "1px solid var(--border)", color: "var(--muted)" }}
+            >
+              Test /health endpoint
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Model backend (only for server mode) */}
+      {config.backendMode === "server" && (
+      <>
       <SectionHead icon={<Server size={15} />} title="Model backend" />
       <div className="px-3 flex flex-col gap-2">
         {MODELS.map((m) => {
@@ -323,7 +428,7 @@ function ConfigPanel({
           {loading ? "Loading model…" : loaded ? "Model loaded" : "POST /load_model"}
         </button>
       </div>
-
+      </>)}
       <ClientCode config={config} />
     </aside>
   );

@@ -9,6 +9,7 @@
  */
 
 import { estimate, getModel, type ServeConfig } from "./models";
+import { predictServer, predictWebGPU, predictTransformers } from "./backend";
 
 // ── Camera scenes the user can "point the robot at" ──────────────────────────
 
@@ -180,7 +181,57 @@ export interface PredictResult {
   latency_ms: number;
 }
 
+/** Result from a real backend call, or null if it fell back to simulation. */
+import type { ServerPredictResponse } from "./backend";
+
+export interface PredictMeta {
+  result: PredictResult;
+  /** "server" | "webgpu" | "transformers" | "simulated" */
+  source: "server" | "webgpu" | "transformers" | "simulated";
+  /** The raw server response if source === "server". */
+  serverResponse?: ServerPredictResponse;
+  /** Error message if the real backend failed (fell back to sim). */
+  error?: string;
+}
+
+/**
+ * Try the real backend first; fall back to deterministic simulation on failure.
+ * Returns both the result and metadata about which backend produced it.
+ */
+export async function predictWithMeta(
+  config: ServeConfig,
+  req: PredictRequest,
+): Promise<PredictMeta> {
+  // ── try real backend ──
+  try {
+    if (config.backendMode === "server") {
+      const result = await predictServer(config, req);
+      return { result, source: "server" };
+    }
+    if (config.backendMode === "webgpu") {
+      const result = await predictWebGPU(config, req);
+      return { result, source: "webgpu" };
+    }
+    if (config.backendMode === "transformers") {
+      const result = await predictTransformers(config, req);
+      return { result, source: "transformers" };
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.warn(`[OhhO Serve] ${config.backendMode} backend failed:`, msg);
+    // fall through to simulation
+  }
+
+  // ── deterministic simulation (always works) ──
+  return { result: simulatePredict(config, req), source: "simulated" };
+}
+
+/** Deterministic simulated inference — original behaviour. */
 export function predict(config: ServeConfig, req: PredictRequest): PredictResult {
+  return simulatePredict(config, req);
+}
+
+function simulatePredict(config: ServeConfig, req: PredictRequest): PredictResult {
   const model = getModel(config.backend);
   const intent = parseIntent(req.instruction);
   const rng = mulberry32(hash(`${req.sceneId}|${req.instruction}|${config.backend}|${config.quant4bit}`));

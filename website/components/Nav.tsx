@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF } from "@/lib/site";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -10,6 +11,20 @@ export default function Nav() {
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
+
+  const navHref = (link: string): string => {
+    switch (link) {
+      case "Products": return PRODUCTS_HREF;
+      case "Pricing": return PRICING_HREF;
+      case "How it Works": return "/#how";
+      case "Docs": return DOCS_HREF;
+      case "GitHub": return GITHUB_HREF;
+      case "About": return "/about";
+      case "Team": return "/team";
+      case "News": return "/news/omnivla-engine";
+      default: return "#";
+    }
+  };
 
   return (
     <nav
@@ -36,7 +51,9 @@ export default function Nav() {
         {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"].map((link) => (
           <a
             key={link}
-            href={link === "Products" ? "/#products" : link === "Pricing" ? "/#pricing" : link === "How it Works" ? "/#how" : link === "About" ? "/about" : link === "Team" ? "/team" : link === "News" ? "/news/omnivla-engine" : "#"}
+            href={navHref(link)}
+            target={link === "Docs" || link === "GitHub" ? "_blank" : undefined}
+            rel={link === "Docs" || link === "GitHub" ? "noopener noreferrer" : undefined}
             className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
             style={{ color: "rgba(255,255,255,0.52)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}

@@ -22,7 +22,7 @@ import {
   DownloadCloud,
 } from "lucide-react";
 
-import { useCompliance, type Standard } from "@/lib/comply/standards";
+import { useCompliance, downloadText, type Standard } from "@/lib/comply/standards";
 
 const VIOLET = "#A78BFA";
 const VIOLET_DIM = "rgba(167,139,250,0.15)";
@@ -30,7 +30,7 @@ const GREEN = "#34D399";
 const AMBER = "#FBBF24";
 
 export default function ComplyConsole() {
-  const { standards, stats, toggleRequirementStatus } = useCompliance();
+  const { standards, stats, toggleRequirementStatus, generateDocument } = useCompliance();
   const [activeStandardId, setActiveStandardId] = useState<string>(standards[0].id);
 
   const activeStandard = standards.find(s => s.id === activeStandardId) as Standard;
@@ -188,21 +188,33 @@ export default function ComplyConsole() {
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>Documents</h2>
             <div className="flex flex-col gap-2">
-              <button className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors" style={{ borderColor: "var(--border)" }}>
+              <button
+                onClick={() => downloadText("technical_file.md", generateDocument("technicalFile"))}
+                className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors cursor-pointer"
+                style={{ borderColor: "var(--border)" }}
+              >
                 <div className="flex items-center gap-2">
                   <FileText size={14} color={GREEN} />
                   <span className="text-[12px] font-medium text-gray-300">Technical File</span>
                 </div>
                 <DownloadCloud size={14} color="var(--muted)" />
               </button>
-              <button className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors" style={{ borderColor: "var(--border)" }}>
+              <button
+                onClick={() => downloadText("risk_assessment.md", generateDocument("riskAssessment"))}
+                className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors cursor-pointer"
+                style={{ borderColor: "var(--border)" }}
+              >
                 <div className="flex items-center gap-2">
                   <FileText size={14} color={GREEN} />
                   <span className="text-[12px] font-medium text-gray-300">Risk Assessment</span>
                 </div>
                 <DownloadCloud size={14} color="var(--muted)" />
               </button>
-              <button className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors" style={{ borderColor: "var(--border)", opacity: stats.percentage === 1 ? 1 : 0.5 }}>
+              <button
+                onClick={() => downloadText("declaration_of_conformity.md", generateDocument("declarationOfConformity"))}
+                className="flex items-center justify-between p-3 rounded-lg border hover:bg-white/5 transition-colors cursor-pointer"
+                style={{ borderColor: "var(--border)", opacity: stats.percentage === 1 ? 1 : 0.5 }}
+              >
                 <div className="flex items-center gap-2">
                   <FileCheck size={14} color={stats.percentage === 1 ? GREEN : AMBER} />
                   <span className="text-[12px] font-medium text-gray-300">Declaration of Conformity</span>

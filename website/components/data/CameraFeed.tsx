@@ -109,7 +109,7 @@ export default function CameraFeed({ episode, frame, activeCamera }: Props) {
         <rect x={-20} y={-24} width={40} height={48} rx={4} fill={AMBER} fillOpacity={0.25} stroke={AMBER} strokeWidth={1.4} />
         <rect x={-24} y={-28} width={48} height={56} rx={3} fill="none" stroke={CYAN} strokeWidth={1.6} strokeDasharray="5 3" opacity={grasped ? 1 : 0.4} />
         <text x={-24} y={-34} fontFamily="'JetBrains Mono', monospace" fontSize={9} fill={CYAN} opacity={grasped ? 1 : 0.6}>
-          {grasped ? "grasped_obj" : "target_obj"} · {(0.85 + Math.random() * 0.1).toFixed(2)}
+          {grasped ? "grasped_obj" : "target_obj"} · {grasped ? "0.95" : "0.87"}
         </text>
       </g>
 

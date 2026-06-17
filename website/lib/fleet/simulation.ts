@@ -101,10 +101,44 @@ export function useFleetSimulation() {
 
   }, []);
 
+  const rollbackOTA = useCallback(() => {
+    setIsRollingOut(true);
+    setAlerts((prev) => [
+      {
+        id: `a-${Date.now()}`,
+        title: "fleet · Rollback started",
+        description: `Rolling back all canary robots to ${VERSIONS.STABLE}.`,
+        severity: "warning",
+        time: "just now",
+      },
+      ...prev
+    ]);
+
+    let count = 0;
+    const interval = setInterval(() => {
+      setRobots((prev) => {
+        const canary = prev.filter(r => r.version === VERSIONS.CANARY);
+        if (canary.length === 0) {
+          clearInterval(interval);
+          setIsRollingOut(false);
+          return prev;
+        }
+        const toRollback = canary[Math.floor(Math.random() * canary.length)];
+        return prev.map(r => r.id === toRollback.id ? { ...r, version: VERSIONS.STABLE } : r);
+      });
+      count++;
+      if (count > 20) {
+        clearInterval(interval);
+        setIsRollingOut(false);
+      }
+    }, 500);
+  }, []);
+
   return {
     robots,
     alerts,
     isRollingOut,
     triggerOTA,
+    rollbackOTA,
   };
 }

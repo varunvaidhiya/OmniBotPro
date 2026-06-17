@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { GITHUB_HREF } from "@/lib/site";
 
 export const metadata = {
   title: "OhhO Open-Sources OmniVLA Engine | OhhO News",
@@ -109,7 +110,9 @@ export default function OmniVLANewsArticle() {
 
             <div className="mt-12 pt-8 border-t border-white/10 flex items-center justify-center">
               <a 
-                href="#"
+                href={GITHUB_HREF}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-cyan text-[#0A0E1A] font-semibold transition-all duration-200 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,212,255,0.3)]"
               >
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

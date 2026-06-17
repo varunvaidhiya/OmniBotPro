@@ -206,20 +206,47 @@ export default function ViewConsole() {
             
             {/* Feed 1 */}
             <div className="rounded-lg overflow-hidden border relative bg-black aspect-video" style={{ borderColor: "var(--border)" }}>
-              <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                <Camera size={32} />
-              </div>
+              <svg viewBox="0 0 320 180" width="100%" height="100%" className="absolute inset-0">
+                <rect x="0" y="100" width="320" height="80" fill="rgba(255,255,255,0.03)" />
+                <line x1="0" y1="100" x2="320" y2="100" stroke="rgba(255,255,255,0.07)" />
+                {[0,1,2].map((i) => (
+                  <line key={`fg${i}`} x1={30-i*5} y1={100+(i+1)*20} x2={290+i*5} y2={100+(i+1)*20} stroke="rgba(255,255,255,0.02)" />
+                ))}
+                {[0,1,2,3,4,5,6].map((i) => {
+                  const s = 320/7; const tx = 160+(i-3)*s*0.3; const bx = 160+(i-3)*s;
+                  return <line key={`fvg${i}`} x1={tx} y1={100} x2={bx} y2={180} stroke="rgba(255,255,255,0.02)" />;
+                })}
+                <rect x="120" y="80" width="80" height="50" rx="4" fill="rgba(255,255,255,0.05)" stroke="rgba(0,212,255,0.3)" strokeWidth="1.2" />
+                <circle cx="160" cy="105" r="10" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="1" />
+                <line x1="160" y1="90" x2="160" y2="98" stroke="rgba(255,255,255,0.3)" />
+                <line x1="160" y1="112" x2="160" y2="120" stroke="rgba(255,255,255,0.3)" />
+                <line x1="144" y1="105" x2="152" y2="105" stroke="rgba(255,255,255,0.3)" />
+                <line x1="168" y1="105" x2="176" y2="105" stroke="rgba(255,255,255,0.3)" />
+              </svg>
               <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">/camera/front/image_raw</div>
-              <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400">30.0 FPS</div>
+              <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />30.0 FPS
+              </div>
             </div>
 
             {/* Feed 2 */}
             <div className="rounded-lg overflow-hidden border relative bg-black aspect-video" style={{ borderColor: "var(--border)" }}>
-              <div className="absolute inset-0 flex items-center justify-center opacity-20">
-                <Camera size={32} />
-              </div>
+              <svg viewBox="0 0 320 180" width="100%" height="100%" className="absolute inset-0">
+                <rect x="0" y="90" width="320" height="90" fill="rgba(124,58,237,0.04)" />
+                <line x1="0" y1="90" x2="320" y2="90" stroke="rgba(124,58,237,0.1)" />
+                {[0,1,2].map((i) => (
+                  <line key={`wg${i}`} x1={20-i*5} y1={90+(i+1)*22} x2={300+i*5} y2={90+(i+1)*22} stroke="rgba(255,255,255,0.02)" />
+                ))}
+                <rect x="105" y="55" width="110" height="55" rx="5" fill="rgba(124,58,237,0.08)" stroke="rgba(124,58,237,0.3)" strokeWidth="1.2" />
+                <ellipse cx="160" cy="82" rx="30" ry="12" fill="none" stroke="rgba(0,212,255,0.3)" strokeWidth="1" strokeDasharray="3 2" />
+                <circle cx="160" cy="82" r="4" fill="rgba(0,212,255,0.4)" />
+                <rect x="195" y="45" width="16" height="20" rx="2" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.4)" strokeWidth="0.8" />
+                <text x="195" y="40" fontFamily="monospace" fontSize="6" fill="rgba(251,191,36,0.6)">obj·0.91</text>
+              </svg>
               <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">/camera/wrist/image_raw</div>
-              <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400">15.2 FPS</div>
+              <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />15.2 FPS
+              </div>
             </div>
           </div>
 

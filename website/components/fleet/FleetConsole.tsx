@@ -31,7 +31,7 @@ const AMBER = "#FBBF24";
 const RED = "#F87171";
 
 export default function FleetConsole() {
-  const { robots, alerts, isRollingOut, triggerOTA } = useFleetSimulation();
+  const { robots, alerts, isRollingOut, triggerOTA, rollbackOTA } = useFleetSimulation();
   
   const [activeRobotId, setActiveRobotId] = useState<string | null>(null);
   const [filter, setFilter] = useState<RobotStatus | "all">("all");
@@ -157,15 +157,24 @@ export default function FleetConsole() {
             </div>
           </div>
           
-          <div className="p-4 border-t" style={{ borderColor: "var(--border)" }}>
+          <div className="p-4 border-t flex flex-col gap-2" style={{ borderColor: "var(--border)" }}>
             <button 
               onClick={triggerOTA}
               disabled={isRollingOut}
-              className="w-full inline-flex items-center justify-center gap-2 text-[12px] font-semibold py-2.5 rounded-lg transition-all" 
-              style={{ background: isRollingOut ? "rgba(0,212,255,0.2)" : CYAN, color: isRollingOut ? CYAN : "var(--bg)", cursor: isRollingOut ? "not-allowed" : "pointer" }}
+              className="w-full inline-flex items-center justify-center gap-2 text-[12px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+              style={{ background: isRollingOut ? "rgba(0,212,255,0.2)" : CYAN, color: isRollingOut ? CYAN : "var(--bg)" }}
             >
               <DownloadCloud size={14} />
-              {isRollingOut ? "Deploying OTA..." : "Trigger OTA Update"}
+              {isRollingOut ? "Deploying..." : "Roll Out Canary"}
+            </button>
+            <button 
+              onClick={rollbackOTA}
+              disabled={isRollingOut || stats.canary === 0}
+              className="w-full inline-flex items-center justify-center gap-2 text-[12px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+              style={{ background: "rgba(248,113,113,0.12)", color: RED, border: `1px solid ${RED}44` }}
+            >
+              <DownloadCloud size={14} style={{ transform: "rotate(180deg)" }} />
+              Rollback Canary → Stable
             </button>
           </div>
         </aside>

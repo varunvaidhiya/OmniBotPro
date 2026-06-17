@@ -32,6 +32,7 @@ export const REGRESSION_DATA = [0.9, 0.92, 0.88, 0.94, 0.93, 0.95, 0.91, 0.96, 0
 export function useProofSimulation() {
   const [suites, setSuites] = useState<TestSuite[]>(INITIAL_SUITES);
   const [coverage, setCoverage] = useState<HeatmapValue[][]>(INITIAL_COVERAGE);
+  const [regression, setRegression] = useState<number[]>([...REGRESSION_DATA]);
   const [isRunning, setIsRunning] = useState(false);
 
   const runFullSuite = useCallback(() => {
@@ -49,18 +50,22 @@ export function useProofSimulation() {
       setCoverage(prev => {
         const next = [...prev].map(row => [...row]);
         // randomly turn 0s or 1s into 2s (improving coverage)
-        let changed = false;
         for (let r = 0; r < next.length; r++) {
           for (let c = 0; c < next[r].length; c++) {
-            if (next[r][c] < 2 && Math.random() < 0.1) {
+            if (next[r][c] < 2 && Math.random() < 0.15) {
               next[r][c] = (next[r][c] + 1) as HeatmapValue;
-              changed = true;
-              break;
             }
           }
-          if (changed) break;
         }
         return next;
+      });
+
+      // append a new regression data point (trending slightly upward + jitter)
+      setRegression((prev) => {
+        const base = prev[prev.length - 1] || 0.9;
+        const next = Math.min(1, Math.max(0, base + (Math.random() - 0.3) * 0.03));
+        const updated = [...prev, Math.round(next * 1000) / 1000];
+        return updated.slice(-14); // keep last 14 points
       });
 
       step++;
@@ -79,7 +84,7 @@ export function useProofSimulation() {
   return {
     suites,
     coverage,
-    regression: REGRESSION_DATA,
+    regression,
     isRunning,
     runFullSuite,
     overallVerdict,
