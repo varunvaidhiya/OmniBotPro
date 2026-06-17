@@ -5,12 +5,15 @@
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { enabledOAuthProviders, type OAuthProvider } from "@/lib/auth/supabase";
 
 export default function OAuthButtons({ next, disabled }: { next?: string; disabled?: boolean }) {
   const { signInWithOAuth } = useAuth();
-  const [busy, setBusy] = useState<"google" | "apple" | null>(null);
+  const [busy, setBusy] = useState<OAuthProvider | null>(null);
 
-  const go = async (provider: "google" | "apple") => {
+  if (enabledOAuthProviders.length === 0) return null;
+
+  const go = async (provider: OAuthProvider) => {
     setBusy(provider);
     const { error } = await signInWithOAuth(provider, next);
     if (error) setBusy(null); // otherwise the browser is already redirecting
@@ -18,24 +21,28 @@ export default function OAuthButtons({ next, disabled }: { next?: string; disabl
 
   return (
     <div className="flex flex-col gap-2.5">
-      <button
-        onClick={() => go("google")}
-        disabled={disabled || busy !== null}
-        className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors disabled:opacity-50"
-        style={{ background: "#fff", color: "#1f1f1f" }}
-      >
-        {busy === "google" ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon />}
-        Continue with Google
-      </button>
-      <button
-        onClick={() => go("apple")}
-        disabled={disabled || busy !== null}
-        className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors disabled:opacity-50"
-        style={{ background: "#000", color: "#fff", border: "1px solid rgba(255,255,255,.2)" }}
-      >
-        {busy === "apple" ? <Loader2 size={16} className="animate-spin" /> : <AppleIcon />}
-        Continue with Apple
-      </button>
+      {enabledOAuthProviders.includes("google") && (
+        <button
+          onClick={() => go("google")}
+          disabled={disabled || busy !== null}
+          className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors disabled:opacity-50"
+          style={{ background: "#fff", color: "#1f1f1f" }}
+        >
+          {busy === "google" ? <Loader2 size={16} className="animate-spin" /> : <GoogleIcon />}
+          Continue with Google
+        </button>
+      )}
+      {enabledOAuthProviders.includes("apple") && (
+        <button
+          onClick={() => go("apple")}
+          disabled={disabled || busy !== null}
+          className="flex items-center justify-center gap-2.5 w-full py-2.5 rounded-lg text-[13.5px] font-semibold transition-colors disabled:opacity-50"
+          style={{ background: "#000", color: "#fff", border: "1px solid rgba(255,255,255,.2)" }}
+        >
+          {busy === "apple" ? <Loader2 size={16} className="animate-spin" /> : <AppleIcon />}
+          Continue with Apple
+        </button>
+      )}
     </div>
   );
 }

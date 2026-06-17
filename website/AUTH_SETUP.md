@@ -30,25 +30,37 @@ clicks "Open the console" → ConsoleGate checks subscription
 
 ## 2. Auth providers (Authentication → Providers)
 
+Start with **email only** — it needs no external developer accounts. Add the
+social providers later when you have the accounts; surface them on the login
+page by listing them in `NEXT_PUBLIC_OAUTH_PROVIDERS` (step 3). Until then the
+Google/Apple buttons stay hidden and `/login` shows the email magic-link only.
+
 - **Email**: enabled by default (magic link / OTP — no extra config).
-- **Google**: create OAuth credentials in Google Cloud Console, add the
-  Supabase callback `https://YOUR-PROJECT.supabase.co/auth/v1/callback` as an
-  authorized redirect URI, paste the client id/secret into Supabase.
-- **Apple**: create a Services ID + key in the Apple Developer portal, configure
-  the same Supabase callback, paste into Supabase.
-- **URL Configuration** → add your site origin(s) to **Redirect URLs**
-  (e.g. `https://ohho.ai/auth/callback`, `http://localhost:3000/auth/callback`,
-  and your Vercel preview origin).
+- **Google** *(optional, needs a free Google Cloud account)*: create OAuth
+  credentials in Google Cloud Console, add the Supabase callback
+  `https://YOUR-PROJECT.supabase.co/auth/v1/callback` as an authorized redirect
+  URI, paste the client id/secret into Supabase, then add `google` to
+  `NEXT_PUBLIC_OAUTH_PROVIDERS`.
+- **Apple** *(optional, needs the paid Apple Developer Program)*: create a
+  Services ID + key in the Apple Developer portal, configure the same Supabase
+  callback, paste into Supabase, then add `apple` to
+  `NEXT_PUBLIC_OAUTH_PROVIDERS`.
+- **URL Configuration** → add your site origin(s) to **Redirect URLs**:
+  `https://ohho-robotics.com/auth/callback`, `https://*.vercel.app/auth/callback`
+  (preview deploys), `http://localhost:3000/auth/callback`.
 
 ## 3. Website env vars
 
-Set in Vercel → Project → Settings → Environment Variables (and `.env.local`
-for dev — see [`.env.example`](./.env.example)):
+Set in Vercel → Project → Settings → Environment Variables for **all
+environments** (Production + Preview + Development), and in `.env.local` for dev
+(see [`.env.example`](./.env.example)). **Static export bakes these in at build
+time — redeploy after changing them.**
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR-ANON-KEY
-NEXT_PUBLIC_SITE_URL=https://ohho.ai
+NEXT_PUBLIC_SITE_URL=https://ohho-robotics.com
+NEXT_PUBLIC_OAUTH_PROVIDERS=            # empty = email only; later: google,apple
 ```
 
 ## 4. Stripe

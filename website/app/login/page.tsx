@@ -9,6 +9,9 @@ import Nav from "@/components/Nav";
 import GlassCard from "@/components/GlassCard";
 import OAuthButtons from "@/components/auth/OAuthButtons";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { enabledOAuthProviders } from "@/lib/auth/supabase";
+
+const hasOAuth = enabledOAuthProviders.length > 0;
 
 export default function LoginPage() {
   const { configured, user, signInWithEmail } = useAuth();
@@ -75,11 +78,13 @@ export default function LoginPage() {
               <>
                 <OAuthButtons next={next} />
 
-                <div className="flex items-center gap-3 my-5">
-                  <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-                  <span className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--faint)" }}>or email</span>
-                  <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
-                </div>
+                {hasOAuth && (
+                  <div className="flex items-center gap-3 my-5">
+                    <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
+                    <span className="text-[11px] font-mono uppercase tracking-wider" style={{ color: "var(--faint)" }}>or email</span>
+                    <div className="flex-1 h-px" style={{ background: "var(--border)" }} />
+                  </div>
+                )}
 
                 <form onSubmit={submitEmail} className="flex flex-col gap-2.5">
                   <div className="relative">
