@@ -1,17 +1,7 @@
 {
-  "framework": null,
+  "framework": "nextjs",
   "buildCommand": "npm run build",
-  "outputDirectory": "out",
+  "outputDirectory": ".next",
   "installCommand": "npm install --legacy-peer-deps",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- .",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_SUPABASE_URL": "https://ucnyuappgtcpolqdaovv.supabase.co",
-      "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbnl1YXBwZ3RjcG9scWRhb3Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MjU5NTEsImV4cCI6MjA5NzMwMTk1MX0.Cf3g2nxHtaeGU59UwtCdpuNwQV6cCZ4yvdBSqhAEtls",
-      "NEXT_PUBLIC_SITE_URL": "https://ohho-robotics.com",
-      "NEXT_PUBLIC_OAUTH_PROVIDERS": "google"
-    }
-  }
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet -- ."
 }
