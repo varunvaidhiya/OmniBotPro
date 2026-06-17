@@ -12,10 +12,8 @@
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 
-import { getSupabase, isSupabaseConfigured, siteOrigin } from "./supabase";
+import { getSupabase, isSupabaseConfigured, siteOrigin, type OAuthProvider } from "./supabase";
 import type { Subscription } from "./plans";
-
-type OAuthProvider = "google" | "apple";
 
 interface AuthContextValue {
   configured: boolean;

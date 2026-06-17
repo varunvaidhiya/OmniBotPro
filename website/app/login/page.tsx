@@ -65,7 +65,7 @@ export default function LoginPage() {
 
             {!configured ? (
               <div className="p-4 rounded-xl text-[13px] leading-[1.6]" style={{ background: "rgba(251,191,36,.08)", border: "1px solid rgba(251,191,36,.4)", color: "rgba(255,255,255,.8)" }}>
-                Authentication isn&apos;t configured on this deployment yet. Add your Supabase keys (see <span className="font-mono">AUTH_SETUP.md</span>) to enable email, Google and Apple sign-in.
+                Authentication isn&apos;t configured on this deployment yet. Add your Supabase keys (see <span className="font-mono">AUTH_SETUP.md</span>) to enable email and Google sign-in.
               </div>
             ) : sent ? (
               <div className="p-4 rounded-xl flex items-start gap-3" style={{ background: "rgba(52,211,153,.08)", border: "1px solid rgba(52,211,153,.4)" }}>

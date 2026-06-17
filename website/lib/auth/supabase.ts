@@ -42,15 +42,15 @@ export function siteOrigin(): string {
   return process.env.NEXT_PUBLIC_SITE_URL ?? "";
 }
 
-export type OAuthProvider = "google" | "apple";
+export type OAuthProvider = "google";
 
 /**
  * Which social providers to surface on the login page. Email magic-link always
- * works with just Supabase; Google/Apple require external developer accounts,
- * so they stay hidden until explicitly enabled via
- * NEXT_PUBLIC_OAUTH_PROVIDERS="google,apple".
+ * works with just Supabase; Google requires a (free) Google Cloud OAuth
+ * credential, so it stays hidden until explicitly enabled via
+ * NEXT_PUBLIC_OAUTH_PROVIDERS="google".
  */
 export const enabledOAuthProviders: OAuthProvider[] = (process.env.NEXT_PUBLIC_OAUTH_PROVIDERS ?? "")
   .split(",")
   .map((p) => p.trim().toLowerCase())
-  .filter((p): p is OAuthProvider => p === "google" || p === "apple");
+  .filter((p): p is OAuthProvider => p === "google");

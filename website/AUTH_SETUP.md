@@ -10,7 +10,7 @@ every console (`/build`, `/serve`, …) requires an active paid subscription.
 ## Flow
 
 ```
-visitor → /login (email magic link · Google · Apple)        ← Supabase Auth
+visitor → /login (email magic link · Google)               ← Supabase Auth
    ↓ signed in
 clicks "Open the console" → ConsoleGate checks subscription
    ├─ active plan  → console opens
@@ -30,21 +30,16 @@ clicks "Open the console" → ConsoleGate checks subscription
 
 ## 2. Auth providers (Authentication → Providers)
 
-Start with **email only** — it needs no external developer accounts. Add the
-social providers later when you have the accounts; surface them on the login
-page by listing them in `NEXT_PUBLIC_OAUTH_PROVIDERS` (step 3). Until then the
-Google/Apple buttons stay hidden and `/login` shows the email magic-link only.
+The site uses **email magic-link + Google**. Email needs no external account;
+Google needs a (free) Google Cloud OAuth credential.
 
 - **Email**: enabled by default (magic link / OTP — no extra config).
-- **Google** *(optional, needs a free Google Cloud account)*: create OAuth
-  credentials in Google Cloud Console, add the Supabase callback
+- **Google**: in Google Cloud Console create an OAuth 2.0 Client ID (type: Web
+  application), add the Supabase callback
   `https://YOUR-PROJECT.supabase.co/auth/v1/callback` as an authorized redirect
-  URI, paste the client id/secret into Supabase, then add `google` to
-  `NEXT_PUBLIC_OAUTH_PROVIDERS`.
-- **Apple** *(optional, needs the paid Apple Developer Program)*: create a
-  Services ID + key in the Apple Developer portal, configure the same Supabase
-  callback, paste into Supabase, then add `apple` to
-  `NEXT_PUBLIC_OAUTH_PROVIDERS`.
+  URI, then paste the client id/secret into Supabase → Providers → Google and
+  enable it. Surface the button by setting `NEXT_PUBLIC_OAUTH_PROVIDERS=google`
+  (step 3). Leave that var empty to ship email-only until Google is ready.
 - **URL Configuration** → add your site origin(s) to **Redirect URLs**:
   `https://ohho-robotics.com/auth/callback`, `https://*.vercel.app/auth/callback`
   (preview deploys), `http://localhost:3000/auth/callback`.
@@ -60,7 +55,7 @@ time — redeploy after changing them.**
 NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR-ANON-KEY
 NEXT_PUBLIC_SITE_URL=https://ohho-robotics.com
-NEXT_PUBLIC_OAUTH_PROVIDERS=            # empty = email only; later: google,apple
+NEXT_PUBLIC_OAUTH_PROVIDERS=google      # or empty for email-only
 ```
 
 ## 4. Stripe
@@ -93,7 +88,7 @@ NEXT_PUBLIC_OAUTH_PROVIDERS=            # empty = email only; later: google,appl
 
 ## 5. Verify
 
-- Visit `/login`, sign in with email/Google/Apple.
+- Visit `/login`, sign in with email or Google.
 - Click **Open the console** on a product → you're routed to `/upgrade`.
 - Subscribe → Stripe Checkout → back to `/account?checkout=success`.
 - The webhook writes your `subscriptions` row; consoles unlock automatically.
