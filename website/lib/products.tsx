@@ -565,6 +565,7 @@ export const PRODUCTS: Product[] = [
       { q: "Are OTA updates safe?", a: "Updates are signed and staged; pair with OhhO Shield for end-to-end supply-chain integrity." },
     ],
     related: ["serve", "shield", "proof"],
+    app: { href: "/fleet", label: "Open mission control" },
     dashboardCaption:
       "OhhO Fleet — fleet map, health donut, OTA rollout progress and the live alert feed.",
   },
