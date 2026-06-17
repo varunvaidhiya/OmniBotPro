@@ -496,6 +496,7 @@ export const PRODUCTS: Product[] = [
       { q: "Is it safe over the internet?", a: "Pilot clamps velocities and offers an emergency stop; pair it with OhhO Shield for authenticated, encrypted links." },
     ],
     related: ["view", "fleet", "shield"],
+    app: { href: "/pilot", label: "Open the cockpit" },
     dashboardCaption:
       "OhhO Pilot — operator HUD with live robot view, hand-tracking arm IK and a latency readout.",
   },
