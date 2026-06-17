@@ -231,10 +231,75 @@ export const PRODUCTS: Product[] = [
       { q: "Do I need hardware to start?", a: "No. Frame's simulation runs entirely on your workstation — many teams build for weeks before touching a robot." },
       { q: "Is it locked to your hardware?", a: "No. Frame works with any ROS 2-compatible hardware; the reference drivers are a starting point you can swap." },
     ],
-    related: ["build", "fleet", "data"],
+    related: ["build", "bench", "fleet"],
     app: { href: "/frame", label: "Open device console" },
     dashboardCaption:
       "OhhO Frame — workspace scaffold, containerized build and the node graph that ships ready to run.",
+  },
+  {
+    slug: "bench",
+    name: "OhhO Bench",
+    tag: "From a box of parts to a robot that powers on.",
+    desc: "Guided assembly, wiring and firmware bring-up. Turn an OhhO Build bill of materials into a wired, flashed and calibrated robot — with step-by-step instructions and hardware self-tests.",
+    accent: "cyan",
+    category: "Foundation",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z" />
+        <circle cx="6.5" cy="17.5" r=".9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    hero: "Design is the easy half. OhhO Bench takes the bill of materials you exported from Build and walks you all the way to a robot that powers on — guided mechanical assembly, a wiring map, firmware flashing, and hardware self-tests that prove every motor, sensor and servo actually works.",
+    highlights: [
+      "Step-by-step assembly from your BOM",
+      "Wiring & port map (serial / power / bus)",
+      "One-click firmware flashing",
+      "Hardware self-test & diagnostics",
+      "Sensor, camera and arm calibration",
+    ],
+    overview: [
+      "Between a sourced bill of materials and a working software stack lies the part nobody writes documentation for: bolting the robot together, wiring the motor board, flashing firmware, and discovering — usually the hard way — which connector is in backwards. OhhO Bench turns that into a guided, checked workflow.",
+      "Bench reads your OhhO Build design and generates the exact assembly order, a wiring and port map (which controller talks over which serial port at which baud rate), and a firmware bring-up sequence. As you go, it runs hardware self-tests — spin each motor, read the encoders and IMU, sweep every arm servo — so a mistake is caught at the bench, not in the field.",
+      "When the mechanics are sound, Bench runs the calibration routines: motor direction and odometry geometry, IMU bias, camera intrinsics and the surround-view rig, and arm joint homing. It writes the deployment profile the rest of the stack consumes — so the moment Bench turns green, OhhO Frame, View and Autonomy come up on real, calibrated hardware.",
+    ],
+    features: [
+      { title: "Assembly from your design", body: "Bench expands your Build BOM into an ordered, illustrated assembly sequence — what bolts to what, in what order, with torque and orientation called out." },
+      { title: "Wiring & port map", body: "A generated harness diagram: motor board, arm bus, cameras and compute, with the serial ports, baud rates and power budget each one needs." },
+      { title: "Firmware flashing", body: "Flash the motor-controller and microcontroller firmware from the browser, with the right protocol and car-type set for your base — no hand-edited config." },
+      { title: "Hardware self-test", body: "Spin each wheel, read encoders and IMU, and sweep every arm joint to confirm wiring and direction before any autonomy runs." },
+      { title: "Guided calibration", body: "Walk through odometry geometry, IMU bias, camera intrinsics, the surround-view rig and arm homing — and write them into the deployment profile." },
+      { title: "Hands off to the stack", body: "A green Bench produces the deployment profile and calibration files that OhhO Frame, View and Autonomy pick up with zero re-entry." },
+    ],
+    how: [
+      { title: "Import the build", body: "Bench pulls the BOM, wiring and component specs from your OhhO Build design." },
+      { title: "Assemble & wire", body: "Follow the ordered assembly steps and the generated wiring / port map." },
+      { title: "Flash & self-test", body: "Flash firmware and run the hardware self-tests until every subsystem reports healthy." },
+      { title: "Calibrate & hand off", body: "Run the calibration routines; Bench writes the deployment profile for the rest of the stack." },
+    ],
+    specs: [
+      { label: "Input", value: "OhhO Build BOM + wiring + component specs" },
+      { label: "Firmware", value: "Motor board + MCU, protocol-aware flashing" },
+      { label: "Self-test", value: "Motors, encoders, IMU, arm servos, cameras" },
+      { label: "Calibration", value: "Odometry, IMU bias, camera intrinsics, BEV rig, arm homing" },
+      { label: "Output", value: "Deployment profile + calibration files" },
+      { label: "Handoff", value: "OhhO Frame, View, Autonomy" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Assembly guide + self-test", included: true },
+      { plan: "Builder", level: "+ firmware flashing & calibration", included: true },
+      { plan: "Fleet", level: "+ batch bring-up across many units", included: true },
+      { plan: "Forge", level: "Contract-manufacturing handoff pack", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Anyone building their first unit wants Builder for firmware flashing and the guided calibration routines. Teams bringing up many identical robots move to Fleet for batch bring-up, and manufacturing partners use Forge for a handoff pack.",
+    faq: [
+      { q: "Do I have to use OhhO Build?", a: "It's smoothest end-to-end, but Bench also works from a manually-entered parts list — you just fill in the wiring and ports it would otherwise infer." },
+      { q: "Does Bench need the real hardware?", a: "Yes — Bench is the step where software meets metal. The self-tests and calibration run against the physical robot over its serial / USB buses." },
+    ],
+    related: ["build", "frame", "view"],
+    dashboardCaption:
+      "OhhO Bench — assembly checklist, wiring map and the hardware self-test board going green subsystem by subsystem.",
   },
 
   // ── INTELLIGENCE ────────────────────────────────────────────────────────────
@@ -297,7 +362,7 @@ export const PRODUCTS: Product[] = [
       { q: "Can I run my own fine-tuned model?", a: "Yes. Serve loads any compatible checkpoint, including models you've fine-tuned with OhhO Data and the OmniVLA engine." },
       { q: "Where does inference run?", a: "On your GPU — desktop, server or cloud. Serve is software; you keep the model and the data." },
     ],
-    related: ["data", "view", "pilot"],
+    related: ["train", "data", "view"],
     dashboardCaption:
       "OhhO Serve — endpoint console with live latency, throughput and GPU utilization.",
     app: { href: "/serve", label: "Open the console" },
@@ -428,10 +493,144 @@ export const PRODUCTS: Product[] = [
       { q: "Is my data portable?", a: "Completely. It's standard LeRobot format — train with OhhO's engine or any compatible toolchain." },
       { q: "Can I collect in simulation?", a: "Yes. Data records from Gazebo and Isaac Sim with the same schema as the real robot." },
     ],
-    related: ["serve", "pilot", "proof"],
+    related: ["train", "serve", "pilot"],
     app: { href: "/data", label: "Open episode viewer" },
     dashboardCaption:
       "OhhO Data — dataset table, episode timeline and per-frame camera + label inspection.",
+  },
+  {
+    slug: "train",
+    name: "OhhO Train",
+    tag: "Turn demonstrations into policies.",
+    desc: "The training engine behind the stack. Fine-tune VLA, imitation and reinforcement-learning policies from your OhhO Data episodes or in simulation — then export straight to Serve and Fleet.",
+    accent: "cyan",
+    category: "Intelligence",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M3 17l5-5 4 4 7-8" />
+        <path d="M16 4h5v5" />
+        <circle cx="8" cy="12" r=".9" fill="currentColor" stroke="none" />
+        <circle cx="12" cy="16" r=".9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    hero: "OhhO Data collects the demonstrations; OhhO Serve runs the model — Train is the engine in between. Fine-tune Vision-Language-Action, imitation-learning and reinforcement-learning policies from your own episodes or in simulation, track every run, and export a deployment-ready checkpoint.",
+    highlights: [
+      "Fine-tune VLA, ACT, diffusion & RL policies",
+      "Trains from OhhO Data or in simulation",
+      "Built on the open OmniVLA engine",
+      "Experiment tracking & sweeps (W&B)",
+      "Exports to Serve + ONNX for Fleet OTA",
+    ],
+    overview: [
+      "A policy is only as good as the loop that produced it. OhhO Train is the standardized training engine for embodied AI — the productized OmniVLA engine — so you fine-tune real models without stitching together a different toolchain for every method.",
+      "Train covers the methods that matter: behavior cloning and VLA fine-tuning (SmolVLA, ACT, diffusion, OpenVLA) on the LeRobot datasets you record with OhhO Data, plus reinforcement learning in Isaac Lab with domain randomization for sim-to-real. A continual-learning loop can re-train as new episodes and tasks arrive, with replay, multi-objective rewards and AI-judged self-evaluation.",
+      "Every run is tracked — losses, success rate, evaluation — with Weights & Biases sweeps to find good hyperparameters. When a checkpoint passes verification, Train exports it in the format the rest of the stack expects: a checkpoint OhhO Serve loads directly, or an ONNX policy OhhO Fleet ships over the air.",
+    ],
+    features: [
+      { title: "Many methods, one engine", body: "Behavior cloning, VLA fine-tuning (SmolVLA / ACT / diffusion / OpenVLA), offline RL and on-policy RL — selected by config, not a rewrite." },
+      { title: "Trains from your data", body: "Point Train at a LeRobot dataset from OhhO Data, or generate experience in Gazebo and Isaac Sim with domain randomization for sim-to-real." },
+      { title: "Continual learning", body: "A post-training loop re-trains as new episodes and tasks arrive, with prioritized replay and outcome-stratified episodic memory." },
+      { title: "Rewards & self-evaluation", body: "Multi-objective rewards (task, safety, efficiency, smoothness) plus vision rewards and AI judges score behavior, not just loss." },
+      { title: "Tracked & reproducible", body: "Losses, success rate and eval stream to Weights & Biases; Bayesian sweeps search hyperparameters for you." },
+      { title: "Export-ready", body: "Verified checkpoints export to OhhO Serve and to ONNX for OhhO Fleet OTA, with hardware-aware execution providers baked in." },
+    ],
+    how: [
+      { title: "Choose method & data", body: "Pick a policy type and point Train at an OhhO Data dataset — or a simulation task." },
+      { title: "Train & track", body: "Launch the run; losses, success rate and eval stream to W&B in real time." },
+      { title: "Verify", body: "Best-of-N evaluation with hard safety and reachability checks gates what's allowed to ship." },
+      { title: "Export & deploy", body: "Push the checkpoint to OhhO Serve, or export ONNX for OhhO Fleet to roll out." },
+    ],
+    specs: [
+      { label: "Methods", value: "BC, VLA fine-tune, ACT, diffusion, offline + online RL" },
+      { label: "Data sources", value: "OhhO Data (LeRobot), Gazebo, Isaac Sim" },
+      { label: "Foundation", value: "Open-source OmniVLA engine" },
+      { label: "Tracking", value: "Weights & Biases + Bayesian sweeps" },
+      { label: "Hardware", value: "NVIDIA GPU; CUDA / TensorRT execution" },
+      { label: "Export", value: "Serve checkpoint + ONNX for Fleet OTA" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Local training, single run", included: true },
+      { plan: "Builder", level: "Cloud training + experiment tracking", included: true },
+      { plan: "Fleet", level: "+ sweeps & continual-learning loop", included: true },
+      { plan: "Forge", level: "On-prem cluster + managed training", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Builder gives you cloud training with full experiment tracking — enough to fine-tune a first real policy. Teams running sweeps or standing up a continual-learning loop want Fleet; enterprises training on their own cluster choose Forge.",
+    faq: [
+      { q: "Is the training engine open?", a: "Yes. Train is built on the open-source OmniVLA engine, so your training code and checkpoints are portable — you're never locked in." },
+      { q: "Do I need real-robot data to start?", a: "No. You can train entirely in simulation with domain randomization, then fine-tune on real OhhO Data episodes for sim-to-real transfer." },
+    ],
+    related: ["data", "serve", "proof"],
+    dashboardCaption:
+      "OhhO Train — run config, the live loss / success-rate curves and the export-to-Serve step on a passing checkpoint.",
+  },
+  {
+    slug: "autonomy",
+    name: "OhhO Autonomy",
+    tag: "Map it, navigate it, command it in plain language.",
+    desc: "The robot's autonomy stack — SLAM mapping, Nav2 navigation and a mission planner — driven by a natural-language agent that turns 'tidy the kitchen' into a sequence of robot actions.",
+    accent: "violet",
+    category: "Intelligence",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <circle cx="5" cy="19" r="2" />
+        <circle cx="19" cy="5" r="2" />
+        <path d="M7 19h6a4 4 0 0 0 4-4V7" />
+        <path d="M5 17V9a4 4 0 0 1 4-4h2" />
+      </svg>
+    ),
+    hero: "Teleop is for when a human drives; Autonomy is for when the robot drives itself. It maps a space with SLAM, navigates it with Nav2, and runs a mission planner that sequences navigation and manipulation — all orchestrated by a natural-language agent that turns an instruction into a plan.",
+    highlights: [
+      "2-D & 3-D SLAM mapping",
+      "Nav2 path planning + obstacle avoidance",
+      "Mission planner (navigate → act sequences)",
+      "Natural-language agent (Claude-backed)",
+      "Safe control-mode mux: nav / AI / teleop",
+    ],
+    overview: [
+      "Perception tells a robot what's around it; Autonomy decides what to do about it. OhhO Autonomy is the behavior layer that turns a powered-on robot into one that moves through the world and completes tasks on its own.",
+      "It builds and localizes against a map with SLAM (2-D and 3-D), plans collision-free paths with Nav2 over a fused costmap, and fuses wheel odometry and IMU through an EKF for reliable pose. A mission planner sequences higher-level jobs — navigate to a named location, then run a manipulation policy — and a control-mode mux arbitrates cleanly between navigation, AI policies and human teleop so they never fight over the wheels.",
+      "On top sits a natural-language agent, backed by Claude, that turns 'take the red cup from the kitchen to the bench' into a structured mission: it knows your named locations, can describe what it sees, and asks for clarification when an instruction is ambiguous — then hands the mission to the planner to execute.",
+    ],
+    features: [
+      { title: "SLAM mapping", body: "Build and localize against 2-D and 3-D maps; switch between mapping and localization modes against a saved map." },
+      { title: "Nav2 navigation", body: "Collision-free path planning and obstacle avoidance over a fused costmap, tuned to the robot's real velocity and acceleration limits." },
+      { title: "Robust localization", body: "An EKF fuses wheel odometry and IMU so pose stays trustworthy even when mecanum wheels slip." },
+      { title: "Mission planner", body: "Sequence navigation and manipulation into a mission — 'go to the kitchen, then pick up the cup' — as a tracked state machine." },
+      { title: "Natural-language agent", body: "A Claude-backed agent maps plain-language instructions to missions, with named locations, scene description and clarification when it's unsure." },
+      { title: "Safe arbitration", body: "A control-mode mux switches between navigation, AI policies and teleop so commands never conflict — and a human can always take over." },
+    ],
+    how: [
+      { title: "Map the space", body: "Drive once while SLAM builds a map, then save it for localization." },
+      { title: "Name the places", body: "Tag locations — kitchen, dock, bench — the planner and agent can refer to." },
+      { title: "Give an instruction", body: "Type or speak a task; the agent turns it into a structured mission." },
+      { title: "Watch it execute", body: "Nav2 and the policies run the mission; the mux keeps teleop override one tap away." },
+    ],
+    specs: [
+      { label: "Mapping", value: "2-D & 3-D SLAM (mapping / localization)" },
+      { label: "Navigation", value: "Nav2 planner + costmap obstacle avoidance" },
+      { label: "Localization", value: "EKF fusing wheel odometry + IMU" },
+      { label: "Missions", value: "Navigate → manipulate state machine" },
+      { label: "Agent", value: "Natural language → mission (Claude-backed)" },
+      { label: "Arbitration", value: "Control-mode mux: nav / AI / teleop" },
+    ],
+    plans: [
+      { plan: "Spark", level: "SLAM + navigation in simulation", included: true },
+      { plan: "Builder", level: "+ mission planner on real hardware", included: true },
+      { plan: "Fleet", level: "+ natural-language agent & named missions", included: true },
+      { plan: "Forge", level: "Custom behaviors + on-prem agent", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Builder gives you mapping, navigation and the mission planner on real hardware — the core of autonomy. Add Fleet when you want the natural-language agent and reusable named missions; Forge is for custom behaviors and running the agent on-prem.",
+    faq: [
+      { q: "How is this different from OhhO Pilot?", a: "Pilot is for a human operating the robot; Autonomy is for the robot operating itself. They share the same safe control-mode mux, so you can hand control back and forth instantly." },
+      { q: "Does the language agent need the cloud?", a: "By default it calls Claude, but the agent layer is optional — navigation and the mission planner run fully on-robot, and Forge can run the agent on-prem." },
+    ],
+    related: ["serve", "view", "pilot"],
+    dashboardCaption:
+      "OhhO Autonomy — the live SLAM map with a planned Nav2 path, the mission state machine and the natural-language agent's plan.",
   },
 
   // ── OPERATIONS ──────────────────────────────────────────────────────────────
@@ -498,7 +697,7 @@ export const PRODUCTS: Product[] = [
       { q: "Do I need a VR headset?", a: "No. Pilot works fully on mobile; VR is an option for immersive arm control." },
       { q: "Is it safe over the internet?", a: "Pilot clamps velocities and offers an emergency stop; pair it with OhhO Shield for authenticated, encrypted links." },
     ],
-    related: ["view", "fleet", "shield"],
+    related: ["autonomy", "view", "fleet"],
     app: { href: "/pilot", label: "Open the cockpit" },
     dashboardCaption:
       "OhhO Pilot — operator HUD with live robot view, hand-tracking arm IK and a latency readout.",
