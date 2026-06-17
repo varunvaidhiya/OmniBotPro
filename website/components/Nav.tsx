@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF } from "@/lib/site";
+import UserMenu from "@/components/auth/UserMenu";
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -79,6 +80,8 @@ export default function Nav() {
         >
           Get Started
         </a>
+        {/* auth control: renders nothing until Supabase is configured */}
+        <span className="ml-[10px]"><UserMenu /></span>
       </div>
     </nav>
   );
