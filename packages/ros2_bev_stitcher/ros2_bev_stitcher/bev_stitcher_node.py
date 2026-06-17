@@ -51,6 +51,7 @@ import collections
 import os
 import statistics as _statistics
 import time
+from typing import Optional
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -333,9 +334,6 @@ class BevStitcherNode(Node):
         if self._tf_buffer is None:
             return
 
-        import time as _time
-
-        deadline = _time.monotonic() + 3.0
         discovered = 0
 
         for name in self._names:

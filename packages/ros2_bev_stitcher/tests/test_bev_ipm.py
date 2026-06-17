@@ -5,7 +5,6 @@ import sys
 import os
 
 import numpy as np
-import pytest
 
 # Add the package to the path so we can import without ROS
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -217,7 +216,7 @@ class TestComputeIpmHomography:
 
         # Higher ppm means farther from center
         assert abs(y_hi - 400) > abs(y_lo - 400), (
-            f"ppm=80 should push farther from center than ppm=40"
+            "ppm=80 should push farther from center than ppm=40"
         )
 
     def test_homography_shape_and_dtype(self):
@@ -258,8 +257,8 @@ class TestRoundTrip:
         # World point 1m forward, centered
         # canvas coords: x = 400 + 80*(−0) = 400, y = 400 + 80*(−1) = 320
         # ... wait, H maps image → canvas. Let's go canvas → world via H^{-1}.
-        canvas_pt = np.array([400.0, 320.0, 1.0])  # image coords placeholder
-        H_inv = np.linalg.inv(H)
+        np.array([400.0, 320.0, 1.0])  # image coords placeholder
+        np.linalg.inv(H)
 
         # Actually, test: a world ground point (1.0, 0.0, 1.0) should have
         # canvas_y about 320 (1m forward = 80 px up from center)
