@@ -51,6 +51,7 @@ import collections
 import os
 import statistics as _statistics
 import time
+from typing import Optional
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -165,9 +166,7 @@ class BevStitcherNode(Node):
         self.declare_parameter(
             "calibration_file", os.path.expanduser("~/bev_calibration.npz")
         )
-        self.declare_parameter(
-            "calibration_mode", "auto"
-        )
+        self.declare_parameter("calibration_mode", "auto")
         # IPM parameters
         self.declare_parameter("pixels_per_meter", 80.0)
         self.declare_parameter("ground_z", 0.0)
@@ -206,10 +205,22 @@ class BevStitcherNode(Node):
 
         # Declare per-camera IPM params with defaults
         _default_camera_configs = {
-            "front": {"position": [0.24, 0.0, 0.12], "orientation_rpy": [0.0, 0.35, 0.0]},
-            "rear": {"position": [-0.24, 0.0, 0.12], "orientation_rpy": [3.1416, 0.35, 0.0]},
-            "left": {"position": [0.0, 0.17, 0.12], "orientation_rpy": [1.5708, 0.35, 0.0]},
-            "right": {"position": [0.0, -0.17, 0.12], "orientation_rpy": [-1.5708, 0.35, 0.0]},
+            "front": {
+                "position": [0.24, 0.0, 0.12],
+                "orientation_rpy": [0.0, 0.35, 0.0],
+            },
+            "rear": {
+                "position": [-0.24, 0.0, 0.12],
+                "orientation_rpy": [3.1416, 0.35, 0.0],
+            },
+            "left": {
+                "position": [0.0, 0.17, 0.12],
+                "orientation_rpy": [1.5708, 0.35, 0.0],
+            },
+            "right": {
+                "position": [0.0, -0.17, 0.12],
+                "orientation_rpy": [-1.5708, 0.35, 0.0],
+            },
         }
         _default_intrinsics = {"fx": 320.0, "fy": 320.0, "cx": 320.0, "cy": 240.0}
 
@@ -247,8 +258,10 @@ class BevStitcherNode(Node):
             for name in self._names:
                 ci_topic = self._ci_pattern.replace("{name}", name)
                 self.create_subscription(
-                    CameraInfo, ci_topic,
-                    lambda msg, n=name: self._camera_info_cb(msg, n), 10,
+                    CameraInfo,
+                    ci_topic,
+                    lambda msg, n=name: self._camera_info_cb(msg, n),
+                    10,
                 )
                 self.get_logger().info(f"Camera info sub: {ci_topic}")
         elif self._use_ci and not _CAM_INFO:
@@ -321,16 +334,15 @@ class BevStitcherNode(Node):
         if self._tf_buffer is None:
             return
 
-        import time as _time
-
-        deadline = _time.monotonic() + 3.0
         discovered = 0
 
         for name in self._names:
             tf_frame = self._tf_pattern.replace("{name}", name)
             try:
                 t = self._tf_buffer.lookup_transform(
-                    self._base_frame, tf_frame, rclpy.time.Time(),
+                    self._base_frame,
+                    tf_frame,
+                    rclpy.time.Time(),
                     timeout=rclpy.duration.Duration(seconds=2.0),
                 )
                 pos = t.transform.translation
@@ -339,12 +351,15 @@ class BevStitcherNode(Node):
                 # Override position param
                 from rclpy.parameter import Parameter
 
-                self.set_parameters([
-                    Parameter(
-                        f"{name}.position", Parameter.Type.DOUBLE_ARRAY,
-                        value=[pos.x, pos.y, pos.z],
-                    )
-                ])
+                self.set_parameters(
+                    [
+                        Parameter(
+                            f"{name}.position",
+                            Parameter.Type.DOUBLE_ARRAY,
+                            value=[pos.x, pos.y, pos.z],
+                        )
+                    ]
+                )
 
                 # Convert quaternion to yaw/pitch/roll for camera_rotation
                 if euler_from_quaternion is not None:
@@ -356,6 +371,7 @@ class BevStitcherNode(Node):
                 else:
                     # Fallback: compute approximate RPY from quaternion
                     import math
+
                     qx, qy, qz, qw = quat.x, quat.y, quat.z, quat.w
                     sinr = 2.0 * (qw * qx + qy * qz)
                     cosr = 1.0 - 2.0 * (qx * qx + qy * qy)
@@ -366,12 +382,15 @@ class BevStitcherNode(Node):
                     cosy = 1.0 - 2.0 * (qy * qy + qz * qz)
                     yaw = math.atan2(siny, cosy)
 
-                self.set_parameters([
-                    Parameter(
-                        f"{name}.orientation_rpy", Parameter.Type.DOUBLE_ARRAY,
-                        value=[yaw, pitch, roll],
-                    )
-                ])
+                self.set_parameters(
+                    [
+                        Parameter(
+                            f"{name}.orientation_rpy",
+                            Parameter.Type.DOUBLE_ARRAY,
+                            value=[yaw, pitch, roll],
+                        )
+                    ]
+                )
 
                 discovered += 1
                 self.get_logger().info(
@@ -397,16 +416,19 @@ class BevStitcherNode(Node):
         self._camera_intrinsics[name] = K
         self.get_logger().info(
             f"[{name}] intrinsics from camera_info: "
-            f"fx={K[0,0]:.1f} fy={K[1,1]:.1f} "
-            f"cx={K[0,2]:.1f} cy={K[1,2]:.1f}"
+            f"fx={K[0, 0]:.1f} fy={K[1, 1]:.1f} "
+            f"cx={K[0, 2]:.1f} cy={K[1, 2]:.1f}"
         )
         from rclpy.parameter import Parameter
-        self.set_parameters([
-            Parameter(f"{name}.fx", Parameter.Type.DOUBLE, value=float(K[0, 0])),
-            Parameter(f"{name}.fy", Parameter.Type.DOUBLE, value=float(K[1, 1])),
-            Parameter(f"{name}.cx", Parameter.Type.DOUBLE, value=float(K[0, 2])),
-            Parameter(f"{name}.cy", Parameter.Type.DOUBLE, value=float(K[1, 2])),
-        ])
+
+        self.set_parameters(
+            [
+                Parameter(f"{name}.fx", Parameter.Type.DOUBLE, value=float(K[0, 0])),
+                Parameter(f"{name}.fy", Parameter.Type.DOUBLE, value=float(K[1, 1])),
+                Parameter(f"{name}.cx", Parameter.Type.DOUBLE, value=float(K[0, 2])),
+                Parameter(f"{name}.cy", Parameter.Type.DOUBLE, value=float(K[1, 2])),
+            ]
+        )
 
         # If in IPM/auto mode and all intrinsics are now available, refresh
         if self._cal_mode in ("ipm", "auto") and _IPM:
@@ -420,9 +442,7 @@ class BevStitcherNode(Node):
             self._homographies = Hs
             self._blend_weights = self._compute_blend_weights()
             self._calibrated = True
-            self.get_logger().info(
-                "Homographies refreshed from camera_info intrinsics"
-            )
+            self.get_logger().info("Homographies refreshed from camera_info intrinsics")
 
     def _load_homographies(self):
         """
@@ -541,9 +561,7 @@ class BevStitcherNode(Node):
             return _tiled_homographies(
                 self._names, self._canvas, self._src_w, self._src_h
             ), False
-        self.get_logger().info(
-            f"Computed {len(Hs)} IPM homographies from camera poses"
-        )
+        self.get_logger().info(f"Computed {len(Hs)} IPM homographies from camera poses")
         return Hs, True
 
     def _compute_blend_weights(self) -> dict:

@@ -18,27 +18,15 @@ def generate_launch_description():
             DeclareLaunchArgument(
                 "calibration_file", default_value="~/bev_calibration.npz"
             ),
-            DeclareLaunchArgument(
-                "calibration_mode", default_value="auto"
-            ),
-            DeclareLaunchArgument(
-                "pixels_per_meter", default_value="80.0"
-            ),
-            DeclareLaunchArgument(
-                "ground_z", default_value="0.0"
-            ),
-            DeclareLaunchArgument(
-                "use_tf", default_value="true"
-            ),
-            DeclareLaunchArgument(
-                "base_frame", default_value="base_link"
-            ),
+            DeclareLaunchArgument("calibration_mode", default_value="auto"),
+            DeclareLaunchArgument("pixels_per_meter", default_value="80.0"),
+            DeclareLaunchArgument("ground_z", default_value="0.0"),
+            DeclareLaunchArgument("use_tf", default_value="true"),
+            DeclareLaunchArgument("base_frame", default_value="base_link"),
             DeclareLaunchArgument(
                 "tf_frame_pattern", default_value="{name}_camera_optical_frame"
             ),
-            DeclareLaunchArgument(
-                "use_camera_info", default_value="true"
-            ),
+            DeclareLaunchArgument("use_camera_info", default_value="true"),
             DeclareLaunchArgument(
                 "output_topic", default_value="/camera/bev/image_raw"
             ),

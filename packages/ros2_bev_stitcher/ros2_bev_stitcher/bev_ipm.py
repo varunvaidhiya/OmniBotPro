@@ -25,11 +25,6 @@ import numpy as np
 
 # ── Pure math functions (no ROS dependency) ───────────────────────────────────
 
-import argparse
-import os
-from typing import Dict, List, Optional, Tuple
-
-import numpy as np
 
 # ROS imports — lazy/optional so pure functions are importable without ROS
 try:
@@ -240,9 +235,7 @@ class IPMCalibratorNode(_Node if _ROS else object):
         self.declare_parameter("canvas_size", 800)
         self.declare_parameter("pixels_per_meter", 80.0)
         self.declare_parameter("ground_z", 0.0)
-        self.declare_parameter(
-            "output", os.path.expanduser("~/bev_calibration.npz")
-        )
+        self.declare_parameter("output", os.path.expanduser("~/bev_calibration.npz"))
 
         # Per-camera parameters are declared dynamically below.
 
@@ -396,9 +389,13 @@ def main(args=None) -> None:
 
     node.set_parameters(
         [
-            Parameter("camera_names", Parameter.Type.STRING_ARRAY, value=parsed.camera_names),
+            Parameter(
+                "camera_names", Parameter.Type.STRING_ARRAY, value=parsed.camera_names
+            ),
             Parameter("canvas_size", Parameter.Type.INTEGER, value=parsed.canvas_size),
-            Parameter("pixels_per_meter", Parameter.Type.DOUBLE, value=parsed.pixels_per_meter),
+            Parameter(
+                "pixels_per_meter", Parameter.Type.DOUBLE, value=parsed.pixels_per_meter
+            ),
             Parameter("ground_z", Parameter.Type.DOUBLE, value=parsed.ground_z),
             Parameter("output", Parameter.Type.STRING, value=parsed.output),
         ]
@@ -411,7 +408,13 @@ def main(args=None) -> None:
             if len(parts) == 4:
                 name, x, y, z = parts
                 node.set_parameters(
-                    [Parameter(f"{name}.position", Parameter.Type.DOUBLE_ARRAY, value=[float(x), float(y), float(z)])]
+                    [
+                        Parameter(
+                            f"{name}.position",
+                            Parameter.Type.DOUBLE_ARRAY,
+                            value=[float(x), float(y), float(z)],
+                        )
+                    ]
                 )
 
     if parsed.orientations:
@@ -420,16 +423,30 @@ def main(args=None) -> None:
             if len(parts) == 4:
                 name, r, p, y = parts
                 node.set_parameters(
-                    [Parameter(f"{name}.orientation_rpy", Parameter.Type.DOUBLE_ARRAY, value=[float(r), float(p), float(y)])]
+                    [
+                        Parameter(
+                            f"{name}.orientation_rpy",
+                            Parameter.Type.DOUBLE_ARRAY,
+                            value=[float(r), float(p), float(y)],
+                        )
+                    ]
                 )
 
     for name in parsed.camera_names:
         node.set_parameters(
             [
-                Parameter(f"{name}.fx", Parameter.Type.DOUBLE, value=parsed.focal_length),
-                Parameter(f"{name}.fy", Parameter.Type.DOUBLE, value=parsed.focal_length),
-                Parameter(f"{name}.cx", Parameter.Type.DOUBLE, value=parsed.principal_point[0]),
-                Parameter(f"{name}.cy", Parameter.Type.DOUBLE, value=parsed.principal_point[1]),
+                Parameter(
+                    f"{name}.fx", Parameter.Type.DOUBLE, value=parsed.focal_length
+                ),
+                Parameter(
+                    f"{name}.fy", Parameter.Type.DOUBLE, value=parsed.focal_length
+                ),
+                Parameter(
+                    f"{name}.cx", Parameter.Type.DOUBLE, value=parsed.principal_point[0]
+                ),
+                Parameter(
+                    f"{name}.cy", Parameter.Type.DOUBLE, value=parsed.principal_point[1]
+                ),
             ]
         )
 

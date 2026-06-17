@@ -823,12 +823,301 @@ function ProofDash({ accent }: DashProps) {
   );
 }
 
+// ── OhhO Bench ────────────────────────────────────────────────────────────────
+function BenchDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const steps = [
+    { l: "Frame & base", s: 2 },
+    { l: "Mecanum wheels", s: 2 },
+    { l: "Motor board", s: 2 },
+    { l: "SO-101 arm", s: 2 },
+    { l: "Cameras", s: 1 },
+    { l: "Compute + power", s: 0 },
+  ];
+  const tests = [
+    { l: "Motors", v: "OK", c: C.green },
+    { l: "Encoders", v: "OK", c: C.green },
+    { l: "IMU", v: "OK", c: C.green },
+    { l: "Arm bus", v: "homing", c: C.amber },
+    { l: "Cameras", v: "OK", c: C.green },
+  ];
+  return (
+    <DashboardFrame title="ohho-bench · warehouse-amr" accent={accent} tools={["bring-up", "USB"]}>
+      {/* assembly checklist */}
+      <Panel x={14} y={12} w={168} h={250} label="Assembly" accent={a} />
+      {steps.map((st, i) => (
+        <g key={st.l}>
+          {st.s === 2 ? (
+            <g>
+              <circle cx={32} cy={52 + i * 38} r={8} fill={C.green} fillOpacity={0.2} stroke={C.green} />
+              <path d={`M28 ${52 + i * 38} l3 3 l5 -6`} fill="none" stroke={C.green} strokeWidth={1.6} strokeLinecap="round" />
+            </g>
+          ) : st.s === 1 ? (
+            <circle cx={32} cy={52 + i * 38} r={8} fill="none" stroke={a} strokeWidth={1.6} />
+          ) : (
+            <circle cx={32} cy={52 + i * 38} r={8} fill="none" stroke={C.faint} strokeWidth={1.4} strokeDasharray="2 2" />
+          )}
+          <text x={48} y={49 + i * 38} fontFamily={BODY} fontSize={9.5} fill={st.s === 0 ? C.faint : C.text}>
+            {st.l}
+          </text>
+          <text x={48} y={61 + i * 38} fontFamily={MONO} fontSize={7.5} fill={st.s === 1 ? a : C.faint}>
+            {st.s === 2 ? "done" : st.s === 1 ? "in progress" : "pending"}
+          </text>
+        </g>
+      ))}
+
+      {/* wiring / port map */}
+      <Panel x={194} y={12} w={206} h={250} label="Wiring · port map" />
+      <rect x={272} y={120} width={50} height={34} rx={6} fill={C.panelHi} stroke={a} />
+      <text x={297} y={141} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="middle">
+        compute
+      </text>
+      {/* peripheral boxes */}
+      {[
+        { x: 210, y: 44, l: "motor board", p: "USB0 · 115200" },
+        { x: 334, y: 44, l: "arm bus", p: "ACM0 · 1 Mbd" },
+        { x: 210, y: 200, l: "cameras", p: "USB · uvc" },
+        { x: 334, y: 200, l: "battery", p: "12 V · pwr" },
+      ].map((b) => (
+        <g key={b.l}>
+          <rect x={b.x} y={b.y} width={56} height={30} rx={5} fill={C.surfHi} stroke={C.borderHi} />
+          <text x={b.x + 28} y={b.y + 14} fontFamily={MONO} fontSize={7.5} fill={C.text} textAnchor="middle">
+            {b.l}
+          </text>
+          <text x={b.x + 28} y={b.y + 24} fontFamily={MONO} fontSize={6.5} fill={C.faint} textAnchor="middle">
+            {b.p}
+          </text>
+        </g>
+      ))}
+      <line x1={238} y1={74} x2={285} y2={120} stroke={a} strokeOpacity={0.55} />
+      <line x1={362} y1={74} x2={309} y2={120} stroke={a} strokeOpacity={0.55} />
+      <line x1={238} y1={200} x2={285} y2={154} stroke={a} strokeOpacity={0.55} />
+      <line x1={362} y1={200} x2={309} y2={154} stroke={C.green} strokeOpacity={0.55} />
+
+      {/* self-test */}
+      <Panel x={408} y={12} w={138} h={150} label="Self-test" />
+      {tests.map((t, i) => (
+        <g key={t.l}>
+          <Dot cx={420} cy={43 + i * 22} r={2.6} color={t.c} />
+          <text x={430} y={46 + i * 22} fontFamily={BODY} fontSize={8.7} fill={C.muted}>
+            {t.l}
+          </text>
+          <text x={536} y={46 + i * 22} fontFamily={MONO} fontSize={7.5} fill={t.c} textAnchor="end">
+            {t.v}
+          </text>
+        </g>
+      ))}
+
+      {/* calibration */}
+      <Panel x={408} y={172} w={138} h={90} label="Calibration" accent={a} />
+      <Ring cx={444} cy={222} r={26} frac={0.8} color={a} width={7} label="80%" />
+      <text x={482} y={208} fontFamily={BODY} fontSize={8.3} fill={C.muted}>
+        odometry ✓
+      </text>
+      <text x={482} y={222} fontFamily={BODY} fontSize={8.3} fill={C.muted}>
+        IMU bias ✓
+      </text>
+      <text x={482} y={236} fontFamily={BODY} fontSize={8.3} fill={C.faint}>
+        BEV rig …
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Train ────────────────────────────────────────────────────────────────
+function TrainDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const loss = [0.92, 0.78, 0.63, 0.54, 0.45, 0.38, 0.33, 0.29, 0.25, 0.22, 0.19, 0.17];
+  const succ = [0.2, 0.28, 0.35, 0.44, 0.5, 0.58, 0.64, 0.69, 0.74, 0.78, 0.82, 0.86];
+  const cfg = [
+    { l: "method", v: "smolvla" },
+    { l: "dataset", v: "1,043 eps" },
+    { l: "epochs", v: "40 / 50" },
+    { l: "lr", v: "1e-4" },
+    { l: "device", v: "cuda:0" },
+  ];
+  return (
+    <DashboardFrame title="ohho-train · smolvla-ft" accent={accent} tools={["W&B", "GPU 0"]}>
+      {/* run config */}
+      <Panel x={14} y={12} w={150} h={250} label="Run config" accent={a} />
+      {cfg.map((c, i) => (
+        <g key={c.l}>
+          <text x={26} y={48 + i * 26} fontFamily={MONO} fontSize={8.5} fill={C.faint}>
+            {c.l}
+          </text>
+          <text x={152} y={48 + i * 26} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+            {c.v}
+          </text>
+          <line x1={26} y1={56 + i * 26} x2={152} y2={56 + i * 26} stroke={C.grid} />
+        </g>
+      ))}
+      <rect x={26} y={196} width={126} height={26} rx={6} fill="rgba(124,58,237,0.10)" stroke={C.violetLite} strokeOpacity={0.5} />
+      <text x={89} y={212} fontFamily={BODY} fontSize={8.5} fill={C.violetLite} textAnchor="middle">
+        OmniVLA engine
+      </text>
+      <StatusPill x={26} y={232} label="training" color={C.green} />
+
+      {/* loss / success chart */}
+      <Panel x={176} y={12} w={224} h={150} label="Loss · success rate" accent={a} />
+      <text x={388} y={30} fontFamily={DISPLAY} fontSize={14} fontWeight={700} fill={C.text} textAnchor="end">
+        86%
+      </text>
+      {[0, 1, 2].map((i) => (
+        <line key={i} x1={188} y1={56 + i * 30} x2={388} y2={56 + i * 30} stroke={C.grid} />
+      ))}
+      <path d={sparkPath(loss, 188, 48, 200, 92, true)} fill={a} fillOpacity={0.1} stroke="none" />
+      <path d={sparkPath(loss, 188, 48, 200, 92)} fill="none" stroke={a} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <path d={sparkPath(succ, 188, 48, 200, 92)} fill="none" stroke={C.green} strokeWidth={2} strokeDasharray="4 3" strokeLinecap="round" strokeLinejoin="round" />
+      <Dot cx={196} cy={150} r={2.6} color={a} />
+      <text x={204} y={153} fontFamily={MONO} fontSize={7.5} fill={C.faint}>loss</text>
+      <Dot cx={244} cy={150} r={2.6} color={C.green} />
+      <text x={252} y={153} fontFamily={MONO} fontSize={7.5} fill={C.faint}>success</text>
+
+      {/* verify / export */}
+      <Panel x={176} y={172} w={224} h={90} label="Verify & export" />
+      <text x={188} y={200} fontFamily={BODY} fontSize={8.7} fill={C.muted}>
+        Best-of-N · safety checks
+      </text>
+      <StatusPill x={330} y={190} label="passed" color={C.green} />
+      <rect x={188} y={216} width={200} height={30} rx={7} fill={a} />
+      <text x={288} y={235} fontFamily={BODY} fontSize={9.5} fontWeight={700} fill={C.bg} textAnchor="middle">
+        Export → OhhO Serve
+      </text>
+
+      {/* GPU / steps */}
+      <Panel x={412} y={12} w={134} h={250} label="Run" />
+      <Ring cx={479} cy={84} r={34} frac={0.81} color={a} width={9} label="81%" sub="GPU" />
+      <text x={428} y={146} fontFamily={BODY} fontSize={8.7} fill={C.muted}>step</text>
+      <text x={532} y={146} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">38.4k</text>
+      <Bar x={428} y={152} w={104} frac={0.8} color={a} h={4} />
+      <text x={428} y={176} fontFamily={BODY} fontSize={8.7} fill={C.muted}>VRAM</text>
+      <text x={532} y={176} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">14.2 / 16</text>
+      <Bar x={428} y={182} w={104} frac={0.89} color={C.amber} h={4} />
+      <text x={428} y={206} fontFamily={BODY} fontSize={8.7} fill={C.muted}>ETA</text>
+      <text x={532} y={206} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">12m</text>
+      <StatusPill x={428} y={222} label="W&B synced" color={C.green} />
+      <StatusPill x={428} y={242} label="checkpoint 0040" color={a} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Autonomy ─────────────────────────────────────────────────────────────
+function AutonomyDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const mission = [
+    { l: "navigate · kitchen", s: 2 },
+    { l: "detect · red cup", s: 1 },
+    { l: "pick · cup", s: 0 },
+    { l: "navigate · bench", s: 0 },
+  ];
+  const modes = [
+    { l: "nav2", on: true },
+    { l: "vla", on: false },
+    { l: "rl_nav", on: false },
+    { l: "teleop", on: false },
+  ];
+  return (
+    <DashboardFrame title="ohho-autonomy · mission" accent={accent} tools={["SLAM", "Nav2"]}>
+      {/* mission state machine */}
+      <Panel x={14} y={12} w={156} h={250} label="Mission" accent={a} />
+      {mission.map((m, i) => (
+        <g key={m.l}>
+          <line x1={28} y1={48 + i * 36} x2={28} y2={i === mission.length - 1 ? 48 + i * 36 : 84 + i * 36} stroke={C.border} />
+          {m.s === 2 ? (
+            <circle cx={28} cy={48 + i * 36} r={6} fill={C.green} />
+          ) : m.s === 1 ? (
+            <circle cx={28} cy={48 + i * 36} r={6} fill={a} />
+          ) : (
+            <circle cx={28} cy={48 + i * 36} r={6} fill={C.surf} stroke={C.faint} />
+          )}
+          <text x={42} y={45 + i * 36} fontFamily={BODY} fontSize={9} fill={m.s === 0 ? C.faint : C.text}>
+            {m.l}
+          </text>
+          <text x={42} y={56 + i * 36} fontFamily={MONO} fontSize={7} fill={m.s === 1 ? a : C.faint}>
+            {m.s === 2 ? "done" : m.s === 1 ? "running" : "queued"}
+          </text>
+        </g>
+      ))}
+      {/* agent prompt */}
+      <rect x={24} y={200} width={136} height={52} rx={7} fill="#0A0F1C" stroke={C.violetLite} strokeOpacity={0.4} />
+      <text x={32} y={216} fontFamily={MONO} fontSize={6.5} fill={C.violetLite}>
+        ✦ AGENT · claude
+      </text>
+      <text x={32} y={230} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        “take the red cup to
+      </text>
+      <text x={32} y={241} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        the bench”
+      </text>
+
+      {/* SLAM map */}
+      <Panel x={180} y={12} w={232} h={250} label="SLAM map · localized" />
+      <rect x={190} y={36} width={212} height={216} rx={6} fill="#0A1424" stroke={C.border} />
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <line key={`gh${i}`} x1={190} y1={36 + i * 36} x2={402} y2={36 + i * 36} stroke={C.grid} />
+      ))}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <line key={`gv${i}`} x1={190 + i * 36} y1={36} x2={190 + i * 36} y2={252} stroke={C.grid} />
+      ))}
+      {/* walls / occupancy */}
+      <path d="M206 60 h120 v14 h-120 z" fill="rgba(255,255,255,0.08)" />
+      <path d="M340 60 v120 h14 v-120 z" fill="rgba(255,255,255,0.08)" />
+      <path d="M206 210 h90 v14 h-90 z" fill="rgba(255,255,255,0.08)" />
+      {/* costmap obstacle */}
+      <circle cx={300} cy={150} r={14} fill={C.amber} fillOpacity={0.18} stroke={C.amber} strokeDasharray="3 3" />
+      {/* planned path */}
+      <path d="M224 226 C 250 180, 232 130, 270 110 S 320 80, 332 92" fill="none" stroke={a} strokeWidth={2.4} strokeDasharray="6 4" strokeLinecap="round" />
+      {/* waypoints */}
+      <circle cx={270} cy={110} r={3} fill={C.violetLite} />
+      {/* goal */}
+      <g>
+        <circle cx={332} cy={92} r={6} fill="none" stroke={C.green} strokeWidth={1.6} />
+        <circle cx={332} cy={92} r={2} fill={C.green} />
+      </g>
+      {/* robot */}
+      <rect x={216} y={218} width={16} height={16} rx={3} fill={C.panelHi} stroke={a} strokeWidth={1.6} />
+      <path d="M224 222 v6" stroke={a} strokeWidth={2} strokeLinecap="round" />
+      <text x={196} y={250} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        kitchen → bench
+      </text>
+
+      {/* behavior / mux */}
+      <Panel x={420} y={12} w={126} h={150} label="Control mode" accent={a} />
+      {modes.map((m, i) => (
+        <g key={m.l}>
+          <rect x={430} y={40 + i * 26} width={106} height={20} rx={5} fill={m.on ? "rgba(124,58,237,0.14)" : "rgba(255,255,255,0.02)"} stroke={m.on ? a : C.border} />
+          <Dot cx={442} cy={50 + i * 26} r={2.6} color={m.on ? a : C.faint} />
+          <text x={452} y={53 + i * 26} fontFamily={MONO} fontSize={8.5} fill={m.on ? C.text : C.muted}>
+            {m.l}
+          </text>
+          {m.on && (
+            <text x={528} y={53 + i * 26} fontFamily={MONO} fontSize={7} fill={a} textAnchor="end">
+              active
+            </text>
+          )}
+        </g>
+      ))}
+
+      {/* nav status */}
+      <Panel x={420} y={172} w={126} h={90} label="Nav2" />
+      <StatusPill x={430} y={196} label="navigating" color={C.green} />
+      <text x={430} y={226} fontFamily={BODY} fontSize={8.5} fill={C.muted}>dist to goal</text>
+      <text x={536} y={226} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">2.4 m</text>
+      <text x={430} y={244} fontFamily={BODY} fontSize={8.5} fill={C.muted}>ETA</text>
+      <text x={536} y={244} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">9 s</text>
+    </DashboardFrame>
+  );
+}
+
 const DASHBOARDS: Record<string, (p: DashProps) => JSX.Element> = {
   build: BuildDash,
+  bench: BenchDash,
   frame: FrameDash,
   serve: ServeDash,
   view: ViewDash,
   data: DataDash,
+  train: TrainDash,
+  autonomy: AutonomyDash,
   pilot: PilotDash,
   fleet: FleetDash,
   comply: ComplyDash,
