@@ -634,6 +634,7 @@ export const PRODUCTS: Product[] = [
       { q: "Which standards are covered?", a: "The common machinery and robot-safety standards (CE / Machinery Regulation, ISO 10218, ISO 13849, UL), with custom standards available on Forge." },
     ],
     related: ["shield", "proof", "build"],
+    app: { href: "/comply", label: "Open compliance center" },
     dashboardCaption:
       "OhhO Comply — standards coverage, certification progress rings and the document / audit status board.",
   },
@@ -699,6 +700,7 @@ export const PRODUCTS: Product[] = [
       { q: "Does it work with my existing ROS 2 stack?", a: "Yes. Shield layers onto standard ROS 2 / DDS and the ROSBridge transport OhhO Pilot uses." },
     ],
     related: ["fleet", "pilot", "comply"],
+    app: { href: "/shield", label: "Open security dashboard" },
     dashboardCaption:
       "OhhO Shield — fleet risk score, device-identity roster and the live SBOM / CVE table.",
   },
@@ -765,6 +767,7 @@ export const PRODUCTS: Product[] = [
       { q: "How does it relate to Comply?", a: "Proof produces the test evidence; Comply files it as part of the certification record." },
     ],
     related: ["comply", "data", "fleet"],
+    app: { href: "/proof", label: "Open validation suite" },
     dashboardCaption:
       "OhhO Proof — suite pass / fail, the scenario-coverage heatmap and the sim-to-real regression trend.",
   },
