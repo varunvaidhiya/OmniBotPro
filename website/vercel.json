@@ -1,9 +1,11 @@
 {
-  "framework": "nextjs",
+  "framework": null,
   "buildCommand": "npm run build",
-  "outputDirectory": ".next",
+  "outputDirectory": "out",
   "installCommand": "npm install --legacy-peer-deps",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- .",
+  "cleanUrls": true,
+  "trailingSlash": false,
   "build": {
     "env": {
       "NEXT_PUBLIC_SUPABASE_URL": "https://ucnyuappgtcpolqdaovv.supabase.co",
