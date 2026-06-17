@@ -19,6 +19,27 @@ def generate_launch_description():
                 "calibration_file", default_value="~/bev_calibration.npz"
             ),
             DeclareLaunchArgument(
+                "calibration_mode", default_value="auto"
+            ),
+            DeclareLaunchArgument(
+                "pixels_per_meter", default_value="80.0"
+            ),
+            DeclareLaunchArgument(
+                "ground_z", default_value="0.0"
+            ),
+            DeclareLaunchArgument(
+                "use_tf", default_value="true"
+            ),
+            DeclareLaunchArgument(
+                "base_frame", default_value="base_link"
+            ),
+            DeclareLaunchArgument(
+                "tf_frame_pattern", default_value="{name}_camera_optical_frame"
+            ),
+            DeclareLaunchArgument(
+                "use_camera_info", default_value="true"
+            ),
+            DeclareLaunchArgument(
                 "output_topic", default_value="/camera/bev/image_raw"
             ),
             Node(
@@ -35,6 +56,13 @@ def generate_launch_description():
                         "src_height": LaunchConfiguration("src_height"),
                         "publish_hz": LaunchConfiguration("publish_hz"),
                         "calibration_file": LaunchConfiguration("calibration_file"),
+                        "calibration_mode": LaunchConfiguration("calibration_mode"),
+                        "pixels_per_meter": LaunchConfiguration("pixels_per_meter"),
+                        "ground_z": LaunchConfiguration("ground_z"),
+                        "use_tf": LaunchConfiguration("use_tf"),
+                        "base_frame": LaunchConfiguration("base_frame"),
+                        "tf_frame_pattern": LaunchConfiguration("tf_frame_pattern"),
+                        "use_camera_info": LaunchConfiguration("use_camera_info"),
                         "output_topic": LaunchConfiguration("output_topic"),
                     }
                 ],
