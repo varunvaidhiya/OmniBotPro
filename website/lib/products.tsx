@@ -299,6 +299,7 @@ export const PRODUCTS: Product[] = [
     related: ["data", "view", "pilot"],
     dashboardCaption:
       "OhhO Serve — endpoint console with live latency, throughput and GPU utilization.",
+    app: { href: "/serve", label: "Open the console" },
   },
   {
     slug: "view",
