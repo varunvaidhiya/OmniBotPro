@@ -67,7 +67,17 @@ function ProductCard({ product, delay }: { product: Product; delay: number }) {
         </div>
 
         <div>
-          <div className="font-display text-[17px] font-semibold">{product.name}</div>
+          <div className="flex items-center gap-2">
+            <div className="font-display text-[17px] font-semibold">{product.name}</div>
+            {product.app && (
+              <span
+                className="inline-flex items-center gap-1 font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-[2px] rounded-full"
+                style={{ background: isCyan ? "rgba(0,212,255,.16)" : "rgba(124,58,237,.18)", color: aColor, border: `1px solid ${isCyan ? "rgba(0,212,255,.32)" : "rgba(124,58,237,.34)"}` }}
+              >
+                <span className="badge-dot" style={{ background: aColor, width: 5, height: 5 }} /> LIVE
+              </span>
+            )}
+          </div>
           <div className="text-[12px] font-medium mt-[1px]" style={{ color: aColor }}>
             {product.tag}
           </div>

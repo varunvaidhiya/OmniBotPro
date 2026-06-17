@@ -268,3 +268,39 @@ ul { list-style: none; }
   .glass-tile { transform: none !important; transition: box-shadow .3s, border-color .3s; }
   .glass-pop { transform: none; }
 }
+
+/* ── OhhO Build — requirement sliders ──────────────────────────────────
+   A cyan-accented range input that matches the studio's dark UI on both
+   WebKit and Firefox. */
+.ohho-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.10);
+  outline: none;
+  cursor: pointer;
+}
+.ohho-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--cyan), 0 0 10px rgba(0,212,255,0.4);
+  transition: transform .15s ease;
+}
+.ohho-range::-webkit-slider-thumb:hover { transform: scale(1.18); }
+.ohho-range::-moz-range-thumb {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--cyan), 0 0 10px rgba(0,212,255,0.4);
+  cursor: pointer;
+}
+.ohho-range::-moz-range-track {
+  height: 4px; border-radius: 2px;
+  background: rgba(255,255,255,0.10);
+}

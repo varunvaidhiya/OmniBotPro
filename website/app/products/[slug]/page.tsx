@@ -100,20 +100,41 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
               </p>
 
               <div className="flex flex-wrap items-center gap-3 mt-8">
-                <a
-                  href="#plans"
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ background: aColor, color: "var(--bg)" }}
-                >
-                  Choose your plan <ArrowRight size={15} strokeWidth={2.5} />
-                </a>
-                <Link
-                  href={PRICING_HREF}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
-                  style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
-                >
-                  Compare all plans
-                </Link>
+                {product.app ? (
+                  <>
+                    <Link
+                      href={product.app.href}
+                      className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                      style={{ background: aColor, color: "var(--bg)" }}
+                    >
+                      {product.app.label} <ArrowRight size={15} strokeWidth={2.5} />
+                    </Link>
+                    <a
+                      href="#plans"
+                      className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
+                      style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
+                    >
+                      Choose your plan
+                    </a>
+                  </>
+                ) : (
+                  <>
+                    <a
+                      href="#plans"
+                      className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                      style={{ background: aColor, color: "var(--bg)" }}
+                    >
+                      Choose your plan <ArrowRight size={15} strokeWidth={2.5} />
+                    </a>
+                    <Link
+                      href={PRICING_HREF}
+                      className="inline-flex items-center gap-2 text-[13px] font-semibold px-[22px] py-[12px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
+                      style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
+                    >
+                      Compare all plans
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
@@ -135,13 +156,35 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
           {/* ── DASHBOARD MOCKUP (the embedded "image") ──────────────────── */}
           <figure className="mt-16">
-            <GlassCard accent={accent} interactive={false} padding="16px" radius={22}>
-              <div className="rounded-[14px] overflow-hidden">
-                <ProductDashboard slug={product.slug} accent={accent} />
-              </div>
-            </GlassCard>
+            {product.app ? (
+              <Link href={product.app.href} className="block group">
+                <GlassCard accent={accent} interactive={false} padding="16px" radius={22} className="relative">
+                  <span
+                    className="absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: aColor, color: "var(--bg)" }}
+                  >
+                    <span className="badge-dot" style={{ background: "var(--bg)" }} /> LIVE
+                  </span>
+                  <div className="rounded-[14px] overflow-hidden">
+                    <ProductDashboard slug={product.slug} accent={accent} />
+                  </div>
+                </GlassCard>
+              </Link>
+            ) : (
+              <GlassCard accent={accent} interactive={false} padding="16px" radius={22}>
+                <div className="rounded-[14px] overflow-hidden">
+                  <ProductDashboard slug={product.slug} accent={accent} />
+                </div>
+              </GlassCard>
+            )}
             <figcaption className="text-center text-[12.5px] mt-4 font-mono" style={{ color: "rgba(255,255,255,0.4)" }}>
-              {product.dashboardCaption}
+              {product.app ? (
+                <Link href={product.app.href} className="inline-flex items-center gap-1.5 transition-colors hover:text-white" style={{ color: aColor }}>
+                  This isn&apos;t a mockup — {product.app.label.toLowerCase()} <ArrowRight size={13} strokeWidth={2.5} />
+                </Link>
+              ) : (
+                product.dashboardCaption
+              )}
             </figcaption>
           </figure>
 
@@ -341,13 +384,23 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                 Start free and simulate first — no hardware required. Upgrade when you're ready to deploy.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <a
-                  href={contactMailto(`Get started with ${product.name}`)}
-                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-                  style={{ background: aColor, color: "var(--bg)" }}
-                >
-                  Get started free <ArrowRight size={15} strokeWidth={2.5} />
-                </a>
+                {product.app ? (
+                  <Link
+                    href={product.app.href}
+                    className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                    style={{ background: aColor, color: "var(--bg)" }}
+                  >
+                    {product.app.label} <ArrowRight size={15} strokeWidth={2.5} />
+                  </Link>
+                ) : (
+                  <a
+                    href={contactMailto(`Get started with ${product.name}`)}
+                    className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+                    style={{ background: aColor, color: "var(--bg)" }}
+                  >
+                    Get started free <ArrowRight size={15} strokeWidth={2.5} />
+                  </a>
+                )}
                 <Link
                   href={PRICING_HREF}
                   className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:bg-white/[0.06]"
