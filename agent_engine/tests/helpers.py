@@ -30,7 +30,9 @@ class FakeEntityStore:
     def __init__(self) -> None:
         self.objects: Dict[str, Dict[str, Any]] = {}
 
-    def remember_object(self, object_name: str, location: str, description: str = "") -> None:
+    def remember_object(
+        self, object_name: str, location: str, description: str = ""
+    ) -> None:
         self.objects[object_name] = {
             "last_seen_location": location,
             "description": description,
@@ -79,8 +81,10 @@ def make_registry(log: List[str]) -> ToolRegistry:
         ToolSpec(
             "navigate_to",
             "Drive to a named location via Nav2.",
-            lambda location: log.append(f"navigate_to:{location}")
-            or ToolResult(True, f"navigating to {location}"),
+            lambda location: (
+                log.append(f"navigate_to:{location}")
+                or ToolResult(True, f"navigating to {location}")
+            ),
             [ToolParam("location", "named location")],
         )
     )
@@ -95,8 +99,9 @@ def make_registry(log: List[str]) -> ToolRegistry:
         ToolSpec(
             "ask_human",
             "Ask the operator a question.",
-            lambda question: log.append(f"ask_human:{question}")
-            or ToolResult(True, "asked"),
+            lambda question: (
+                log.append(f"ask_human:{question}") or ToolResult(True, "asked")
+            ),
             [ToolParam("question", "question text")],
         )
     )

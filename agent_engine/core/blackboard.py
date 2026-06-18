@@ -79,9 +79,7 @@ class WorldState:
 
     # -- queries -----------------------------------------------------------
     def nearest_object(self) -> Optional[DetectedObject]:
-        candidates = [
-            o for o in self.detected_objects if not np.isnan(o.distance_m)
-        ]
+        candidates = [o for o in self.detected_objects if not np.isnan(o.distance_m)]
         return min(candidates, key=lambda o: o.distance_m) if candidates else None
 
     def object_by_label(self, label: str) -> Optional[DetectedObject]:

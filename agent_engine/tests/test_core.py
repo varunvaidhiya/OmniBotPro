@@ -71,8 +71,9 @@ class TestToolRegistry(unittest.TestCase):
             ToolSpec(
                 "navigate_to",
                 "go somewhere",
-                lambda location: self.log.append(location)
-                or ToolResult(True, f"to {location}"),
+                lambda location: (
+                    self.log.append(location) or ToolResult(True, f"to {location}")
+                ),
                 [ToolParam("location", "where")],
             )
         )

@@ -47,8 +47,10 @@ class TestHarnessLoop(unittest.TestCase):
         self.assertTrue(harness.last_reflection.success)
 
     def test_phase_sequence(self):
-        plans = [Plan(calls=[ToolCall("navigate_to", {"location": "x"})]),
-                 Plan(goal_complete=True)]
+        plans = [
+            Plan(calls=[ToolCall("navigate_to", {"location": "x"})]),
+            Plan(goal_complete=True),
+        ]
         harness, _ = build(ScriptedReasoner(plans))
         harness.submit_goal("g")
         seq = [r.phase for r in harness.run_until_idle()]

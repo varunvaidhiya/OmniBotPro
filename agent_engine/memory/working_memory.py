@@ -41,9 +41,7 @@ class WorkingMemory:
             parts.append("Known objects and places:\n" + summary)
         if self._recent:
             lines = [
-                "- {} -> {}: {}".format(
-                    text, "succeeded" if ok else "failed", note
-                )
+                "- {} -> {}: {}".format(text, "succeeded" if ok else "failed", note)
                 for text, ok, note in self._recent
             ]
             parts.append("Recent goal outcomes this session:\n" + "\n".join(lines))

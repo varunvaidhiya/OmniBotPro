@@ -201,9 +201,7 @@ class AgentHarness:
 
         if plan.ask_human:
             if "ask_human" in self.tools:
-                self.tools.dispatch(
-                    ToolCall("ask_human", {"question": plan.ask_human})
-                )
+                self.tools.dispatch(ToolCall("ask_human", {"question": plan.ask_human}))
             return HarnessPhase.WAIT_HUMAN, f"ask human: {plan.ask_human}", []
         if plan.goal_complete:
             return HarnessPhase.REFLECT, "reasoner: goal complete", []
