@@ -1,0 +1,17 @@
+# Parameters for the agent harness ROS edge (world_state_node + agent_node).
+
+world_state_node:
+  ros__parameters:
+    publish_hz: 5.0                                   # /agent/world_state rate
+    entity_memory_path: "~/.omnibot/entity_memory.json"
+    scene_description: ""                              # optional static scene hint
+
+agent_node:
+  ros__parameters:
+    agent_hz: 1.0                                     # deliberative tick rate
+    max_steps_per_goal: 12                            # bounds the reason->act loop
+    anthropic_api_key: ""                             # else read from ANTHROPIC_API_KEY
+    prefer_local_reasoning: false                     # true -> on-device/DeepX for reactive calls
+    replay_dataset_path: "~/datasets/agent_episodes"  # reflect->learn episode store
+    entity_memory_path: "~/.omnibot/entity_memory.json"
+    environment: "real"                               # "real" or "sim" (labels episodes)

@@ -17,7 +17,7 @@ the ROS ``episode_logger`` node — this class owns the symbolic memory only.
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, Optional, Tuple
+from typing import Callable, Deque, Optional, Tuple
 
 from ..core.blackboard import WorldState
 from ..core.interfaces import EntityStore
@@ -29,8 +29,10 @@ class WorkingMemory:
         self,
         entity_store: Optional[EntityStore] = None,
         max_recent: int = 5,
+        episode_source: Optional[Callable[[], str]] = None,
     ) -> None:
         self._entity = entity_store
+        self._episode_source = episode_source
         # (goal_text, success, summary)
         self._recent: Deque[Tuple[str, bool, str]] = deque(maxlen=max_recent)
 
@@ -45,6 +47,10 @@ class WorkingMemory:
                 for text, ok, note in self._recent
             ]
             parts.append("Recent goal outcomes this session:\n" + "\n".join(lines))
+        if self._episode_source is not None:
+            past = self._episode_source()
+            if past:
+                parts.append(past)
         return "\n\n".join(parts)
 
     def record_outcome(self, goal: Goal, reflection: Reflection) -> None:

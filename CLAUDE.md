@@ -284,7 +284,10 @@ VLA Desktop (GPU PC)
 | `/camera/base/bev/image_raw` | Image | `bev_stitcher_node` | `policy_node`, `teleop_recorder_node` |
 | `/ai/command` | String | Android, manual pub | `langchain_agent_node` |
 | `/ai/status` | String | `langchain_agent_node` | Android |
-| `/ai/response_needed` | String | `langchain_agent_node` | Android |
+| `/ai/response_needed` | String | `langchain_agent_node`, `agent_node` | Android |
+| `/agent/world_state` | String (JSON) | `world_state_node` | `agent_node` |
+| `/agent/goal` | String | Android, manual pub | `agent_node` |
+| `/agent/human_response` | String | operator, manual pub | `agent_node` |
 
 **Nav2 action server**: `navigate_to_pose` (NavigateToPose) — used by `mission_planner`.
 
@@ -667,20 +670,32 @@ per-goal step budget. The harness depends only on structural `Protocol` **ports*
 | `reasoning/router.py` `ReasoningRouter` | hybrid brain — first available of cloud Claude / on-device LLM / DeepX per call kind (`deliberate`/`reactive`) |
 | `reasoning/cloud_claude.py` | `CloudClaudeBackend` (`claude-sonnet-4-6`, lazy `anthropic`, `ANTHROPIC_API_KEY`) |
 | `reasoning/local_llm.py` | `LocalLLMBackend` (Ollama/llama.cpp/DeepX-compiled fallback; available only when a runner is wired) |
-| `memory/working_memory.py` `WorkingMemory` | injects long-term (`EntityMemory`) + short-term (recent outcomes) into prompts; writes grounded objects back |
-| `reasoners/scripted.py` `ScriptedReasoner` | deterministic reasoner for tests/sim (the LangGraph+Claude tool-calling reasoner is the next phase) |
+| `memory/working_memory.py` `WorkingMemory` | injects long-term (`EntityMemory`) + short-term (recent outcomes) + episodic (`ReplayDataset`) into prompts; writes grounded objects back |
+| `reasoners/claude_tool_caller.py` `ClaudeToolCallingReasoner` | LLM brain for PLAN: backend-agnostic JSON tool-calling via `ReasoningRouter`, tools from `ToolRegistry.to_anthropic_schema()` |
+| `reasoners/scripted.py` `ScriptedReasoner` | deterministic reasoner for tests/sim |
+| `reasoning/factory.py` `build_reasoning_router` | assembles cloud+local+echo backends in deliberate/reactive preference order |
 
-Reuse-by-adapter (not yet wired, by design): `learning_engine` `InferenceVerifier`
-(safety gate), `ReflectionEvaluator`/`LanguageGoalEvaluator` (reflection),
-`ReplayDataset`+`episode_logger_node` (episodic memory),
-`ContinualLearningScheduler` (reflect→learn closure). ROS edge nodes
-(`world_state_node` → `/agent/world_state`, `agent_node` driving `tick()`) live
-in `omnibot_orchestration` and are added in the next phase — do not assume the
-`/agent/*` topics exist yet.
+Reuse-by-adapter (`integrations/learning_engine.py`, lazy import): `WorldStateVerifier`
+wraps `SafetyCheck`/`ReachabilityCheck` (real hw limits) as the `VerifierPort`;
+`EvaluatorReflector` runs the `LanguageGoalEvaluator`→`ReflectionEvaluator`→
+`HeuristicSelfEvaluator` chain and persists labelled episodes to `ReplayDataset`;
+`ReplayMemorySource` feeds episodic recall; `ContinualLearningClosure` fires the
+`ContinualLearningScheduler` (reflect→learn).
+
+ROS edge (`omnibot_orchestration`, needs `pip install -e agent_engine`):
+`world_state_node` fuses `/odom`+`/arm/joint_states`+`/perception/object_info`+
+`/mission/status`+`/emergency_stop` → `/agent/world_state` (JSON String, 5 Hz);
+`agent_node` drives `harness.tick()` from a timer (worker thread; one tick in
+flight), goals on `/ai/command`+`/agent/goal`, tools publish `/mission/command`+
+`/control_mode`+`/arm/cmd_mode`+`/mission/cancel`+`/ai/response_needed`. Launch:
+`agent.launch.py` (config `config/agent_params.yaml`).
 
 ```bash
-# Tests (stdlib unittest; only numpy needed)
+# Core tests (stdlib unittest; numpy; learning_engine adapters covered too)
 python3 -m unittest discover -s agent_engine/tests -t .
+# Run the loop on the robot / in Gazebo (after pip install -e agent_engine)
+ros2 launch omnibot_orchestration agent.launch.py
+ros2 topic pub --once /ai/command std_msgs/msg/String "data: 'find the red cup'"
 ```
 
 ---
@@ -814,6 +829,9 @@ RX packets start with `0xFB`. Parse by type code at byte index 3.
 
 LangGraph AI orchestration layer — converts natural language into structured
 robot missions using Claude. Runs on the AI desktop PC alongside the VLA nodes.
+Also hosts the **agent harness ROS edge** (`world_state_node`, `agent_node` —
+launch `agent.launch.py`), which runs the continuous `agent_engine` loop; see
+the **Agent Engine** section above.
 
 **Node**: `langchain_agent_node` (launch: `langchain_agent.launch.py`)
 

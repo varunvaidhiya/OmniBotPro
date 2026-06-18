@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+from .claude_tool_caller import ClaudeToolCallingReasoner
 from .scripted import ScriptedReasoner
 
-__all__ = ["ScriptedReasoner"]
+__all__ = ["ScriptedReasoner", "ClaudeToolCallingReasoner"]

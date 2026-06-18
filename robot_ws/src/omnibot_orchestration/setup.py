@@ -33,6 +33,8 @@ setup(
     entry_points={
         "console_scripts": [
             "langchain_agent_node = omnibot_orchestration.langchain_agent_node:main",
+            "world_state_node = omnibot_orchestration.world_state_node:main",
+            "agent_node = omnibot_orchestration.agent_node:main",
         ],
     },
 )

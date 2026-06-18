@@ -36,7 +36,7 @@ on ROS/anthropic/learning_engine directly:
 | Port | Adapter (where) |
 |---|---|
 | `Perceptor` | `world_state_node` → `/agent/world_state` (ROS); stubs in tests/sim |
-| `Reasoner` | LangGraph + Claude tool-calling (Phase 1); `ScriptedReasoner` now |
+| `Reasoner` | `ClaudeToolCallingReasoner` (JSON tool-calling via the router); `ScriptedReasoner` for tests |
 | `MemoryPort` | `WorkingMemory` over `EntityMemory` + episode store |
 | `Reflector` | learning-engine `ReflectionEvaluator` / `LanguageGoalEvaluator` |
 | `VerifierPort` | learning-engine `InferenceVerifier` (hardware-safety gate) |
@@ -60,14 +60,20 @@ on ROS/anthropic/learning_engine directly:
   (`EntityMemory`) + short-term (recent outcomes) memory into every prompt and
   writes grounded objects back. Fixes the "memory exists but unused" gap.
 
-## Reuse (not rebuilt)
+## Reuse (not rebuilt) — `integrations/learning_engine.py`
 
 The reflective and safety machinery already exists in `learning_engine` and is
-wired in via adapters (Phases 2–4): `InferenceVerifier` (safety gate),
-`ReflectionEvaluator`/`LanguageGoalEvaluator` (reflection), `ReplayDataset` +
-`episode_logger_node` (episodic memory), `ContinualLearningScheduler`
-(reflect → learn closure). Hardware/EP selection (incl. the DeepX NPU profile)
-comes from `learning_engine.hardware`.
+wired in via lazy adapters:
+
+- `WorldStateVerifier` → `VerifierPort` over `SafetyCheck`/`ReachabilityCheck`
+  (real Yahboom/Feetech limits).
+- `EvaluatorReflector` → `Reflector` over the `LanguageGoalEvaluator` →
+  `ReflectionEvaluator` → `HeuristicSelfEvaluator` chain; labels and persists
+  the episode to a `ReplayDataset`.
+- `ReplayMemorySource` → recent labelled-episode summaries for the prompt.
+- `ContinualLearningClosure` → fires `ContinualLearningScheduler` (reflect →
+  learn). Hardware/EP selection (incl. the DeepX NPU profile) comes from
+  `learning_engine.hardware`.
 
 ## ROS edge (in `omnibot_orchestration`)
 
