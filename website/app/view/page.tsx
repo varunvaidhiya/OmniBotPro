@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import ViewConsole from "@/components/view/ViewConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ViewPage() {
-  return <ViewConsole />;
+  return (
+    <ConsoleGate product="view">
+      <ViewConsole />
+    </ConsoleGate>
+  );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import AutonomyConsole from "@/components/autonomy/AutonomyConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function AutonomyPage() {
-  return <AutonomyConsole />;
+  return (
+    <ConsoleGate product="autonomy">
+      <AutonomyConsole />
+    </ConsoleGate>
+  );
 }

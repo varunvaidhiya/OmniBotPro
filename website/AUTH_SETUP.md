@@ -4,21 +4,17 @@ The OhhO website is a **static export**, so auth runs client-side via
 [Supabase](https://supabase.com) and payments run through **Stripe Checkout**,
 with the Stripe webhook hosted as a **Supabase Edge Function**. Until you wire
 the credentials below, the site still builds and deploys — sign-in shows a
-"not configured" notice and the product consoles stay open. Once configured,
-every console (`/build`, `/serve`, …) requires an active paid subscription.
+"not configured" notice. Every console (`/build`, `/serve`, …) requires a
+signed-in user.
 
 ## Flow
 
 ```
 visitor → /login (email magic link · Google)               ← Supabase Auth
    ↓ signed in
-clicks "Open the console" → ConsoleGate checks subscription
-   ├─ active plan  → console opens
-   └─ no plan      → /upgrade  → Stripe Checkout
-                                    ↓ payment
-                          stripe-webhook (Edge Fn) → subscriptions table
-                                    ↓
-                          console unlocks
+clicks "Open the console" → ConsoleGate checks auth
+   ├─ signed in      → console opens
+   └─ signed out     → /login?next=/requested-console
 ```
 
 ## 1. Supabase project
@@ -89,14 +85,16 @@ NEXT_PUBLIC_OAUTH_PROVIDERS=google      # or empty for email-only
 ## 5. Verify
 
 - Visit `/login`, sign in with email or Google.
-- Click **Open the console** on a product → you're routed to `/upgrade`.
+- Click **Open the console** on a product → the console opens.
+- Visit a console while signed out → you're routed to `/login`.
 - Subscribe → Stripe Checkout → back to `/account?checkout=success`.
-- The webhook writes your `subscriptions` row; consoles unlock automatically.
+- The webhook writes your `subscriptions` row for billing/account status.
 - **Manage billing** on `/account` opens the Stripe customer portal.
 
 ## Notes
 
-- Console access = any active paid plan (Builder or Fleet). Forge is sales-led.
+- Console access = any signed-in user.
+- Plans and subscriptions still power billing/account status. Forge is sales-led.
 - The `subscriptions` table is written **only** by the webhook (service role);
   clients can read just their own row (RLS).
 - To gate a new console, wrap its page in

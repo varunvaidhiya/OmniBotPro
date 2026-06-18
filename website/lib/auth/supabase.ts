@@ -4,8 +4,8 @@
  * The website is a static export, so auth runs entirely client-side via
  * Supabase. Credentials come from NEXT_PUBLIC_* env vars (inlined at build).
  * When they're absent the client is null and the app degrades gracefully —
- * auth UI shows a "not configured" notice and console gating is bypassed — so
- * the site keeps building and deploying with or without credentials.
+ * auth UI shows a "not configured" notice — so the site keeps building and
+ * deploying with or without credentials.
  */
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";

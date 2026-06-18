@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import ProofConsole from "@/components/proof/ProofConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ProofPage() {
-  return <ProofConsole />;
+  return (
+    <ConsoleGate product="proof">
+      <ProofConsole />
+    </ConsoleGate>
+  );
 }

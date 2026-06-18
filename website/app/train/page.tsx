@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import TrainConsole from "@/components/train/TrainConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function TrainPage() {
-  return <TrainConsole />;
+  return (
+    <ConsoleGate product="train">
+      <TrainConsole />
+    </ConsoleGate>
+  );
 }

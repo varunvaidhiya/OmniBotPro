@@ -2,8 +2,8 @@
 //
 // The source of truth for subscription state. Stripe calls this on checkout and
 // subscription lifecycle events; we upsert the user's row in public.subscriptions
-// using the service role (bypasses RLS). The website reads that row to gate
-// console access.
+// using the service role (bypasses RLS). The website reads that row for
+// billing/account status.
 //
 // Deploy:  supabase functions deploy stripe-webhook --no-verify-jwt
 // Secrets: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET

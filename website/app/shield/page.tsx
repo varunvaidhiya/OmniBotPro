@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import ShieldConsole from "@/components/shield/ShieldConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ShieldPage() {
-  return <ShieldConsole />;
+  return (
+    <ConsoleGate product="shield">
+      <ShieldConsole />
+    </ConsoleGate>
+  );
 }

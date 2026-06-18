@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Check, Loader2, Mail } from "lucide-react";
 import Nav from "@/components/Nav";
 import GlassCard from "@/components/GlassCard";
 import OAuthButtons from "@/components/auth/OAuthButtons";
-import { useAuth } from "@/lib/auth/AuthProvider";
+import { safeNextPath, useAuth } from "@/lib/auth/AuthProvider";
 import { enabledOAuthProviders } from "@/lib/auth/supabase";
 
 const hasOAuth = enabledOAuthProviders.length > 0;
@@ -16,7 +16,7 @@ const hasOAuth = enabledOAuthProviders.length > 0;
 export default function LoginPage() {
   const { configured, user, signInWithEmail } = useAuth();
   const router = useRouter();
-  const [next, setNext] = useState("/account");
+  const [next, setNext] = useState("/#products");
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -25,7 +25,7 @@ export default function LoginPage() {
   // read ?next= from the URL (avoids useSearchParams' suspense requirement)
   useEffect(() => {
     const n = new URLSearchParams(window.location.search).get("next");
-    if (n) setNext(n);
+    setNext(safeNextPath(n));
   }, []);
 
   // already signed in → bounce to the destination

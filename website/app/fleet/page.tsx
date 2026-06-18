@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import FleetConsole from "@/components/fleet/FleetConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function FleetPage() {
-  return <FleetConsole />;
+  return (
+    <ConsoleGate product="fleet">
+      <FleetConsole />
+    </ConsoleGate>
+  );
 }

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import FrameConsole from "@/components/frame/FrameConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function FramePage() {
-  return <FrameConsole />;
+  return (
+    <ConsoleGate product="frame">
+      <FrameConsole />
+    </ConsoleGate>
+  );
 }

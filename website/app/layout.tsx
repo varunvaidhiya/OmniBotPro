@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import RobotBackground from "@/components/robot/RobotBackground";
+import AuthRedirectHandler from "@/components/auth/AuthRedirectHandler";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
+          <AuthRedirectHandler />
           {/* live 3-D OmniBot — fixed behind every section, follows the cursor */}
           <RobotBackground />
           <div className="content-layer">{children}</div>

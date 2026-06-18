@@ -2,7 +2,7 @@
 
 /*
  * UserMenu — the auth control in the top Nav.
- *   not configured  → nothing (keeps the marketing nav clean pre-setup)
+ *   not configured  → Sign in link (the login page explains setup)
  *   signed out       → "Sign in" link
  *   signed in        → avatar + dropdown (Account, plan status, Sign out)
  */
@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
 export default function UserMenu() {
-  const { configured, loading, user, subscription, signOut } = useAuth();
+  const { loading, user, subscription, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -27,12 +27,12 @@ export default function UserMenu() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  if (!configured || loading) return null;
+  if (loading) return null;
 
   if (!user) {
     return (
       <Link
-        href="/login"
+        href="/login?next=%2F%23products"
         className="text-[13px] font-semibold px-4 py-2 rounded-lg transition-colors hover:bg-white/[0.06]"
         style={{ border: "1px solid rgba(255,255,255,0.18)", color: "var(--text)" }}
       >

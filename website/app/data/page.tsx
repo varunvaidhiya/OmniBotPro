@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import DataConsole from "@/components/data/DataConsole";
 
 export const metadata: Metadata = {
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 
 // Fully client-side data viewer (simulated episodes, scrubbing, plots)
 export default function DataPage() {
-  return <DataConsole />;
+  return (
+    <ConsoleGate product="data">
+      <DataConsole />
+    </ConsoleGate>
+  );
 }

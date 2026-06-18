@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import ComplyConsole from "@/components/comply/ComplyConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function ComplyPage() {
-  return <ComplyConsole />;
+  return (
+    <ConsoleGate product="comply">
+      <ComplyConsole />
+    </ConsoleGate>
+  );
 }

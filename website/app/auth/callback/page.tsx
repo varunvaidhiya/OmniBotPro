@@ -9,12 +9,13 @@
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { getSupabase } from "@/lib/auth/supabase";
+import { safeNextPath } from "@/lib/auth/AuthProvider";
 
 export default function AuthCallbackPage() {
   const [msg, setMsg] = useState("Completing sign-in…");
 
   useEffect(() => {
-    const next = new URLSearchParams(window.location.search).get("next") || "/account";
+    const next = safeNextPath(new URLSearchParams(window.location.search).get("next"));
     const supabase = getSupabase();
     if (!supabase) {
       window.location.replace(next);

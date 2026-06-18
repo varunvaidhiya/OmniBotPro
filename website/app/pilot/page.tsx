@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import PilotConsole from "@/components/pilot/PilotConsole";
 
 export const metadata: Metadata = {
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 // Fully client-side cockpit (simulated camera, joystick, arm sliders, telemetry)
 // — nothing to pre-render but its shell.
 export default function PilotPage() {
-  return <PilotConsole />;
+  return (
+    <ConsoleGate product="pilot">
+      <PilotConsole />
+    </ConsoleGate>
+  );
 }

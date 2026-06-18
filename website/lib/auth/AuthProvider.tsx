@@ -29,9 +29,20 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+export function safeNextPath(next?: string | null): string {
+  if (!next) return "/#products";
+  try {
+    const url = new URL(next, siteOrigin() || "http://localhost");
+    if (url.origin !== (siteOrigin() || url.origin)) return "/#products";
+    return `${url.pathname}${url.search}${url.hash}` || "/#products";
+  } catch {
+    return next.startsWith("/") && !next.startsWith("//") ? next : "/#products";
+  }
+}
+
 function callbackUrl(next?: string): string {
   const origin = siteOrigin();
-  const n = encodeURIComponent(next || "/account");
+  const n = encodeURIComponent(safeNextPath(next));
   return `${origin}/auth/callback?next=${n}`;
 }
 

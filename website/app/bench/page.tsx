@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 import BenchConsole from "@/components/bench/BenchConsole";
 
 export const metadata: Metadata = {
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function BenchPage() {
-  return <BenchConsole />;
+  return (
+    <ConsoleGate product="bench">
+      <BenchConsole />
+    </ConsoleGate>
+  );
 }

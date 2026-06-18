@@ -1,10 +1,10 @@
 /*
- * Billing plans + console-access rules.
+ * Billing plans + subscription status helpers.
  *
- * Mirrors the homepage Pricing component. Per the product decision, EVERY
- * product console requires an active paid subscription — any paid plan unlocks
- * all consoles. The Stripe price for each plan is resolved server-side in the
- * checkout Edge Function (by plan id), so no price ids live in the client.
+ * Mirrors the homepage Pricing component. Console access is handled by
+ * ConsoleGate and requires sign-in; plan state is used for billing/account UI.
+ * The Stripe price for each plan is resolved server-side in the checkout Edge
+ * Function (by plan id), so no price ids live in the client.
  */
 
 export type PlanId = "builder" | "fleet" | "forge";
@@ -30,7 +30,7 @@ export const PLANS: Plan[] = [
     period: "/ month",
     blurb: "For indie devs and researchers.",
     features: [
-      "All product consoles unlocked",
+      "All product consoles included",
       "OhhO Build — full library, 10 designs",
       "OhhO Serve — 500 API calls / day",
       "OhhO Data — cloud sync, 1K episodes",
@@ -86,7 +86,7 @@ export interface Subscription {
 
 const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
 
-/** Any active paid subscription unlocks every console. */
+/** Whether the user has an active paid subscription for billing/account UI. */
 export function hasConsoleAccess(subscription: Subscription | null): boolean {
   return Boolean(subscription && ACTIVE_STATUSES.includes(subscription.status));
 }
