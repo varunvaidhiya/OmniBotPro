@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import BuildStudio from "@/components/build/BuildStudio";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 
 export const metadata: Metadata = {
   title: "OhhO Build — Design any robot, in your browser",
@@ -8,7 +9,11 @@ export const metadata: Metadata = {
 };
 
 // The studio is a fully client-side app (3-D canvas, localStorage, shareable
-// ?d= URLs) — nothing to pre-render but its shell.
+// ?d= URLs) — nothing to pre-render but its shell. Gated behind an active plan.
 export default function BuildPage() {
-  return <BuildStudio />;
+  return (
+    <ConsoleGate product="build">
+      <BuildStudio />
+    </ConsoleGate>
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ServeConsole from "@/components/serve/ServeConsole";
+import ConsoleGate from "@/components/auth/ConsoleGate";
 
 export const metadata: Metadata = {
   title: "OhhO Serve — Robot AI inference, as an API",
@@ -8,7 +9,11 @@ export const metadata: Metadata = {
 };
 
 // Fully client-side console (live metrics, simulated inference, generated client
-// code) — nothing to pre-render but its shell.
+// code) — nothing to pre-render but its shell. Gated behind an active plan.
 export default function ServePage() {
-  return <ServeConsole />;
+  return (
+    <ConsoleGate product="serve">
+      <ServeConsole />
+    </ConsoleGate>
+  );
 }

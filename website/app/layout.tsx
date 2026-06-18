@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import RobotBackground from "@/components/robot/RobotBackground";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "OhhO — Robotics, Operated.",
@@ -16,9 +17,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* live 3-D OmniBot — fixed behind every section, follows the cursor */}
-        <RobotBackground />
-        <div className="content-layer">{children}</div>
+        <AuthProvider>
+          {/* live 3-D OmniBot — fixed behind every section, follows the cursor */}
+          <RobotBackground />
+          <div className="content-layer">{children}</div>
+        </AuthProvider>
       </body>
     </html>
   );
