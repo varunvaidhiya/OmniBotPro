@@ -1,0 +1,1 @@
+{"nodes": [{"id": "infra_promtail_config", "label": "Promtail Configuration", "file_type": "code", "source_file": "infra/observability/promtail/promtail-config.yml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}

@@ -1,13 +1,4 @@
-# Images & binaries
-*.png
-*.jpg
-*.jpeg
-*.webp
-*.gif
-*.bmp
-*.svg
-*.ico
-*.pdf
+# Large binary assets (can't extract)
 *.stl
 *.dae
 *.mp4
@@ -19,27 +10,5 @@
 *.usdc
 *.usdz
 
-# Website static assets
-website/public/*
+# Website build output
 website/.next/*
-
-# Docs
-*.md
-*.html
-*.htm
-*.rst
-*.txt
-
-# Config/data formats (save for later with LLM)
-*.yaml
-*.yml
-*.xml
-*.sdf
-*.rviz
-*.urdf
-*.xacro
-*.launch
-*.msg
-*.srv
-*.action
-*.json

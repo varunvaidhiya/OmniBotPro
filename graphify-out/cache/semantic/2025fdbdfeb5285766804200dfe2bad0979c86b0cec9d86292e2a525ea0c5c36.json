@@ -1,0 +1,1 @@
+{"nodes": [{"id": "infra_grafana_dashboards_provider", "label": "Grafana Dashboards Provider", "file_type": "code", "source_file": "infra/observability/grafana/provisioning/dashboards/dashboards.yml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
