@@ -25,7 +25,7 @@ export default function Nav() {
       case "GitHub": return GITHUB_HREF;
       case "About": return "/about";
       case "Team": return "/team";
-      case "News": return "/news/omnivla-engine";
+      case "News": return "/news/ohho-mind";
       default: return "#";
     }
   };
