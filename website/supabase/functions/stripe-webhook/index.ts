@@ -53,7 +53,9 @@ Deno.serve(async (req) => {
       }
     }
   } catch (e) {
-    return new Response(`Handler error: ${e instanceof Error ? e.message : e}`, { status: 500 });
+    // Log but always acknowledge — returning 5xx causes Stripe to retry, which
+    // can produce duplicate processing. Log the error for monitoring instead.
+    console.error("[stripe-webhook] handler error:", event.type, e instanceof Error ? e.message : e);
   }
 
   return new Response(JSON.stringify({ received: true }), { headers: { "Content-Type": "application/json" } });
