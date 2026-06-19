@@ -1,9 +1,13 @@
 "use client";
 
 /*
- * Handles OAuth providers that return to the site root with ?code=...
- * instead of /auth/callback. This keeps stale Supabase/Google redirect settings
- * from stranding signed-in users on the marketing page.
+ * Catches OAuth / magic-link redirects that land on the site root with ?code=...
+ * instead of /auth/callback (e.g. when Supabase redirect URLs are misconfigured).
+ *
+ * The Supabase client (detectSessionInUrl: true) may have already auto-exchanged
+ * the code by the time this hook runs. When the session is already established we
+ * forward directly to ?next=; otherwise we pass the code to /auth/callback which
+ * knows how to wait for the session properly (no duplicate exchange, no race).
  */
 
 import { useEffect } from "react";
@@ -20,21 +24,23 @@ export default function AuthRedirectHandler() {
 
     const next = safeNextPath(params.get("next"));
     const supabase = getSupabase();
-    if (!supabase) {
+
+    // detectSessionInUrl may have already consumed the code — check first.
+    if (supabase) {
+      supabase.auth.getSession().then(({ data }) => {
+        if (data.session) {
+          window.location.replace(next);
+          return;
+        }
+        // Code not exchanged yet — punt to the callback page.
+        const search = new URLSearchParams();
+        search.set("code", code);
+        if (params.get("next")) search.set("next", params.get("next")!);
+        window.location.replace(`/auth/callback?${search.toString()}`);
+      });
+    } else {
       window.location.replace(next);
-      return;
     }
-
-    let cancelled = false;
-    supabase.auth.exchangeCodeForSession(code).finally(() => {
-      if (cancelled) return;
-      window.history.replaceState(null, "", next);
-      window.location.replace(next);
-    });
-
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   return null;
