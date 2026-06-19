@@ -10,7 +10,7 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 // Marketing links shown to visitors / free users.
 const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
 // Dev-focused links shown to subscribed users — no product/pricing/team marketing.
-const DEV_LINKS = ["Docs", "GitHub"];
+const DEV_LINKS = ["Docs"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -84,17 +84,6 @@ export default function Nav() {
             onMouseLeave={(e) => (e.currentTarget.style.opacity = "0.85")}
           >
             Garage
-          </a>
-        )}
-        {subscribed && (
-          <a
-            href="/account"
-            className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
-            style={{ color: "rgba(255,255,255,0.52)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.52)")}
-          >
-            Subscription
           </a>
         )}
         {!subscribed && (
