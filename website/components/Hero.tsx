@@ -37,7 +37,7 @@ export default function Hero() {
             }}
           >
             <span className="badge-dot" />
-            ROS 2 Jazzy &nbsp;·&nbsp; Mecanum + SmolVLA &nbsp;·&nbsp; Now in beta
+            ROS 2 Jazzy &nbsp;·&nbsp; Any robot &nbsp;·&nbsp; Embodied AI
           </motion.div>
 
           <motion.h1
@@ -76,12 +76,12 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[560px] mx-auto mb-6 legible"
+            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[600px] mx-auto mb-6 legible"
             style={{ color: "rgba(255,255,255,0.72)" }}
           >
-            From <strong className="text-white font-semibold">VR teleoperation</strong> to{" "}
-            <strong className="text-white font-semibold">AI inference</strong> — one platform to
-            build, deploy and scale any robot.
+            Turn <strong className="text-white font-semibold">any hardware</strong> into a{" "}
+            <strong className="text-white font-semibold">deployed, intelligent robot</strong>. One
+            platform to design, build, train and operate — for any robot, any use case.
           </motion.p>
 
           <motion.div
@@ -132,7 +132,7 @@ export default function Hero() {
             className="flex items-center gap-x-5 gap-y-2 flex-wrap justify-center font-mono text-[11px] tracking-[0.04em]"
             style={{ color: "rgba(255,255,255,0.45)" }}
           >
-            <span>move your mouse — OmniBot follows you on every section</span>
+            <span>move your mouse — the robot follows you on every section</span>
             <span className="hidden sm:inline opacity-40">·</span>
             <span className="inline-flex items-center gap-1.5">
               <kbd className="hero-kbd">↑</kbd>

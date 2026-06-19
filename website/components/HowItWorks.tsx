@@ -6,8 +6,8 @@ import GlassCard from "@/components/GlassCard";
 const steps = [
   {
     n: "1",
-    title: "Pick your robot",
-    desc: "Choose from pre-loaded profiles or build your own with OhhO Frame. Works with any ROS 2 compatible hardware.",
+    title: "Bring any hardware",
+    desc: "Start from a pre-loaded profile, design one in OhhO Build, or connect a robot you already own. Any ROS 2-compatible hardware works.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
@@ -17,8 +17,8 @@ const steps = [
   },
   {
     n: "2",
-    title: "Deploy your stack",
-    desc: "One command launches your full stack — simulation, CI/CD, AI inference, and observability. Docker + ROS 2, pre-wired.",
+    title: "Make it intelligent",
+    desc: "Add perception, training and embodied AI in one command — simulation, CI/CD, VLA inference and observability. Docker + ROS 2, pre-wired.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>

@@ -3,7 +3,7 @@
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import GlassCard from "@/components/GlassCard";
 import { Check } from "lucide-react";
-import { contactMailto } from "@/lib/site";
+import { contactMailto, SIGNUP_HREF, UPGRADE_HREF } from "@/lib/site";
 
 const plans = [
   {
@@ -21,6 +21,7 @@ const plans = [
     ],
     cta: "Get Started Free",
     ctaStyle: "outline",
+    href: SIGNUP_HREF,
   },
   {
     name: "Builder",
@@ -41,6 +42,7 @@ const plans = [
     cta: "Start Building",
     ctaStyle: "cyan",
     variant: "pop",
+    href: UPGRADE_HREF,
   },
   {
     name: "Fleet",
@@ -61,6 +63,7 @@ const plans = [
     cta: "Deploy Your Fleet",
     ctaStyle: "violet",
     variant: "fleet",
+    href: UPGRADE_HREF,
   },
   {
     name: "Forge",
@@ -80,6 +83,7 @@ const plans = [
     ],
     cta: "Talk to Us",
     ctaStyle: "outline",
+    href: contactMailto("OhhO Forge plan"),
   },
 ];
 
@@ -177,7 +181,7 @@ function PricingCard({ plan, delay }: { plan: typeof plans[0]; delay: number }) 
         ))}
       </div>
 
-      <CtaButton style={plan.ctaStyle as string} label={plan.cta} href={contactMailto(`OhhO ${plan.name} plan`)} />
+      <CtaButton style={plan.ctaStyle as string} label={plan.cta} href={plan.href} />
     </GlassCard>
   );
 }
