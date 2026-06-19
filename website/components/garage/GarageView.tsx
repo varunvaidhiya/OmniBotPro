@@ -32,9 +32,10 @@ interface Props {
   robots: UserRobot[];
   onAddRobot: () => void;
   onDeleteRobot: (id: string) => void;
+  selectedRobotId?: string | null;
 }
 
-export default function GarageView({ robots, onAddRobot, onDeleteRobot }: Props) {
+export default function GarageView({ robots, onAddRobot, onDeleteRobot, selectedRobotId }: Props) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -125,10 +126,11 @@ export default function GarageView({ robots, onAddRobot, onDeleteRobot }: Props)
 
           {/* robot cards */}
           {enriched.map((g) => (
-            <RobotCard
-              key={g.userRobot.id}
-              garage={g}
-              menuOpen={openMenuId === g.userRobot.id}
+              <RobotCard
+                key={g.userRobot.id}
+                garage={g}
+                selected={g.userRobot.id === selectedRobotId}
+                menuOpen={openMenuId === g.userRobot.id}
               onToggleMenu={() =>
                 setOpenMenuId(
                   openMenuId === g.userRobot.id ? null : g.userRobot.id,
@@ -186,6 +188,7 @@ function EmptyGarage({ onAdd }: { onAdd: () => void }) {
 
 function RobotCard({
   garage,
+  selected,
   menuOpen,
   onToggleMenu,
   onCloseMenu,
@@ -193,6 +196,7 @@ function RobotCard({
   deleting,
 }: {
   garage: GarageRobot;
+  selected: boolean;
   menuOpen: boolean;
   onToggleMenu: () => void;
   onCloseMenu: () => void;
@@ -218,17 +222,32 @@ function RobotCard({
         href={`/console?robot=${userRobot.id}`}
         className="block p-5 rounded-2xl transition-all duration-250 group/card"
         style={{
-          background: "rgba(255,255,255,0.03)",
-          border: "1px solid rgba(255,255,255,0.06)",
+          background: selected
+            ? catColor + "0d"
+            : "rgba(255,255,255,0.03)",
+          border: selected
+            ? `1.5px solid ${catColor}55`
+            : "1px solid rgba(255,255,255,0.06)",
+          boxShadow: selected
+            ? `0 0 20px ${catColor}11`
+            : "none",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.05)";
-          e.currentTarget.style.borderColor = catColor + "33";
+          e.currentTarget.style.background = selected
+            ? catColor + "14"
+            : "rgba(255,255,255,0.05)";
+          e.currentTarget.style.borderColor = selected
+            ? catColor + "88"
+            : catColor + "33";
           e.currentTarget.style.transform = "translateY(-2px)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = "rgba(255,255,255,0.03)";
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.06)";
+          e.currentTarget.style.background = selected
+            ? catColor + "0d"
+            : "rgba(255,255,255,0.03)";
+          e.currentTarget.style.borderColor = selected
+            ? catColor + "55"
+            : "rgba(255,255,255,0.06)";
           e.currentTarget.style.transform = "translateY(0)";
         }}
       >
@@ -303,7 +322,7 @@ function RobotCard({
           style={{ color: catColor }}
         >
           <ExternalLink size={12} />
-          Open
+          {selected ? "Deselect" : "Open"}
         </div>
       </Link>
 

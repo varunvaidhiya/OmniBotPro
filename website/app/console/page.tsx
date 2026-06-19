@@ -116,6 +116,7 @@ function ConsoleHub() {
                 robots={robots}
                 onAddRobot={() => setShowSelector(true)}
                 onDeleteRobot={handleDelete}
+                selectedRobotId={selectedRobotId}
               />
             )}
           </div>
