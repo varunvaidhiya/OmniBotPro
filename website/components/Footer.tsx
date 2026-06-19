@@ -1,8 +1,19 @@
 "use client";
 
 import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF } from "@/lib/site";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { hasConsoleAccess } from "@/lib/auth/plans";
+
+// Full marketing footer links (visitors / free users).
+const ALL_LINKS = ["Products", "Pricing", "Docs", "GitHub", "Team", "Contact"];
+// Dev-focused footer links for subscribed users — no product/pricing/team marketing.
+const DEV_LINKS = ["Docs", "GitHub", "Contact"];
 
 export default function Footer() {
+  const { user, subscription } = useAuth();
+  const subscribed = Boolean(user && hasConsoleAccess(subscription));
+  const links = subscribed ? DEV_LINKS : ALL_LINKS;
+
   const footerHref = (link: string): string => {
     switch (link) {
       case "Products": return "/#products";
@@ -44,7 +55,7 @@ export default function Footer() {
           {/* Right */}
           <div className="flex flex-col items-end gap-[22px]">
             <nav className="flex gap-[22px] flex-wrap">
-              {["Products", "Pricing", "Docs", "GitHub", "Team", "Contact"].map((link) => (
+              {links.map((link) => (
                 <a
                   key={link}
                   href={footerHref(link)}

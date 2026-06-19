@@ -5,10 +5,17 @@ import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF } from "@/lib/site"
 import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthProvider";
+import { hasConsoleAccess } from "@/lib/auth/plans";
+
+// Marketing links shown to visitors / free users.
+const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
+// Dev-focused links shown to subscribed users — no product/pricing/team marketing.
+const DEV_LINKS = ["Docs", "GitHub"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
+  const subscribed = Boolean(user && hasConsoleAccess(subscription));
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 50);
@@ -29,6 +36,8 @@ export default function Nav() {
       default: return "#";
     }
   };
+
+  const links = subscribed ? DEV_LINKS : MARKETING_LINKS;
 
   return (
     <nav
@@ -52,7 +61,7 @@ export default function Nav() {
       </a>
 
       <div className="hidden md:flex items-center gap-1">
-        {["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"].map((link) => (
+        {links.map((link) => (
           <a
             key={link}
             href={navHref(link)}
@@ -77,23 +86,36 @@ export default function Nav() {
             Garage
           </a>
         )}
-        <a
-          href="/#pricing"
-          className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
-          style={{
-            background: "var(--cyan)",
-            color: "var(--bg)",
-            boxShadow: "0 0 0 rgba(0,212,255,0)",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px rgba(0,212,255,0.22)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 rgba(0,212,255,0)";
-          }}
-        >
-          Get Started
-        </a>
+        {subscribed && (
+          <a
+            href="/account"
+            className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
+            style={{ color: "rgba(255,255,255,0.52)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.52)")}
+          >
+            Subscription
+          </a>
+        )}
+        {!subscribed && (
+          <a
+            href="/#pricing"
+            className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
+            style={{
+              background: "var(--cyan)",
+              color: "var(--bg)",
+              boxShadow: "0 0 0 rgba(0,212,255,0)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 6px 20px rgba(0,212,255,0.22)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 0 0 rgba(0,212,255,0)";
+            }}
+          >
+            Get Started
+          </a>
+        )}
         {/* console hub: adapts to auth + subscription state */}
         <span className="ml-[10px]"><ConsoleNavButton /></span>
         {/* auth control: renders nothing until Supabase is configured */}

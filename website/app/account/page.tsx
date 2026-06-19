@@ -42,8 +42,10 @@ export default function AccountPage() {
       const { data, error } = await supabase.functions.invoke("create-portal-session", {
         body: { origin: window.location.origin },
       });
-      if (error) throw error;
+      if (error) throw await unwrapFunctionError(error);
       if (data?.url) window.location.href = data.url as string;
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Could not open billing portal.");
     } finally {
       setPortalBusy(false);
     }
@@ -137,4 +139,19 @@ export default function AccountPage() {
 
 function capitalize(s: string): string {
   return s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+}
+
+async function unwrapFunctionError(error: unknown): Promise<Error> {
+  try {
+    const ctx = (error as { context?: Response }).context;
+    if (ctx) {
+      const body = await ctx.json().catch(() => null);
+      if (body?.error) return new Error(String(body.error));
+      const text = await ctx.text().catch(() => "");
+      if (text) return new Error(text);
+    }
+  } catch {
+    /* fall through */
+  }
+  return error instanceof Error ? error : new Error("Request failed.");
 }

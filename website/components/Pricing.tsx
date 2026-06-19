@@ -4,6 +4,8 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import GlassCard from "@/components/GlassCard";
 import { Check } from "lucide-react";
 import { contactMailto, SIGNUP_HREF, UPGRADE_HREF } from "@/lib/site";
+import { useAuth } from "@/lib/auth/AuthProvider";
+import { hasConsoleAccess } from "@/lib/auth/plans";
 
 const plans = [
   {
@@ -89,6 +91,10 @@ const plans = [
 
 export default function Pricing() {
   const { ref: headRef, inView: headIn } = useScrollReveal();
+  const { user, subscription } = useAuth();
+
+  // Never show pricing to a subscribed user — anywhere.
+  if (user && hasConsoleAccess(subscription)) return null;
 
   return (
     <section id="pricing" style={{ padding: "112px 24px" }}>

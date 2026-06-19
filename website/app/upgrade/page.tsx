@@ -51,7 +51,7 @@ export default function UpgradePage() {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
         body: { plan: plan.id, next, origin: window.location.origin },
       });
-      if (error) throw error;
+      if (error) throw await unwrapFunctionError(error);
       if (data?.url) window.location.href = data.url as string;
       else throw new Error("No checkout URL returned.");
     } catch (e) {
@@ -146,4 +146,24 @@ export default function UpgradePage() {
 
 function labelize(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+/**
+ * supabase.functions.invoke wraps any non-2xx response as a FunctionsHttpError
+ * whose .message is the generic "Edge Function returned a non-2xx status code",
+ * hiding the real { error } body the function returned. Read the body instead.
+ */
+async function unwrapFunctionError(error: unknown): Promise<Error> {
+  try {
+    const ctx = (error as { context?: Response }).context;
+    if (ctx) {
+      const body = await ctx.json().catch(() => null);
+      if (body?.error) return new Error(String(body.error));
+      const text = await ctx.text().catch(() => "");
+      if (text) return new Error(text);
+    }
+  } catch {
+    /* fall through */
+  }
+  return error instanceof Error ? error : new Error("Checkout failed.");
 }
