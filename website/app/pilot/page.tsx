@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import PilotConsole from "@/components/pilot/PilotConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Pilot — Operate any robot, from anywhere",
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 export default function PilotPage() {
   return (
     <ConsoleGate product="pilot">
-      <PilotConsole />
+      <RobotProvider>
+        <PilotConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

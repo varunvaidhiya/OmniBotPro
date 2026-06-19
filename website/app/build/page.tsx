@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import BuildStudio from "@/components/build/BuildStudio";
 import ConsoleGate from "@/components/auth/ConsoleGate";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Build — Design any robot, in your browser",
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 export default function BuildPage() {
   return (
     <ConsoleGate product="build">
-      <BuildStudio />
+      <RobotProvider>
+        <BuildStudio />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

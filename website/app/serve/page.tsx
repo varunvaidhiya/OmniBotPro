@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ServeConsole from "@/components/serve/ServeConsole";
 import ConsoleGate from "@/components/auth/ConsoleGate";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Serve — Robot AI inference, as an API",
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 export default function ServePage() {
   return (
     <ConsoleGate product="serve">
-      <ServeConsole />
+      <RobotProvider>
+        <ServeConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

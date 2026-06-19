@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import FleetConsole from "@/components/fleet/FleetConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Fleet — Mission Control.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function FleetPage() {
   return (
     <ConsoleGate product="fleet">
-      <FleetConsole />
+      <RobotProvider>
+        <FleetConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

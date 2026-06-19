@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import ShieldConsole from "@/components/shield/ShieldConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Shield — Security for robots.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function ShieldPage() {
   return (
     <ConsoleGate product="shield">
-      <ShieldConsole />
+      <RobotProvider>
+        <ShieldConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

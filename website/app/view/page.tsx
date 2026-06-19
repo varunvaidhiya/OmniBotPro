@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import ViewConsole from "@/components/view/ViewConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO View — Remote perception console.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function ViewPage() {
   return (
     <ConsoleGate product="view">
-      <ViewConsole />
+      <RobotProvider>
+        <ViewConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

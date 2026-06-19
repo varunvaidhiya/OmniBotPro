@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import FrameConsole from "@/components/frame/FrameConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Frame — Edge computation OS.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function FramePage() {
   return (
     <ConsoleGate product="frame">
-      <FrameConsole />
+      <RobotProvider>
+        <FrameConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import TrainConsole from "@/components/train/TrainConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Train — Turn demonstrations into policies.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function TrainPage() {
   return (
     <ConsoleGate product="train">
-      <TrainConsole />
+      <RobotProvider>
+        <TrainConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

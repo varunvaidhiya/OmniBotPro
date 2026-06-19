@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import DataConsole from "@/components/data/DataConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Data — Collect. Label. Ship.",
@@ -12,7 +13,9 @@ export const metadata: Metadata = {
 export default function DataPage() {
   return (
     <ConsoleGate product="data">
-      <DataConsole />
+      <RobotProvider>
+        <DataConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import ProofConsole from "@/components/proof/ProofConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Proof — Prove the robot is safe.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function ProofPage() {
   return (
     <ConsoleGate product="proof">
-      <ProofConsole />
+      <RobotProvider>
+        <ProofConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

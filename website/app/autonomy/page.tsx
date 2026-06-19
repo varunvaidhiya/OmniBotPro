@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import AutonomyConsole from "@/components/autonomy/AutonomyConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Autonomy — Map it, navigate it, command it in plain language.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function AutonomyPage() {
   return (
     <ConsoleGate product="autonomy">
-      <AutonomyConsole />
+      <RobotProvider>
+        <AutonomyConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

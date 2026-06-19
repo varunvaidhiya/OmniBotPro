@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import ComplyConsole from "@/components/comply/ComplyConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Comply — Ship robots the regulators will pass.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function ComplyPage() {
   return (
     <ConsoleGate product="comply">
-      <ComplyConsole />
+      <RobotProvider>
+        <ComplyConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }

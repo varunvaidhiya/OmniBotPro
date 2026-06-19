@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import BenchConsole from "@/components/bench/BenchConsole";
+import { RobotProvider } from "@/lib/garage/RobotContext";
 
 export const metadata: Metadata = {
   title: "OhhO Bench — From a box of parts to a robot that powers on.",
@@ -11,7 +12,9 @@ export const metadata: Metadata = {
 export default function BenchPage() {
   return (
     <ConsoleGate product="bench">
-      <BenchConsole />
+      <RobotProvider>
+        <BenchConsole />
+      </RobotProvider>
     </ConsoleGate>
   );
 }
