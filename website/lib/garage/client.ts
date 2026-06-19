@@ -14,6 +14,39 @@
 import { getSupabase, isSupabaseConfigured } from "@/lib/auth/supabase";
 import type { UserRobot, RobotStatus } from "./types";
 
+// ── Row mapping ───────────────────────────────────────────────────────────────
+//
+// The `user_robots` table stores snake_case columns; the app uses a camelCase
+// UserRobot shape. These were previously cast directly (`data as UserRobot`),
+// which produced objects with undefined camelCase fields. Always map through
+// fromRow() so reads and writes round-trip correctly.
+
+interface UserRobotRow {
+  id: string;
+  user_id: string;
+  name: string;
+  robot_type_id: string;
+  hardware_model_id: string;
+  status: RobotStatus;
+  config: Record<string, unknown> | null;
+  created_at: string;
+  updated_at: string;
+}
+
+function fromRow(row: UserRobotRow): UserRobot {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    name: row.name,
+    robotTypeId: row.robot_type_id,
+    hardwareModelId: row.hardware_model_id,
+    status: row.status,
+    config: row.config ?? {},
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
 // ── localStorage helpers ────────────────────────────────────────────────────
 
 const STORAGE_PREFIX = "ohho_garage_";
@@ -87,11 +120,12 @@ export async function getUserRobots(): Promise<UserRobot[]> {
         .order("created_at", { ascending: false });
 
       if (!error && data) {
-        const robots = data as UserRobot[];
-        // Sync to localStorage as cache
+        const robots = (data as UserRobotRow[]).map(fromRow);
+        // Sync to localStorage as an offline cache
         writeLocal(robots, userId ?? undefined);
         return robots;
       }
+      if (error) console.warn("[garage] Supabase read failed, using local cache:", error.message);
       // Supabase failed — fall through to localStorage
     }
   }
@@ -119,14 +153,18 @@ export async function addUserRobot(
     updatedAt: now(),
   };
 
-  // Try Supabase first
-  if (isSupabaseConfigured) {
+  // Try Supabase first — only when we have an authenticated user, because the
+  // table requires a non-null user_id and RLS enforces auth.uid() = user_id.
+  // (The previous insert omitted user_id entirely, so every write failed and
+  // silently fell back to localStorage — robots never reached the backend.)
+  if (isSupabaseConfigured && userId) {
     const supabase = getSupabase();
     if (supabase) {
       const { data, error } = await supabase
         .from("user_robots")
         .insert({
           id: newRobot.id,
+          user_id: userId,
           name,
           robot_type_id: robotTypeId,
           hardware_model_id: hardwareModelId,
@@ -137,8 +175,9 @@ export async function addUserRobot(
         .single();
 
       if (!error && data) {
-        return data as UserRobot;
+        return fromRow(data as UserRobotRow);
       }
+      if (error) console.warn("[garage] Supabase insert failed, using local store:", error.message);
       // Supabase failed — fall through to localStorage
     }
   }
@@ -164,6 +203,7 @@ export async function deleteUserRobot(id: string): Promise<boolean> {
         .eq("id", id);
 
       if (!error) return true;
+      console.warn("[garage] Supabase delete failed, using local store:", error.message);
       // Supabase failed — fall through to localStorage
     }
   }
@@ -194,7 +234,8 @@ export async function updateUserRobot(
         .select()
         .single();
 
-      if (!error && data) return data as UserRobot;
+      if (!error && data) return fromRow(data as UserRobotRow);
+      if (error) console.warn("[garage] Supabase update failed, using local store:", error.message);
       // Supabase failed — fall through to localStorage
     }
   }

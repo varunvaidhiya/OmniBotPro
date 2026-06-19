@@ -15,7 +15,7 @@ import {
   type Product,
   type PlanName,
 } from "@/lib/products";
-import { contactMailto, PRICING_HREF, PRODUCTS_HREF, productHref } from "@/lib/site";
+import { contactMailto, PRICING_HREF, PRODUCTS_HREF, productHref, SIGNUP_HREF, UPGRADE_HREF } from "@/lib/site";
 
 // Static export: pre-render one page per product, nothing else.
 export const dynamicParams = false;
@@ -321,7 +321,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                       {pl.level}
                     </div>
                     <a
-                      href={pl.plan === "Forge" || pl.plan === "Fleet" ? contactMailto(`OhhO ${pl.plan} plan — ${product.name}`) : contactMailto(`Get started with OhhO ${pl.plan}`)}
+                      href={pl.plan === "Forge" ? contactMailto(`OhhO Forge plan — ${product.name}`) : pl.plan === "Spark" ? SIGNUP_HREF : UPGRADE_HREF}
                       className="mt-4 block text-center py-[9px] rounded-lg text-[12.5px] font-semibold transition-all duration-200"
                       style={
                         recommended
@@ -394,7 +394,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                   </Link>
                 ) : (
                   <a
-                    href={contactMailto(`Get started with ${product.name}`)}
+                    href={SIGNUP_HREF}
                     className="inline-flex items-center gap-2 text-[13px] font-semibold px-[24px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
                     style={{ background: aColor, color: "var(--bg)" }}
                   >

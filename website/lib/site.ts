@@ -2,15 +2,20 @@
  * Central place for the site's "where does this button go" links, so the
  * purchase / get-started path is defined once and easy to change.
  *
- * There is no checkout backend yet, so paid actions open a pre-filled email.
- * Swap CONTACT_EMAIL (or repoint these helpers at a real signup flow) when the
- * billing flow exists.
+ * Self-serve checkout is live: paid plans (Builder, Fleet) go through Stripe
+ * Checkout via the /upgrade flow. Free sign-up goes to /login. Only sales-led
+ * actions (Forge / enterprise) and the Contact link use a pre-filled email.
  */
 
-export const CONTACT_EMAIL = "hello@ohho.ai";
+export const CONTACT_EMAIL = "varun.vaidhiya@gmail.com";
 
 export const PRICING_HREF = "/#pricing";
 export const PRODUCTS_HREF = "/#products";
+
+/** Free sign-up (no payment) — Spark plan / "Start free" CTAs. */
+export const SIGNUP_HREF = "/login?next=/garage";
+/** Self-serve paid checkout (Builder / Fleet) — gated by sign-in inside /upgrade. */
+export const UPGRADE_HREF = "/upgrade";
 
 export const DOCS_HREF = "https://docs.ohho.ai";
 export const GITHUB_HREF = "https://github.com/anomalyco/OmniBotPro";

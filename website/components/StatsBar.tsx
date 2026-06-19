@@ -3,9 +3,9 @@
 import GlassCard from "@/components/GlassCard";
 
 const stats = [
-  { n: "25K+", label: "Lines of production code" },
-  { n: "10", label: "Standalone products" },
-  { n: "9-DOF", label: "Unified robot policy" },
+  { n: "14", label: "Products across the robot lifecycle" },
+  { n: "15", label: "Robot categories — drones to humanoids" },
+  { n: "Any", label: "ROS 2-compatible hardware" },
   { n: "Jazzy", label: "Built on ROS 2 — production ready" },
 ];
 
