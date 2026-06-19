@@ -18,7 +18,7 @@ export const SIGNUP_HREF = "/login?next=/garage";
 export const UPGRADE_HREF = "/upgrade";
 
 export const DOCS_HREF = "https://docs.ohho.ai";
-export const GITHUB_HREF = "https://github.com/anomalyco/OmniBotPro";
+export const GITHUB_HREF = "https://github.com/varunvaidhiya/OmniBotPro";
 export const TWITTER_HREF = "https://x.com/ohho_ai";
 export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";
 
