@@ -357,8 +357,6 @@ export default function BuildCanvas({ design, highlight }: { design: Design; hig
           minPolarAngle={0.2}
           maxPolarAngle={1.45}
           target={[0, 0.12, 0]}
-          autoRotate
-          autoRotateSpeed={0.6}
           enableDamping
           dampingFactor={0.08}
         />

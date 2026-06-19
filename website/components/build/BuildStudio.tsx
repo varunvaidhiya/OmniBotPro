@@ -7,8 +7,8 @@
  * three working surfaces: the parts palette (left), the live 3-D canvas
  * (centre) and the requirements / validation / recommendation / BOM column
  * (right). Everything is client-side: a design round-trips through the URL
- * (?d=) and localStorage so it survives reloads and is shareable on this
- * statically-exported site.
+ * (?d=) and localStorage so it survives reloads and is shareable via a
+ * client-side ?d= URL.
  */
 
 import dynamic from "next/dynamic";
@@ -22,6 +22,7 @@ import {
   Download,
   Layers,
   Link2,
+  Loader2,
   Minus,
   Plus,
   Sparkles,
@@ -58,6 +59,7 @@ import {
   type Status,
 } from "@/lib/build/engine";
 import { ARTIFACTS, buildBom, downloadFile, slug } from "@/lib/build/exporters";
+import { generateDesign } from "@/lib/build/generate";
 
 const BuildCanvas = dynamic(() => import("./BuildCanvas"), { ssr: false, loading: () => <CanvasFallback /> });
 
@@ -188,6 +190,7 @@ export default function BuildStudio() {
 
         {/* RIGHT — requirements / validation / AI / BOM */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <GeneratePanel design={design} dispatch={dispatch} />
           <RequirementsPanel design={design} dispatch={dispatch} />
           <RecommendationPanel recs={recs} dispatch={dispatch} />
           <ValidationPanel checks={checks} />
@@ -249,9 +252,21 @@ function PalettePanel({
 
       {/* parts in the active category */}
       <div className="flex-1 overflow-y-auto p-2.5 lg:border-t" style={{ borderColor: "var(--border)" }}>
-        <div className="px-1 pb-2 text-[11px]" style={{ color: "var(--muted)" }}>
-          {meta.blurb}
-          {!meta.single && <span className="ml-1" style={{ color: "var(--faint)" }}>· pick several</span>}
+        <div className="flex items-center justify-between px-1 pb-2">
+          <div className="text-[11px]" style={{ color: "var(--muted)" }}>
+            {meta.blurb}
+            {!meta.single && <span className="ml-1" style={{ color: "var(--faint)" }}>· pick several</span>}
+          </div>
+          {selectedIds(design, active).length > 0 && (
+            <button
+              onClick={() => dispatch({ type: "removeCategory", category: active })}
+              className="inline-flex items-center gap-1 text-[10.5px] font-mono px-1.5 py-0.5 rounded transition-colors hover:bg-white/[0.06]"
+              style={{ color: "var(--faint)" }}
+              title={`Clear ${meta.label}`}
+            >
+              <X size={11} /> Clear
+            </button>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           {parts.map((p) => (
@@ -382,6 +397,63 @@ function PanelHead({ icon, title, hint }: { icon: React.ReactNode; title: string
   );
 }
 
+function GeneratePanel({ design, dispatch }: { design: Design; dispatch: React.Dispatch<Action> }) {
+  const [prompt, setPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const run = async () => {
+    const p = prompt.trim();
+    if (!p || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const generated = await generateDesign(p, design.requirements);
+      dispatch({ type: "loadDesign", design: generated });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Generation failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="border-b" style={{ borderColor: "var(--border)" }}>
+      <PanelHead icon={<Sparkles size={15} />} title="Describe your robot" hint="AI design" />
+      <div className="px-4 pb-4 flex flex-col gap-2.5">
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === "Enter") run();
+          }}
+          placeholder="e.g. A compact warehouse robot that picks 2 kg totes off low shelves and runs a full 8-hour shift indoors…"
+          rows={3}
+          className="w-full resize-none rounded-xl px-3 py-2.5 text-[13px] leading-[1.5] outline-none"
+          style={{ background: "rgba(255,255,255,.03)", border: "1px solid var(--border-med)", color: "var(--text)" }}
+        />
+        {error && (
+          <div className="text-[11.5px] leading-[1.5] px-3 py-2 rounded-lg" style={{ background: "rgba(248,113,113,.08)", border: "1px solid rgba(248,113,113,.3)", color: STATUS_COLOR.fail }}>
+            {error}
+          </div>
+        )}
+        <button
+          onClick={run}
+          disabled={busy || !prompt.trim()}
+          className="inline-flex items-center justify-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-lg transition-all hover:-translate-y-px disabled:opacity-50 disabled:hover:translate-y-0"
+          style={{ background: "var(--cyan)", color: "var(--bg)" }}
+        >
+          {busy ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+          {busy ? "Designing…" : "Generate design"}
+        </button>
+        <p className="text-[10.5px] leading-[1.5]" style={{ color: "var(--faint)" }}>
+          Powered by Kimi. Picks real parts from the catalog and sets your requirements. ⌘/Ctrl + Enter to run.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function RequirementsPanel({ design, dispatch }: { design: Design; dispatch: React.Dispatch<Action> }) {
   const r = design.requirements;
   return (
@@ -441,7 +513,7 @@ function RequirementsPanel({ design, dispatch }: { design: Design; dispatch: Rea
 function RecommendationPanel({ recs, dispatch }: { recs: Recommendation[]; dispatch: React.Dispatch<Action> }) {
   return (
     <div className="border-b" style={{ borderColor: "var(--border)", background: "rgba(124,58,237,.06)" }}>
-      <PanelHead icon={<Sparkles size={15} />} title="AI Recommendations" />
+      <PanelHead icon={<Sparkles size={15} />} title="Recommendations" />
       <div className="px-4 pb-4 flex flex-col gap-2.5">
         {recs.map((rec) => {
           const color = rec.severity === "fix" ? STATUS_COLOR.fail : rec.severity === "improve" ? "#A78BFA" : STATUS_COLOR.pass;

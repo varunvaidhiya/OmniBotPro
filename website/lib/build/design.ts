@@ -231,7 +231,7 @@ export function decodeDesign(encoded: string): Design | null {
 }
 
 /** Defensive: drop unknown part ids / fill missing requirement fields. */
-function sanitize(d: Design): Design {
+export function sanitize(d: { name?: string; selection?: Selection; requirements?: Partial<Requirements> }): Design {
   const selection: Selection = {};
   for (const c of CATEGORIES) {
     const ids = (d.selection?.[c.key] ?? []).filter((id) => getPart(id)?.category === c.key);
@@ -245,11 +245,13 @@ function sanitize(d: Design): Design {
 }
 
 function base64UrlEncode(s: string): string {
-  const b64 = btoa(unescape(encodeURIComponent(s)));
+  const bytes = new TextEncoder().encode(s);
+  const b64 = btoa(Array.from(bytes, (b) => String.fromCharCode(b)).join(""));
   return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function base64UrlDecode(s: string): string {
   const b64 = s.replace(/-/g, "+").replace(/_/g, "/");
-  return decodeURIComponent(escape(atob(b64)));
+  const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
 }
