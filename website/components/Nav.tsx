@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF } from "@/lib/site";
+import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
 import UserMenu from "@/components/auth/UserMenu";
 
 export default function Nav() {
@@ -80,6 +81,8 @@ export default function Nav() {
         >
           Get Started
         </a>
+        {/* console hub: adapts to auth + subscription state */}
+        <span className="ml-[10px]"><ConsoleNavButton /></span>
         {/* auth control: renders nothing until Supabase is configured */}
         <span className="ml-[10px]"><UserMenu /></span>
       </div>
