@@ -4,10 +4,10 @@
  * Catches OAuth / magic-link redirects that land on the site root with ?code=...
  * instead of /auth/callback (e.g. when Supabase redirect URLs are misconfigured).
  *
- * The Supabase client (detectSessionInUrl: true) may have already auto-exchanged
- * the code by the time this hook runs. When the session is already established we
- * forward directly to ?next=; otherwise we pass the code to /auth/callback which
- * knows how to wait for the session properly (no duplicate exchange, no race).
+ * The Supabase client (detectSessionInUrl: true) auto-exchanges the code
+ * asynchronously during init. We stay on the page and wait for SIGNED_IN
+ * (or an existing session) rather than navigating away mid-exchange.
+ * A hard timeout fallback forwards to the callback page as a last resort.
  */
 
 import { useEffect } from "react";
@@ -24,23 +24,45 @@ export default function AuthRedirectHandler() {
 
     const next = safeNextPath(params.get("next"));
     const supabase = getSupabase();
-
-    // detectSessionInUrl may have already consumed the code — check first.
-    if (supabase) {
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) {
-          window.location.replace(next);
-          return;
-        }
-        // Code not exchanged yet — punt to the callback page.
-        const search = new URLSearchParams();
-        search.set("code", code);
-        if (params.get("next")) search.set("next", params.get("next")!);
-        window.location.replace(`/auth/callback?${search.toString()}`);
-      });
-    } else {
+    if (!supabase) {
       window.location.replace(next);
+      return;
     }
+
+    let resolved = false;
+
+    const go = (dest: string) => {
+      if (resolved) return;
+      resolved = true;
+      window.history.replaceState(null, "", dest);
+      window.location.replace(dest);
+    };
+
+    // Fast path: session already established (detectSessionInUrl won the race).
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) go(next);
+    });
+
+    // Normal path: wait for detectSessionInUrl to finish exchanging the code.
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session) go(next);
+    });
+
+    // Fallback: if nothing happens after 8 s, punt to the callback page which
+    // will try a fresh exchange (the code may have been consumed by now, but
+    // persistSession will have the session in local storage).
+    const fallback = setTimeout(() => {
+      if (resolved) return;
+      const search = new URLSearchParams();
+      search.set("code", code);
+      if (params.get("next")) search.set("next", params.get("next")!);
+      go(`/auth/callback?${search.toString()}`);
+    }, 8000);
+
+    return () => {
+      sub.subscription.unsubscribe();
+      clearTimeout(fallback);
+    };
   }, []);
 
   return null;
