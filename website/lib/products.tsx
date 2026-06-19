@@ -708,6 +708,7 @@ export const PRODUCTS: Product[] = [
     related: ["autonomy", "serve", "train"],
     dashboardCaption:
       "OhhO Mind — the live agent loop, the fused world state, the verified next action, and the hybrid reasoning router.",
+    app: { href: "/mind", label: "Open the console" },
   },
 
   // ── OPERATIONS ──────────────────────────────────────────────────────────────
