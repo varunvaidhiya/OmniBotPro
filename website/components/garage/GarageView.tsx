@@ -214,8 +214,6 @@ function RobotCard({
     offline: { label: "Offline", bg: "rgba(251,113,133,0.12)", color: "#fb7185" },
   }[status];
 
-  const IconForCategory = getCategoryIcon(category?.id ?? "wheeled");
-
   return (
     <div className="relative">
       <Link
@@ -251,13 +249,15 @@ function RobotCard({
           e.currentTarget.style.transform = "translateY(0)";
         }}
       >
-        {/* top row: icon + status + menu */}
+        {/* top row: avatar + status + menu */}
         <div className="flex items-start justify-between mb-3">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ background: catColor + "14", color: catColor }}
+            className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+            style={{ background: catColor + "12" }}
           >
-            <IconForCategory size={20} />
+            <svg viewBox="0 0 32 32" className="w-7 h-7" fill="none" stroke={catColor} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={hardwareModel.avatarPath} />
+            </svg>
           </div>
           <div className="flex items-center gap-2">
             <span
@@ -373,44 +373,4 @@ function RobotCard({
       )}
     </div>
   );
-}
-
-// ── Category Icons ──────────────────────────────────────────────────────────
-
-import {
-  Car,
-  Footprints,
-  User,
-  LayoutList,
-  Ship,
-  Armchair,
-  Grid3x3,
-  Leaf,
-  Waves,
-  Rocket,
-  HeartPulse,
-  Package,
-  type LucideIcon,
-} from "lucide-react";
-
-const iconMap: Record<string, LucideIcon> = {
-  drones: Bot,
-  wheeled: Car,
-  legged: Footprints,
-  humanoid: User,
-  tracked: LayoutList,
-  marine: Ship,
-  "industrial-arm": Armchair,
-  "mobile-manipulator": Bot,
-  swarm: Grid3x3,
-  agricultural: Leaf,
-  "underwater-rov": Waves,
-  space: Rocket,
-  medical: HeartPulse,
-  delivery: Package,
-  inspection: Package,
-};
-
-function getCategoryIcon(catId: string): LucideIcon {
-  return iconMap[catId] ?? Bot;
 }

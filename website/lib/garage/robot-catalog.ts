@@ -10,6 +10,7 @@
 
 import type { RobotType, HardwareModel } from "./types";
 import { type RobotCategoryId } from "./types";
+import { getAvatarPath } from "./avatars";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -21,6 +22,7 @@ function hw(
     id,
     specs: {},
     imageUrl: "",
+    avatarPath: getAvatarPath(id),
     price: "—",
     supportedProducts: ["build", "serve", "pilot", "autonomy", "fleet"],
     ros: "ros2",

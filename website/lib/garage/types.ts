@@ -43,6 +43,8 @@ export interface HardwareModel {
   specs: Record<string, string>;
   /** Image URL or placeholder. */
   imageUrl: string;
+  /** SVG path data for the robot avatar (viewBox 0 0 32 32). */
+  avatarPath: string;
   /** Rough USD price (when available). */
   price: string;
   /** What OhhO products are pre-configured for this model. */

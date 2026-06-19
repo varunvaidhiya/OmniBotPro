@@ -349,6 +349,15 @@ function HardwareModelsList({
             e.currentTarget.style.borderColor = "rgba(255,255,255,0.05)";
           }}
         >
+          {/* robot avatar */}
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: "rgba(0,212,255,0.08)" }}
+          >
+            <svg viewBox="0 0 32 32" className="w-6 h-6" fill="none" stroke="var(--cyan)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d={hw.avatarPath} />
+            </svg>
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <div className="font-semibold text-[14px]">{hw.name}</div>
