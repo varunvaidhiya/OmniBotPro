@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import GaragePageClient from "./GaragePageClient";
-import ConsoleGate from "@/components/auth/ConsoleGate";
+import AuthGate from "@/components/auth/AuthGate";
 
 export const metadata: Metadata = {
   title: "My Garage — OhhO Console",
@@ -10,8 +10,8 @@ export const metadata: Metadata = {
 
 export default function GaragePage() {
   return (
-    <ConsoleGate product="garage">
+    <AuthGate>
       <GaragePageClient />
-    </ConsoleGate>
+    </AuthGate>
   );
 }
