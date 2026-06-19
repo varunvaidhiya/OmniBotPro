@@ -20,6 +20,7 @@ parameters, or conventions.
 | `lerobot_engine/` | Direct LeRobot training/recording/inference scripts (no ROS) |
 | `rl_engine/` | Isaac Lab RL training + ONNX export for sim-to-real |
 | `learning_engine/` | Post-training & continual-learning framework (numpy core, optional torch/VLM) |
+| `agent_engine/` | Continuous agent harness — deliberative perceive→reason→act→reflect loop (numpy core, optional Claude/LangGraph) |
 | `digital_twin/` | Contributor simulation environment (Gazebo, Isaac Sim, Foxglove) |
 | `android_app/` | Kotlin MVVM Android controller (ROSBridge WebSocket) |
 | `infra/` | Docker, DevContainers, CI/CD scripts, observability stack |
@@ -66,6 +67,7 @@ OmniBot/
 ├── lerobot_engine/                # train.py, record.py, infer.py, requirements.txt
 ├── rl_engine/                     # Isaac Lab envs, mdp tasks, export, train scripts
 ├── learning_engine/               # Post-training loop: collectors, rewards, replay, trainers, verification
+├── agent_engine/                  # Agent harness: core (harness/blackboard/tools), reasoning, memory, reasoners
 ├── digital_twin/                  # worlds/, scenarios/, docker/, configs/, scripts/
 ├── android_app/                   # Kotlin MVVM app (ROSBridge WebSocket)
 ├── confirmed_protocol.py          # Yahboom protocol reference (root debug script)
@@ -282,7 +284,10 @@ VLA Desktop (GPU PC)
 | `/camera/base/bev/image_raw` | Image | `bev_stitcher_node` | `policy_node`, `teleop_recorder_node` |
 | `/ai/command` | String | Android, manual pub | `langchain_agent_node` |
 | `/ai/status` | String | `langchain_agent_node` | Android |
-| `/ai/response_needed` | String | `langchain_agent_node` | Android |
+| `/ai/response_needed` | String | `langchain_agent_node`, `agent_node` | Android |
+| `/agent/world_state` | String (JSON) | `world_state_node` | `agent_node` |
+| `/agent/goal` | String | Android, manual pub | `agent_node` |
+| `/agent/human_response` | String | operator, manual pub | `agent_node` |
 
 **Nav2 action server**: `navigate_to_pose` (NavigateToPose) — used by `mission_planner`.
 
@@ -617,8 +622,10 @@ with TensorRT opt-in via `prefer_tensorrt=True`; CoreML on Apple Silicon;
 CPU elsewhere). Named deployment topologies in `hardware/profiles.py`:
 `pi_workstation` (= deploy.py multi), `workstation_single` (= deploy.py
 single), `jetson_single`, `pi_accelerator_workstation` (Hailo/Coral),
-`mac_dev`. `OMNIBOT_HW_PROFILE` env var forces a profile; else
-`detect_profile()` guesses. Add a target = one row in `detect_accelerators()`
+`pi_deepx_workstation` (Pi 5 + DeepX NPU ~25 TOPS for on-robot
+perception/VLA/local reasoning), `mac_dev`. `OMNIBOT_HW_PROFILE` env var forces
+a profile; else `detect_profile()` guesses (a DeepX NPU on a Pi auto-selects
+`pi_deepx_workstation`). Add a target = one row in `detect_accelerators()`
 + one EP-preference row + optionally one profile.
 
 **Benchmarking** (`learning_engine/benchmarks/`): `run.py` CLI runs the same
@@ -636,6 +643,59 @@ accepts the same `reporters=[...]` so continual-learning metrics stream too.
 python3 -m unittest discover -s learning_engine/tests -t .
 # Benchmark this machine (auto-detects accelerator + profile)
 python3 -m learning_engine.benchmarks.run --suite inference,training,dataset
+```
+
+---
+
+## Agent Engine (`agent_engine/`)
+
+Continuous **agent harness** — the deliberative "brain" that turns OmniBot from
+a one-shot command executor into a continuously-operating physical agent. Same
+convention as `learning_engine`: a pure-Python core (numpy only, fully
+unit-testable) with adapters at the edges (cloud Claude, ROS, learning-engine
+reuse) imported lazily. See `agent_engine/ARCHITECTURE.md`.
+
+`AgentHarness` (`core/harness.py`) runs a state machine, one transition per
+`tick()` (ROS-timer- or test-friendly):
+`IDLE → PERCEIVE → PLAN → ACT → MONITOR → (loop to PERCEIVE) → REFLECT →
+REMEMBER → IDLE`, with `WAIT_HUMAN` and e-stop as first-class interrupts and a
+per-goal step budget. The harness depends only on structural `Protocol` **ports**
+(`core/interfaces.py`): `Perceptor`, `Reasoner`, `MemoryPort`, `Reflector`,
+`VerifierPort`, `ReasoningBackend`, `EntityStore`.
+
+| Component | Role |
+|---|---|
+| `core/blackboard.py` `WorldState` | one fused snapshot; `to_observation()`→9-D `{"state"}` for the verifier; `to_dict()` round-trips `/agent/world_state` |
+| `core/tools.py` `ToolRegistry` | actuators as callable tools + Claude tool-use schemas; `low_level=True` tools must pass the verifier |
+| `reasoning/router.py` `ReasoningRouter` | hybrid brain — first available of cloud Claude / on-device LLM / DeepX per call kind (`deliberate`/`reactive`) |
+| `reasoning/cloud_claude.py` | `CloudClaudeBackend` (`claude-sonnet-4-6`, lazy `anthropic`, `ANTHROPIC_API_KEY`) |
+| `reasoning/local_llm.py` | `LocalLLMBackend` (Ollama/llama.cpp/DeepX-compiled fallback; available only when a runner is wired) |
+| `memory/working_memory.py` `WorkingMemory` | injects long-term (`EntityMemory`) + short-term (recent outcomes) + episodic (`ReplayDataset`) into prompts; writes grounded objects back |
+| `reasoners/claude_tool_caller.py` `ClaudeToolCallingReasoner` | LLM brain for PLAN: backend-agnostic JSON tool-calling via `ReasoningRouter`, tools from `ToolRegistry.to_anthropic_schema()` |
+| `reasoners/scripted.py` `ScriptedReasoner` | deterministic reasoner for tests/sim |
+| `reasoning/factory.py` `build_reasoning_router` | assembles cloud+local+echo backends in deliberate/reactive preference order |
+
+Reuse-by-adapter (`integrations/learning_engine.py`, lazy import): `WorldStateVerifier`
+wraps `SafetyCheck`/`ReachabilityCheck` (real hw limits) as the `VerifierPort`;
+`EvaluatorReflector` runs the `LanguageGoalEvaluator`→`ReflectionEvaluator`→
+`HeuristicSelfEvaluator` chain and persists labelled episodes to `ReplayDataset`;
+`ReplayMemorySource` feeds episodic recall; `ContinualLearningClosure` fires the
+`ContinualLearningScheduler` (reflect→learn).
+
+ROS edge (`omnibot_orchestration`, needs `pip install -e agent_engine`):
+`world_state_node` fuses `/odom`+`/arm/joint_states`+`/perception/object_info`+
+`/mission/status`+`/emergency_stop` → `/agent/world_state` (JSON String, 5 Hz);
+`agent_node` drives `harness.tick()` from a timer (worker thread; one tick in
+flight), goals on `/ai/command`+`/agent/goal`, tools publish `/mission/command`+
+`/control_mode`+`/arm/cmd_mode`+`/mission/cancel`+`/ai/response_needed`. Launch:
+`agent.launch.py` (config `config/agent_params.yaml`).
+
+```bash
+# Core tests (stdlib unittest; numpy; learning_engine adapters covered too)
+python3 -m unittest discover -s agent_engine/tests -t .
+# Run the loop on the robot / in Gazebo (after pip install -e agent_engine)
+ros2 launch omnibot_orchestration agent.launch.py
+ros2 topic pub --once /ai/command std_msgs/msg/String "data: 'find the red cup'"
 ```
 
 ---
@@ -769,6 +829,9 @@ RX packets start with `0xFB`. Parse by type code at byte index 3.
 
 LangGraph AI orchestration layer — converts natural language into structured
 robot missions using Claude. Runs on the AI desktop PC alongside the VLA nodes.
+Also hosts the **agent harness ROS edge** (`world_state_node`, `agent_node` —
+launch `agent.launch.py`), which runs the continuous `agent_engine` loop; see
+the **Agent Engine** section above.
 
 **Node**: `langchain_agent_node` (launch: `langchain_agent.launch.py`)
 

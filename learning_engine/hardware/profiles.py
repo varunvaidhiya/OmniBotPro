@@ -24,6 +24,7 @@ from typing import Dict, List, Optional
 
 from .device import (
     AcceleratorType,
+    detect_accelerators,
     is_apple_silicon,
     is_jetson,
     is_raspberry_pi,
@@ -100,6 +101,28 @@ BUILTIN_PROFILES: Dict[str, HardwareProfile] = {
             ),
         ],
     ),
+    "pi_deepx_workstation": HardwareProfile(
+        name="pi_deepx_workstation",
+        description="Pi 5 + DeepX NPU (~25 TOPS) running on-robot perception, "
+        "VLA and the agent harness's local reasoning fallback; GPU "
+        "workstation for cloud-class training + simulation.",
+        nodes=[
+            NodeSpec(
+                "pi5",
+                ["control", "perception", "inference"],
+                device="cpu",
+                accelerator="deepx",
+                notes="perception/VLA + small LLM compiled to .dxnn run on the "
+                "DeepX NPU via DX-RT; ROS nodes and the harness stay on CPU",
+            ),
+            NodeSpec(
+                "workstation",
+                ["training", "simulation"],
+                device="cuda",
+                accelerator="nvidia_gpu",
+            ),
+        ],
+    ),
     "jetson_single": HardwareProfile(
         name="jetson_single",
         description="Everything on one Jetson (Orin NX / AGX): control, "
@@ -165,6 +188,8 @@ def detect_profile() -> HardwareProfile:
     if is_apple_silicon():
         return BUILTIN_PROFILES["mac_dev"]
     if is_raspberry_pi():
+        if any(a.type is AcceleratorType.DEEPX for a in detect_accelerators()):
+            return BUILTIN_PROFILES["pi_deepx_workstation"]
         return BUILTIN_PROFILES["pi_workstation"]
     if primary_accelerator().type is AcceleratorType.NVIDIA_GPU:
         return BUILTIN_PROFILES["workstation_single"]

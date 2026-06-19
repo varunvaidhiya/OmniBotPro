@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omnibot-agent-engine"
+version = "0.1.0"
+description = "Continuous agent harness (deliberative brain loop) for OmniBot"
+requires-python = ">=3.9"
+dependencies = [
+    "numpy>=1.24",
+]
+
+[project.optional-dependencies]
+# Cloud reasoning backend (CloudClaudeBackend) + image encoding.
+claude = ["anthropic>=0.40", "pillow>=10.0"]
+# LangGraph tool-calling reasoner (Phase 1).
+langgraph = ["langgraph>=0.2", "langchain-anthropic>=0.2"]
+yaml = ["pyyaml>=6.0"]
+
+# pyproject lives inside the package directory (repo-root/agent_engine),
+# so packages are declared explicitly with the dir mapped onto the package name.
+[tool.setuptools]
+package-dir = {"agent_engine" = "."}
+packages = [
+    "agent_engine",
+    "agent_engine.core",
+    "agent_engine.reasoning",
+    "agent_engine.reasoners",
+    "agent_engine.memory",
+    "agent_engine.integrations",
+]

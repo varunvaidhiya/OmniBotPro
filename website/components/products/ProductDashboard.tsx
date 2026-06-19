@@ -1109,6 +1109,147 @@ function AutonomyDash({ accent }: DashProps) {
   );
 }
 
+// ── OhhO Mind ───────────────────────────────────────────────────────────────
+function MindDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  // s: 2 = done, 1 = active, 0 = pending
+  const loop = [
+    { l: "perceive", s: 2 },
+    { l: "reason", s: 1 },
+    { l: "verify", s: 0 },
+    { l: "act", s: 0 },
+    { l: "monitor", s: 0 },
+    { l: "reflect", s: 0 },
+    { l: "remember", s: 0 },
+  ];
+  const brains = [
+    { l: "cloud · claude", on: true },
+    { l: "on-device llm", on: false },
+    { l: "deepx npu", on: false },
+  ];
+  const state = [
+    { l: "base pose", v: "1.8, 0.4, 0°" },
+    { l: "arm", v: "home · open" },
+    { l: "nearest", v: "red_cup 0.42 m" },
+    { l: "mission", v: "active" },
+  ];
+  return (
+    <DashboardFrame title="ohho-mind · agent loop" accent={accent} tools={["GOAL", "OTA"]}>
+      {/* cognitive loop */}
+      <Panel x={14} y={12} w={150} h={250} label="Agent loop" accent={a} />
+      {loop.map((p, i) => {
+        const cy = 44 + i * 27;
+        const last = i === loop.length - 1;
+        return (
+          <g key={p.l}>
+            {!last && <line x1={28} y1={cy} x2={28} y2={cy + 27} stroke={C.border} />}
+            {p.s === 2 ? (
+              <circle cx={28} cy={cy} r={5.5} fill={C.green} />
+            ) : p.s === 1 ? (
+              <circle cx={28} cy={cy} r={5.5} fill={a} />
+            ) : (
+              <circle cx={28} cy={cy} r={5.5} fill={C.surf} stroke={C.faint} />
+            )}
+            <text x={42} y={cy + 3.5} fontFamily={BODY} fontSize={9.5} fill={p.s === 0 ? C.faint : C.text}>
+              {p.l}
+            </text>
+            {p.s === 1 && (
+              <text x={154} y={cy + 3.5} fontFamily={MONO} fontSize={7} fill={a} textAnchor="end">
+                now
+              </text>
+            )}
+          </g>
+        );
+      })}
+      <text x={24} y={252} fontFamily={MONO} fontSize={6.5} fill={C.faint}>
+        monitor ↻ perceive
+      </text>
+
+      {/* goal */}
+      <rect x={176} y={12} width={236} height={34} rx={7} fill="#0A0F1C" stroke={a} strokeOpacity={0.4} />
+      <text x={186} y={26} fontFamily={MONO} fontSize={6.5} fill={a}>
+        ✦ GOAL
+      </text>
+      <text x={186} y={39} fontFamily={BODY} fontSize={9} fill={C.text}>
+        “find the red cup and bring it back”
+      </text>
+
+      {/* world state */}
+      <Panel x={176} y={54} w={236} h={120} label="World state · /agent/world_state" />
+      {state.map((s, i) => (
+        <g key={s.l}>
+          <text x={188} y={88 + i * 22} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+            {s.l}
+          </text>
+          <text x={400} y={88 + i * 22} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+            {s.v}
+          </text>
+          {i < state.length - 1 && <line x1={188} y1={94 + i * 22} x2={400} y2={94 + i * 22} stroke={C.grid} />}
+        </g>
+      ))}
+
+      {/* verified next action */}
+      <Panel x={176} y={182} w={236} h={80} label="Next action · verified" accent={a} />
+      <text x={188} y={208} fontFamily={MONO} fontSize={9} fill={C.text}>
+        run_skill(
+      </text>
+      <text x={196} y={221} fontFamily={MONO} fontSize={9} fill={a}>
+        rl_arm, “pick up the cup”
+      </text>
+      <text x={188} y={234} fontFamily={MONO} fontSize={9} fill={C.text}>
+        )
+      </text>
+      <text x={188} y={252} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        plan confidence
+      </text>
+      <Bar x={290} y={247} w={110} frac={0.86} color={C.green} />
+
+      {/* reasoning router */}
+      <Panel x={420} y={12} w={126} h={120} label="Reasoning" accent={a} />
+      {brains.map((b, i) => (
+        <g key={b.l}>
+          <rect
+            x={430}
+            y={40 + i * 28}
+            width={106}
+            height={22}
+            rx={5}
+            fill={b.on ? "rgba(124,58,237,0.14)" : "rgba(255,255,255,0.02)"}
+            stroke={b.on ? a : C.border}
+          />
+          <Dot cx={442} cy={51 + i * 28} r={2.6} color={b.on ? a : C.faint} />
+          <text x={452} y={54 + i * 28} fontFamily={MONO} fontSize={8} fill={b.on ? C.text : C.muted}>
+            {b.l}
+          </text>
+          <text x={528} y={54 + i * 28} fontFamily={MONO} fontSize={7} fill={b.on ? a : C.faint} textAnchor="end">
+            {b.on ? "active" : "ready"}
+          </text>
+        </g>
+      ))}
+
+      {/* safety gate + learning */}
+      <Panel x={420} y={142} w={126} h={120} label="Safety gate" />
+      <Ring cx={452} cy={196} r={23} frac={1} color={C.green} width={7} label="✓" sub="verified" />
+      <text x={486} y={186} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        base ≤ 0.20
+      </text>
+      <text x={486} y={199} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        arm ≤ 0.05
+      </text>
+      <text x={486} y={212} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        limits ok
+      </text>
+      <line x1={430} y1={230} x2={536} y2={230} stroke={C.grid} />
+      <text x={430} y={248} fontFamily={BODY} fontSize={8} fill={C.muted}>
+        episodes → learn
+      </text>
+      <text x={536} y={248} fontFamily={MONO} fontSize={8} fill={a} textAnchor="end">
+        128
+      </text>
+    </DashboardFrame>
+  );
+}
+
 const DASHBOARDS: Record<string, (p: DashProps) => JSX.Element> = {
   build: BuildDash,
   bench: BenchDash,
@@ -1118,6 +1259,7 @@ const DASHBOARDS: Record<string, (p: DashProps) => JSX.Element> = {
   data: DataDash,
   train: TrainDash,
   autonomy: AutonomyDash,
+  mind: MindDash,
   pilot: PilotDash,
   fleet: FleetDash,
   comply: ComplyDash,

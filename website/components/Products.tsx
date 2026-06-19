@@ -26,7 +26,7 @@ export default function Products() {
               Everything you need to<br />build and operate robots.
             </h2>
             <p className="text-[16px] leading-[1.7] max-w-[560px] legible" style={{ color: "rgba(255,255,255,0.62)" }}>
-              Thirteen purpose-built products spanning design, foundation, intelligence, operations,
+              Fourteen purpose-built products spanning design, foundation, intelligence, operations,
               and trust — one unified platform covering the full robot lifecycle, from a blank canvas
               to a certified fleet. Works with any ROS 2 compatible hardware.
             </p>

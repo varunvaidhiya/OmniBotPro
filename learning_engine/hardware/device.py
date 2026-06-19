@@ -11,9 +11,10 @@ hardware-agnostic:
 
 Supported targets today: Raspberry Pi 5 (CPU), NVIDIA dGPU workstation,
 NVIDIA Jetson (Orin/Xavier — CUDA + TensorRT on aarch64), Apple M-series
-(MPS/CoreML), Hailo and Coral USB/M.2 accelerators (detected when their
-runtimes are installed). New targets = extend ``detect_accelerators`` and
-``_ONNX_PROVIDER_PREFERENCE`` — nothing else changes.
+(MPS/CoreML), Hailo, Coral and DeepX (DX-RT, e.g. the 25-TOPS DX-M1 on the
+Pi) USB/M.2 accelerators (detected when their runtimes are installed). New
+targets = extend ``detect_accelerators`` and ``_ONNX_PROVIDER_PREFERENCE`` —
+nothing else changes.
 """
 
 from __future__ import annotations
@@ -34,6 +35,7 @@ class AcceleratorType(str, Enum):
     APPLE_SILICON = "apple_silicon"  # M-series (MPS / CoreML / ANE)
     HAILO = "hailo"  # Hailo-8 accelerator (e.g. Pi AI Kit)
     CORAL = "coral"  # Google Coral Edge TPU
+    DEEPX = "deepx"  # DeepX NPU (e.g. DX-M1, ~25 TOPS) via the DX-RT runtime
     CPU = "cpu"
 
 
@@ -158,6 +160,15 @@ def detect_accelerators() -> tuple:
             found.append(Accelerator(accel_type, name=name))
         except ImportError:
             pass
+    # DeepX NPU (DX-M1 / DX-H1) — present iff the DX-RT python runtime imports.
+    # The binding name has varied across SDK releases, so probe a few.
+    for module in ("dx_engine", "dxrt", "dx_rt"):
+        try:
+            __import__(module)
+            found.append(Accelerator(AcceleratorType.DEEPX, name="DeepX NPU"))
+            break
+        except ImportError:
+            continue
     if not found:
         found.append(
             Accelerator(
@@ -227,6 +238,9 @@ _ONNX_PROVIDER_PREFERENCE: Dict[AcceleratorType, List[str]] = {
     AcceleratorType.APPLE_SILICON: ["CoreMLExecutionProvider", "CPUExecutionProvider"],
     AcceleratorType.HAILO: ["CPUExecutionProvider"],  # Hailo runs via HEF, not ORT
     AcceleratorType.CORAL: ["CPUExecutionProvider"],  # Coral runs via tflite
+    # DeepX runs compiled .dxnn graphs via the DX-RT runtime; the DeepX ORT EP
+    # is promoted here when a build exposes it, else ORT falls back to CPU.
+    AcceleratorType.DEEPX: ["DeepXExecutionProvider", "CPUExecutionProvider"],
     AcceleratorType.CPU: ["CPUExecutionProvider"],
 }
 
