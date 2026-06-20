@@ -27,12 +27,19 @@ import { getUserRobots } from "@/lib/garage/client";
 import { getHardwareModel, getRobotTypeForHardware } from "@/lib/garage/robot-catalog";
 import { getCategory, type RobotCategory } from "@/lib/garage/types";
 import type { UserRobot, HardwareModel, RobotType } from "@/lib/garage/types";
+import { getRobotConfig, defaultRobotConfig, type RobotConfig } from "@/lib/garage/robot-config";
 
 interface RobotContextValue {
   robot: UserRobot | null;
   hardwareModel: HardwareModel | null;
   robotType: RobotType | null;
   category: RobotCategory | null;
+  /**
+   * The structured capability profile the consoles read to pre-configure
+   * themselves. Always present: falls back to the OmniBot reference config
+   * when no robot is selected, so a console never renders without a config.
+   */
+  config: RobotConfig;
   loading: boolean;
 }
 
@@ -41,6 +48,7 @@ const RobotContext = createContext<RobotContextValue>({
   hardwareModel: null,
   robotType: null,
   category: null,
+  config: defaultRobotConfig(),
   loading: false,
 });
 
@@ -64,6 +72,7 @@ function RobotResolver({ children }: { children: React.ReactNode }) {
     hardwareModel: null,
     robotType: null,
     category: null,
+    config: defaultRobotConfig(),
     loading: false,
   });
 
@@ -76,7 +85,9 @@ function RobotResolver({ children }: { children: React.ReactNode }) {
       const hw = bot ? getHardwareModel(bot.hardwareModelId) ?? null : null;
       const type = bot ? getRobotTypeForHardware(bot.hardwareModelId) ?? null : null;
       const cat = type ? getCategory(type.category) : null;
-      setValue({ robot: bot, hardwareModel: hw, robotType: type, category: cat, loading: false });
+      const config =
+        (bot ? getRobotConfig(bot.hardwareModelId) : undefined) ?? defaultRobotConfig();
+      setValue({ robot: bot, hardwareModel: hw, robotType: type, category: cat, config, loading: false });
     } catch {
       setValue((prev) => ({ ...prev, loading: false }));
     }

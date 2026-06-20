@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { useSystemTelemetry } from "@/lib/frame/system";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 import { useProcessManager } from "@/lib/frame/processes";
 
 const ORANGE = "#F97316";
@@ -31,6 +33,7 @@ const RED = "#F87171";
 const AMBER = "#FBBF24";
 
 export default function FrameConsole() {
+  const { config } = useRobot();
   const { current, history } = useSystemTelemetry();
   const { processes, toggleProcess, restartProcess } = useProcessManager();
 
@@ -104,6 +107,9 @@ export default function FrameConsole() {
       >
         {/* LEFT — Hardware Telemetry */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="frame" config={config} />
+          </div>
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>Hardware Telemetry</h2>
             

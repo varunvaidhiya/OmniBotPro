@@ -40,10 +40,13 @@ import {
 
 import {
   PROFILES,
-  getProfile,
   jointsForProfile,
+  profileFromConfig,
   type RobotProfile,
 } from "@/lib/pilot/robots";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
+import type { RobotConfig } from "@/lib/garage/robot-config";
 import {
   CONTROL_MODES,
   applyJoystick,
@@ -77,12 +80,16 @@ const AMBER = "#FBBF24";
 const RED = "#F87171";
 
 export default function PilotConsole() {
-  const [profileId, setProfileId] = useState(PROFILES[0].id);
+  const { config: robot } = useRobot();
+  // The garage-selected robot becomes the default, pre-selected Pilot profile;
+  // the built-in PROFILES remain available as manual alternatives.
+  const garageProfile = useMemo(() => profileFromConfig(robot), [robot]);
+  const [profileId, setProfileId] = useState(garageProfile.id);
   const [sceneId, setSceneId] = useState(SCENES[0].id);
   const [state, setState] = useState<TeleopState>(() =>
-    initialTeleopState(PROFILES[0].armJoints),
+    initialTeleopState(garageProfile.armJoints),
   );
-  const [activeCamera, setActiveCamera] = useState("front");
+  const [activeCamera, setActiveCamera] = useState(garageProfile.cameras[0] ?? "front");
 
   // ── Sim provider state ──
   const [providerId, setProviderId] = useState("simulated");
@@ -95,9 +102,18 @@ export default function PilotConsole() {
   const [recording, setRecording] = useState(false);
   const [lastEpisode, setLastEpisode] = useState<RecordedEpisode | null>(null);
 
-  const profile = useMemo(() => getProfile(profileId), [profileId]);
+  const profiles = useMemo(() => [garageProfile, ...PROFILES], [garageProfile]);
+  const profile = useMemo(
+    () => profiles.find((p) => p.id === profileId) ?? garageProfile,
+    [profiles, profileId, garageProfile],
+  );
   const scene = useMemo(() => getScene(sceneId), [sceneId]);
   const joints = useMemo(() => jointsForProfile(profile), [profile]);
+
+  // When the garage robot changes, snap Pilot back to that robot's profile.
+  useEffect(() => {
+    setProfileId(garageProfile.id);
+  }, [garageProfile.id]);
 
   // ── Sim provider instance (recreated when providerId changes) ──
   const provider = useMemo((): SimulatorProvider => {
@@ -334,6 +350,8 @@ export default function PilotConsole() {
       >
         {/* LEFT — Robot profile + connection */}
         <ProfilePanel
+          profiles={profiles}
+          robot={robot}
           profileId={profileId}
           onProfile={setProfileId}
           sceneId={sceneId}
@@ -540,6 +558,8 @@ function SectionHead({
 // ── Left panel ────────────────────────────────────────────────────────────────
 
 function ProfilePanel({
+  profiles,
+  robot,
   profileId,
   onProfile,
   sceneId,
@@ -564,6 +584,8 @@ function ProfilePanel({
   bridgeActive,
   onToggleBridge,
 }: {
+  profiles: RobotProfile[];
+  robot: RobotConfig;
   profileId: string;
   onProfile: (id: string) => void;
   sceneId: string;
@@ -768,10 +790,15 @@ function ProfilePanel({
         </div>
       )}
 
+      {/* AI interface — robot enrichment + dynamic panels */}
+      <div className="px-3 pb-2">
+        <AIRobotPanel consoleId="pilot" config={robot} />
+      </div>
+
       {/* Robot profiles */}
       <SectionHead icon={<Radio size={15} />} title="Robot profile" />
       <div className="px-3 flex flex-col gap-2">
-        {PROFILES.map((p) => {
+        {profiles.map((p) => {
           const on = profileId === p.id;
           return (
             <button

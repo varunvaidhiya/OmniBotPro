@@ -103,3 +103,49 @@ export function jointsForProfile(profile: RobotProfile): ArmJoint[] {
   if (!profile.hasArm) return [];
   return DEFAULT_ARM_JOINTS.slice(0, profile.armJoints);
 }
+
+// ── Bridge: garage RobotConfig → Pilot RobotProfile ──────────────────────────
+// The garage selection is the source of truth; this adapts any RobotConfig into
+// the teleop profile Pilot's cockpit + simulators understand. Aerial / legged /
+// fixed robots map to the closest controllable base for the sim.
+
+import type { RobotConfig, DriveKind } from "@/lib/garage/robot-config";
+
+function baseTypeFor(drive: DriveKind): BaseType {
+  switch (drive) {
+    case "mecanum":
+      return "mecanum";
+    case "ackermann":
+      return "ackermann";
+    case "differential":
+    case "skid-steer":
+    case "tracked":
+    case "rocker-bogie":
+      return "diff";
+    default:
+      // aerial / legged / thruster / fixed-base — drive holonomically in the sim
+      return "mecanum";
+  }
+}
+
+/** Build a Pilot teleop profile from the garage-selected robot. */
+export function profileFromConfig(config: RobotConfig): RobotProfile {
+  const cameras = config.sensors
+    .filter((s) =>
+      ["rgb_camera", "depth_camera", "stereo_camera", "thermal_camera", "fpv_camera", "bev"].includes(s.kind),
+    )
+    .map((s) => s.label.replace(/\s*camera\s*/i, "").trim().toLowerCase() || "cam");
+
+  return {
+    id: `garage:${config.robotId}`,
+    name: config.name,
+    desc: config.summary ?? `${config.driveLabel}${config.hasArm ? ` + ${config.armDof}-DOF arm` : ", no arm"}.`,
+    baseType: baseTypeFor(config.drive),
+    hasArm: config.hasArm,
+    armJoints: config.armDof,
+    maxLinVel: config.maxLinVel,
+    maxAngVel: config.maxAngVel,
+    cameras: cameras.length ? cameras : ["front"],
+    iconPath: "M3 6h18v12H3zM7 18v2M17 18v2M12 6V4M6 10h2M16 10h2M10 14h4",
+  };
+}

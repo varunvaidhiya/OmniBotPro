@@ -9,6 +9,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import type { RobotConfig } from "@/lib/garage/robot-config";
+
 export type ControlMode = "nav2" | "vla" | "rl_nav" | "teleop";
 export type StepKind = "navigate" | "perceive" | "manipulate";
 export type Phase = "idle" | "running" | "done";
@@ -37,12 +39,12 @@ export const PATH: Pt[] = [
 
 export const NAMED_LOCATIONS = ["kitchen", "bench", "dock", "shelf-3", "lab"];
 
-const DEFAULT_STEPS: MissionStep[] = [
-  { id: "s1", label: "navigate · kitchen", kind: "navigate", status: "queued" },
-  { id: "s2", label: "detect · red cup", kind: "perceive", status: "queued" },
-  { id: "s3", label: "pick · cup", kind: "manipulate", status: "queued" },
-  { id: "s4", label: "navigate · bench", kind: "navigate", status: "queued" },
-];
+/** A sensible starting instruction for the robot's capabilities. */
+function defaultInstruction(config: RobotConfig): string {
+  if (config.capabilities.canManipulate) return "take the red cup from the kitchen to the bench";
+  if (config.capabilities.isAerial) return "survey the lab then return to the dock";
+  return "navigate from the kitchen to the bench";
+}
 
 const TOTAL_DIST_M = 6.2;
 
@@ -72,7 +74,7 @@ function interpolate(p: number): Pt {
 }
 
 /** Build a mission from a plain-language instruction (toy parser). */
-function planFrom(text: string): MissionStep[] {
+function planFrom(text: string, canManipulate: boolean): MissionStep[] {
   const t = text.toLowerCase();
   const from = NAMED_LOCATIONS.find((l) => t.includes(l)) ?? "kitchen";
   const to = NAMED_LOCATIONS.filter((l) => l !== from).find((l) => t.includes(l)) ?? "bench";
@@ -80,18 +82,20 @@ function planFrom(text: string): MissionStep[] {
   const obj = objMatch ? objMatch[0].replace(/^the\s+/, "").trim() : "object";
   const steps: MissionStep[] = [
     { id: "s1", label: `navigate · ${from}`, kind: "navigate", status: "queued" },
-    { id: "s2", label: `detect · ${obj}`, kind: "perceive", status: "queued" },
+    { id: "s2", label: `${canManipulate ? "detect" : "inspect"} · ${obj}`, kind: "perceive", status: "queued" },
   ];
-  if (/pick|grab|take|fetch|bring|move/.test(t)) {
+  // Only robots with a manipulator get a pick/place step.
+  if (canManipulate && /pick|grab|take|fetch|bring|move/.test(t)) {
     steps.push({ id: "s3", label: `pick · ${obj}`, kind: "manipulate", status: "queued" });
   }
   steps.push({ id: "s4", label: `navigate · ${to}`, kind: "navigate", status: "queued" });
   return steps;
 }
 
-export function useMission() {
-  const [instruction, setInstruction] = useState("take the red cup from the kitchen to the bench");
-  const [steps, setSteps] = useState<MissionStep[]>(DEFAULT_STEPS);
+export function useMission(config: RobotConfig) {
+  const canManipulate = config.capabilities.canManipulate;
+  const [instruction, setInstruction] = useState(() => defaultInstruction(config));
+  const [steps, setSteps] = useState<MissionStep[]>(() => planFrom(defaultInstruction(config), canManipulate));
   const [mode, setMode] = useState<ControlMode>("nav2");
   const [phase, setPhase] = useState<Phase>("idle");
   const [progress, setProgress] = useState(0);
@@ -102,6 +106,16 @@ export function useMission() {
     timer.current = null;
   }, []);
   useEffect(() => stop, [stop]);
+
+  // Re-plan the default mission when the selected robot changes.
+  useEffect(() => {
+    const di = defaultInstruction(config);
+    setInstruction(di);
+    setSteps(planFrom(di, canManipulate));
+    setProgress(0);
+    setPhase("idle");
+    stop();
+  }, [config, canManipulate, stop]);
 
   // mark steps complete as progress crosses their slice
   useEffect(() => {
@@ -139,11 +153,11 @@ export function useMission() {
     (text: string) => {
       stop();
       setInstruction(text);
-      setSteps(planFrom(text));
+      setSteps(planFrom(text, canManipulate));
       setProgress(0);
       setPhase("idle");
     },
-    [stop],
+    [stop, canManipulate],
   );
 
   const reset = useCallback(() => {

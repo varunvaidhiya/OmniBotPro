@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 
 import { useSensors, type SensorLayer } from "@/lib/view/sensors";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const BLUE = "#3B82F6";
 const GREEN = "#34D399";
@@ -29,7 +31,8 @@ const CYAN = "#00D4FF";
 const RED = "#F87171";
 
 export default function ViewConsole() {
-  const { layers, toggleLayer } = useSensors();
+  const { config } = useRobot();
+  const { layers, toggleLayer } = useSensors(config);
 
   const getIconForType = (type: SensorLayer["type"]) => {
     switch (type) {
@@ -41,9 +44,15 @@ export default function ViewConsole() {
     }
   };
 
-  const isMapVisible = layers.find(l => l.id === "s3")?.visible;
-  const isPclVisible = layers.find(l => l.id === "s1")?.visible;
-  const isLidarVisible = layers.find(l => l.id === "s2")?.visible;
+  const isMapVisible = layers.some(l => l.type === "map" && l.visible);
+  const isPclVisible = layers.some(l => l.type === "pointcloud" && l.visible);
+  const isLidarVisible = layers.some(l => l.type === "laserscan" && l.visible);
+
+  // Up to two camera streams to mirror on the right rail, taken from the robot.
+  const cameras = config.sensors.filter((s) =>
+    ["rgb_camera", "depth_camera", "stereo_camera", "thermal_camera", "fpv_camera", "bev"].includes(s.kind),
+  );
+  const localFrame = config.capabilities.canNavigate ? "odom" : "base_link";
 
   return (
     <div className="min-h-screen relative" style={{ background: "var(--bg)" }}>
@@ -118,6 +127,10 @@ export default function ViewConsole() {
               </button>
             ))}
           </div>
+
+          <div className="p-4 border-t" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="view" config={config} />
+          </div>
         </aside>
 
         {/* CENTER — 3D Viewer */}
@@ -127,7 +140,7 @@ export default function ViewConsole() {
             <h1 className="text-xl font-medium text-white mb-1 flex items-center gap-2" style={{ textShadow: "0 2px 4px rgba(0,0,0,0.5)" }}>
               Interactive 3D Canvas
             </h1>
-            <p className="text-sm text-gray-400">OmniBot V2 · Local frame: odom</p>
+            <p className="text-sm text-gray-400">{config.name} · Local frame: {localFrame}</p>
           </div>
 
           {/* Simulated 3D Environment using SVG */}
@@ -223,13 +236,14 @@ export default function ViewConsole() {
                 <line x1="144" y1="105" x2="152" y2="105" stroke="rgba(255,255,255,0.3)" />
                 <line x1="168" y1="105" x2="176" y2="105" stroke="rgba(255,255,255,0.3)" />
               </svg>
-              <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">/camera/front/image_raw</div>
+              <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">{cameras[0]?.topic ?? "/camera/image_raw"}</div>
               <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />30.0 FPS
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{(cameras[0]?.hz ?? 30).toFixed(1)} FPS
               </div>
             </div>
 
-            {/* Feed 2 */}
+            {/* Feed 2 — only when the robot has a second camera */}
+            {cameras[1] && (
             <div className="rounded-lg overflow-hidden border relative bg-black aspect-video" style={{ borderColor: "var(--border)" }}>
               <svg viewBox="0 0 320 180" width="100%" height="100%" className="absolute inset-0">
                 <rect x="0" y="90" width="320" height="90" fill="rgba(124,58,237,0.04)" />
@@ -243,11 +257,12 @@ export default function ViewConsole() {
                 <rect x="195" y="45" width="16" height="20" rx="2" fill="rgba(251,191,36,0.2)" stroke="rgba(251,191,36,0.4)" strokeWidth="0.8" />
                 <text x="195" y="40" fontFamily="monospace" fontSize="6" fill="rgba(251,191,36,0.6)">obj·0.91</text>
               </svg>
-              <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">/camera/wrist/image_raw</div>
+              <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-white">{cameras[1]?.topic ?? ""}</div>
               <div className="absolute top-2 right-2 px-1.5 py-0.5 bg-black/60 rounded text-[9px] font-mono text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />15.2 FPS
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />{(cameras[1]?.hz ?? 15).toFixed(1)} FPS
               </div>
             </div>
+            )}
           </div>
 
           <div className="flex-1 p-5">

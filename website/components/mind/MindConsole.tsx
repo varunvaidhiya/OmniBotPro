@@ -38,6 +38,8 @@ import {
   type LoopPhase,
   type Tone,
 } from "@/lib/mind/agent";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const VIOLET = "#A78BFA";
 const CYAN = "#00D4FF";
@@ -55,6 +57,7 @@ const BACKENDS: { id: Backend; label: string; icon: typeof Cloud }[] = [
 ];
 
 export default function MindConsole() {
+  const { config } = useRobot();
   const a = useAgentLoop();
   const [draft, setDraft] = useState(a.goal);
   const logRef = useRef<HTMLDivElement | null>(null);
@@ -105,6 +108,9 @@ export default function MindConsole() {
       >
         {/* LEFT — loop + goal */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="mind" config={config} />
+          </div>
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>Agent loop</h2>
             <div className="flex flex-col">
