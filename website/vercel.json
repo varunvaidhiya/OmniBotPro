@@ -1,6 +1,5 @@
 {
   "framework": "nextjs",
-  "buildCommand": "next build && cp -a .next out",
   "installCommand": "npm install --legacy-peer-deps",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- website/"
 }
