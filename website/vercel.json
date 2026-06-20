@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && mkdir -p out && cp -r .next/* out/",
   "installCommand": "npm install --legacy-peer-deps",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet -- website/"
 }
