@@ -1,0 +1,22 @@
+# Codex MCP server configuration for OmniBot / OhhO.
+#
+# NOTE: Codex reads MCP servers from ~/.codex/config.toml (per-user), not from a
+# project-local file. This file is checked in as the shared source of truth —
+# copy these [mcp_servers.*] blocks into your ~/.codex/config.toml (or symlink).
+# See docs/AI_TOOLING.md for the full cross-IDE setup and prerequisites.
+
+[mcp_servers.codegraphcontext]
+command = "codegraphcontext"
+args = ["mcp", "start"]
+
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.serena]
+command = "uvx"
+args = ["--from", "git+https://github.com/oraios/serena", "serena", "start-mcp-server", "--context", "ide-assistant"]
+
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
