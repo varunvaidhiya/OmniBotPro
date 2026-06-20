@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 
 import { useProofSimulation, type HeatmapValue } from "@/lib/proof/testing";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const VIOLET = "#A78BFA";
 const GREEN = "#34D399";
@@ -26,6 +28,7 @@ const AMBER = "#FBBF24";
 const RED = "#F87171";
 
 export default function ProofConsole() {
+  const { config } = useRobot();
   const { suites, coverage, regression, isRunning, runFullSuite, overallVerdict } = useProofSimulation();
 
   const heatColor = (v: HeatmapValue) => {
@@ -104,6 +107,9 @@ export default function ProofConsole() {
       >
         {/* LEFT — Test Suites */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="proof" config={config} />
+          </div>
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>Test Suites</h2>
             

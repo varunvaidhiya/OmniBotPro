@@ -22,6 +22,8 @@ import {
 
 import { VERSIONS, type RobotStatus } from "@/lib/fleet/fleet";
 import { useFleetSimulation } from "@/lib/fleet/simulation";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 import FleetMap from "./FleetMap";
 
 const CYAN = "#00D4FF";
@@ -31,6 +33,7 @@ const AMBER = "#FBBF24";
 const RED = "#F87171";
 
 export default function FleetConsole() {
+  const { config } = useRobot();
   const { robots, alerts, isRollingOut, triggerOTA, rollbackOTA } = useFleetSimulation();
   
   const [activeRobotId, setActiveRobotId] = useState<string | null>(null);
@@ -106,6 +109,9 @@ export default function FleetConsole() {
       >
         {/* LEFT — Roster */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="fleet" config={config} />
+          </div>
           <div className="px-4 pt-4 pb-2">
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>
               Fleet Roster

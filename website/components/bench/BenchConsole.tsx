@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 
 import { useBringup, type Status } from "@/lib/bench/bringup";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const CYAN = "#00D4FF";
 const GREEN = "#34D399";
@@ -46,6 +48,7 @@ function StatusGlyph({ status }: { status: Status }) {
 }
 
 export default function BenchConsole() {
+  const { config } = useRobot();
   const {
     assembly,
     subsystems,
@@ -58,7 +61,7 @@ export default function BenchConsole() {
     flashFirmware,
     runSelfTest,
     runCalibration,
-  } = useBringup();
+  } = useBringup(config);
 
   return (
     <div className="min-h-screen relative" style={{ background: "var(--bg)" }}>
@@ -98,6 +101,9 @@ export default function BenchConsole() {
       >
         {/* LEFT — Assembly checklist */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="bench" config={config} />
+          </div>
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>Assembly</h2>
             <p className="text-[11px] mb-4" style={{ color: "var(--muted)" }}>From your OhhO Build BOM · tap to toggle</p>

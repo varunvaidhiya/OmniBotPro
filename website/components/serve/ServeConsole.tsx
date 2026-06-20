@@ -40,9 +40,12 @@ import {
   type BackendMode,
   type ServeConfig,
 } from "@/lib/serve/models";
-import { SCENES, actionLabels, getScene, predictWithMeta, type PredictResult, type PredictMeta } from "@/lib/serve/inference";
+import { SCENES, actionLabelsForRobot, getScene, predictWithMeta, type PredictResult, type PredictMeta } from "@/lib/serve/inference";
 import { MetricsSim, type MetricsSnapshot } from "@/lib/serve/metrics";
 import { snippets } from "@/lib/serve/client";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
+import type { RobotConfig } from "@/lib/garage/robot-config";
 
 const GREEN = "#34D399";
 const AMBER = "#FBBF24";
@@ -59,6 +62,7 @@ interface LogEntry {
 }
 
 export default function ServeConsole() {
+  const { config: robot } = useRobot();
   const [config, setConfig] = useState<ServeConfig>(DEFAULT_CONFIG);
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -125,7 +129,7 @@ export default function ServeConsole() {
     if (!loaded || predicting || !instruction.trim()) return;
     setPredicting(true);
     try {
-      const meta: PredictMeta = await predictWithMeta(config, { sceneId, instruction });
+      const meta: PredictMeta = await predictWithMeta(config, { sceneId, instruction }, robot.actionDim);
       const { result, source } = meta;
       sim.current?.record(result.latency_ms);
       setSnap(sim.current?.snapshot() ?? null);
@@ -156,6 +160,9 @@ export default function ServeConsole() {
           {config.backendMode === "server" ? config.serverUrl : config.backendMode === "webgpu" ? "ONNX · WebGPU" : "Transformers.js"}
         </span>
         <span className="ml-auto flex items-center gap-2">
+          <span className="hidden md:inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }} title="Action space matches the selected robot">
+            {robot.name} · {robot.actionDim}-D action
+          </span>
           <HealthPill loaded={loaded} />
           <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] font-mono px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }}>
             <span className="badge-dot" style={{ background: CYAN }} /> demo
@@ -212,7 +219,9 @@ export default function ServeConsole() {
               )}
             </div>
 
-            <ActionResponse latest={latest} model={model} />
+            <ActionResponse latest={latest} robot={robot} />
+
+            <AIRobotPanel consoleId="serve" config={robot} />
 
             {log.length > 0 && (
               <div>
@@ -554,7 +563,7 @@ function SceneThumb({ id }: { id: string }) {
   );
 }
 
-function ActionResponse({ latest, model }: { latest?: LogEntry; model: ReturnType<typeof getModel> }) {
+function ActionResponse({ latest, robot }: { latest?: LogEntry; robot: RobotConfig }) {
   const [showJson, setShowJson] = useState(false);
   if (!latest) {
     return (
@@ -565,11 +574,11 @@ function ActionResponse({ latest, model }: { latest?: LogEntry; model: ReturnTyp
     );
   }
   const vector = latest.result.action.vector;
-  const labels = actionLabels(model.actionDim);
+  const labels = actionLabelsForRobot(robot);
   return (
     <div className="rounded-xl p-4" style={{ background: "rgba(0,212,255,.04)", border: "1px solid rgba(0,212,255,.22)" }}>
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-mono uppercase tracking-wider" style={{ color: CYAN }}>action · {model.actionDim}-D</span>
+        <span className="text-[11px] font-mono uppercase tracking-wider" style={{ color: CYAN }}>action · {robot.actionDim}-D</span>
         <span className="text-[11px] font-mono" style={{ color: GREEN }}>200 OK · {latest.result.latency_ms} ms</span>
       </div>
       <div className="flex flex-col gap-1.5">

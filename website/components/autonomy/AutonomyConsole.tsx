@@ -8,7 +8,7 @@
  * status (right). Type an instruction, hit go, watch it execute.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -22,6 +22,8 @@ import {
 } from "lucide-react";
 
 import { useMission, PATH, type ControlMode, type MissionStep } from "@/lib/autonomy/mission";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const VIOLET = "#A78BFA";
 const CYAN = "#00D4FF";
@@ -40,8 +42,12 @@ const MW = 460;
 const MH = 360;
 
 export default function AutonomyConsole() {
-  const m = useMission();
+  const { config } = useRobot();
+  const m = useMission(config);
   const [draft, setDraft] = useState(m.instruction);
+
+  // Keep the input in sync with the robot-derived default instruction.
+  useEffect(() => setDraft(m.instruction), [m.instruction]);
 
   const rx = m.robot.x * MW;
   const ry = m.robot.y * MH;
@@ -114,8 +120,12 @@ export default function AutonomyConsole() {
               <Send size={13} /> Plan mission
             </button>
             <p className="text-[10.5px] mt-2" style={{ color: "var(--muted)" }}>
-              Turns plain language into a navigate → perceive → manipulate plan.
+              Turns plain language into a navigate → perceive{config.capabilities.canManipulate ? " → manipulate" : ""} plan.
             </p>
+          </div>
+
+          <div className="p-4 border-t mt-auto" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="autonomy" config={config} />
           </div>
         </aside>
 

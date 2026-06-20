@@ -24,8 +24,11 @@ import {
   Loader2,
 } from "lucide-react";
 
-import { EPISODES, getEpisode, useEpisodeCatalog, exportParquet, type Episode, type EpisodeStatus } from "@/lib/data/episodes";
+import { useEpisodeCatalog, exportParquet, type Episode, type EpisodeStatus } from "@/lib/data/episodes";
 import { usePlayback } from "@/lib/data/playback";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
+import type { RobotConfig } from "@/lib/garage/robot-config";
 import CameraFeed from "./CameraFeed";
 import EpisodeTimeline from "./EpisodeTimeline";
 
@@ -36,19 +39,22 @@ const AMBER = "#FBBF24";
 const RED = "#F87171";
 
 export default function DataConsole() {
-  const [activeEpisodeId, setActiveEpisodeId] = useState(EPISODES[0].id);
+  const { config } = useRobot();
+  const { episodes: mutableEpisodes, setStatus } = useEpisodeCatalog(config);
+  const [activeEpisodeId, setActiveEpisodeId] = useState<string>(mutableEpisodes[0]?.id ?? "");
   const [filter, setFilter] = useState<EpisodeStatus | "all">("all");
-  const [activeCamera, setActiveCamera] = useState("wrist");
+  const [activeCamera, setActiveCamera] = useState("");
   const [pushing, setPushing] = useState(false);
   const [pushDone, setPushDone] = useState(false);
-
-  const { episodes: mutableEpisodes, setStatus } = useEpisodeCatalog();
 
   const episode = useMemo(() => {
     const ep = mutableEpisodes.find((e) => e.id === activeEpisodeId) ?? mutableEpisodes[0];
     return ep;
   }, [mutableEpisodes, activeEpisodeId]);
   const playback = usePlayback(episode);
+
+  // Fall back to the robot's first camera when the active one isn't on this robot.
+  const effectiveCamera = episode.cameras.includes(activeCamera) ? activeCamera : (episode.cameras[0] ?? "");
 
   const filteredEpisodes = useMemo(() => {
     if (filter === "all") return mutableEpisodes;
@@ -90,7 +96,7 @@ export default function DataConsole() {
         <div className="h-5 w-px mx-1" style={{ background: "var(--border-med)" }} />
 
         <span className="text-[12.5px] font-mono truncate" style={{ color: "var(--muted)" }}>
-          local/mobile_manipulation
+          {config.datasetName}
         </span>
 
         <span className="ml-auto flex items-center gap-2">
@@ -106,7 +112,7 @@ export default function DataConsole() {
             style={{ background: "rgba(255,255,255,.04)", color: "var(--muted)", border: "1px solid var(--border)" }}
           >
             <ListVideo size={11} />
-            {EPISODES.length} EPS
+            {mutableEpisodes.length} EPS
           </span>
         </span>
       </header>
@@ -135,9 +141,9 @@ export default function DataConsole() {
                 onClick={() => setActiveCamera(cam)}
                 className="text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-lg transition-colors"
                 style={{
-                  background: activeCamera === cam ? CYAN_DIM : "transparent",
-                  color: activeCamera === cam ? "#fff" : "var(--muted)",
-                  border: `1px solid ${activeCamera === cam ? "rgba(0,212,255,.4)" : "transparent"}`,
+                  background: effectiveCamera === cam ? CYAN_DIM : "transparent",
+                  color: effectiveCamera === cam ? "#fff" : "var(--muted)",
+                  border: `1px solid ${effectiveCamera === cam ? "rgba(0,212,255,.4)" : "transparent"}`,
                 }}
               >
                 {cam}
@@ -150,7 +156,7 @@ export default function DataConsole() {
 
           {/* Camera feed */}
           <div className="relative flex-1 min-h-[240px] lg:min-h-0 p-3">
-            <CameraFeed episode={episode} frame={playback.frame} activeCamera={activeCamera} />
+            <CameraFeed episode={episode} frame={playback.frame} activeCamera={effectiveCamera} />
           </div>
 
           {/* Timeline Scrubber */}
@@ -165,8 +171,11 @@ export default function DataConsole() {
 
         {/* RIGHT — Telemetry & Actions */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
-          <TelemetryPanel episode={episode} frame={playback.frame} />
-          <ActionsPanel episode={episode} onSetStatus={(s) => setStatus(episode.id, s)} pushing={pushing} pushDone={pushDone} onPushToHF={handlePushToHF} />
+          <TelemetryPanel episode={episode} frame={playback.frame} config={config} />
+          <ActionsPanel episode={episode} onSetStatus={(s) => setStatus(episode.id, s)} pushing={pushing} pushDone={pushDone} onPushToHF={handlePushToHF} onExport={() => exportParquet(episode, config)} />
+          <div className="p-4 border-t" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="data" config={config} />
+          </div>
         </aside>
       </div>
     </div>
@@ -265,7 +274,7 @@ function DatasetPanel({
 
 // ── Right panel: Telemetry ────────────────────────────────────────────────────
 
-function TelemetryPanel({ episode, frame }: { episode: Episode; frame: number }) {
+function TelemetryPanel({ episode, frame, config }: { episode: Episode; frame: number; config: RobotConfig }) {
   const progress = episode.frames > 1 ? frame / (episode.frames - 1) : 0;
 
   // Simple SVG sparkline generator for timeseries data
@@ -308,30 +317,36 @@ function TelemetryPanel({ episode, frame }: { episode: Episode; frame: number })
       <div className="flex items-center gap-2 px-4 pt-4 pb-2">
         <LineChart size={15} color={CYAN} />
         <h2 className="text-[12px] font-mono uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-          9-DOF State
+          {config.totalDof}-DOF State
         </h2>
       </div>
 
       <div className="px-4 pb-4">
-        <div className="mb-4">
-          <div className="flex justify-between items-baseline">
-            <span className="text-[10px] font-mono uppercase" style={{ color: "var(--faint)" }}>Arm Joints (rad)</span>
-            <span className="text-[11px] font-mono tabular-nums text-white">
-              {episode.states.arm[frame][0].toFixed(2)}
-            </span>
+        {config.armDof > 0 && (
+          <div className="mb-4">
+            <div className="flex justify-between items-baseline">
+              <span className="text-[10px] font-mono uppercase" style={{ color: "var(--faint)" }}>Arm Joints (rad) ×{config.armDof}</span>
+              <span className="text-[11px] font-mono tabular-nums text-white">
+                {(episode.states.arm[frame]?.[0] ?? 0).toFixed(2)}
+              </span>
+            </div>
+            {renderPlot(episode.states.arm, 70, "#A78BFA")}
           </div>
-          {renderPlot(episode.states.arm, 70, "#A78BFA")}
-        </div>
+        )}
 
-        <div>
-          <div className="flex justify-between items-baseline">
-            <span className="text-[10px] font-mono uppercase" style={{ color: "var(--faint)" }}>Base Velocity (m/s)</span>
-            <span className="text-[11px] font-mono tabular-nums text-white">
-              {episode.states.base[frame][0].toFixed(2)}
-            </span>
+        {config.baseDof > 0 && (
+          <div>
+            <div className="flex justify-between items-baseline">
+              <span className="text-[10px] font-mono uppercase" style={{ color: "var(--faint)" }}>
+                {config.capabilities.isAerial ? "Flight Velocity" : config.capabilities.isStationary ? "Base" : "Base Velocity (m/s)"}
+              </span>
+              <span className="text-[11px] font-mono tabular-nums text-white">
+                {(episode.states.base[frame]?.[0] ?? 0).toFixed(2)}
+              </span>
+            </div>
+            {renderPlot(episode.states.base, 70, CYAN)}
           </div>
-          {renderPlot(episode.states.base, 70, CYAN)}
-        </div>
+        )}
       </div>
     </div>
   );
@@ -345,12 +360,14 @@ function ActionsPanel({
   pushing,
   pushDone,
   onPushToHF,
+  onExport,
 }: {
   episode: Episode;
   onSetStatus: (status: EpisodeStatus) => void;
   pushing: boolean;
   pushDone: boolean;
   onPushToHF: () => void;
+  onExport: () => void;
 }) {
   const statusColor = episode.status === "kept" ? GREEN : episode.status === "discard" ? RED : AMBER;
   const StatusIcon = episode.status === "kept" ? CheckCircle2 : episode.status === "discard" ? XCircle : Eye;
@@ -395,7 +412,7 @@ function ActionsPanel({
       </button>
 
       <button
-        onClick={() => exportParquet(episode)}
+        onClick={onExport}
         className="mt-1 w-full inline-flex items-center justify-center gap-2 text-[12px] font-medium py-2 rounded-lg transition-all hover:bg-white/5"
         style={{ color: "var(--muted)" }}
       >

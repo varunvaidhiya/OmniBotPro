@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { useCompliance, downloadText, type Standard } from "@/lib/comply/standards";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const VIOLET = "#A78BFA";
 const VIOLET_DIM = "rgba(167,139,250,0.15)";
@@ -30,6 +32,7 @@ const GREEN = "#34D399";
 const AMBER = "#FBBF24";
 
 export default function ComplyConsole() {
+  const { config } = useRobot();
   const { standards, stats, toggleRequirementStatus, generateDocument } = useCompliance();
   const [activeStandardId, setActiveStandardId] = useState<string>(standards[0].id);
 
@@ -81,6 +84,9 @@ export default function ComplyConsole() {
       >
         {/* LEFT — Standards List */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="comply" config={config} />
+          </div>
           <div className="px-4 pt-4 pb-2">
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-1" style={{ color: "var(--muted)" }}>
               Applicable Standards

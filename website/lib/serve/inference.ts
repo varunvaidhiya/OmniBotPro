@@ -85,6 +85,25 @@ export function actionLabels(actionDim: number): string[] {
   return Array.from({ length: actionDim }, (_, i) => `a${i}`);
 }
 
+/**
+ * Action-vector labels for a specific robot — its joints followed by its base
+ * action axes. Falls back to the generic dim-based labels when the robot has no
+ * structured joints/base (so a drone shows vx/vy/vz/ω, a UR5e shows its joints).
+ */
+export function actionLabelsForRobot(config: {
+  joints: { name: string }[];
+  baseActionLabels: string[];
+  actionDim: number;
+}): string[] {
+  const labels = [
+    ...config.joints.map((j) => j.name.replace(/^arm_/, "")),
+    ...config.baseActionLabels.map((l) => `base_${l}`),
+  ];
+  return labels.length === config.actionDim && labels.length > 0
+    ? labels
+    : actionLabels(config.actionDim);
+}
+
 // ── Instruction → intent ─────────────────────────────────────────────────────
 
 interface Intent {
@@ -201,6 +220,7 @@ export interface PredictMeta {
 export async function predictWithMeta(
   config: ServeConfig,
   req: PredictRequest,
+  actionDim?: number,
 ): Promise<PredictMeta> {
   // ── try real backend ──
   try {
@@ -223,19 +243,21 @@ export async function predictWithMeta(
   }
 
   // ── deterministic simulation (always works) ──
-  return { result: simulatePredict(config, req), source: "simulated" };
+  return { result: simulatePredict(config, req, actionDim), source: "simulated" };
 }
 
 /** Deterministic simulated inference — original behaviour. */
-export function predict(config: ServeConfig, req: PredictRequest): PredictResult {
-  return simulatePredict(config, req);
+export function predict(config: ServeConfig, req: PredictRequest, actionDim?: number): PredictResult {
+  return simulatePredict(config, req, actionDim);
 }
 
-function simulatePredict(config: ServeConfig, req: PredictRequest): PredictResult {
+function simulatePredict(config: ServeConfig, req: PredictRequest, actionDimOverride?: number): PredictResult {
   const model = getModel(config.backend);
   const intent = parseIntent(req.instruction);
   const rng = mulberry32(hash(`${req.sceneId}|${req.instruction}|${config.backend}|${config.quant4bit}`));
-  const vector = toAction(model.actionDim, intent, rng);
+  // The action vector matches the SELECTED ROBOT's action space when provided,
+  // otherwise the model's native output dim.
+  const vector = toAction(actionDimOverride ?? model.actionDim, intent, rng);
 
   const est = estimate(config);
   // add a little realistic jitter around the modelled p50

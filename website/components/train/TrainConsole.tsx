@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 
 import { useTraining, METHODS } from "@/lib/train/training";
+import { useRobot } from "@/lib/garage/RobotContext";
+import { AIRobotPanel } from "@/components/console-kit";
 
 const CYAN = "#00D4FF";
 const VIOLET = "#A78BFA";
@@ -30,6 +32,7 @@ const GREEN = "#34D399";
 const AMBER = "#FBBF24";
 
 export default function TrainConsole() {
+  const { config } = useRobot();
   const t = useTraining();
   const [exported, setExported] = useState(false);
 
@@ -73,6 +76,9 @@ export default function TrainConsole() {
       >
         {/* LEFT — Run config */}
         <aside className="flex flex-col overflow-y-auto" style={{ background: "var(--surf)", maxHeight: "calc(100vh - 56px)" }}>
+          <div className="p-4 border-b" style={{ borderColor: "var(--border)" }}>
+            <AIRobotPanel consoleId="train" config={config} />
+          </div>
           <div className="p-5 border-b" style={{ borderColor: "var(--border)" }}>
             <h2 className="text-[12px] font-mono uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>Run config</h2>
 
@@ -96,7 +102,7 @@ export default function TrainConsole() {
             </div>
 
             {[
-              { l: "dataset", v: t.config.dataset },
+              { l: "dataset", v: config.datasetName },
               { l: "epochs", v: String(t.config.epochs) },
               { l: "lr", v: t.config.lr },
               { l: "device", v: t.config.device },

@@ -21,11 +21,10 @@ import { NextResponse } from "next/server";
 
 import { PARTS, ENVIRONMENTS, CATEGORIES, type Part } from "@/lib/build/catalog";
 import { sanitize, type Design, type Requirements } from "@/lib/build/design";
+import { callKimi, parseJsonObject } from "@/lib/ai/kimi";
 
 export const runtime = "nodejs";
 
-const MOONSHOT_URL = "https://api.moonshot.ai/v1/chat/completions";
-const DEFAULT_MODEL = "moonshot-v1-128k";
 const MAX_PROMPT = 2000;
 
 interface GenerateBody {
@@ -34,14 +33,6 @@ interface GenerateBody {
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.MOONSHOT_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { error: "Moonshot API key not configured. Set MOONSHOT_API_KEY in the website environment." },
-      { status: 500 },
-    );
-  }
-
   let body: GenerateBody;
   try {
     body = (await req.json()) as GenerateBody;
@@ -55,77 +46,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Prompt is too long (max ${MAX_PROMPT} chars).` }, { status: 400 });
   }
 
-  const model = process.env.MOONSHOT_MODEL || DEFAULT_MODEL;
-
-  const payload: Record<string, unknown> = {
-    model,
-    messages: [
-      { role: "system", content: systemPrompt(body.requirements) },
-      { role: "user", content: prompt },
-    ],
-    response_format: { type: "json_object" },
-    max_completion_tokens: 1200,
-  };
-  // temperature is only a documented field for the moonshot-v1 family; the
-  // kimi-k2.* models ignore/forbid it.
-  if (model.startsWith("moonshot-v1")) payload.temperature = 0.3;
-  // kimi-k2.5/2.6 accept an explicit thinking toggle — disable it for fast
-  // structured output. kimi-k2.7-code and moonshot-v1-* don't take this field.
-  if (model === "kimi-k2.5" || model === "kimi-k2.6") payload.thinking = { type: "disabled" };
-
-  let upstream: Response;
-  try {
-    upstream = await fetch(MOONSHOT_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify(payload),
-    });
-  } catch {
-    return NextResponse.json({ error: "Could not reach the Moonshot API." }, { status: 502 });
+  const result = await callKimi({
+    system: systemPrompt(body.requirements),
+    user: prompt,
+    maxTokens: 1200,
+  });
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error, detail: result.detail }, { status: result.status ?? 502 });
   }
 
-  if (!upstream.ok) {
-    const text = await upstream.text().catch(() => "");
-    return NextResponse.json(
-      { error: `Moonshot API error (${upstream.status}).`, detail: text.slice(0, 500) },
-      { status: 502 },
-    );
-  }
-
-  const data = await upstream.json().catch(() => null);
-  const content: string | undefined = data?.choices?.[0]?.message?.content;
-  if (!content) {
-    return NextResponse.json({ error: "The model returned an empty response." }, { status: 502 });
-  }
-
-  const parsed = parseDesign(content);
+  const parsed = parseJsonObject<Design>(result.content!);
   if (!parsed) {
     return NextResponse.json({ error: "The model did not return a valid design." }, { status: 502 });
   }
 
   return NextResponse.json({ design: sanitize(parsed) });
-}
-
-/** Pull a JSON object out of the model output, tolerating code fences / prose. */
-function parseDesign(content: string): Design | null {
-  let text = content.trim();
-  if (text.startsWith("```")) {
-    text = text.replace(/^```[a-zA-Z]*\n?/, "").replace(/```$/, "").trim();
-  }
-  try {
-    return JSON.parse(text) as Design;
-  } catch {
-    const start = text.indexOf("{");
-    const end = text.lastIndexOf("}");
-    if (start >= 0 && end > start) {
-      try {
-        return JSON.parse(text.slice(start, end + 1)) as Design;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
 }
 
 function systemPrompt(reqHint?: Partial<Requirements>): string {
