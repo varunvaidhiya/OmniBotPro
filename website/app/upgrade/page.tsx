@@ -10,7 +10,7 @@ import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getSupabase } from "@/lib/auth/supabase";
 import { PLANS, getPlan, hasConsoleAccess, type Plan } from "@/lib/auth/plans";
-import { contactMailto, BUYMEACOFFEE_HREF, GITHUB_HREF } from "@/lib/site";
+import { contactMailto, GITHUB_HREF } from "@/lib/site";
 
 export default function UpgradePage() {
   const { configured, loading, user, subscription } = useAuth();
@@ -19,6 +19,9 @@ export default function UpgradePage() {
   const [product, setProduct] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [donationAmount, setDonationAmount] = useState<500 | 1000 | 1500>(500);
+  const [donationBusy, setDonationBusy] = useState(false);
+  const [donationError, setDonationError] = useState<string | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -57,6 +60,24 @@ export default function UpgradePage() {
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not start checkout.");
       setBusy(null);
+    }
+  };
+
+  const donateCoffee = async () => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    setDonationBusy(true);
+    setDonationError(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-donation-session", {
+        body: { amount: donationAmount, origin: window.location.origin },
+      });
+      if (error) throw await unwrapFunctionError(error);
+      if (data?.url) window.location.href = data.url as string;
+      else throw new Error("No checkout URL returned.");
+    } catch (e) {
+      setDonationError(e instanceof Error ? e.message : "Could not start donation checkout.");
+      setDonationBusy(false);
     }
   };
 
@@ -168,16 +189,44 @@ export default function UpgradePage() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-2 shrink-0 sm:w-[180px]">
-                  <a
-                    href={BUYMEACOFFEE_HREF}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-[13px] font-semibold transition-all hover:-translate-y-px"
+                <div className="flex flex-col gap-2.5 shrink-0 sm:w-[200px]">
+                  {/* Amount picker */}
+                  <div className="flex gap-1.5">
+                    {([
+                      { cents: 500,  label: "$5",  title: "Small" },
+                      { cents: 1000, label: "$10", title: "Medium" },
+                      { cents: 1500, label: "$15", title: "Large" },
+                    ] as const).map(({ cents, label, title }) => (
+                      <button
+                        key={cents}
+                        onClick={() => setDonationAmount(cents)}
+                        title={`${title} coffee`}
+                        className="flex-1 py-1.5 rounded-md text-[12px] font-semibold transition-all"
+                        style={
+                          donationAmount === cents
+                            ? { background: "#FBBF24", color: "#1a1205" }
+                            : { background: "rgba(251,191,36,0.1)", border: "1px solid rgba(251,191,36,0.3)", color: "#FBBF24" }
+                        }
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={donateCoffee}
+                    disabled={donationBusy || !configured}
+                    className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-[13px] font-semibold transition-all hover:-translate-y-px disabled:opacity-50"
                     style={{ background: "#FBBF24", color: "#1a1205" }}
                   >
-                    <Coffee size={15} /> Buy me a coffee
-                  </a>
+                    {donationBusy ? <Loader2 size={15} className="animate-spin" /> : <Coffee size={15} />}
+                    Buy me a coffee
+                  </button>
+
+                  {donationError && (
+                    <p className="text-[11px] leading-[1.4]" style={{ color: "#F87171" }}>{donationError}</p>
+                  )}
+
                   <a
                     href={GITHUB_HREF}
                     target="_blank"
