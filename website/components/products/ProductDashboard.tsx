@@ -1250,18 +1250,612 @@ function MindDash({ accent }: DashProps) {
   );
 }
 
+// ── OhhO Connect ─────────────────────────────────────────────────────────────
+function ConnectDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const protos = [
+    { l: "Wi-Fi · ROSBridge", on: true, c: C.green },
+    { l: "USB · Web Serial", on: true, c: C.green },
+    { l: "Bluetooth · BLE", on: false, c: C.faint },
+    { l: "Simulated", on: true, c: C.green },
+  ];
+  const telemetry = [
+    { l: "odom", v: "1.8, 0.4, 12°" },
+    { l: "joints[6]", v: "0.0, 0.1, …" },
+    { l: "battery", v: "0.82" },
+    { l: "msg rate", v: "48 / s" },
+  ];
+  return (
+    <DashboardFrame title="ohho-connect · garage" accent={accent} tools={["Wi-Fi", "live"]}>
+      {/* protocol picker */}
+      <Panel x={14} y={12} w={170} h={250} label="Protocols" accent={a} />
+      {protos.map((p, i) => (
+        <g key={p.l}>
+          <rect x={22} y={38 + i * 38} width={154} height={30} rx={6} fill={p.on ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.01)"} stroke={p.on ? a : C.border} />
+          <Dot cx={34} cy={53 + i * 38} r={3} color={p.c} />
+          <text x={44} y={56 + i * 38} fontFamily={BODY} fontSize={9} fill={p.on ? C.text : C.muted}>
+            {p.l}
+          </text>
+          <text x={166} y={56 + i * 38} fontFamily={MONO} fontSize={7} fill={p.on ? p.c : C.faint} textAnchor="end">
+            {p.on ? "ready" : "n/a"}
+          </text>
+        </g>
+      ))}
+
+      {/* live link status */}
+      <Panel x={194} y={12} w={218} h={120} label="Link status" accent={a} />
+      <Ring cx={248} cy={78} r={32} frac={0.92} color={C.green} width={8} label="28ms" sub="LATENCY" />
+      <text x={296} y={56} fontFamily={BODY} fontSize={9} fill={C.muted}>state</text>
+      <text x={400} y={56} fontFamily={MONO} fontSize={9} fill={C.green} textAnchor="end">connected</text>
+      <text x={296} y={76} fontFamily={BODY} fontSize={9} fill={C.muted}>uptime</text>
+      <text x={400} y={76} fontFamily={MONO} fontSize={9} fill={C.text} textAnchor="end">12m 04s</text>
+      <text x={296} y={96} fontFamily={BODY} fontSize={9} fill={C.muted}>msg/s</text>
+      <text x={400} y={96} fontFamily={MONO} fontSize={9} fill={a} textAnchor="end">48</text>
+      <Bar x={296} y={104} w={104} frac={0.48} color={a} h={4} />
+
+      {/* telemetry stream */}
+      <Panel x={194} y={142} w={218} h={120} label="Telemetry stream" />
+      {telemetry.map((t, i) => (
+        <g key={t.l}>
+          <text x={206} y={172 + i * 22} fontFamily={MONO} fontSize={8.5} fill={C.faint}>
+            {t.l}
+          </text>
+          <text x={400} y={172 + i * 22} fontFamily={MONO} fontSize={8.5} fill={C.text} textAnchor="end">
+            {t.v}
+          </text>
+          {i < telemetry.length - 1 && <line x1={206} y1={178 + i * 22} x2={400} y2={178 + i * 22} stroke={C.grid} />}
+        </g>
+      ))}
+
+      {/* e-stop */}
+      <Panel x={422} y={12} w={124} h={250} label="Safety" />
+      <rect x={434} y={44} width={100} height={32} rx={7} fill="rgba(248,113,113,0.14)" stroke={C.red} />
+      <text x={484} y={64} fontFamily={DISPLAY} fontSize={11} fontWeight={700} fill={C.red} textAnchor="middle">
+        E-STOP
+      </text>
+      <text x={434} y={96} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        velocity clamp
+      </text>
+      <text x={534} y={96} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+        0.2 m/s
+      </text>
+      <text x={434} y={116} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        angular clamp
+      </text>
+      <text x={534} y={116} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+        1.0 rad/s
+      </text>
+      <StatusPill x={434} y={132} label="auto-reconnect" color={C.green} />
+      <StatusPill x={434} y={154} label="mixed-content OK" color={C.green} />
+      <line x1={434} y1={184} x2={534} y2={184} stroke={C.grid} />
+      <text x={434} y={204} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        robot
+      </text>
+      <text x={534} y={204} fontFamily={MONO} fontSize={8} fill={a} textAnchor="end">
+        omnibot
+      </text>
+      <text x={434} y={224} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        garage ID
+      </text>
+      <text x={534} y={224} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+        r-0148
+      </text>
+      <text x={434} y={244} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        protocol
+      </text>
+      <text x={534} y={244} fontFamily={MONO} fontSize={8} fill={a} textAnchor="end">
+        rosbridge
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Bridge ──────────────────────────────────────────────────────────────
+function BridgeDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const native = [
+    { l: "LowState.motor[20]", v: "q, dq, tau" },
+    { l: "LowState.imu", v: "quat, gyro" },
+    { l: "HighCmd", v: "vel, pose" },
+  ];
+  const ros = [
+    { l: "/joint_states", v: "JointState" },
+    { l: "/imu/data", v: "Imu" },
+    { l: "/odom", v: "Odometry" },
+    { l: "/cmd_vel", v: "Twist" },
+  ];
+  return (
+    <DashboardFrame title="ohho-bridge · unitree-g1" accent={accent} tools={["DDS", "ROS 2"]}>
+      {/* native protocol */}
+      <Panel x={14} y={12} w={150} h={250} label="Unitree DDS" />
+      {native.map((n, i) => (
+        <g key={n.l}>
+          <rect x={22} y={40 + i * 44} width={134} height={34} rx={6} fill="rgba(255,255,255,0.02)" stroke={C.border} />
+          <text x={30} y={56 + i * 44} fontFamily={MONO} fontSize={7.5} fill={C.text}>
+            {n.l}
+          </text>
+          <text x={30} y={68 + i * 44} fontFamily={MONO} fontSize={7} fill={C.faint}>
+            {n.v}
+          </text>
+        </g>
+      ))}
+      <text x={22} y={186} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        sdk: unitree_sdk2
+      </text>
+      <text x={22} y={198} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        dds: cyclone
+      </text>
+      <text x={22} y={210} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        model: G1 (29 DoF)
+      </text>
+
+      {/* bridge diagram */}
+      <Panel x={174} y={12} w={210} h={250} label="Bridge" accent={a} />
+      {/* left box */}
+      <rect x={186} y={80} width={56} height={40} rx={7} fill={C.panelHi} stroke={C.borderHi} />
+      <text x={214} y={97} fontFamily={MONO} fontSize={7.5} fill={C.text} textAnchor="middle">
+        DDS
+      </text>
+      <text x={214} y={110} fontFamily={MONO} fontSize={6.5} fill={C.faint} textAnchor="middle">
+        native
+      </text>
+      {/* right box */}
+      <rect x={316} y={80} width={56} height={40} rx={7} fill={C.panelHi} stroke={a} />
+      <text x={344} y={97} fontFamily={MONO} fontSize={7.5} fill={a} textAnchor="middle">
+        ROS 2
+      </text>
+      <text x={344} y={110} fontFamily={MONO} fontSize={6.5} fill={C.faint} textAnchor="middle">
+        topics
+      </text>
+      {/* arrows */}
+      <line x1={242} y1={90} x2={316} y2={90} stroke={a} strokeWidth={1.6} markerEnd="url(#ba)" />
+      <line x1={316} y1={110} x2={242} y2={110} stroke={C.green} strokeWidth={1.6} />
+      <text x={279} y={85} fontFamily={MONO} fontSize={6.5} fill={a} textAnchor="middle">
+        state →
+      </text>
+      <text x={279} y={124} fontFamily={MONO} fontSize={6.5} fill={C.green} textAnchor="middle">
+        ← cmd
+      </text>
+      {/* joint map */}
+      <text x={186} y={146} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        JOINT INDEX MAP
+      </text>
+      {["0: hip_pitch_L", "5: knee_L", "12: shoulder_L", "20: wrist_R"].map((j, i) => (
+        <text key={j} x={186} y={162 + i * 14} fontFamily={MONO} fontSize={7.5} fill={i === 1 ? a : C.muted}>
+          {j}
+        </text>
+      ))}
+      {/* gain defaults */}
+      <text x={186} y={222} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        IMPEDANCE DEFAULTS
+      </text>
+      <text x={186} y={238} fontFamily={MONO} fontSize={7.5} fill={C.muted}>
+        kp: 80 · kd: 3 (leg)
+      </text>
+      <text x={186} y={252} fontFamily={MONO} fontSize={7.5} fill={C.muted}>
+        kp: 40 · kd: 2 (arm)
+      </text>
+
+      {/* ROS topics out */}
+      <Panel x={394} y={12} w={152} h={250} label="ROS 2 topics" accent={a} />
+      {ros.map((r, i) => (
+        <g key={r.l}>
+          <rect x={402} y={40 + i * 38} width={136} height={30} rx={6} fill="rgba(255,255,255,0.02)" stroke={C.border} />
+          <text x={410} y={55 + i * 38} fontFamily={MONO} fontSize={8} fill={a}>
+            {r.l}
+          </text>
+          <text x={410} y={65 + i * 38} fontFamily={MONO} fontSize={6.5} fill={C.faint}>
+            {r.v}
+          </text>
+        </g>
+      ))}
+      <StatusPill x={402} y={208} label="bridge active" color={C.green} />
+      <text x={402} y={238} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        latency: 2.1 ms
+      </text>
+      <text x={402} y={252} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        jitter: 0.3 ms
+      </text>
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Market ──────────────────────────────────────────────────────────────
+function MarketDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const skills = [
+    { l: "pick-place-cup", r: "G1", s: 0.94, p: "$49", c: C.green },
+    { l: "patrol-warehouse", r: "Go2", s: 0.97, p: "$29", c: C.green },
+    { l: "weld-seam-v2", r: "UR5e", s: 0.89, p: "$99", c: C.amber },
+  ];
+  const proof = [
+    { l: "Navigation", v: 0.96 },
+    { l: "Manipulation", v: 0.94 },
+    { l: "Edge cases", v: 0.87 },
+  ];
+  return (
+    <DashboardFrame title="ohho-market · skills" accent={accent} tools={["G1", "verified"]}>
+      {/* skill listings */}
+      <Panel x={14} y={12} w={210} h={250} label="Skills" accent={a} />
+      {skills.map((s, i) => (
+        <g key={s.l}>
+          <rect x={22} y={40 + i * 62} width={194} height={52} rx={7} fill={i === 0 ? "rgba(0,212,255,0.06)" : "rgba(255,255,255,0.02)"} stroke={i === 0 ? a : C.border} />
+          <text x={30} y={56 + i * 62} fontFamily={BODY} fontSize={9} fill={C.text} fontWeight={600}>
+            {s.l}
+          </text>
+          <rect x={30} y={62 + i * 62} width={24} height={12} rx={3} fill={s.c} fillOpacity={0.18} stroke={s.c} strokeOpacity={0.5} />
+          <text x={42} y={71 + i * 62} fontFamily={MONO} fontSize={6.5} fill={s.c} textAnchor="middle">
+            {s.r}
+          </text>
+          <text x={170} y={56 + i * 62} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+            {s.p}
+          </text>
+          <text x={170} y={68 + i * 62} fontFamily={MONO} fontSize={7} fill={s.c} textAnchor="end">
+            {Math.round(s.s * 100)}% pass
+          </text>
+          <Bar x={60} y={66 + i * 62} w={100} frac={s.s} color={s.c} h={3} />
+        </g>
+      ))}
+
+      {/* skill detail */}
+      <Panel x={234} y={12} w={180} h={170} label="pick-place-cup · detail" accent={a} />
+      <text x={246} y={40} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        ROBOT
+      </text>
+      <text x={402} y={40} fontFamily={MONO} fontSize={7.5} fill={a} textAnchor="end">
+        Unitree G1
+      </text>
+      <text x={246} y={56} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        METHOD
+      </text>
+      <text x={402} y={56} fontFamily={MONO} fontSize={7.5} fill={C.text} textAnchor="end">
+        SmolVLA
+      </text>
+      <text x={246} y={72} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        DATA
+      </text>
+      <text x={402} y={72} fontFamily={MONO} fontSize={7.5} fill={C.text} textAnchor="end">
+        1,043 eps
+      </text>
+      <line x1={246} y1={80} x2={402} y2={80} stroke={C.grid} />
+      <text x={246} y={96} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        PROOF VERIFICATION
+      </text>
+      {proof.map((p, i) => (
+        <g key={p.l}>
+          <text x={246} y={114 + i * 18} fontFamily={BODY} fontSize={8} fill={C.muted}>
+            {p.l}
+          </text>
+          <Bar x={330} y={108 + i * 18} w={72} frac={p.v} color={p.v > 0.9 ? C.green : C.amber} h={4} />
+          <text x={402} y={114 + i * 18} fontFamily={MONO} fontSize={7} fill={p.v > 0.9 ? C.green : C.amber} textAnchor="end">
+            {Math.round(p.v * 100)}%
+          </text>
+        </g>
+      ))}
+      <StatusPill x={246} y={160} label="signed · Shield" color={C.green} />
+
+      {/* deploy */}
+      <Panel x={234} y={192} w={180} h={70} label="Deploy" />
+      <rect x={246} y={214} width={156} height={26} rx={7} fill={a} />
+      <text x={324} y={231} fontFamily={BODY} fontSize={9} fontWeight={700} fill={C.bg} textAnchor="middle">
+        Deploy → OhhO Serve
+      </text>
+      <text x={246} y={254} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        or push via OhhO Fleet OTA
+      </text>
+
+      {/* author + stats */}
+      <Panel x={424} y={12} w={122} h={250} label="Author" />
+      <circle cx={456} cy={50} r={16} fill={C.panelHi} stroke={a} />
+      <text x={456} y={54} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={a} textAnchor="middle">
+        RL
+      </text>
+      <text x={436} y={84} fontFamily={BODY} fontSize={8.5} fill={C.text}>
+        robotics-lab
+      </text>
+      <text x={436} y={98} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        12 skills · 4.9 ★
+      </text>
+      <line x1={436} y1={110} x2={534} y2={110} stroke={C.grid} />
+      <text x={436} y={128} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        DEPLOYS
+      </text>
+      <text x={534} y={128} fontFamily={DISPLAY} fontSize={13} fontWeight={700} fill={C.text} textAnchor="end">
+        1,248
+      </text>
+      <text x={436} y={150} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        REVENUE
+      </text>
+      <text x={534} y={150} fontFamily={DISPLAY} fontSize={13} fontWeight={700} fill={C.green} textAnchor="end">
+        $4,820
+      </text>
+      <line x1={436} y1={164} x2={534} y2={164} stroke={C.grid} />
+      <text x={436} y={184} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        TAKE RATE
+      </text>
+      <text x={534} y={184} fontFamily={MONO} fontSize={8} fill={C.text} textAnchor="end">
+        15%
+      </text>
+      <text x={436} y={206} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        VERSION
+      </text>
+      <text x={534} y={206} fontFamily={MONO} fontSize={8} fill={a} textAnchor="end">
+        v2.1.0
+      </text>
+      <StatusPill x={436} y={224} label="verified" color={C.green} />
+      <StatusPill x={436} y={244} label="cross-brand" color={a} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Twin ────────────────────────────────────────────────────────────────
+function TwinDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const replay = [0.5, 0.55, 0.48, 0.6, 0.52, 0.65, 0.58, 0.7, 0.62, 0.55, 0.68, 0.6];
+  const predictions = [
+    { l: "motor temp", v: "62°C → 78°C", c: C.amber },
+    { l: "battery", v: "0.82 → 0.61", c: C.green },
+    { l: "joint wear", v: "MTBF 412h", c: C.amber },
+  ];
+  return (
+    <DashboardFrame title="ohho-twin · warehouse-amr" accent={accent} tools={["Isaac Sim", "live"]}>
+      {/* sim world */}
+      <Panel x={14} y={12} w={240} h={170} label="Isaac Sim · live mirror" accent={a} />
+      <rect x={24} y={36} width={220} height={134} rx={6} fill="#0A1424" stroke={C.border} />
+      {/* floor grid */}
+      {[0, 1, 2, 3].map((i) => (
+        <line key={`th${i}`} x1={24} y1={70 + i * 28} x2={244} y2={70 + i * 28} stroke={C.grid} />
+      ))}
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <line key={`tv${i}`} x1={60 + i * 36} y1={36} x2={60 + i * 36} y2={170} stroke={C.grid} />
+      ))}
+      {/* shelves */}
+      <rect x={40} y={44} width={50} height={10} rx={2} fill="rgba(255,255,255,0.08)" />
+      <rect x={180} y={44} width={50} height={10} rx={2} fill="rgba(255,255,255,0.08)" />
+      <rect x={40} y={150} width={50} height={10} rx={2} fill="rgba(255,255,255,0.08)" />
+      {/* real robot (live) */}
+      <rect x={120} y={100} width={20} height={20} rx={4} fill={C.panelHi} stroke={a} strokeWidth={1.6} />
+      <path d="M130 106 v6" stroke={a} strokeWidth={2} strokeLinecap="round" />
+      <circle cx={130} cy={110} r={24} fill="none" stroke={a} strokeOpacity={0.2} strokeDasharray="3 3" />
+      {/* twin robot (sim) */}
+      <rect x={170} y={80} width={20} height={20} rx={4} fill="none" stroke={C.violetLite} strokeWidth={1.4} strokeDasharray="3 2" />
+      <text x={28} y={176} fontFamily={MONO} fontSize={6.5} fill={C.faint}>
+        ● real &nbsp; ⋯ sim mirror
+      </text>
+
+      {/* replay timeline */}
+      <Panel x={14} y={192} w={240} h={70} label="Replay timeline" />
+      <line x1={26} y1={232} x2={242} y2={232} stroke={C.track} strokeWidth={4} strokeLinecap="round" />
+      <line x1={26} y1={232} x2={160} y2={232} stroke={a} strokeWidth={4} strokeLinecap="round" />
+      <circle cx={160} cy={232} r={5} fill={C.text} stroke={a} strokeWidth={2} />
+      <text x={26} y={254} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        00:00
+      </text>
+      <text x={242} y={254} fontFamily={MONO} fontSize={7} fill={C.faint} textAnchor="end">
+        01:12:04
+      </text>
+
+      {/* what-if branch */}
+      <Panel x={264} y={12} w={140} h={150} label="What-if" accent={a} />
+      <text x={276} y={38} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        BRANCH FROM 00:34:12
+      </text>
+      <text x={276} y={56} fontFamily={BODY} fontSize={8.5} fill={C.text}>
+        different grasp angle
+      </text>
+      <text x={276} y={68} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        +15° approach
+      </text>
+      <rect x={276} y={80} width={116} height={28} rx={6} fill={a} />
+      <text x={334} y={98} fontFamily={BODY} fontSize={8.5} fontWeight={700} fill={C.bg} textAnchor="middle">
+        Run what-if
+      </text>
+      <text x={276} y={126} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        RESULT
+      </text>
+      <text x={276} y={140} fontFamily={BODY} fontSize={8} fill={C.green}>
+        pick succeeds (0.91)
+      </text>
+      <text x={276} y={152} fontFamily={BODY} fontSize={8} fill={C.muted}>
+        vs 0.74 original
+      </text>
+
+      {/* predictions */}
+      <Panel x={264} y={172} w={140} h={90} label="Predictions" />
+      {predictions.map((p, i) => (
+        <g key={p.l}>
+          <Dot cx={276} cy={196 + i * 20} r={2.4} color={p.c} />
+          <text x={284} y={199 + i * 20} fontFamily={BODY} fontSize={8} fill={C.muted}>
+            {p.l}
+          </text>
+          <text x={394} y={199 + i * 20} fontFamily={MONO} fontSize={7.5} fill={p.c} textAnchor="end">
+            {p.v}
+          </text>
+        </g>
+      ))}
+
+      {/* telemetry match */}
+      <Panel x={414} y={12} w={132} h={250} label="Sync" accent={a} />
+      <Ring cx={480} cy={66} r={30} frac={0.97} color={C.green} width={8} label="97%" sub="MATCH" />
+      <text x={426} y={120} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        sim vs real
+      </text>
+      <text x={534} y={120} fontFamily={MONO} fontSize={7.5} fill={C.green} textAnchor="end">
+        0.97
+      </text>
+      <Bar x={426} y={126} w={108} frac={0.97} color={C.green} h={4} />
+      <text x={426} y={150} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        drift
+      </text>
+      <text x={534} y={150} fontFamily={MONO} fontSize={7.5} fill={C.text} textAnchor="end">
+        3 cm
+      </text>
+      <Bar x={426} y={156} w={108} frac={0.03} color={C.green} h={4} />
+      <line x1={426} y1={178} x2={534} y2={178} stroke={C.grid} />
+      <text x={426} y={198} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        FRAMES RECORDED
+      </text>
+      <text x={534} y={198} fontFamily={DISPLAY} fontSize={13} fontWeight={700} fill={C.text} textAnchor="end">
+        86.4k
+      </text>
+      <text x={426} y={220} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        REPLAY STORAGE
+      </text>
+      <text x={534} y={220} fontFamily={MONO} fontSize={8} fill={a} textAnchor="end">
+        2.1 GB
+      </text>
+      <StatusPill x={426} y={238} label="live · synced" color={C.green} />
+    </DashboardFrame>
+  );
+}
+
+// ── OhhO Care ────────────────────────────────────────────────────────────────
+function CareDash({ accent }: DashProps) {
+  const a = accentHex(accent);
+  const workOrders = [
+    { id: "amr-17", part: "left knee motor", urg: "HIGH", c: C.red, days: 3 },
+    { id: "amr-05", part: "wrist servo #3", urg: "MED", c: C.amber, days: 12 },
+    { id: "amr-22", part: "battery pack", urg: "LOW", c: C.green, days: 30 },
+  ];
+  const motorTemp = [0.5, 0.52, 0.55, 0.58, 0.62, 0.68, 0.72, 0.78, 0.82, 0.85, 0.88, 0.91];
+  return (
+    <DashboardFrame title="ohho-care · fleet-maintenance" accent={accent} tools={["48 robots", "predictive"]}>
+      {/* work orders */}
+      <Panel x={14} y={12} w={190} h={250} label="Work orders" accent={a} />
+      {workOrders.map((w, i) => (
+        <g key={w.id}>
+          <rect x={22} y={40 + i * 64} width={174} height={54} rx={7} fill="rgba(255,255,255,0.02)" stroke={w.c} strokeOpacity={0.4} />
+          <text x={30} y={56 + i * 64} fontFamily={MONO} fontSize={9} fill={C.text} fontWeight={600}>
+            {w.id}
+          </text>
+          <rect x={120} y={46 + i * 64} width={36} height={14} rx={4} fill={w.c} fillOpacity={0.18} stroke={w.c} strokeOpacity={0.5} />
+          <text x={138} y={56 + i * 64} fontFamily={MONO} fontSize={7} fill={w.c} textAnchor="middle">
+            {w.urg}
+          </text>
+          <text x={30} y={72 + i * 64} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+            {w.part}
+          </text>
+          <text x={30} y={86 + i * 64} fontFamily={MONO} fontSize={7.5} fill={w.c}>
+            est. failure: {w.days}d
+          </text>
+        </g>
+      ))}
+      <rect x={22} y={236} width={174} height={20} rx={5} fill={a} />
+      <text x={109} y={250} fontFamily={BODY} fontSize={8.5} fontWeight={700} fill={C.bg} textAnchor="middle">
+        Order part from BOM
+      </text>
+
+      {/* motor degradation chart */}
+      <Panel x={214} y={12} w={226} h={150} label="Motor temp · amr-17 left knee" accent={a} />
+      <text x={426} y={30} fontFamily={DISPLAY} fontSize={14} fontWeight={700} fill={C.red} textAnchor="end">
+        78°C
+      </text>
+      <text x={426} y={42} fontFamily={MONO} fontSize={7} fill={C.faint} textAnchor="end">
+        threshold: 85°C
+      </text>
+      {[0, 1, 2].map((i) => (
+        <line key={i} x1={226} y1={70 + i * 26} x2={430} y2={70 + i * 26} stroke={C.grid} />
+      ))}
+      <line x1={226} y1={62} x2={430} y2={62} stroke={C.red} strokeOpacity={0.3} strokeDasharray="4 3" />
+      <text x={226} y={60} fontFamily={MONO} fontSize={6.5} fill={C.red}>
+        threshold
+      </text>
+      <path d={sparkPath(motorTemp, 226, 56, 204, 80, true)} fill={C.red} fillOpacity={0.08} stroke="none" />
+      <path d={sparkPath(motorTemp, 226, 56, 204, 80)} fill="none" stroke={C.red} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      <text x={226} y={156} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        −60 min
+      </text>
+      <text x={430} y={156} fontFamily={MONO} fontSize={7} fill={C.red} textAnchor="end">
+        now · trending up
+      </text>
+
+      {/* metrics */}
+      <Panel x={214} y={172} w={226} h={90} label="Fleet metrics" />
+      <text x={226} y={200} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        MTBF
+      </text>
+      <text x={320} y={200} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.text} textAnchor="end">
+        412h
+      </text>
+      <text x={334} y={200} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        MTTR
+      </text>
+      <text x={430} y={200} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.text} textAnchor="end">
+        3.4h
+      </text>
+      <text x={226} y={222} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        downtime (mo)
+      </text>
+      <text x={320} y={222} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.amber} textAnchor="end">
+        18.2h
+      </text>
+      <text x={334} y={222} fontFamily={BODY} fontSize={8.5} fill={C.muted}>
+        open WOs
+      </text>
+      <text x={430} y={222} fontFamily={DISPLAY} fontSize={12} fontWeight={700} fill={C.red} textAnchor="end">
+        3
+      </text>
+      <StatusPill x={226} y={240} label="1 predictive" color={C.red} />
+
+      {/* repair log */}
+      <Panel x={450} y={12} w={96} h={250} label="Repair log" />
+      {[
+        { r: "amr-03 · wheel", t: "2d ago", c: C.green },
+        { r: "amr-11 · IMU", t: "5d ago", c: C.green },
+        { r: "amr-07 · arm", t: "1w ago", c: C.green },
+      ].map((l, i) => (
+        <g key={l.r}>
+          <Dot cx={462} cy={44 + i * 24} r={2.6} color={l.c} />
+          <text x={470} y={47 + i * 24} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+            {l.r}
+          </text>
+          <text x={534} y={47 + i * 24} fontFamily={MONO} fontSize={6.5} fill={C.faint} textAnchor="end">
+            {l.t}
+          </text>
+        </g>
+      ))}
+      <line x1={462} y1={120} x2={534} y2={120} stroke={C.grid} />
+      <text x={462} y={140} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        → COMPLY AUDIT
+      </text>
+      <StatusPill x={462} y={150} label="logged" color={C.green} />
+      <text x={462} y={182} fontFamily={MONO} fontSize={7} fill={C.faint}>
+        PARTS (BOM)
+      </text>
+      <text x={462} y={198} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        knee motor
+      </text>
+      <text x={534} y={198} fontFamily={MONO} fontSize={7} fill={a} textAnchor="end">
+        $89
+      </text>
+      <text x={462} y={214} fontFamily={BODY} fontSize={7.5} fill={C.muted}>
+        lead time
+      </text>
+      <text x={534} y={214} fontFamily={MONO} fontSize={7} fill={C.text} textAnchor="end">
+        2 days
+      </text>
+      <StatusPill x={462} y={232} label="in stock" color={C.green} />
+    </DashboardFrame>
+  );
+}
+
 const DASHBOARDS: Record<string, (p: DashProps) => JSX.Element> = {
   build: BuildDash,
   bench: BenchDash,
   frame: FrameDash,
+  connect: ConnectDash,
+  bridge: BridgeDash,
   serve: ServeDash,
   view: ViewDash,
   data: DataDash,
   train: TrainDash,
   autonomy: AutonomyDash,
   mind: MindDash,
+  market: MarketDash,
   pilot: PilotDash,
   fleet: FleetDash,
+  twin: TwinDash,
+  care: CareDash,
   comply: ComplyDash,
   shield: ShieldDash,
   proof: ProofDash,

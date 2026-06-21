@@ -27,6 +27,9 @@ import {
   getHardwareModel,
   getRobotTypeForHardware,
 } from "@/lib/garage/robot-catalog";
+import ConnectButton from "@/components/connect/ConnectButton";
+import ConnectModal from "@/components/connect/ConnectModal";
+import { useRobotConnection } from "@/lib/connect/RobotConnectionProvider";
 
 interface Props {
   robots: UserRobot[];
@@ -38,6 +41,7 @@ interface Props {
 export default function GarageView({ robots, onAddRobot, onDeleteRobot, selectedRobotId }: Props) {
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [connectRobot, setConnectRobot] = useState<UserRobot | null>(null);
 
   const enriched: GarageRobot[] = robots
     .map((ur) => {
@@ -138,10 +142,16 @@ export default function GarageView({ robots, onAddRobot, onDeleteRobot, selected
               }
               onCloseMenu={() => setOpenMenuId(null)}
               onDelete={() => handleDelete(g.userRobot.id)}
+              onConnect={() => setConnectRobot(g.userRobot)}
               deleting={deletingId === g.userRobot.id}
             />
           ))}
         </div>
+      )}
+
+      {/* connect modal */}
+      {connectRobot && (
+        <ConnectModal robot={connectRobot} onClose={() => setConnectRobot(null)} />
       )}
     </div>
   );
@@ -193,6 +203,7 @@ function RobotCard({
   onToggleMenu,
   onCloseMenu,
   onDelete,
+  onConnect,
   deleting,
 }: {
   garage: GarageRobot;
@@ -201,18 +212,26 @@ function RobotCard({
   onToggleMenu: () => void;
   onCloseMenu: () => void;
   onDelete: () => void;
+  onConnect: () => void;
   deleting: boolean;
 }) {
   const { userRobot, hardwareModel, category } = garage;
-  const catColor = category?.color ?? "var(--cyan)";
+  const conn = useRobotConnection();
+  const live = conn.robot?.id === userRobot.id && conn.isConnected;
+  const catColor = live ? "#34d399" : category?.color ?? "var(--cyan)";
   const status = userRobot.status;
 
-  const statusBadge = {
-    active: { label: "Active", bg: "rgba(52,211,153,0.12)", color: "#34d399" },
-    draft: { label: "Draft", bg: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" },
-    simulated: { label: "Sim", bg: "rgba(167,139,250,0.12)", color: "#a78bfa" },
-    offline: { label: "Offline", bg: "rgba(251,113,133,0.12)", color: "#fb7185" },
-  }[status];
+  const statusBadge = live
+    ? { label: "● Connected", bg: "rgba(52,211,153,0.16)", color: "#34d399" }
+    : {
+        active: { label: "Active", bg: "rgba(52,211,153,0.12)", color: "#34d399" },
+        draft: { label: "Draft", bg: "rgba(255,255,255,0.06)", color: "rgba(255,255,255,0.5)" },
+        simulated: { label: "Sim", bg: "rgba(167,139,250,0.12)", color: "#a78bfa" },
+        offline: { label: "Offline", bg: "rgba(251,113,133,0.12)", color: "#fb7185" },
+      }[status];
+
+  // A live connection (or being the selected robot) highlights the card.
+  const highlight = selected || live;
 
   return (
     <div className="relative">
@@ -220,30 +239,30 @@ function RobotCard({
         href={`/console?robot=${userRobot.id}`}
         className="block p-5 rounded-2xl transition-all duration-250 group/card"
         style={{
-          background: selected
+          background: highlight
             ? catColor + "0d"
             : "rgba(255,255,255,0.03)",
-          border: selected
+          border: highlight
             ? `1.5px solid ${catColor}55`
             : "1px solid rgba(255,255,255,0.06)",
-          boxShadow: selected
+          boxShadow: highlight
             ? `0 0 20px ${catColor}11`
             : "none",
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.background = selected
+          e.currentTarget.style.background = highlight
             ? catColor + "14"
             : "rgba(255,255,255,0.05)";
-          e.currentTarget.style.borderColor = selected
+          e.currentTarget.style.borderColor = highlight
             ? catColor + "88"
             : catColor + "33";
           e.currentTarget.style.transform = "translateY(-2px)";
         }}
         onMouseLeave={(e) => {
-          e.currentTarget.style.background = selected
+          e.currentTarget.style.background = highlight
             ? catColor + "0d"
             : "rgba(255,255,255,0.03)";
-          e.currentTarget.style.borderColor = selected
+          e.currentTarget.style.borderColor = highlight
             ? catColor + "55"
             : "rgba(255,255,255,0.06)";
           e.currentTarget.style.transform = "translateY(0)";
@@ -314,6 +333,11 @@ function RobotCard({
               arm
             </span>
           )}
+        </div>
+
+        {/* connect action */}
+        <div className="mt-4">
+          <ConnectButton robot={userRobot} onOpen={onConnect} />
         </div>
 
         {/* hover "Open Console" hint */}
