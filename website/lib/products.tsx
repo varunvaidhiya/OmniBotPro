@@ -439,6 +439,7 @@ export const PRODUCTS: Product[] = [
       { q: "Can I write my own bridge?", a: "Yes. Each bridge is a standalone adapter module. On Forge, the OhhO team builds and maintains custom bridges for proprietary protocols." },
     ],
     related: ["connect", "frame", "pilot"],
+    app: { href: "/bridge", label: "Open bridge console" },
     dashboardCaption:
       "OhhO Bridge — the Unitree DDS to ROS 2 adapter with joint-index mapping, live topic bridge, and impedance-gain defaults.",
   },
@@ -915,6 +916,7 @@ export const PRODUCTS: Product[] = [
       { q: "What if a skill doesn't work on my robot?", a: "Every listing is tagged with compatible robot models. Market checks compatibility before download, and the Proof report shows the exact scenarios the skill was tested in." },
     ],
     related: ["train", "serve", "proof"],
+    app: { href: "/market", label: "Open the marketplace" },
     dashboardCaption:
       "OhhO Market — skill listings tagged by robot and task, with Proof-verified success rates and one-click deploy to Serve.",
   },
@@ -1122,6 +1124,7 @@ export const PRODUCTS: Product[] = [
       { q: "Can Twin predict failures?", a: "Yes. By tracking motor temperature, current draw and vibration trends in the recorded telemetry, Twin projects degradation forward — and feeds OhhO Care to schedule maintenance before a failure." },
     ],
     related: ["frame", "fleet", "care"],
+    app: { href: "/twin", label: "Open the twin" },
     dashboardCaption:
       "OhhO Twin — live robot mirrored in Isaac Sim, the replay timeline, and a what-if branch from the selected moment.",
   },
@@ -1187,6 +1190,7 @@ export const PRODUCTS: Product[] = [
       { q: "How does Care relate to Comply?", a: "Every repair Care logs — what was replaced, when, by whom, with what batch — flows into OhhO Comply's audit trail, so the robot's maintenance history is part of its certification evidence." },
     ],
     related: ["fleet", "twin", "comply"],
+    app: { href: "/care", label: "Open maintenance" },
     dashboardCaption:
       "OhhO Care — predictive maintenance work orders, motor-degradation trend, parts from the Build BOM, and the repair log feeding Comply.",
   },

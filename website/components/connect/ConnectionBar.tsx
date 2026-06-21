@@ -34,6 +34,7 @@ import { getProtocol } from "@/lib/connect/protocols";
 const CONSOLE_ROUTES = [
   "/pilot", "/fleet", "/autonomy", "/bench", "/build", "/comply", "/data",
   "/frame", "/mind", "/proof", "/serve", "/shield", "/train", "/view",
+  "/bridge", "/market", "/twin", "/care",
 ];
 
 const PROTOCOL_ICONS: Record<string, typeof Wifi> = {
