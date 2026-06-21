@@ -40,6 +40,7 @@ import {
 } from "@/lib/mind/agent";
 import { useRobot } from "@/lib/garage/RobotContext";
 import { AIRobotPanel } from "@/components/console-kit";
+import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
 
 const VIOLET = "#A78BFA";
 const CYAN = "#00D4FF";
@@ -174,14 +175,31 @@ export default function MindConsole() {
               <p className="text-sm text-gray-400">The deliberative loop, grounded in the live world state.</p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={a.start}
-                disabled={a.phase === "running"}
-                className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-40"
-                style={{ background: VIOLET, color: "var(--bg)" }}
-              >
-                <Play size={15} /> {a.phase === "done" ? "Run again" : "Run agent"}
-              </button>
+              {a.online ? (
+                <PaidFeatureGate
+                  feature="cloud-ai-agent"
+                  label="Cloud AI Agent"
+                  description="Uses Claude API — requires a plan"
+                >
+                  <button
+                    onClick={a.start}
+                    disabled={a.phase === "running"}
+                    className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-40"
+                    style={{ background: VIOLET, color: "var(--bg)" }}
+                  >
+                    <Play size={15} /> {a.phase === "done" ? "Run again" : "Run agent"}
+                  </button>
+                </PaidFeatureGate>
+              ) : (
+                <button
+                  onClick={a.start}
+                  disabled={a.phase === "running"}
+                  className="inline-flex items-center gap-2 text-[13px] font-semibold px-4 py-2 rounded-lg transition-all disabled:opacity-40"
+                  style={{ background: VIOLET, color: "var(--bg)" }}
+                >
+                  <Play size={15} /> {a.phase === "done" ? "Run again" : "Run agent"}
+                </button>
+              )}
               <button
                 onClick={a.reset}
                 className="inline-flex items-center gap-2 text-[12px] font-semibold px-3 py-2 rounded-lg transition-all hover:bg-white/[0.05]"

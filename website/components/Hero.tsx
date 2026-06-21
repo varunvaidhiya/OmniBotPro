@@ -37,7 +37,7 @@ export default function Hero() {
             }}
           >
             <span className="badge-dot" />
-            ROS 2 Jazzy &nbsp;·&nbsp; Any robot &nbsp;·&nbsp; Embodied AI
+            Open Source &nbsp;·&nbsp; ROS 2 Jazzy &nbsp;·&nbsp; Pay only for cloud
           </motion.div>
 
           <motion.h1
@@ -63,7 +63,7 @@ export default function Hero() {
             className="font-mono text-[12px] font-medium tracking-[0.14em] uppercase"
             style={{ color: "var(--cyan)" }}
           >
-            The Robotics Operating Platform
+            The Open Robotics Platform
           </motion.div>
         </div>
 
@@ -76,13 +76,30 @@ export default function Hero() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
-            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[600px] mx-auto mb-6 legible"
+            className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[640px] mx-auto mb-4 legible"
             style={{ color: "rgba(255,255,255,0.72)" }}
           >
-            Turn <strong className="text-white font-semibold">any hardware</strong> into a{" "}
-            <strong className="text-white font-semibold">deployed, intelligent robot</strong>. One
-            platform to design, build, train and operate — for any robot, any use case.
+            The <strong className="text-white font-semibold">complete open-source stack</strong> for
+            any robot — design, train, simulate and operate.{" "}
+            <strong className="text-white font-semibold">Free forever.</strong>{" "}
+            Pay only for the cloud infrastructure you actually use.
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.42 }}
+            className="flex items-center justify-center gap-4 flex-wrap mb-6 font-mono text-[11px] tracking-[0.04em]"
+            style={{ color: "rgba(255,255,255,0.45)" }}
+          >
+            <span className="inline-flex items-center gap-1.5">
+              <span style={{ color: "var(--cyan)" }}>●</span> MIT / Apache licensed
+            </span>
+            <span className="opacity-30">·</span>
+            <span>Self-host or use OhhO Cloud</span>
+            <span className="opacity-30">·</span>
+            <span>GPU · AI · Sim · MCP — pay per use</span>
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -102,10 +119,12 @@ export default function Hero() {
                 (e.currentTarget as HTMLElement).style.boxShadow = "";
               }}
             >
-              Start Free <ArrowRight size={15} strokeWidth={2.5} />
+              Start Free — No Card Needed <ArrowRight size={15} strokeWidth={2.5} />
             </a>
             <a
-              href="#products"
+              href="https://github.com/varunvaidhiya/OmniBotPro"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium px-[26px] py-[12px] rounded-lg transition-all duration-200"
               style={{
                 background: "rgba(10,14,26,.4)",
@@ -120,7 +139,7 @@ export default function Hero() {
                 (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.16)";
               }}
             >
-              View Products
+              View on GitHub
             </a>
           </motion.div>
 

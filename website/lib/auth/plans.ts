@@ -1,8 +1,16 @@
 /*
  * Billing plans + subscription status helpers.
  *
- * Mirrors the homepage Pricing component. Console access is handled by
- * ConsoleGate and requires sign-in; plan state is used for billing/account UI.
+ * Access model:
+ *   - All product consoles are free with a sign-in (AuthGate / ConsoleGate).
+ *   - Cloud-cost features are gated inline by PaidFeatureGate:
+ *       • GPU training (OhhO Train)
+ *       • AI inference API (OhhO Serve)
+ *       • Cloud AI agent / Claude API (OhhO Mind)
+ *       • MCP server connection (OhhO Link)
+ *       • Cloud simulation & what-if (OhhO Twin)
+ *       • Cloud data sync (OhhO Data)
+ *
  * The Stripe price for each plan is resolved server-side in the checkout Edge
  * Function (by plan id), so no price ids live in the client.
  */
@@ -30,10 +38,13 @@ export const PLANS: Plan[] = [
     period: "/ month",
     blurb: "For indie devs and researchers.",
     features: [
-      "All product consoles included",
-      "OhhO Build — full library, 10 designs",
-      "OhhO Serve — 500 API calls / day",
-      "OhhO Data — cloud sync, 1K episodes",
+      "All 19 consoles free with sign-in",
+      "OhhO Train — GPU cloud training (20 hrs/mo)",
+      "OhhO Serve — AI inference API (500 calls/day)",
+      "OhhO Mind — Cloud AI agent, Claude-backed (1K calls/mo)",
+      "OhhO Link — MCP server + API key",
+      "OhhO Twin — Cloud simulation & what-if scenarios",
+      "OhhO Data — Cloud sync (1K episodes)",
       "Email support",
     ],
     checkout: true,
@@ -48,10 +59,13 @@ export const PLANS: Plan[] = [
     blurb: "For teams running real hardware.",
     features: [
       "Everything in Builder",
-      "OhhO Fleet — up to 100 robots, OTA",
-      "OhhO Serve — 10K API calls / day",
-      "OhhO Comply + Shield",
-      "Priority support + Slack",
+      "OhhO Train — 200 GPU hrs/mo",
+      "OhhO Serve — 10K API calls/day",
+      "OhhO Mind — 20K calls/mo + team memory",
+      "OhhO Fleet — OTA updates, up to 100 robots",
+      "OhhO Data — Unlimited episodes + annotation",
+      "OhhO Comply + Shield — compliance & security",
+      "Priority support + Slack channel",
     ],
     checkout: true,
     accent: "violet",
@@ -64,10 +78,11 @@ export const PLANS: Plan[] = [
     blurb: "Enterprise / white-label.",
     features: [
       "Everything in Fleet",
-      "Unlimited robots",
+      "Unlimited GPU & API usage",
       "On-prem OhhO Serve license",
       "SSO + dedicated SLA",
       "Custom robot integration",
+      "White-label OhhO Pilot",
     ],
     checkout: false,
     accent: "none",

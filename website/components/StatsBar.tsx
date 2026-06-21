@@ -3,10 +3,10 @@
 import GlassCard from "@/components/GlassCard";
 
 const stats = [
-  { n: "14", label: "Products across the robot lifecycle" },
-  { n: "15", label: "Robot categories — drones to humanoids" },
-  { n: "Any", label: "ROS 2-compatible hardware" },
-  { n: "Jazzy", label: "Built on ROS 2 — production ready" },
+  { n: "19", label: "Open-source product consoles — free with sign-in" },
+  { n: "100%", label: "Open source — MIT / Apache licensed" },
+  { n: "Any", label: "ROS 2-compatible hardware supported" },
+  { n: "$0", label: "Platform cost — pay only for cloud you use" },
 ];
 
 export default function StatsBar() {

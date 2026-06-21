@@ -30,6 +30,7 @@ import {
 
 import { AGENTS, ENDPOINT_URL, type AgentConfig } from "@/lib/link/agents";
 import { getAllTools, TOOL_COUNT } from "@/lib/mcp/registry";
+import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
 
 const CYAN = "#00D4FF";
 const CYAN_DIM = "rgba(0,212,255,0.10)";
@@ -132,6 +133,11 @@ export default function LinkConsole() {
         </div>
 
         {/* Endpoint + API key bar */}
+        <PaidFeatureGate
+          feature="mcp-server"
+          label="MCP Server Connection"
+          description="Hosted MCP server with live robot tools — requires a plan"
+        >
         <div
           className="rounded-2xl p-5 mb-8"
           style={{ background: "var(--surf)", border: "1px solid var(--border)" }}
@@ -211,6 +217,7 @@ export default function LinkConsole() {
             </span>
           </div>
         </div>
+        </PaidFeatureGate>
 
         {/* ── AI Agents grid ── */}
         <h2 className="text-[11px] font-mono uppercase tracking-[0.1em] mb-4" style={{ color: "var(--faint)" }}>
