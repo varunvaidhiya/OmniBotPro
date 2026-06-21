@@ -231,7 +231,7 @@ export const PRODUCTS: Product[] = [
       { q: "Do I need hardware to start?", a: "No. Frame's simulation runs entirely on your workstation — many teams build for weeks before touching a robot." },
       { q: "Is it locked to your hardware?", a: "No. Frame works with any ROS 2-compatible hardware; the reference drivers are a starting point you can swap." },
     ],
-    related: ["build", "bench", "fleet"],
+    related: ["build", "bench", "fleet", "connect"],
     app: { href: "/frame", label: "Open device console" },
     dashboardCaption:
       "OhhO Frame — workspace scaffold, containerized build and the node graph that ships ready to run.",
@@ -301,6 +301,146 @@ export const PRODUCTS: Product[] = [
     dashboardCaption:
       "OhhO Bench — assembly checklist, wiring map and the hardware self-test board going green subsystem by subsystem.",
     app: { href: "/bench", label: "Open bring-up console" },
+  },
+  {
+    slug: "connect",
+    name: "OhhO Connect",
+    tag: "One link. Any robot. Any transport.",
+    desc: "A robot-agnostic connection layer that bridges your browser to any robot over Wi-Fi, USB, Bluetooth or a built-in simulator — so every OhhO console works with any hardware, no install required.",
+    accent: "cyan",
+    category: "Foundation",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M5 12.55a11 11 0 0 1 14 0" />
+        <path d="M8.5 16.1a6 6 0 0 1 7 0" />
+        <path d="M12 20h.01" />
+        <circle cx="12" cy="20" r=".9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    hero: "One link to any robot. OhhO Connect is the transport abstraction that lets every OhhO console — Pilot, Autonomy, Fleet, Mind — talk to any robot over whatever link the hardware exposes: Wi-Fi via ROSBridge, USB via Web Serial, Bluetooth Low Energy, or a built-in simulator. No SDK install, no Python, no robot-specific setup.",
+    highlights: [
+      "Wi-Fi · ROSBridge WebSocket",
+      "USB · Web Serial (firmware-direct)",
+      "Bluetooth · BLE (Nordic UART)",
+      "Built-in simulator (no hardware)",
+      "Robot-agnostic — one console, any robot",
+    ],
+    overview: [
+      "Every robot speaks a different language on a different wire. Unitree talks DDS over Cyclone, a Yahboom base speaks a serial protocol over USB, a drone speaks MAVLink, an industrial arm speaks Modbus. OhhO Connect is the layer that makes all of them look the same to every OhhO product.",
+      "Connect exposes a single transport interface — connect, send velocity, send joint commands, emergency stop, subscribe to telemetry — and implements it for each protocol. A console built against Connect works on an OmniBot over Wi-Fi today and a Unitree G1 over USB tomorrow, with zero code changes.",
+      "Because Connect runs in the browser, there's nothing to install on the operator's machine. Web Serial and Web Bluetooth are feature-detected at runtime, and a deterministic simulator is always available — so you can explore every console before you ever wire up real hardware.",
+    ],
+    features: [
+      { title: "Four transports, one API", body: "ROSBridge WebSocket (Wi-Fi), Web Serial (USB), Web Bluetooth (BLE), and a built-in simulator — all behind the same RobotTransport interface, feature-detected at runtime." },
+      { title: "Robot-agnostic by design", body: "Connect speaks generic velocity and joint commands, not robot-specific SDK calls. A console built against Connect works on any robot with a transport implementation." },
+      { title: "Browser-native, no install", body: "Web Serial and Web Bluetooth run in Chromium browsers over a secure context — no driver install, no Python SDK, no desktop app. Open a URL and drive." },
+      { title: "Mixed-content aware", body: "Connect detects the HTTPS-to-ws mismatch and guides the operator to a secure rosbridge or a LAN connection, so the link just works instead of failing silently." },
+      { title: "Persistent per-robot config", body: "Each robot in the garage remembers its last protocol, address and baud rate — so reconnecting is one click, not a setup wizard every time." },
+      { title: "Simulator always on", body: "A deterministic in-browser robot streams telemetry on every protocol slot, so you can demo, develop and test consoles without hardware on the bench." },
+    ],
+    how: [
+      { title: "Pick a robot", body: "Select a robot from your OhhO Garage — Connect loads its saved transport settings." },
+      { title: "Choose a protocol", body: "Connect shows the protocols available in your browser and on your robot — Wi-Fi, USB, BLE or Sim." },
+      { title: "Open the link", body: "Connect establishes the transport, runs capability checks and streams live telemetry to every console." },
+      { title: "Operate", body: "Every OhhO console reads the live connection and never needs to know which protocol is underneath." },
+    ],
+    specs: [
+      { label: "Transports", value: "ROSBridge (WS), Web Serial (USB), Web BLE, Simulator" },
+      { label: "Interface", value: "RobotTransport — connect, velocity, joints, e-stop, telemetry" },
+      { label: "Browser", value: "Chromium (Chrome / Edge) for Serial + BLE; any for WS" },
+      { label: "Persistence", value: "Per-robot config saved to garage (Supabase + localStorage)" },
+      { label: "Simulator", value: "Deterministic in-browser telemetry stream" },
+      { label: "Integrates", value: "OhhO Pilot, Autonomy, Fleet, Mind, all consoles" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Included — Wi-Fi + simulator", included: true },
+      { plan: "Builder", level: "Included + USB + BLE", included: true },
+      { plan: "Fleet", level: "Included + multi-robot sessions", included: true },
+      { plan: "Forge", level: "Included + custom transports", included: true },
+    ],
+    recommendedPlan: "Spark",
+    planRationale:
+      "Connect is foundational and included on every plan, including free. You only need a paid plan for the consoles that sit on top of Connect — Pilot, Autonomy, Fleet and Mind.",
+    faq: [
+      { q: "Do I need to install anything on my computer?", a: "No. Connect runs entirely in the browser. Web Serial and Web Bluetooth are built into Chromium browsers (Chrome, Edge) — no driver, no SDK, no desktop app." },
+      { q: "Does Connect work with non-ROS robots?", a: "Yes. Web Serial talks the firmware protocol directly — no ROS needed. For DDS-native robots like Unitree, pair Connect with OhhO Bridge to translate between DDS and ROS topics." },
+      { q: "What if my browser doesn't support Web Serial?", a: "Connect feature-detects each protocol at runtime and shows only the ones your browser supports. Wi-Fi (ROSBridge) and the simulator work in any modern browser." },
+    ],
+    related: ["bridge", "frame", "pilot"],
+    dashboardCaption:
+      "OhhO Connect — protocol picker, live link status with latency, and the telemetry stream flowing to every console.",
+    app: { href: "/garage", label: "Open the garage" },
+  },
+  {
+    slug: "bridge",
+    name: "OhhO Bridge",
+    tag: "Connect any robot. Even the ones that don't speak ROS.",
+    desc: "Per-brand protocol adapters that translate between native robot SDKs and the OhhO platform. Bridge a Unitree DDS humanoid, a DJI drone or a Modbus arm into standard ROS 2 topics — no fork, no rewrite.",
+    accent: "violet",
+    category: "Foundation",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M3 12h18" />
+        <path d="M3 8v8" />
+        <path d="M21 8v8" />
+        <path d="M7 12v4" />
+        <path d="M11 12v4" />
+        <path d="M13 12v4" />
+        <path d="M17 12v4" />
+      </svg>
+    ),
+    hero: "OhhO Connect handles the transport; OhhO Bridge handles the language. Bridge is a library of per-brand protocol adapters that translate between a robot's native SDK — Unitree's DDS LowCmd/LowState, DJI's MAVLink, a Modbus PLC arm — and the standard ROS 2 topics every OhhO product already speaks. One adapter per brand, and any robot joins the platform.",
+    highlights: [
+      "Unitree DDS ↔ ROS 2 topics",
+      "DJI MAVLink ↔ ROS 2 topics",
+      "Modbus / PLC arm adapters",
+      "Joint-index maps per robot model",
+      "Impedance-gain defaults included",
+    ],
+    overview: [
+      "ROS 2 is the lingua franca of the OhhO platform — but most commercial robots don't speak it natively. Unitree humanoids talk Cyclone DDS through unitree_sdk2 with custom LowCmd/LowState IDL. DJI drones speak MAVLink. Industrial arms speak Modbus or EtherCAT. OhhO Bridge is the layer that translates each one into the standard ROS 2 topics the rest of the platform expects.",
+      "Each bridge is a thin ROS 2 node — or a browser-side codec for Web Serial — that subscribes to the robot's native protocol and republishes as standard topics: Twist on /cmd_vel, JointState on /joint_states, Imu on /imu/data, Odometry on /odom. In the other direction, it takes your ROS 2 commands and calls the robot's native SDK. For Unitree, that means mapping Twist to HighCmd velocity fields and JointState to LowCmd motor commands with sensible default impedance gains (kp/kd).",
+      "Bridge is what makes 'any robot' literally true. Without it, OhhO's intelligence and operations products work on any ROS 2-compatible robot — which is a lot, but not everything. With Bridge, a Unitree G1 humanoid, a DJI Matrice drone and a Modbus-controlled SCARA arm all appear to the platform as standard ROS 2 robots, and every console works unchanged.",
+    ],
+    features: [
+      { title: "Unitree DDS adapter", body: "Translates unitree_sdk2 LowCmd/LowState and HighCmd/HighState to and from standard ROS 2 topics, with per-model joint-index maps for G1, H1, H2, Go2 and B2." },
+      { title: "DJI MAVLink adapter", body: "Bridges MAVLink heartbeat, attitude, global position and manual control to ROS 2 Imu, Odometry and Twist — so a drone appears in the platform like any other robot." },
+      { title: "Industrial arm adapters", body: "Modbus TCP/RTU and EtherCAT bridges for PLC-driven arms, exposing joint state and joint commands as standard ROS 2 topics." },
+      { title: "Impedance-gain defaults", body: "When translating ROS joint commands into Unitree LowCmd motor commands, Bridge applies sensible default kp/kd profiles per joint — so position control works out of the box without per-servo tuning." },
+      { title: "Browser-side codecs", body: "For Web Serial connections, Bridge ships browser-native protocol codecs — like the Yahboom packet encoder — so Connect can talk firmware-direct with no Pi in the loop." },
+      { title: "Community-extensible", body: "Each bridge is a standalone adapter module. New brands are added as a new adapter — no platform fork, no core rewrite." },
+    ],
+    how: [
+      { title: "Install the bridge", body: "Select the bridge for your robot brand — Unitree, DJI, or a community adapter — and install it alongside OhhO Frame." },
+      { title: "Map the joints", body: "Bridge loads the joint-index map for your specific model and applies default impedance gains." },
+      { title: "Run the node", body: "The bridge node connects to the robot's native SDK and starts republishing standard ROS 2 topics." },
+      { title: "Use every console", body: "Pilot, Autonomy, Fleet, Mind and every other OhhO product now work on your robot unchanged." },
+    ],
+    specs: [
+      { label: "Adapters", value: "Unitree DDS, DJI MAVLink, Modbus, EtherCAT, Yahboom serial" },
+      { label: "Unitree models", value: "G1, H1, H1-2, H2, R1, Go2, B2, A2" },
+      { label: "ROS 2 topics", value: "/cmd_vel, /joint_states, /imu/data, /odom" },
+      { label: "Gain profiles", value: "Default kp/kd per joint per model" },
+      { label: "Runtime", value: "ROS 2 node (Pi / onboard PC) + browser codecs" },
+      { label: "Integrates", value: "OhhO Connect, Frame, all consoles" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Not included", included: false },
+      { plan: "Builder", level: "1 brand adapter", included: true },
+      { plan: "Fleet", level: "All brand adapters", included: true },
+      { plan: "Forge", level: "Custom protocol adapters", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Most teams only need one bridge — the one for their robot. Builder includes a single brand adapter, which is enough to bring one robot family onto the platform. Teams running mixed fleets choose Fleet for all adapters; enterprises with proprietary protocols choose Forge for custom bridges.",
+    faq: [
+      { q: "Do I need Bridge if my robot already speaks ROS 2?", a: "No. If your robot publishes standard ROS 2 topics natively, Connect + Frame are enough. Bridge is for robots that speak a native non-ROS protocol — Unitree DDS, DJI MAVLink, Modbus, and so on." },
+      { q: "Which Unitree models are supported?", a: "The Unitree DDS bridge covers G1, H1, H1-2, H2, R1, Go2, B2 and A2, using the joint-index maps from Unitree's published URDF and SDK headers." },
+      { q: "Can I write my own bridge?", a: "Yes. Each bridge is a standalone adapter module. On Forge, the OhhO team builds and maintains custom bridges for proprietary protocols." },
+    ],
+    related: ["connect", "frame", "pilot"],
+    dashboardCaption:
+      "OhhO Bridge — the Unitree DDS to ROS 2 adapter with joint-index mapping, live topic bridge, and impedance-gain defaults.",
   },
 
   // ── INTELLIGENCE ────────────────────────────────────────────────────────────
@@ -562,7 +702,7 @@ export const PRODUCTS: Product[] = [
       { q: "Is the training engine open?", a: "Yes. Train is built on the open-source OmniVLA engine, so your training code and checkpoints are portable — you're never locked in." },
       { q: "Do I need real-robot data to start?", a: "No. You can train entirely in simulation with domain randomization, then fine-tune on real OhhO Data episodes for sim-to-real transfer." },
     ],
-    related: ["data", "serve", "proof"],
+    related: ["data", "serve", "proof", "market"],
     dashboardCaption:
       "OhhO Train — run config, the live loss / success-rate curves and the export-to-Serve step on a passing checkpoint.",
     app: { href: "/train", label: "Open training console" },
@@ -710,6 +850,74 @@ export const PRODUCTS: Product[] = [
       "OhhO Mind — the live agent loop, the fused world state, the verified next action, and the hybrid reasoning router.",
     app: { href: "/mind", label: "Open the console" },
   },
+  {
+    slug: "market",
+    name: "OhhO Market",
+    tag: "Download a skill. Or sell one.",
+    desc: "A cross-brand marketplace for trained robot skills and policies. Download a verified pick-and-place policy for your G1, or publish one you trained with OhhO Train — signed, safety-checked and robot-ready.",
+    accent: "cyan",
+    category: "Intelligence",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M3 9l1.5-5h15L21 9" />
+        <path d="M3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9" />
+        <path d="M3 9h18" />
+        <path d="M9 21V13h6v8" />
+      </svg>
+    ),
+    hero: "Unitree has UniStore for per-robot apps. OhhO Market is the cross-brand equivalent for trained behaviors — a marketplace where you download a verified policy for your specific robot, or publish one you trained with OhhO Train. Every skill is signed, safety-checked through OhhO Proof, and tagged by robot model, task and success rate.",
+    highlights: [
+      "Cross-brand skill marketplace",
+      "Verified, signed policies",
+      "Tagged by robot + task",
+      "One-click deploy via Serve",
+      "Sell skills, take-rate model",
+    ],
+    overview: [
+      "A trained policy is the most valuable artifact in robotics — and today, every team trains their own from scratch. OhhO Market changes that. It's a marketplace where a verified pick-and-place policy for a Unitree G1, a patrol skill for a Go2, or a welding trajectory for a UR5e can be downloaded, deployed and monetized.",
+      "Every skill on Market is produced through the OhhO pipeline: trained with OhhO Train, validated through OhhO Proof's scenario suites, signed with OhhO Shield's supply-chain keys, and tagged with the robot models it runs on, the task it performs, and its measured success rate. You know what you're buying before you download it.",
+      "Market creates a network effect that compounds: more robots on the platform attract more skill authors, more skills attract more robot owners, and the take-rate model rewards both. For a startup that just bought a G1, Market means deploying a working skill on day one instead of spending three months collecting data and training.",
+    ],
+    features: [
+      { title: "Cross-brand, not per-robot", body: "Unlike OEM app stores, Market spans every robot brand the platform supports. A skill tagged for 'any mecanum base' works on an OmniBot, a TurtleBot and a custom AMR alike." },
+      { title: "Verified, not posted", body: "Every published skill passes through OhhO Proof's scenario suites before it's listed — so the success rate on the listing is the measured rate, not a marketing claim." },
+      { title: "Signed and tamper-proof", body: "Each skill package is signed with OhhO Shield's supply-chain keys, so a robot verifies the skill's integrity before loading it via OhhO Serve." },
+      { title: "One-click deploy", body: "Download a skill and Serve loads it — no manual checkpoint conversion, no model-class mismatch. The skill package carries its model class and config." },
+      { title: "Sell or share", body: "Authors set a price or publish for free. Market handles licensing, versioning and robot-model compatibility checks. The take-rate funds the platform." },
+      { title: "Training-to-market loop", body: "Train a skill with OhhO Train, validate with OhhO Proof, sign with OhhO Shield, publish to Market — the whole pipeline is one platform." },
+    ],
+    how: [
+      { title: "Browse skills", body: "Filter by robot model, task type, success rate and price — or search 'pick and place' for your G1." },
+      { title: "Verify the claim", body: "Each listing shows the Proof scenario results, the training data size and the measured success rate." },
+      { title: "Deploy", body: "Download the signed skill package and OhhO Serve loads it — or push it to your fleet via OhhO Fleet OTA." },
+      { title: "Publish your own", body: "Train with OhhO Train, pass OhhO Proof, sign with OhhO Shield, and list on Market — free or priced." },
+    ],
+    specs: [
+      { label: "Listing format", value: "Signed skill package (checkpoint + config + Proof report)" },
+      { label: "Compatibility", value: "Tagged by robot model, brand and locomotion type" },
+      { label: "Verification", value: "OhhO Proof scenario suites (pass rate published)" },
+      { label: "Signing", value: "OhhO Shield supply-chain signatures" },
+      { label: "Deploy", value: "OhhO Serve load or OhhO Fleet OTA" },
+      { label: "Model", value: "Free + paid listings, platform take-rate" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Browse + free skills", included: true },
+      { plan: "Builder", level: "Download paid skills", included: true },
+      { plan: "Fleet", level: "Sell skills + team licenses", included: true },
+      { plan: "Forge", level: "Private marketplace + white-label", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Anyone can browse and download free skills on Spark. Builder adds paid skills — most teams want at least one commercial policy to skip months of training. Teams selling skills or buying team licenses choose Fleet; enterprises running a private marketplace choose Forge.",
+    faq: [
+      { q: "How is this different from Unitree's UniStore?", a: "UniStore is per-robot apps for Unitree hardware only. Market is cross-brand — a skill tagged 'any mecanum base' works on any compatible robot, not just one OEM's. And every skill is verified through OhhO Proof, not just posted." },
+      { q: "Can I sell a skill I trained?", a: "Yes. Train with OhhO Train, pass OhhO Proof's scenario suites, sign with OhhO Shield, and list it on Market at any price. The platform take-rate funds verification and hosting." },
+      { q: "What if a skill doesn't work on my robot?", a: "Every listing is tagged with compatible robot models. Market checks compatibility before download, and the Proof report shows the exact scenarios the skill was tested in." },
+    ],
+    related: ["train", "serve", "proof"],
+    dashboardCaption:
+      "OhhO Market — skill listings tagged by robot and task, with Proof-verified success rates and one-click deploy to Serve.",
+  },
 
   // ── OPERATIONS ──────────────────────────────────────────────────────────────
   {
@@ -775,7 +983,7 @@ export const PRODUCTS: Product[] = [
       { q: "Do I need a VR headset?", a: "No. Pilot works fully on mobile; VR is an option for immersive arm control." },
       { q: "Is it safe over the internet?", a: "Pilot clamps velocities and offers an emergency stop; pair it with OhhO Shield for authenticated, encrypted links." },
     ],
-    related: ["autonomy", "view", "fleet"],
+    related: ["autonomy", "view", "fleet", "connect"],
     app: { href: "/pilot", label: "Open the cockpit" },
     dashboardCaption:
       "OhhO Pilot — operator HUD with live robot view, hand-tracking arm IK and a latency readout.",
@@ -843,10 +1051,144 @@ export const PRODUCTS: Product[] = [
       { q: "Can I host the observability stack myself?", a: "Yes. It deploys via Docker Compose on your own infrastructure; Forge adds on-prem licensing and SSO." },
       { q: "Are OTA updates safe?", a: "Updates are signed and staged; pair with OhhO Shield for end-to-end supply-chain integrity." },
     ],
-    related: ["serve", "shield", "proof"],
+    related: ["serve", "shield", "proof", "twin", "care"],
     app: { href: "/fleet", label: "Open mission control" },
     dashboardCaption:
       "OhhO Fleet — fleet map, health donut, OTA rollout progress and the live alert feed.",
+  },
+  {
+    slug: "twin",
+    name: "OhhO Twin",
+    tag: "Your real robot. Mirrored in simulation. Live.",
+    desc: "A live digital twin that streams real robot telemetry into a persistent simulation — replay, scrub, what-if and predict, side by side with the physical robot. Powered by Gazebo and Isaac Sim.",
+    accent: "violet",
+    category: "Operations",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <rect x="3" y="4" width="8" height="16" rx="1.5" />
+        <rect x="13" y="4" width="8" height="16" rx="1.5" />
+        <path d="M11 12h2" />
+        <circle cx="7" cy="8" r=".9" fill="currentColor" stroke="none" />
+        <circle cx="17" cy="8" r=".9" fill="currentColor" stroke="none" />
+      </svg>
+    ),
+    hero: "OhhO Frame gives you a simulator to develop against; OhhO Twin gives you a live mirror of the robot you're already running. Real telemetry streams into a persistent Gazebo or Isaac Sim world — so you can replay the last hour, scrub to the moment something went wrong, run a what-if with a different policy, and predict what happens next.",
+    highlights: [
+      "Live telemetry → persistent sim",
+      "Replay + scrub any moment",
+      "What-if with different policies",
+      "Prediction from observed state",
+      "Gazebo + Isaac Sim backed",
+    ],
+    overview: [
+      "A digital twin is the bridge between 'it worked in simulation' and 'it's working right now on the factory floor.' OhhO Twin streams a real robot's telemetry — pose, joints, sensors, camera frames — into a persistent simulation world that stays in sync, so the sim always reflects what the robot is actually doing.",
+      "Twin is not just a live view. It's a time machine: every telemetry frame is recorded, so you can replay the last shift, scrub to the moment a pick failed, and see exactly what the robot saw and felt at that instant. Run a what-if — 'what if the policy had chosen a different grasp angle?' — and Twin simulates the alternative from the same starting state.",
+      "For fleet operators, Twin is the difference between reactive and predictive. A motor's temperature curve in the twin predicts a failure before it happens. A near-miss in the twin becomes a training scenario for OhhO Proof. And because Twin runs on the same Gazebo and Isaac Sim worlds as Frame, what you learn in the twin transfers directly to the simulation you develop in.",
+    ],
+    features: [
+      { title: "Live mirror", body: "Real robot telemetry streams into a persistent Gazebo or Isaac Sim world, kept in sync frame by frame — so the sim always reflects reality." },
+      { title: "Replay + scrub", body: "Every telemetry frame is recorded. Replay the last hour, scrub to any instant, and inspect pose, joints, sensors and camera frames at that exact moment." },
+      { title: "What-if simulation", body: "Branch from any recorded state and simulate a different outcome — a different policy, a different grasp, a different speed — without touching the real robot." },
+      { title: "Prediction", body: "From the observed state, Twin can project forward — motor temperature trends, battery depletion, trajectory completion — so you see problems before they happen." },
+      { title: "Shared sim world", body: "Twin runs on the same Gazebo and Isaac Sim worlds as OhhO Frame, so what you learn in the twin transfers directly to the simulation you develop and test in." },
+      { title: "Fleet-scale", body: "Mirror one robot or a hundred. Each twin streams independently and is replayable from the Fleet dashboard." },
+    ],
+    how: [
+      { title: "Connect the robot", body: "Twin uses the live telemetry stream from OhhO Connect — no extra wiring." },
+      { title: "Mirror in sim", body: "Real telemetry flows into a persistent Gazebo or Isaac Sim world that stays in sync." },
+      { title: "Replay + what-if", body: "Scrub to any moment, inspect what the robot saw, and branch into a what-if simulation." },
+      { title: "Predict + feed back", body: "Twin projects trends forward — and near-misses become OhhO Proof scenarios, failures become OhhO Care tickets." },
+    ],
+    specs: [
+      { label: "Simulators", value: "Gazebo Harmonic + Isaac Sim" },
+      { label: "Telemetry", value: "Pose, joints, IMU, cameras (via OhhO Connect)" },
+      { label: "Replay", value: "Full timeline scrub, per-frame inspection" },
+      { label: "What-if", value: "Branch from any recorded state" },
+      { label: "Prediction", value: "Motor, battery, trajectory projection" },
+      { label: "Scale", value: "Single robot (Builder) to fleet (Fleet)" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Simulated twin (no live data)", included: true },
+      { plan: "Builder", level: "Single live twin + replay", included: true },
+      { plan: "Fleet", level: "Multi-robot twins + what-if", included: true },
+      { plan: "Forge", level: "Enterprise twin + prediction APIs", included: true },
+    ],
+    recommendedPlan: "Builder",
+    planRationale:
+      "Spark gives you a simulated twin to explore the concept. Most teams want Builder for a single live twin with replay — enough to diagnose what happened on the real robot. Fleet operators choose Fleet for multi-robot twins and what-if; enterprises choose Forge for prediction APIs and custom models.",
+    faq: [
+      { q: "How is Twin different from Frame's simulation?", a: "Frame gives you a simulator to develop against — a clean world you launch and iterate in. Twin mirrors a real robot that's already running, streaming live telemetry and recording every frame for replay and what-if. They share the same Gazebo and Isaac Sim worlds." },
+      { q: "Do I need hardware to use Twin?", a: "No. Spark includes a simulated twin with synthetic telemetry. But the real value — replay, what-if, prediction — comes from streaming a real robot's data, which starts on Builder." },
+      { q: "Can Twin predict failures?", a: "Yes. By tracking motor temperature, current draw and vibration trends in the recorded telemetry, Twin projects degradation forward — and feeds OhhO Care to schedule maintenance before a failure." },
+    ],
+    related: ["frame", "fleet", "care"],
+    dashboardCaption:
+      "OhhO Twin — live robot mirrored in Isaac Sim, the replay timeline, and a what-if branch from the selected moment.",
+  },
+  {
+    slug: "care",
+    name: "OhhO Care",
+    tag: "Fix it before it breaks.",
+    desc: "Predictive maintenance and service workflow for robot fleets. Turn motor-degradation signals from OhhO Fleet into scheduled service, ordered parts and logged repairs — closing the loop from monitoring to maintenance.",
+    accent: "cyan",
+    category: "Operations",
+    icon: (
+      <svg viewBox="0 0 24 24" {...stroke}>
+        <path d="M3 12h4l2-6 4 12 2-6h6" />
+      </svg>
+    ),
+    hero: "OhhO Fleet tells you a motor is degrading; OhhO Care turns that signal into a workflow. Predictive maintenance, parts ordering from the OhhO Build bill of materials, technician dispatch, and a repair log that feeds back into OhhO Comply's audit trail — closing the loop from 'something is wearing' to 'it's fixed and documented.'",
+    highlights: [
+      "Predictive maintenance alerts",
+      "Auto-sourced parts from Build BOM",
+      "Technician dispatch + scheduling",
+      "Repair log → Comply audit trail",
+      "Downtime tracking + MTBF",
+    ],
+    overview: [
+      "Monitoring tells you a robot is about to fail. Maintenance is what you do about it. OhhO Care is the product that bridges that gap — turning the degradation signals OhhO Fleet and OhhO Twin surface into a structured service workflow that ends with a fixed, documented robot.",
+      "When a motor's temperature trend crosses a threshold or a joint's torque ripple changes, Care raises a predictive maintenance ticket — not a generic alert, but a structured work order with the affected robot, the suspect component, the predicted failure window, and the replacement part pulled from the robot's OhhO Build bill of materials. One click orders the part; another schedules a technician.",
+      "When the repair is done, Care logs it: what was replaced, when, by whom, with what part batch — and that record flows straight into OhhO Comply's audit trail, so the robot's maintenance history is part of its certification evidence. Downtime, MTBF and mean-time-to-repair metrics roll up into the Fleet dashboard, so you see the operational cost of maintenance, not just the technical signals.",
+    ],
+    features: [
+      { title: "Predictive alerts", body: "Degradation signals from Fleet and Twin — motor temperature, torque ripple, vibration — become structured work orders, not just alerts." },
+      { title: "Parts from your BOM", body: "The replacement part is pulled from the robot's OhhO Build bill of materials, with supplier links and lead times — so ordering is one click, not a scavenger hunt." },
+      { title: "Technician dispatch", body: "Schedule a field service visit, assign a technician and block the robot's calendar — all from the work order." },
+      { title: "Repair logging", body: "Every repair is logged with the part replaced, the timestamp, the technician and the part batch — and flows into OhhO Comply's audit trail." },
+      { title: "Downtime + MTBF", body: "Care tracks downtime, mean-time-between-failures and mean-time-to-repair per robot and across the fleet, surfaced in the Fleet dashboard." },
+      { title: "Closes the loop", body: "Fleet detects, Care schedules, Bench calibrates the replacement, Comply records it. The whole maintenance lifecycle, one platform." },
+    ],
+    how: [
+      { title: "Detect", body: "Fleet and Twin surface a degradation signal — a motor running hot, a joint drifting." },
+      { title: "Triage", body: "Care raises a work order with the affected robot, the suspect component and the predicted failure window." },
+      { title: "Order + dispatch", body: "One click orders the replacement part from the Build BOM; another schedules the technician." },
+      { title: "Repair + log", body: "The repair is logged and flows into Comply's audit trail; MTBF and downtime update in Fleet." },
+    ],
+    specs: [
+      { label: "Signals", value: "Motor temp, torque ripple, vibration (from Fleet + Twin)" },
+      { label: "Parts", value: "Auto-sourced from OhhO Build BOM" },
+      { label: "Workflow", value: "Work order → dispatch → repair → log" },
+      { label: "Metrics", value: "Downtime, MTBF, MTTR per robot + fleet" },
+      { label: "Audit", value: "Repair log → OhhO Comply audit trail" },
+      { label: "Integrates", value: "OhhO Fleet, Twin, Build, Comply" },
+    ],
+    plans: [
+      { plan: "Spark", level: "Not included", included: false },
+      { plan: "Builder", level: "Basic maintenance scheduling", included: true },
+      { plan: "Fleet", level: "Predictive maintenance + parts ordering", included: true },
+      { plan: "Forge", level: "Full service workflow + SLA tracking", included: true },
+    ],
+    recommendedPlan: "Fleet",
+    planRationale:
+      "Care is most valuable when you're running a real fleet and need predictive maintenance, not just a calendar reminder. Builder gives you basic scheduling for a few robots; Fleet adds predictive alerts, auto-sourced parts and MTBF metrics. Enterprises with field service teams choose Forge for SLA tracking and custom workflows.",
+    faq: [
+      { q: "How does Care know a part is about to fail?", a: "Care reads degradation signals from OhhO Fleet (motor temperature, current draw, torque limits) and OhhO Twin (vibration trends, trajectory deviation). When a signal crosses a learned threshold, Care raises a predictive work order." },
+      { q: "Does Care order parts for me?", a: "Care pulls the replacement part from the robot's OhhO Build bill of materials — with supplier links and lead times. One click takes you to the supplier's checkout. On Forge, ordering can be fully automated." },
+      { q: "How does Care relate to Comply?", a: "Every repair Care logs — what was replaced, when, by whom, with what batch — flows into OhhO Comply's audit trail, so the robot's maintenance history is part of its certification evidence." },
+    ],
+    related: ["fleet", "twin", "comply"],
+    dashboardCaption:
+      "OhhO Care — predictive maintenance work orders, motor-degradation trend, parts from the Build BOM, and the repair log feeding Comply.",
   },
 
   // ── TRUST (compliance / security / testing) ─────────────────────────────────
@@ -912,7 +1254,7 @@ export const PRODUCTS: Product[] = [
       { q: "Does Comply certify my robot?", a: "Comply prepares everything a certification needs — the technical file, risk assessment and evidence — and on Forge connects you with certification partners. The certificate itself is issued by an accredited body, not OhhO." },
       { q: "Which standards are covered?", a: "The common machinery and robot-safety standards (CE / Machinery Regulation, ISO 10218, ISO 13849, UL), with custom standards available on Forge." },
     ],
-    related: ["shield", "proof", "build"],
+    related: ["shield", "proof", "build", "care"],
     app: { href: "/comply", label: "Open compliance center" },
     dashboardCaption:
       "OhhO Comply — standards coverage, certification progress rings and the document / audit status board.",
