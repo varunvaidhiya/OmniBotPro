@@ -3,9 +3,14 @@
 /*
  * ConsoleNavButton — the "Console" button in the top Nav.
  *
- *   not signed in      → /login?next=/console  (prompt to sign in, then straight to console)
- *   signed in, no plan  → /upgrade?next=/console (payment / subscription options)
- *   signed in + active  → /console               (the console hub)
+ * Consoles are free with a sign-in (no plan required), so any signed-in user
+ * goes straight to the console hub.
+ *
+ *   not signed in       → /login?next=/console  (prompt to sign in, then straight to console)
+ *   signed in           → /console               (the console hub)
+ *
+ * Styling: filled cyan for subscribed users; subtle for signed-in free users
+ * so the highlighted "Upgrade" button stays the visual lead.
  */
 
 import Link from "next/link";
@@ -19,20 +24,19 @@ export default function ConsoleNavButton() {
 
   if (loading) return null;
 
-  const active = user && hasConsoleAccess(subscription);
+  const signedIn = Boolean(user);
+  const subscribed = signedIn && hasConsoleAccess(subscription);
 
-  let href = "/login?next=/console";
-  if (active) href = "/console";
-  else if (user) href = "/upgrade?next=/console";
+  const href = signedIn ? "/console" : "/login?next=/console";
 
   return (
     <Link
       href={href}
       className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
       style={{
-        background: active ? "var(--cyan)" : "rgba(255,255,255,0.06)",
-        color: active ? "var(--bg)" : "var(--text)",
-        border: active ? "none" : "1px solid rgba(255,255,255,0.14)",
+        background: subscribed ? "var(--cyan)" : "rgba(255,255,255,0.06)",
+        color: subscribed ? "var(--bg)" : "var(--text)",
+        border: subscribed ? "none" : "1px solid rgba(255,255,255,0.14)",
       }}
     >
       <Monitor size={14} />
