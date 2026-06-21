@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Loader2, Lock } from "lucide-react";
+import { ArrowLeft, Check, Coffee, Heart, Loader2, Lock } from "lucide-react";
 
 import Nav from "@/components/Nav";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getSupabase } from "@/lib/auth/supabase";
 import { PLANS, getPlan, hasConsoleAccess, type Plan } from "@/lib/auth/plans";
-import { contactMailto } from "@/lib/site";
+import { contactMailto, BUYMEACOFFEE_HREF, GITHUB_HREF } from "@/lib/site";
 
 export default function UpgradePage() {
   const { configured, loading, user, subscription } = useAuth();
@@ -137,6 +137,59 @@ export default function UpgradePage() {
                 </button>
               </GlassCard>
             ))}
+          </div>
+
+          {/* ── Support the open-source project ── */}
+          <div className="mt-12 max-w-3xl">
+            <GlassCard interactive={false} padding="24px 26px" radius={18} className="relative overflow-hidden">
+              <div
+                className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none"
+                style={{ background: "radial-gradient(circle, rgba(251,191,36,0.14), transparent 70%)" }}
+              />
+              <div className="relative flex flex-col sm:flex-row sm:items-center gap-5">
+                <span
+                  className="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl"
+                  style={{ background: "rgba(251,191,36,0.12)", border: "1px solid rgba(251,191,36,0.3)", color: "#FBBF24" }}
+                >
+                  <Coffee size={22} />
+                </span>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-display text-[17px] font-bold">Not ready for a plan?</h3>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-2 py-0.5 rounded-full" style={{ background: "rgba(251,191,36,0.12)", color: "#FBBF24", border: "1px solid rgba(251,191,36,0.28)" }}>
+                      <Heart size={9} /> OPEN SOURCE
+                    </span>
+                  </div>
+                  <p className="text-[13px] leading-[1.6] mt-1.5" style={{ color: "rgba(255,255,255,0.62)" }}>
+                    OhhO is free and open source. If the project or the idea behind it helped you,
+                    a coffee keeps the lights on — servers, cloud bills, and continued development.
+                    Every bit is genuinely appreciated. ☕
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-2 shrink-0 sm:w-[180px]">
+                  <a
+                    href={BUYMEACOFFEE_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg text-[13px] font-semibold transition-all hover:-translate-y-px"
+                    style={{ background: "#FBBF24", color: "#1a1205" }}
+                  >
+                    <Coffee size={15} /> Buy me a coffee
+                  </a>
+                  <a
+                    href={GITHUB_HREF}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-[12px] font-medium transition-all hover:bg-white/[0.05]"
+                    style={{ border: "1px solid rgba(255,255,255,0.18)", color: "rgba(255,255,255,0.75)" }}
+                  >
+                    <Heart size={13} /> Star on GitHub
+                  </a>
+                </div>
+              </div>
+            </GlassCard>
           </div>
         </div>
       </main>

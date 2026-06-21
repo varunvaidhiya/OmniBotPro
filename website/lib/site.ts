@@ -22,6 +22,12 @@ export const GITHUB_HREF = "https://github.com/varunvaidhiya/OmniBotPro";
 export const TWITTER_HREF = "https://x.com/ohho_ai";
 export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";
 
+/**
+ * Optional "Buy me a coffee" support link for this open-source project.
+ * Update the slug to your own Buy Me a Coffee / Ko-fi / GitHub Sponsors page.
+ */
+export const BUYMEACOFFEE_HREF = "https://www.buymeacoffee.com/varunvaidhiya";
+
 /** mailto: link with a pre-filled subject (used by Get Started / plan CTAs). */
 export function contactMailto(subject: string): string {
   return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}`;
