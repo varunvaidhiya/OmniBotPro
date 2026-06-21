@@ -1,20 +1,22 @@
 "use client";
 
+import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF } from "@/lib/site";
+import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF, UPGRADE_HREF } from "@/lib/site";
 import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
-// Marketing links shown to visitors / free users.
+// Marketing links shown to visitors (not signed in).
 const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
-// Dev-focused links shown to subscribed users — no product/pricing/team marketing.
-const DEV_LINKS = ["Link", "Docs"];
+// Lean links for any signed-in user — no product/pricing/team marketing clutter.
+const DEV_LINKS = ["Link"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const { user, subscription } = useAuth();
+  const signedIn = Boolean(user);
   const subscribed = Boolean(user && hasConsoleAccess(subscription));
 
   useEffect(() => {
@@ -38,7 +40,7 @@ export default function Nav() {
     }
   };
 
-  const links = subscribed ? DEV_LINKS : MARKETING_LINKS;
+  const links = signedIn ? DEV_LINKS : MARKETING_LINKS;
 
   return (
     <nav
@@ -87,7 +89,8 @@ export default function Nav() {
             Garage
           </a>
         )}
-        {!subscribed && (
+        {/* Visitor → Get Started; signed-in free user → highlighted Upgrade */}
+        {!signedIn && (
           <a
             href="/#pricing"
             className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
@@ -104,6 +107,26 @@ export default function Nav() {
             }}
           >
             Get Started
+          </a>
+        )}
+        {signedIn && !subscribed && (
+          <a
+            href={UPGRADE_HREF}
+            className="inline-flex items-center gap-1.5 text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
+            style={{
+              background: "var(--cyan)",
+              color: "var(--bg)",
+              boxShadow: "0 4px 18px rgba(0,212,255,0.30)",
+            }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 8px 26px rgba(0,212,255,0.42)";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLElement).style.boxShadow = "0 4px 18px rgba(0,212,255,0.30)";
+            }}
+          >
+            <Sparkles size={14} strokeWidth={2.5} />
+            Upgrade
           </a>
         )}
         {/* console hub: adapts to auth + subscription state */}
