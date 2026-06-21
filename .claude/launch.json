@@ -1,0 +1,30 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "website", "run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "vla_serve",
+      "runtimeExecutable": "/Users/varunvaidhiya/Desktop/Projects/OmniBotPro/.venv/bin/python",
+      "runtimeArgs": ["-m", "uvicorn", "vla_serve.inference.server:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "packages/vla_serve"],
+      "port": 8000
+    },
+    {
+      "name": "vla_engine",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["vla_engine/inference/server.py"],
+      "port": 8000
+    },
+    {
+      "name": "rosbridge",
+      "runtimeExecutable": "ros2",
+      "runtimeArgs": ["launch", "rosbridge_server", "rosbridge_websocket_launch.xml", "port:=9090"],
+      "port": 9090
+    }
+  ]
+}

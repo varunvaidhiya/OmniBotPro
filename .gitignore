@@ -50,3 +50,5 @@ dist/
 *.so
 *.pyd
 site/
+.venv/
+venv/

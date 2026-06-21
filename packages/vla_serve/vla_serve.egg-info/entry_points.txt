@@ -1,2 +1,0 @@
-[console_scripts]
-vla-serve = vla_serve.inference.server:main
