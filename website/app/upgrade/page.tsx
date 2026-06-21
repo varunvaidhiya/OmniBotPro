@@ -161,7 +161,7 @@ export default function UpgradePage() {
           </div>
 
           {/* ── Support the open-source project ── */}
-          <div className="mt-12 max-w-3xl">
+          <div className="mt-[18px]">
             <GlassCard interactive={false} padding="24px 26px" radius={18} className="relative overflow-hidden">
               <div
                 className="absolute -top-16 -right-16 w-48 h-48 rounded-full pointer-events-none"
