@@ -26,6 +26,19 @@ import { tools as marketTools, resources as marketResources } from "@/lib/market
 import { tools as twinTools } from "@/lib/twin/mcp-tools";
 import { tools as careTools } from "@/lib/care/mcp-tools";
 import { tools as fleetTools } from "@/lib/fleet/mcp-tools";
+import { tools as serveTools } from "@/lib/serve/mcp-tools";
+import { tools as buildTools } from "@/lib/build/mcp-tools";
+import { tools as pilotTools } from "@/lib/pilot/mcp-tools";
+import { tools as shieldTools } from "@/lib/shield/mcp-tools";
+import { tools as complyTools } from "@/lib/comply/mcp-tools";
+import { tools as proofTools } from "@/lib/proof/mcp-tools";
+import { tools as frameTools } from "@/lib/frame/mcp-tools";
+import { tools as trainTools } from "@/lib/train/mcp-tools";
+import { tools as dataTools } from "@/lib/data/mcp-tools";
+import { tools as viewTools } from "@/lib/view/mcp-tools";
+import { tools as autonomyTools } from "@/lib/autonomy/mcp-tools";
+import { tools as mindTools } from "@/lib/mind/mcp-tools";
+import { tools as benchTools } from "@/lib/bench/mcp-tools";
 
 // ── Registry ──────────────────────────────────────────────────────────────────
 
@@ -37,6 +50,19 @@ const ALL_TOOLS: ToolDefinition[] = [
   ...twinTools,
   ...careTools,
   ...fleetTools,
+  ...serveTools,
+  ...buildTools,
+  ...pilotTools,
+  ...shieldTools,
+  ...complyTools,
+  ...proofTools,
+  ...frameTools,
+  ...trainTools,
+  ...dataTools,
+  ...viewTools,
+  ...autonomyTools,
+  ...mindTools,
+  ...benchTools,
 ];
 
 const ALL_RESOURCES: ResourceDefinition[] = [

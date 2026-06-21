@@ -913,7 +913,19 @@ each tool — write it clearly.
 | twin | `lib/twin/mcp-tools.ts` | 4 |
 | care | `lib/care/mcp-tools.ts` | 7 |
 | fleet | `lib/fleet/mcp-tools.ts` | 6 |
+| serve | `lib/serve/mcp-tools.ts` | 5 |
+| build | `lib/build/mcp-tools.ts` | 5 |
+| pilot | `lib/pilot/mcp-tools.ts` | 5 |
+| shield | `lib/shield/mcp-tools.ts` | 3 |
+| comply | `lib/comply/mcp-tools.ts` | 4 |
+| proof | `lib/proof/mcp-tools.ts` | 4 |
+| frame | `lib/frame/mcp-tools.ts` | 3 |
+| train | `lib/train/mcp-tools.ts` | 5 |
+| data | `lib/data/mcp-tools.ts` | 4 |
+| view | `lib/view/mcp-tools.ts` | 3 |
+| autonomy | `lib/autonomy/mcp-tools.ts` | 5 |
+| mind | `lib/mind/mcp-tools.ts` | 5 |
+| bench | `lib/bench/mcp-tools.ts` | 7 |
 
-Products with data modules but no MCP tools yet (add when features land):
-serve, train, data, view, autonomy, mind, pilot, build, bench, comply,
-shield, proof, frame. Follow the convention above to add coverage.
+All 19 products now have MCP tool coverage. When adding a new feature
+to any console, follow the convention above to add the corresponding tool.
