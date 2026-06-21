@@ -10,7 +10,7 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 // Marketing links shown to visitors / free users.
 const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
 // Dev-focused links shown to subscribed users — no product/pricing/team marketing.
-const DEV_LINKS = ["Docs"];
+const DEV_LINKS = ["Link", "Docs"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -28,6 +28,7 @@ export default function Nav() {
       case "Products": return PRODUCTS_HREF;
       case "Pricing": return PRICING_HREF;
       case "How it Works": return "/#how";
+      case "Link": return "/link";
       case "Docs": return DOCS_HREF;
       case "GitHub": return GITHUB_HREF;
       case "About": return "/about";

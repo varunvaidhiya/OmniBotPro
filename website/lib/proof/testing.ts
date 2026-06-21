@@ -1,33 +1,14 @@
 /*
  * Mock simulation testing data for OhhO Proof.
+ *
+ * Re-exports pure data from proof-data.ts (server-safe) and the
+ * useProofSimulation hook (React, client-only).
  */
 
 import { useState, useCallback, useMemo } from "react";
 
-export interface TestSuite {
-  id: string;
-  name: string;
-  passRate: number;
-}
-
-export type HeatmapValue = 0 | 1 | 2; // 0=miss, 1=partial, 2=pass
-
-export const INITIAL_SUITES: TestSuite[] = [
-  { id: "nav", name: "Navigation", passRate: 0.98 },
-  { id: "man", name: "Manipulation", passRate: 0.94 },
-  { id: "edge", name: "Edge cases", passRate: 0.87 },
-  { id: "fault", name: "Fault injection", passRate: 0.76 },
-];
-
-export const INITIAL_COVERAGE: HeatmapValue[][] = [
-  [2, 2, 2, 1, 2, 2, 2, 0],
-  [2, 2, 1, 2, 2, 2, 1, 2],
-  [2, 1, 2, 2, 0, 2, 2, 2],
-  [1, 2, 2, 2, 2, 1, 2, 2],
-  [2, 2, 2, 1, 2, 2, 2, 1],
-];
-
-export const REGRESSION_DATA = [0.9, 0.92, 0.88, 0.94, 0.93, 0.95, 0.91, 0.96, 0.94, 0.97];
+export { type TestSuite, type HeatmapValue, INITIAL_SUITES, INITIAL_COVERAGE, REGRESSION_DATA } from "./proof-data";
+import { type TestSuite, type HeatmapValue, INITIAL_SUITES, INITIAL_COVERAGE, REGRESSION_DATA } from "./proof-data";
 
 export function useProofSimulation() {
   const [suites, setSuites] = useState<TestSuite[]>(INITIAL_SUITES);

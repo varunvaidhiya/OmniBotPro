@@ -865,3 +865,67 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+
+## MCP Server (Model Context Protocol)
+
+The OhhO website exposes an MCP server at `POST /api/mcp` that lets any AI
+agent (OpenCode, Claude Desktop, Cursor, or any MCP-compatible client) query
+and control every console on the platform. See `website/MCP_SETUP.md` for
+full setup instructions.
+
+### Architecture
+
+- **Endpoint**: `website/app/api/mcp/route.ts` — JSON-RPC 2.0 over HTTP (stateless)
+- **Server**: `website/lib/mcp/server.ts` — handles initialize, tools/list, tools/call, resources/list, resources/read
+- **Registry**: `website/lib/mcp/registry.ts` — aggregates all tool definitions
+- **Auth**: `website/lib/mcp/auth.ts` — `X-API-Key` header, validated against `MCP_API_KEY` env var
+- **Types**: `website/lib/mcp/types.ts` — ToolDefinition, ResourceDefinition, JSON-RPC types
+- **Tests**: `website/lib/mcp/mcp.test.ts` — 17 tests covering registry + server
+
+### Convention — adding MCP coverage for a new feature
+
+**Every time you add a new feature or option to any console, you MUST also
+add an MCP tool for it** so external AI agents can access and control it.
+
+1. Create or update `website/lib/<product>/mcp-tools.ts`:
+   ```typescript
+   export const tools: ToolDefinition[] = [
+     { name: "myProduct.myAction", description: "...", inputSchema: s({...}),
+       handler: async (params) => jsonResult({...}), product: "myProduct", readOnly: true }
+   ];
+   ```
+2. Register in `website/lib/mcp/registry.ts` (one import + one array entry).
+3. Run `cd website && npm run test` to verify.
+
+Tool names are dotted (`<product>.<action>`), unique, and have a JSON Schema
+for parameters. Read-only tools set `readOnly: true`; mutation tools set
+`readOnly: false`. The AI reads the `description` to decide when to call
+each tool — write it clearly.
+
+### Current tool coverage
+
+| Product | Tools file | Tool count |
+|---|---|---|
+| garage | `lib/garage/mcp-tools.ts` | 7 |
+| connect | `lib/connect/mcp-tools.ts` | 6 |
+| bridge | `lib/bridge/mcp-tools.ts` | 4 |
+| market | `lib/market/mcp-tools.ts` | 5 |
+| twin | `lib/twin/mcp-tools.ts` | 4 |
+| care | `lib/care/mcp-tools.ts` | 7 |
+| fleet | `lib/fleet/mcp-tools.ts` | 6 |
+| serve | `lib/serve/mcp-tools.ts` | 5 |
+| build | `lib/build/mcp-tools.ts` | 5 |
+| pilot | `lib/pilot/mcp-tools.ts` | 5 |
+| shield | `lib/shield/mcp-tools.ts` | 3 |
+| comply | `lib/comply/mcp-tools.ts` | 4 |
+| proof | `lib/proof/mcp-tools.ts` | 4 |
+| frame | `lib/frame/mcp-tools.ts` | 3 |
+| train | `lib/train/mcp-tools.ts` | 5 |
+| data | `lib/data/mcp-tools.ts` | 4 |
+| view | `lib/view/mcp-tools.ts` | 3 |
+| autonomy | `lib/autonomy/mcp-tools.ts` | 5 |
+| mind | `lib/mind/mcp-tools.ts` | 5 |
+| bench | `lib/bench/mcp-tools.ts` | 7 |
+
+All 19 products now have MCP tool coverage. When adding a new feature
+to any console, follow the convention above to add the corresponding tool.
