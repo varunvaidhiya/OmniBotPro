@@ -6,19 +6,18 @@ import GlassCard from "@/components/GlassCard";
 const steps = [
   {
     n: "1",
-    title: "Bring any hardware",
-    desc: "Start from a pre-loaded profile, design one in OhhO Build, or connect a robot you already own. Any ROS 2-compatible hardware works.",
+    title: "Open source — yours to keep",
+    desc: "Clone the repo, self-host every console, or sign in to use OhhO Cloud. MIT/Apache licensed — no lock-in. Works with any ROS 2 hardware out of the box.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        <circle cx="12" cy="16" r="1" fill="var(--cyan)" stroke="none"/>
+        <circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/>
       </svg>
     ),
   },
   {
     n: "2",
-    title: "Make it intelligent",
-    desc: "Add perception, training and embodied AI in one command — simulation, CI/CD, VLA inference and observability. Docker + ROS 2, pre-wired.",
+    title: "Build and train — free locally",
+    desc: "Design robots in OhhO Build, collect episodes with OhhO Data, fine-tune VLA or RL policies locally. Need cloud GPUs? Pay only for the hours you run.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>
@@ -27,12 +26,11 @@ const steps = [
   },
   {
     n: "3",
-    title: "Operate from anywhere",
-    desc: "Use OhhO Pilot on mobile or VR. Monitor your fleet with full observability from any browser, anywhere in the world.",
+    title: "Pay only for what you run",
+    desc: "Cloud GPU training, AI inference API, MCP server hosting, cloud simulation — each billed per use. Everything else: free. No surprise bills, no minimum spend.",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="2" x2="22" y1="12" y2="12"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>
       </svg>
     ),
   },
@@ -51,10 +49,10 @@ export default function HowItWorks() {
             style={{ opacity: headIn ? 1 : 0, transform: headIn ? "none" : "translateY(22px)" }}
           >
             <div className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase mb-[14px]" style={{ color: "var(--cyan)" }}>
-              Workflow
+              How it works
             </div>
             <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] legible">
-              Up and running in hours,<br />not months.
+              Open platform.<br />Pay-as-you-go cloud.
             </h2>
           </div>
         </div>

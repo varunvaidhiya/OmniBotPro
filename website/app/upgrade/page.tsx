@@ -79,14 +79,14 @@ export default function UpgradePage() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-5" style={{ background: "rgba(0,212,255,.1)", border: "1px solid rgba(0,212,255,.28)" }}>
               <Lock size={13} style={{ color: "var(--cyan)" }} />
               <span className="text-[11.5px] font-mono" style={{ color: "var(--cyan)" }}>
-                {product ? `Opening OhhO ${labelize(product)} needs a plan` : "Choose a plan to unlock the consoles"}
+                {product ? `${labelize(product)} is a cloud-cost feature` : "Unlock cloud features"}
               </span>
             </div>
             <h1 className="font-display font-bold text-[clamp(30px,4.5vw,46px)] tracking-tight leading-[1.08] mb-3 legible">
-              Pick a plan to launch{productName ? "" : " the consoles"}
+              Upgrade for{productName ? ` ${productName}` : " GPU, AI & cloud"}
             </h1>
             <p className="text-[15px] leading-[1.7]" style={{ color: "rgba(255,255,255,0.66)" }}>
-              Every product console — Build, Serve and the rest — unlocks with any paid plan. Cancel anytime.
+              All product consoles are free with a sign-in. A plan unlocks GPU training, AI inference (Serve), cloud AI agent (Mind), MCP server (Link), cloud simulation (Twin), and cloud data sync. Cancel anytime.
             </p>
           </div>
 

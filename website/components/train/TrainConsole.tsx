@@ -25,6 +25,7 @@ import {
 import { useTraining, METHODS } from "@/lib/train/training";
 import { useRobot } from "@/lib/garage/RobotContext";
 import { AIRobotPanel } from "@/components/console-kit";
+import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
 
 const CYAN = "#00D4FF";
 const VIOLET = "#A78BFA";
@@ -119,14 +120,20 @@ export default function TrainConsole() {
           </div>
 
           <div className="p-5 flex flex-col gap-2.5">
-            <button
-              onClick={t.state === "running" ? t.pause : t.start}
-              className="inline-flex items-center justify-center gap-2 text-[13px] font-semibold px-4 py-2.5 rounded-lg transition-all"
-              style={{ background: CYAN, color: "var(--bg)" }}
+            <PaidFeatureGate
+              feature="gpu-training"
+              label="GPU Training"
+              description="Runs on OhhO cloud GPUs — requires a plan"
             >
-              {t.state === "running" ? <Pause size={15} /> : <Play size={15} />}
-              {t.state === "running" ? "Pause run" : t.state === "done" ? "Train again" : t.state === "paused" ? "Resume" : "Start training"}
-            </button>
+              <button
+                onClick={t.state === "running" ? t.pause : t.start}
+                className="inline-flex items-center justify-center gap-2 text-[13px] font-semibold px-4 py-2.5 rounded-lg transition-all"
+                style={{ background: CYAN, color: "var(--bg)" }}
+              >
+                {t.state === "running" ? <Pause size={15} /> : <Play size={15} />}
+                {t.state === "running" ? "Pause run" : t.state === "done" ? "Train again" : t.state === "paused" ? "Resume" : "Start training"}
+              </button>
+            </PaidFeatureGate>
             <button
               onClick={() => { t.reset(); setExported(false); }}
               className="inline-flex items-center justify-center gap-2 text-[12px] font-semibold px-4 py-2 rounded-lg transition-all hover:bg-white/[0.05]"

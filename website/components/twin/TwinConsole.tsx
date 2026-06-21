@@ -27,6 +27,7 @@ import { useTwinSimulation, PREDICTIONS, WHATIF_RESULTS, TWIN_STATS, type TwinSt
 import { useRobot } from "@/lib/garage/RobotContext";
 import { useRobotConnection } from "@/lib/connect/RobotConnectionProvider";
 import { AIRobotPanel } from "@/components/console-kit";
+import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
 
 const VIOLET = "#A78BFA";
 const VIOLET_DIM = "rgba(167,139,250,0.10)";
@@ -183,14 +184,20 @@ export default function TwinConsole() {
               <h2 className="text-[12px] font-mono uppercase tracking-wider" style={{ color: "var(--muted)" }}>
                 What-if simulation
               </h2>
-              <button
-                onClick={() => setShowWhatIf((v) => !v)}
-                className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all"
-                style={{ background: VIOLET_DIM, color: VIOLET, border: `1px solid ${VIOLET}40` }}
+              <PaidFeatureGate
+                feature="cloud-simulation"
+                label="Cloud Simulation"
+                description="What-if scenarios run on OhhO cloud — requires a plan"
               >
-                <GitBranch size={12} />
-                {showWhatIf ? "Hide" : "Run what-if"}
-              </button>
+                <button
+                  onClick={() => setShowWhatIf((v) => !v)}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-lg transition-all"
+                  style={{ background: VIOLET_DIM, color: VIOLET, border: `1px solid ${VIOLET}40` }}
+                >
+                  <GitBranch size={12} />
+                  {showWhatIf ? "Hide" : "Run what-if"}
+                </button>
+              </PaidFeatureGate>
             </div>
 
             {showWhatIf ? (

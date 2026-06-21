@@ -45,6 +45,7 @@ import { MetricsSim, type MetricsSnapshot } from "@/lib/serve/metrics";
 import { snippets } from "@/lib/serve/client";
 import { useRobot } from "@/lib/garage/RobotContext";
 import { AIRobotPanel } from "@/components/console-kit";
+import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
 import type { RobotConfig } from "@/lib/garage/robot-config";
 
 const GREEN = "#34D399";
@@ -430,12 +431,18 @@ function ConfigPanel({
       {/* VRAM fit */}
       <div className="px-4 pb-3">
         <VramMeter est={est} device={config.device} />
-        <button onClick={onLoad} disabled={loading || (config.device === "cuda" && !est.fits)}
-          className="w-full mt-3 inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-px"
-          style={{ background: loaded ? "rgba(52,211,153,.16)" : CYAN, color: loaded ? GREEN : "var(--bg)", border: loaded ? `1px solid ${GREEN}66` : "none" }}>
-          {loading ? <Loader2 size={14} className="animate-spin" /> : loaded ? <Check size={14} /> : <Plug size={14} />}
-          {loading ? "Loading model…" : loaded ? "Model loaded" : "POST /load_model"}
-        </button>
+        <PaidFeatureGate
+          feature="ai-inference"
+          label="AI Inference API"
+          description="Deploys on OhhO cloud GPU — requires a plan"
+        >
+          <button onClick={onLoad} disabled={loading || (config.device === "cuda" && !est.fits)}
+            className="w-full mt-3 inline-flex items-center justify-center gap-2 text-[13px] font-semibold py-2.5 rounded-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed enabled:hover:-translate-y-px"
+            style={{ background: loaded ? "rgba(52,211,153,.16)" : CYAN, color: loaded ? GREEN : "var(--bg)", border: loaded ? `1px solid ${GREEN}66` : "none" }}>
+            {loading ? <Loader2 size={14} className="animate-spin" /> : loaded ? <Check size={14} /> : <Plug size={14} />}
+            {loading ? "Loading model…" : loaded ? "Model loaded" : "POST /load_model"}
+          </button>
+        </PaidFeatureGate>
       </div>
       </>)}
       <ClientCode config={config} />

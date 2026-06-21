@@ -8,7 +8,7 @@
  *   2. Below it, a "tools" section with all OhhO product consoles.
  *   3. Clicking a robot in the garage filters the tools relevant to it.
  *
- * Gated by ConsoleGate (auth + subscription required).
+ * Gated by ConsoleGate (sign-in required; no paid plan needed).
  */
 
 import { Suspense, useCallback, useEffect, useState } from "react";

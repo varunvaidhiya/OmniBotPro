@@ -9,22 +9,22 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 
 const plans = [
   {
-    name: "Spark",
-    hl: "Good for hobbyists",
+    name: "Free",
+    hl: "Sign in to get started",
     price: "Free",
     period: "Forever",
     features: [
-      "OhhO Frame (simulation only)",
-      "OhhO View (open source)",
-      "OhhO Build (basic parts library)",
-      "OhhO Proof (single-scenario tests)",
-      "OhhO Connect (Wi-Fi + simulator)",
-      "OhhO Market (browse + free skills)",
-      "OhhO Twin (simulated twin)",
-      "1 robot, local only",
+      "All 19 OhhO product consoles",
+      "OhhO Garage — robot setup & config",
+      "OhhO Frame, Build, View, Proof",
+      "OhhO Pilot, Fleet, Bridge, Market",
+      "OhhO Comply, Shield, Bench, Care",
+      "OhhO Autonomy, Data, Serve, Train",
+      "OhhO Mind, Link, Twin consoles",
+      "Local robot connection (Wi-Fi, USB, BLE)",
       "Community support",
     ],
-    cta: "Get Started Free",
+    cta: "Sign In Free",
     ctaStyle: "outline",
     href: SIGNUP_HREF,
   },
@@ -35,17 +35,13 @@ const plans = [
     period: "per month",
     badge: "MOST POPULAR",
     features: [
-      "Everything in Spark",
-      "OhhO Pilot (mobile, up to 3 robots)",
-      "OhhO Build (full library, 10 designs)",
-      "OhhO Data (cloud sync, 1K episodes)",
-      "OhhO Serve (500 API calls/day)",
-      "OhhO Shield (encrypted links + signed OTA)",
-      "OhhO Proof (test suites + regression)",
-      "OhhO Connect (USB + BLE)",
-      "OhhO Bridge (1 brand adapter)",
-      "OhhO Twin (single live twin)",
-      "OhhO Care (basic maintenance)",
+      "Everything in Free",
+      "OhhO Train — GPU cloud training (20 hrs/mo)",
+      "OhhO Serve — AI inference API (500 calls/day)",
+      "OhhO Mind — Cloud AI agent, Claude-backed",
+      "OhhO Link — MCP server + API key",
+      "OhhO Twin — Cloud simulation & what-if",
+      "OhhO Data — Cloud sync (1K episodes)",
       "Email support",
     ],
     cta: "Start Building",
@@ -60,17 +56,12 @@ const plans = [
     period: "per month",
     features: [
       "Everything in Builder",
-      "OhhO Pilot (VR + mobile, unlimited)",
-      "OhhO Fleet (up to 100 robots, OTA)",
-      "OhhO Build (unlimited designs, suppliers)",
-      "OhhO Data (unlimited + annotation)",
-      "OhhO Serve (10K API calls/day)",
-      "OhhO Comply (CE / ISO standards + docs)",
-      "OhhO Shield (device identity + CVE watch)",
-      "OhhO Bridge (all brand adapters)",
-      "OhhO Market (sell skills + team licenses)",
-      "OhhO Twin (multi-robot + what-if)",
-      "OhhO Care (predictive maintenance + parts)",
+      "OhhO Train — 200 GPU hrs/mo",
+      "OhhO Serve — 10K API calls/day",
+      "OhhO Mind — 20K calls/mo + team memory",
+      "OhhO Fleet — OTA updates, up to 100 robots",
+      "OhhO Data — Unlimited + annotation",
+      "OhhO Comply + Shield — compliance & CVE watch",
       "Priority support + Slack channel",
     ],
     cta: "Deploy Your Fleet",
@@ -85,16 +76,12 @@ const plans = [
     period: "Contact for pricing",
     features: [
       "Everything in Fleet",
-      "Unlimited robots",
+      "Unlimited GPU & API usage",
       "On-prem OhhO Serve license",
-      "OhhO Build (custom catalog, white-label)",
-      "OhhO Comply (custom standards + cert partner)",
-      "OhhO Shield (secure boot + SSO)",
-      "OhhO Bridge (custom protocol adapters)",
-      "OhhO Market (private marketplace + white-label)",
-      "OhhO Twin (enterprise + prediction APIs)",
-      "OhhO Care (full service workflow + SLA)",
-      "Custom robot profile integration",
+      "Custom robot integrations",
+      "OhhO Comply — custom standards + cert partner",
+      "OhhO Shield — secure boot + SSO",
+      "Private marketplace + white-label",
       "Dedicated SLA + onboarding",
       "White-label OhhO Pilot",
     ],
@@ -123,11 +110,27 @@ export default function Pricing() {
             Pricing
           </div>
           <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4 legible">
-            Simple pricing.<br />Scale as you grow.
+            Open source platform.<br />Pay only for cloud infrastructure.
           </h2>
-          <p className="text-[16px] leading-[1.7] max-w-[520px] mx-auto legible" style={{ color: "rgba(255,255,255,0.62)" }}>
-            All plans include OhhO Frame. Add products à la carte.
+          <p className="text-[16px] leading-[1.7] max-w-[560px] mx-auto legible" style={{ color: "rgba(255,255,255,0.62)" }}>
+            Every console, every tool, every driver — open source and free to use. Upgrade only when you need OhhO to run the infrastructure: GPU training, AI inference, MCP hosting, or cloud simulation.
           </p>
+
+          {/* Open-source callout */}
+          <div
+            className="inline-flex items-center gap-3 mt-7 mb-2 px-5 py-3 rounded-2xl text-[13px]"
+            style={{
+              background: "rgba(0,212,255,0.06)",
+              border: "1px solid rgba(0,212,255,0.22)",
+              color: "rgba(255,255,255,0.75)",
+            }}
+          >
+            <span style={{ color: "var(--cyan)", fontSize: 18 }}>⊛</span>
+            <span>
+              <strong className="text-white">MIT / Apache licensed.</strong>{" "}
+              Self-host everything for free, or let OhhO run it — your choice.
+            </span>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[18px] items-start">
