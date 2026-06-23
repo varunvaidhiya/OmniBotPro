@@ -59,8 +59,8 @@ export default function Footer() {
                 <a
                   key={link}
                   href={footerHref(link)}
-                  target={link === "Docs" || link === "GitHub" ? "_blank" : undefined}
-                  rel={link === "Docs" || link === "GitHub" ? "noopener noreferrer" : undefined}
+                  target={link === "GitHub" ? "_blank" : undefined}
+                  rel={link === "GitHub" ? "noopener noreferrer" : undefined}
                   className="text-[13px] transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.52)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}

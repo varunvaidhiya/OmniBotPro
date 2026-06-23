@@ -304,3 +304,127 @@ ul { list-style: none; }
   height: 4px; border-radius: 2px;
   background: rgba(255,255,255,0.10);
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Documentation prose — styling for Markdown rendered by lib/docs.ts into the
+   /docs pages. Scoped to .doc-prose so it never leaks into the rest of the app.
+   ────────────────────────────────────────────────────────────────────────── */
+.doc-prose {
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 15.5px;
+  line-height: 1.75;
+  word-wrap: break-word;
+}
+.doc-prose > :first-child { margin-top: 0; }
+.doc-prose h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #fff;
+  margin: 0 0 12px;
+}
+.doc-prose h2 {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+  margin: 44px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+}
+.doc-prose h3 {
+  font-size: 18px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 30px 0 10px;
+}
+.doc-prose h4 {
+  font-size: 15px;
+  font-weight: 650;
+  color: rgba(255, 255, 255, 0.88);
+  margin: 22px 0 8px;
+}
+.doc-prose p { margin: 14px 0; }
+.doc-prose a {
+  color: var(--cyan);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(0, 212, 255, 0.32);
+  transition: color .15s ease, border-color .15s ease;
+}
+.doc-prose a:hover { color: #fff; border-color: #fff; }
+.doc-prose strong { color: #fff; font-weight: 650; }
+.doc-prose ul, .doc-prose ol { margin: 14px 0; padding-left: 24px; }
+.doc-prose li { margin: 6px 0; }
+.doc-prose ul li { list-style: none; position: relative; }
+.doc-prose ul li::before {
+  content: "";
+  position: absolute;
+  left: -16px; top: 11px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+}
+.doc-prose ol { list-style: decimal; }
+.doc-prose ol li::marker { color: var(--cyan); font-weight: 600; }
+.doc-prose code {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 0.86em;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 5px;
+  padding: 1.5px 6px;
+  color: var(--violet-lite);
+}
+.doc-prose pre {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 18px 0;
+}
+.doc-prose pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+.doc-prose blockquote {
+  margin: 18px 0;
+  padding: 4px 18px;
+  border-left: 3px solid var(--cyan);
+  background: rgba(0, 212, 255, 0.05);
+  border-radius: 0 8px 8px 0;
+  color: rgba(255, 255, 255, 0.66);
+}
+.doc-prose blockquote p { margin: 8px 0; }
+.doc-prose hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.10);
+  margin: 32px 0;
+}
+.doc-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 14px;
+  display: block;
+  overflow-x: auto;
+}
+.doc-prose th, .doc-prose td {
+  text-align: left;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  vertical-align: top;
+}
+.doc-prose th {
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.doc-prose td { color: rgba(255, 255, 255, 0.70); }
+.doc-prose tr:nth-child(even) td { background: rgba(255, 255, 255, 0.015); }

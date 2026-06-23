@@ -17,7 +17,8 @@ export const SIGNUP_HREF = "/login?next=/garage";
 /** Self-serve paid checkout (Builder / Fleet) — gated by sign-in inside /upgrade. */
 export const UPGRADE_HREF = "/upgrade";
 
-export const DOCS_HREF = "https://docs.ohho.ai";
+/** Internal documentation hub (app/docs) — renders Markdown from website/docs. */
+export const DOCS_HREF = "/docs";
 export const GITHUB_HREF = "https://github.com/varunvaidhiya/OmniBotPro";
 export const TWITTER_HREF = "https://x.com/ohho_ai";
 export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";
