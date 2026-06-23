@@ -97,6 +97,9 @@ export interface Subscription {
   plan: string;
   status: string;
   current_period_end: string | null;
+  /** Set when the user cancelled in the Stripe portal: the plan stays active
+   *  until current_period_end but will not renew. */
+  cancel_at_period_end?: boolean | null;
 }
 
 const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
@@ -104,4 +107,16 @@ const ACTIVE_STATUSES = ["active", "trialing", "past_due"];
 /** Whether the user has an active paid subscription for billing/account UI. */
 export function hasConsoleAccess(subscription: Subscription | null): boolean {
   return Boolean(subscription && ACTIVE_STATUSES.includes(subscription.status));
+}
+
+/**
+ * Active, but cancelled — the plan is still usable until current_period_end and
+ * then stops. The account UI shows "ends on <date>" instead of "renews on …".
+ */
+export function isCanceling(subscription: Subscription | null): boolean {
+  return Boolean(
+    subscription &&
+      subscription.cancel_at_period_end &&
+      ACTIVE_STATUSES.includes(subscription.status),
+  );
 }

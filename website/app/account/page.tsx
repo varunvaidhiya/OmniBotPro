@@ -9,7 +9,7 @@ import Nav from "@/components/Nav";
 import GlassCard from "@/components/GlassCard";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { getSupabase } from "@/lib/auth/supabase";
-import { hasConsoleAccess } from "@/lib/auth/plans";
+import { hasConsoleAccess, isCanceling } from "@/lib/auth/plans";
 
 export default function AccountPage() {
   const { configured, loading, user, subscription, signOut, refreshSubscription } = useAuth();
@@ -34,6 +34,28 @@ export default function AccountPage() {
     }
   }, [refreshSubscription]);
 
+  // Reconcile with live Stripe state whenever the account page opens (and right
+  // after returning from the billing portal). This is what makes a cancellation
+  // show as "ends on <date>" instead of "renews …" without waiting on a webhook.
+  // Falls back silently to the cached row if the sync function isn't deployed.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const supabase = getSupabase();
+      if (!supabase) return;
+      try {
+        await supabase.functions.invoke("sync-subscription");
+      } catch {
+        /* not deployed / Stripe unset — keep the webhook-maintained row */
+      }
+      if (!cancelled) await refreshSubscription();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, refreshSubscription]);
+
   const manageBilling = async () => {
     const supabase = getSupabase();
     if (!supabase) return;
@@ -52,6 +74,10 @@ export default function AccountPage() {
   };
 
   const active = hasConsoleAccess(subscription);
+  const canceling = isCanceling(subscription);
+  const periodEnd = subscription?.current_period_end
+    ? new Date(subscription.current_period_end).toLocaleDateString()
+    : "";
 
   return (
     <>
@@ -98,11 +124,18 @@ export default function AccountPage() {
                     <div className="text-[18px] font-display font-bold">
                       {active ? capitalize(subscription?.plan ?? "") : "No active plan"}
                     </div>
-                    <div className="text-[12.5px] mt-1" style={{ color: active ? "#34D399" : "var(--muted)" }}>
+                    <div className="text-[12.5px] mt-1" style={{ color: active ? (canceling ? "#FBBF24" : "#34D399") : "var(--muted)" }}>
                       {active
-                        ? `Status: ${subscription?.status}${subscription?.current_period_end ? ` · renews ${new Date(subscription.current_period_end).toLocaleDateString()}` : ""}`
+                        ? canceling
+                          ? `Status: ${subscription?.status}${periodEnd ? ` · ends ${periodEnd}` : " · cancelled"}`
+                          : `Status: ${subscription?.status}${periodEnd ? ` · renews ${periodEnd}` : ""}`
                         : "Subscribe to unlock the product consoles."}
                     </div>
+                    {active && canceling && (
+                      <div className="text-[11.5px] mt-1.5" style={{ color: "var(--faint)" }}>
+                        Cancelled — your plan won&apos;t renew. You keep full access until{periodEnd ? ` ${periodEnd}` : " the period ends"}; reactivate any time from Manage billing.
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2.5 mt-5">
