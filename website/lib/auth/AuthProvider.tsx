@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!supabase) return;
       const { data } = await supabase
         .from("subscriptions")
-        .select("plan, status, current_period_end")
+        .select("plan, status, current_period_end, cancel_at_period_end")
         .eq("user_id", userId)
         .maybeSingle();
       setSubscription((data as Subscription) ?? null);

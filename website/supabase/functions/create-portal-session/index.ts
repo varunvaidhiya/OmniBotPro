@@ -41,7 +41,9 @@ Deno.serve(async (req) => {
     const base = (origin as string) ?? Deno.env.get("SITE_URL") ?? "";
     const session = await stripe.billingPortal.sessions.create({
       customer: sub.stripe_customer_id,
-      return_url: `${base}/account`,
+      // ?billing=updated tells the account page to reconcile with Stripe right
+      // away, so a cancel/resume in the portal reflects immediately on return.
+      return_url: `${base}/account?billing=updated`,
     });
     return json({ url: session.url });
   } catch (e) {

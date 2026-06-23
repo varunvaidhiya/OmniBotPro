@@ -79,6 +79,10 @@ async function upsert(sub: Stripe.Subscription, metaUserId?: string) {
       stripe_customer_id: sub.customer as string,
       stripe_subscription_id: sub.id,
       current_period_end: new Date(sub.current_period_end * 1000).toISOString(),
+      // true once the user cancels in the portal — the plan stays active until
+      // current_period_end but won't renew. The account page reads this to show
+      // "ends on <date>" instead of "renews on <date>".
+      cancel_at_period_end: sub.cancel_at_period_end,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" },

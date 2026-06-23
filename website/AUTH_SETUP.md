@@ -20,8 +20,13 @@ clicks "Open the console" → ConsoleGate checks auth
 ## 1. Supabase project
 
 1. Create a project at https://supabase.com.
-2. **SQL** → run [`supabase/migrations/0001_auth_billing.sql`](./supabase/migrations/0001_auth_billing.sql)
-   (creates `profiles` + `subscriptions`, RLS, and the signup trigger).
+2. **SQL** → run the migrations in `supabase/migrations/` in order:
+   [`0001_auth_billing.sql`](./supabase/migrations/0001_auth_billing.sql)
+   (creates `profiles` + `subscriptions`, RLS, signup trigger),
+   [`0002_user_robots.sql`](./supabase/migrations/0002_user_robots.sql), and
+   [`0003_subscription_cancel.sql`](./supabase/migrations/0003_subscription_cancel.sql)
+   (adds `cancel_at_period_end` so the account page can show "ends on" after a
+   portal cancellation). Existing projects: just run the new `0003` migration.
 3. **Project Settings → API** → copy the project URL and the `anon` key.
 
 ## 2. Auth providers (Authentication → Providers)
@@ -74,7 +79,12 @@ NEXT_PUBLIC_OAUTH_PROVIDERS=google      # or empty for email-only
    supabase functions deploy create-checkout-session
    supabase functions deploy create-portal-session
    supabase functions deploy stripe-webhook --no-verify-jwt
+   supabase functions deploy sync-subscription
    ```
+
+   `sync-subscription` reconciles the account page with live Stripe state on
+   load (so a portal cancellation shows "ends on <date>" immediately, even if a
+   webhook is delayed). It needs only `STRIPE_SECRET_KEY`, already set above.
 
 4. In Stripe → Developers → Webhooks, add an endpoint pointing at
    `https://YOUR-PROJECT.supabase.co/functions/v1/stripe-webhook` for events:
