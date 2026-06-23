@@ -11,7 +11,8 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 // Marketing links shown to visitors (not signed in).
 const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
 // Lean links for any signed-in user — no product/pricing/team marketing clutter.
-const DEV_LINKS = ["Link"];
+// Docs stays available after sign-in (it's public reference, not a console).
+const DEV_LINKS = ["Docs", "Link"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -68,8 +69,8 @@ export default function Nav() {
           <a
             key={link}
             href={navHref(link)}
-            target={link === "Docs" || link === "GitHub" ? "_blank" : undefined}
-            rel={link === "Docs" || link === "GitHub" ? "noopener noreferrer" : undefined}
+            target={link === "GitHub" ? "_blank" : undefined}
+            rel={link === "GitHub" ? "noopener noreferrer" : undefined}
             className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
             style={{ color: "rgba(255,255,255,0.52)" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
