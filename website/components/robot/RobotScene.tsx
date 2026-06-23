@@ -24,7 +24,16 @@ export default function RobotScene() {
   return (
     <Canvas
       shadows
-      dpr={[1, 2]}
+      // On-demand rendering: the scene only re-renders when OmniBotModel asks
+      // for a frame (cursor moved, keys held, or the robot/arm is still
+      // animating). When everything has settled the render loop stops, so the
+      // GPU drops to ~0 instead of running flat-out on every page. This is the
+      // single biggest win against the "MacBook gets hot" problem.
+      frameloop="demand"
+      // Cap the device-pixel-ratio at 1.5 instead of 2. On a Retina display
+      // this roughly halves the number of shaded pixels (the canvas is
+      // full-viewport) with no perceptible loss of sharpness.
+      dpr={[1, 1.5]}
       gl={{
         antialias: false, // SMAA handles AA in the composer
         alpha: true,
@@ -49,7 +58,7 @@ export default function RobotScene() {
           intensity={3.2}
           color="#ffffff"
           castShadow
-          shadow-mapSize={[2048, 2048]}
+          shadow-mapSize={[1024, 1024]}
           shadow-bias={-0.0002}
           shadow-normalBias={0.02}
         >
@@ -81,10 +90,10 @@ export default function RobotScene() {
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
           <planeGeometry args={[30, 30]} />
           <MeshReflectorMaterial
-            resolution={1024}
+            resolution={512}
             mixBlur={1.0}
             mixStrength={2.2}
-            blur={[420, 120]}
+            blur={[256, 80]}
             roughness={0.92}
             depthScale={1.1}
             minDepthThreshold={0.4}
@@ -102,7 +111,7 @@ export default function RobotScene() {
           scale={2.4}
           blur={2.6}
           far={0.9}
-          resolution={1024}
+          resolution={512}
           color="#000000"
         />
 

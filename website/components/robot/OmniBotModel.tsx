@@ -276,7 +276,17 @@ function RBox({
 export default function OmniBotModel() {
   const mats = useMaterials();
   const hubGeo = useHubcapGeometry();
-  const { camera } = useThree();
+  const { camera, invalidate } = useThree();
+
+  /* Respect the OS "reduce motion" setting: when set, the robot is rendered
+     once as a static prop and the animation loop never runs. */
+  const reducedMotion = useMemo(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    [],
+  );
 
   /* Global cursor in normalized device coords (−1..1), tracked from the whole
      window — not just the canvas. The 3-D layer is a fixed, pointer-events:none
@@ -309,6 +319,10 @@ export default function OmniBotModel() {
 
   /* mutable driving state */
   const keys = useRef<Record<string, boolean>>({});
+  /* timestamp (ms) of the last pointer/key input. When the user stops
+     interacting we let the robot park and the autonomous grab cycle wind down
+     so the render loop can fully stop instead of looping a grab forever. */
+  const lastInput = useRef(0);
   const vel = useRef({ x: 0, y: 0, w: 0 }); // body-frame velocities
   const heading = useRef(0);
   const wheelSpin = useRef(0);
@@ -342,10 +356,13 @@ export default function OmniBotModel() {
       const heroVisible = window.scrollY < window.innerHeight * 0.6;
       if (!heroVisible) return;
       keys.current[k] = true;
+      lastInput.current = performance.now();
       if (k.startsWith("arrow")) e.preventDefault(); // stop page scroll
+      if (!reducedMotion) invalidate(); // wake the on-demand render loop
     };
     const up = (e: KeyboardEvent) => {
       keys.current[e.key.toLowerCase()] = false;
+      if (!reducedMotion) invalidate(); // render the deceleration too
     };
     window.addEventListener("keydown", down, { passive: false });
     window.addEventListener("keyup", up);
@@ -363,12 +380,18 @@ export default function OmniBotModel() {
       pointer.current.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.current.y =
         -((e.clientY - robotParallax.offsetPx) / window.innerHeight) * 2 + 1;
+      lastInput.current = performance.now();
+      // Canvas renders on demand — request a frame so the robot reacts to the
+      // cursor. useFrame then keeps the loop alive while it is still moving.
+      if (!reducedMotion) invalidate();
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
   }, []);
 
   useFrame((_, dtRaw) => {
+    // Reduced-motion users get a single static frame — no animation, no loop.
+    if (reducedMotion) return;
     const dt = Math.min(dtRaw, 0.05);
     const k = keys.current;
 
@@ -460,10 +483,17 @@ export default function OmniBotModel() {
       grabbing.current = false;
       grabClock.current = 0;
     } else {
+      // Only run the autonomous grab cycle while the user is actively present
+      // (moved the mouse / pressed a key in the last few seconds). After that
+      // the grab disengages, the arm relaxes, and the scene can settle so the
+      // render loop stops — the robot springs back to life on the next input.
+      const interacting = performance.now() - lastInput.current < 4000;
       // grab once the cursor's line of sight comes within arm's reach; drive
       // the base toward the cursor until then. Hysteresis on the perpendicular
       // distance keeps it from buzzing on the boundary.
-      if (grabbing.current ? distCP > GRAB_R * 1.18 : distCP < GRAB_R * 0.96) {
+      const engage = distCP < GRAB_R * 0.96 && interacting;
+      const disengage = distCP > GRAB_R * 1.18 || !interacting;
+      if (grabbing.current ? disengage : engage) {
         grabbing.current = !grabbing.current;
         grabClock.current = 0;
       }
@@ -582,6 +612,28 @@ export default function OmniBotModel() {
     if (wristG.current) wristG.current.rotation.z = arm.current.wrist;
     if (jawL.current) jawL.current.rotation.z = arm.current.grip;
     if (jawR.current) jawR.current.rotation.z = -arm.current.grip;
+
+    /* ── on-demand rendering ────────────────────────────────────────────────
+       Request the next frame only while the scene is actually changing — the
+       base still rolling, the arm still easing toward its target, a grab cycle
+       in progress, or the robot not yet parked on the cursor. Once everything
+       has settled (cursor idle and out of reach, robot parked, arm at rest) we
+       stop asking for frames, the render loop halts, and GPU usage drops to ~0
+       until the next pointer move or key press wakes it again. */
+    const EPS = 1e-3;
+    const active =
+      Math.abs(vel.current.x) > EPS ||
+      Math.abs(vel.current.y) > EPS ||
+      Math.abs(vel.current.w) > EPS ||
+      grabbing.current ||
+      distGoal > EPS ||
+      Math.abs(reachTarget - reach.current) > EPS ||
+      Math.abs(targetPan - arm.current.pan) > EPS ||
+      Math.abs(targetLift - arm.current.lift) > EPS ||
+      Math.abs(targetElbow - arm.current.elbow) > EPS ||
+      Math.abs(targetWrist - arm.current.wrist) > EPS ||
+      Math.abs(targetGrip - arm.current.grip) > EPS;
+    if (active) invalidate();
   });
 
   /* ── brass cage posts (perimeter, matches the photographed frame) ── */
