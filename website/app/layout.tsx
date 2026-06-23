@@ -5,6 +5,7 @@ import AuthRedirectHandler from "@/components/auth/AuthRedirectHandler";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { RobotConnectionProvider } from "@/lib/connect/RobotConnectionProvider";
 import ConnectionBar from "@/components/connect/ConnectionBar";
+import AssistantMount from "@/components/assistant/AssistantMount";
 
 export const metadata: Metadata = {
   title: "OhhO — Robotics, Operated.",
@@ -28,6 +29,8 @@ export default function RootLayout({
             {/* global "connected robot" HUD — shows on every operational console */}
             <ConnectionBar />
             <div className="content-layer">{children}</div>
+            {/* in-console AI assistant — same launcher on every console */}
+            <AssistantMount />
           </RobotConnectionProvider>
         </AuthProvider>
       </body>
