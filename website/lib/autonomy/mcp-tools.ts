@@ -86,4 +86,47 @@ export const tools: ToolDefinition[] = [
     handler: async (p) => jsonResult({ mode: p.mode, active: true, message: `Control mode set to '${p.mode}'.` }),
     product: "autonomy", readOnly: false,
   },
+  {
+    name: "autonomy.navigateTo",
+    description: "Send the robot to a named location using Nav2. Use autonomy.listLocations to see valid names.",
+    inputSchema: s({ location: { type: "string", description: "Named location, e.g. 'kitchen'" } }, ["location"]),
+    handler: async (p) => {
+      const known = NAMED_LOCATIONS.includes(String(p.location));
+      return jsonResult({
+        location: p.location,
+        accepted: known,
+        mode: "nav2",
+        message: known
+          ? `Navigating to '${p.location}'.`
+          : `'${p.location}' is not a known location. Known: ${NAMED_LOCATIONS.join(", ")}.`,
+      });
+    },
+    product: "autonomy", readOnly: false,
+  },
+  {
+    name: "autonomy.cancelMission",
+    description: "Cancel the currently running mission and stop the robot. The autonomy state returns to idle.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({ cancelled: true, phase: "idle", message: "Mission cancelled and the robot has been stopped." }),
+    product: "autonomy", readOnly: false,
+  },
+  {
+    name: "autonomy.addLocation",
+    description: "Save a new named location (the robot's current pose, or an explicit x/y/yaw) so future missions can navigate to it by name.",
+    inputSchema: s({
+      name: { type: "string", description: "Name for the location, e.g. 'charging-dock'" },
+      x: { type: "number", description: "X in metres (optional; defaults to current pose)" },
+      y: { type: "number", description: "Y in metres (optional)" },
+      yaw: { type: "number", description: "Heading in radians (optional)" },
+    }, ["name"]),
+    handler: async (p) => jsonResult({
+      name: p.name,
+      x: typeof p.x === "number" ? p.x : 0,
+      y: typeof p.y === "number" ? p.y : 0,
+      yaw: typeof p.yaw === "number" ? p.yaw : 0,
+      saved: true,
+      message: `Location '${p.name}' saved to the map.`,
+    }),
+    product: "autonomy", readOnly: false,
+  },
 ];

@@ -102,4 +102,30 @@ export const tools: ToolDefinition[] = [
     },
     product: "bench", readOnly: false,
   },
+  {
+    name: "bench.completeAssemblyStep",
+    description: "Mark an assembly checklist step as done (e.g. after physically completing it). Returns the updated step.",
+    inputSchema: s({ stepId: { type: "string", description: "Assembly step id, e.g. 'a5'" } }, ["stepId"]),
+    handler: async (p) => {
+      const step = ASSEMBLY_STEPS.find((a) => a.id === p.stepId);
+      if (!step) return errorResult(`Assembly step not found: ${p.stepId}`);
+      return jsonResult({ ...step, status: "done", message: `Assembly step '${step.label}' marked done.` });
+    },
+    product: "bench", readOnly: false,
+  },
+  {
+    name: "bench.runAllCalibrations",
+    description: "Run every pending calibration routine in sequence (odometry, IMU, camera intrinsics, BEV rig, arm homing).",
+    inputSchema: s({}),
+    handler: async () => {
+      const pending = CALIBRATIONS.filter((c) => c.status !== "done").map((c) => c.label);
+      return jsonResult({
+        started: true,
+        queued: pending,
+        total: CALIBRATIONS.length,
+        message: pending.length ? `Running ${pending.length} pending calibrations: ${pending.join(", ")}.` : "All calibrations already complete.",
+      });
+    },
+    product: "bench", readOnly: false,
+  },
 ];

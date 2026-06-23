@@ -76,4 +76,67 @@ export const tools: ToolDefinition[] = [
     },
     product: "data", readOnly: false,
   },
+  {
+    name: "data.searchEpisodes",
+    description: "Search episodes by a substring of their language instruction (e.g. 'red cup', 'kitchen').",
+    inputSchema: s({ query: { type: "string", description: "Text to match within the episode instruction" } }, ["query"]),
+    handler: async (p) => {
+      const q = String(p.query ?? "").toLowerCase();
+      const hits = EPISODES.filter((e) => e.instruction.toLowerCase().includes(q));
+      return jsonResult({ query: p.query, count: hits.length, episodes: hits });
+    },
+    product: "data", readOnly: true,
+  },
+  {
+    name: "data.deleteEpisode",
+    description: "Permanently delete an episode from the dataset.",
+    inputSchema: s({ episodeId: { type: "string", description: "Episode ID to delete" } }, ["episodeId"]),
+    handler: async (p) => {
+      const ep = EPISODES.find((e) => e.id === p.episodeId);
+      if (!ep) return errorResult(`Episode not found: ${p.episodeId}`);
+      return jsonResult({ episodeId: ep.id, deleted: true, message: `Episode ${ep.id} deleted from the dataset.` });
+    },
+    product: "data", readOnly: false,
+  },
+  {
+    name: "data.exportDataset",
+    description: "Export the (optionally filtered) dataset in LeRobot/HF format. Returns an export handle and the included episode count.",
+    inputSchema: s({
+      status: { type: "string", description: "Only export episodes with this status (default: kept)", enum: ["kept", "discard", "review"] },
+      format: { type: "string", description: "Export format", enum: ["lerobot", "rlds", "parquet"] },
+    }),
+    handler: async (p) => {
+      const status = (p.status as string) ?? "kept";
+      const included = EPISODES.filter((e) => e.status === status);
+      const frames = included.reduce((a, e) => a + e.frames, 0);
+      return jsonResult({
+        format: (p.format as string) ?? "lerobot",
+        status,
+        episodes: included.length,
+        frames,
+        handle: `dataset-${status}-${Date.now()}.tar`,
+        message: `Exported ${included.length} '${status}' episodes (${frames} frames).`,
+      });
+    },
+    product: "data", readOnly: false,
+  },
+  {
+    name: "data.pushToHub",
+    description: "Publish the dataset to a Hugging Face Hub repository so it can be used for training.",
+    inputSchema: s({
+      repoId: { type: "string", description: "Target HF repo id, e.g. 'myorg/mobile_manipulation'" },
+      private: { type: "boolean", description: "Create as a private repo (default true)" },
+    }, ["repoId"]),
+    handler: async (p) => {
+      const kept = EPISODES.filter((e) => e.status === "kept");
+      return jsonResult({
+        repoId: p.repoId,
+        private: p.private !== false,
+        episodes: kept.length,
+        url: `https://huggingface.co/datasets/${p.repoId}`,
+        message: `Pushing ${kept.length} kept episodes to ${p.repoId} in LeRobot format.`,
+      });
+    },
+    product: "data", readOnly: false,
+  },
 ];

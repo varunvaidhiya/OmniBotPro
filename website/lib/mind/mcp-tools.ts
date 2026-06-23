@@ -4,7 +4,7 @@
 
 import {
   type ToolDefinition, type InputSchema, type JsonSchemaProperty,
-  jsonResult,
+  jsonResult, errorResult,
 } from "@/lib/mcp/types";
 
 const LOOP_PHASES = ["perceive", "reason", "verify", "act", "monitor", "reflect", "remember"];
@@ -73,5 +73,42 @@ export const tools: ToolDefinition[] = [
       { type: "place", key: "bench", value: "x=3.2, y=1.1, yaw=0", lastVisited: "5 min ago" },
     ]),
     product: "mind", readOnly: true,
+  },
+  {
+    name: "mind.setBackend",
+    description: "Switch the agent's reasoning backend (cloud Claude, on-device LLM, or DeepX NPU). Fails if the backend is unavailable on this deployment.",
+    inputSchema: s({ backendId: { type: "string", description: "Backend id", enum: ["cloud", "on_device", "deepx"] } }, ["backendId"]),
+    handler: async (p) => {
+      const backend = BACKENDS.find((b) => b.id === p.backendId);
+      if (!backend) return errorResult(`Unknown backend: ${p.backendId}`);
+      if (!backend.available) return errorResult(`Backend '${backend.label}' is not available on this deployment.`);
+      return jsonResult({ activeBackend: backend.id, label: backend.label, message: `Reasoning backend set to ${backend.label}.` });
+    },
+    product: "mind", readOnly: false,
+  },
+  {
+    name: "mind.stopLoop",
+    description: "Stop the agent loop and clear the current goal. The agent returns to idle.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({ stopped: true, phase: "idle", message: "Agent loop stopped and goal cleared." }),
+    product: "mind", readOnly: false,
+  },
+  {
+    name: "mind.respondToHuman",
+    description: "Provide a human response when the agent is waiting for clarification (the WAIT_HUMAN interrupt). Resumes the loop with the answer.",
+    inputSchema: s({ response: { type: "string", description: "Your answer to the agent's question" } }, ["response"]),
+    handler: async (p) => jsonResult({ delivered: true, response: p.response, message: "Response delivered to the agent; the loop will resume." }),
+    product: "mind", readOnly: false,
+  },
+  {
+    name: "mind.addMemory",
+    description: "Store a memory for the agent (an object, place, or fact) so it can be recalled in future reasoning.",
+    inputSchema: s({
+      type: { type: "string", description: "Memory type", enum: ["object", "place", "fact"] },
+      key: { type: "string", description: "Short key, e.g. 'red_cup' or 'charging-dock'" },
+      value: { type: "string", description: "The remembered detail" },
+    }, ["type", "key", "value"]),
+    handler: async (p) => jsonResult({ stored: true, type: p.type, key: p.key, value: p.value, message: `Remembered ${p.type} '${p.key}'.` }),
+    product: "mind", readOnly: false,
   },
 ];

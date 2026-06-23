@@ -4,7 +4,7 @@
 
 import {
   type ToolDefinition, type InputSchema, type JsonSchemaProperty,
-  jsonResult,
+  jsonResult, errorResult,
 } from "@/lib/mcp/types";
 
 // Static process data (the live process manager runs in the browser).
@@ -55,6 +55,58 @@ export const tools: ToolDefinition[] = [
         totalCpu: Math.round(running.reduce((a, p) => a + p.cpu, 0) * 10) / 10,
         totalRamMb: running.reduce((a, p) => a + p.ram, 0),
       });
+    },
+    product: "frame", readOnly: true,
+  },
+  {
+    name: "frame.startProcess",
+    description: "Start a stopped or failed ROS 2 process (e.g. launch slam_toolbox). Returns the updated process state.",
+    inputSchema: s({ processId: { type: "string", description: "Process id, e.g. 'p6'" } }, ["processId"]),
+    handler: async (p) => {
+      const proc = PROCESSES.find((x) => x.id === p.processId);
+      if (!proc) return errorResult(`Process not found: ${p.processId}`);
+      return jsonResult({ id: proc.id, name: proc.name, status: "running", message: `Started ${proc.name}.` });
+    },
+    product: "frame", readOnly: false,
+  },
+  {
+    name: "frame.stopProcess",
+    description: "Stop a running ROS 2 process. Returns the updated process state.",
+    inputSchema: s({ processId: { type: "string", description: "Process id" } }, ["processId"]),
+    handler: async (p) => {
+      const proc = PROCESSES.find((x) => x.id === p.processId);
+      if (!proc) return errorResult(`Process not found: ${p.processId}`);
+      return jsonResult({ id: proc.id, name: proc.name, status: "stopped", message: `Stopped ${proc.name}.` });
+    },
+    product: "frame", readOnly: false,
+  },
+  {
+    name: "frame.restartProcess",
+    description: "Restart a ROS 2 process (stop then start) — useful for a failed node like teleop_recorder.",
+    inputSchema: s({ processId: { type: "string", description: "Process id" } }, ["processId"]),
+    handler: async (p) => {
+      const proc = PROCESSES.find((x) => x.id === p.processId);
+      if (!proc) return errorResult(`Process not found: ${p.processId}`);
+      return jsonResult({ id: proc.id, name: proc.name, status: "running", restarted: true, message: `Restarted ${proc.name}.` });
+    },
+    product: "frame", readOnly: false,
+  },
+  {
+    name: "frame.getLogs",
+    description: "Get the most recent log lines for a ROS 2 process (representative tail).",
+    inputSchema: s({
+      processId: { type: "string", description: "Process id" },
+      lines: { type: "number", description: "Number of trailing lines (default 20)" },
+    }, ["processId"]),
+    handler: async (p) => {
+      const proc = PROCESSES.find((x) => x.id === p.processId);
+      if (!proc) return errorResult(`Process not found: ${p.processId}`);
+      const n = Math.max(1, Math.min(200, Number(p.lines ?? 20)));
+      const sample =
+        proc.status === "failed"
+          ? [`[ERROR] ${proc.name}: node exited with code 1`, `[ERROR] ${proc.name}: check device permissions / topic remaps`]
+          : [`[INFO] ${proc.name}: spinning`, `[INFO] ${proc.name}: cpu=${proc.cpu}% ram=${proc.ram}MB`];
+      return jsonResult({ processId: proc.id, name: proc.name, status: proc.status, lines: sample.slice(0, n) });
     },
     product: "frame", readOnly: true,
   },

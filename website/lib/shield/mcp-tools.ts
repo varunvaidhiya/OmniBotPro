@@ -4,7 +4,7 @@
 
 import {
   type ToolDefinition, type InputSchema, type JsonSchemaProperty,
-  jsonResult,
+  jsonResult, errorResult,
 } from "@/lib/mcp/types";
 import { INITIAL_DEVICES, INITIAL_CVES } from "@/lib/shield/security";
 
@@ -57,5 +57,94 @@ export const tools: ToolDefinition[] = [
       });
     },
     product: "shield", readOnly: true,
+  },
+  {
+    name: "shield.getDevice",
+    description: "Get a single robot device identity by id, including its key fingerprint and verification status.",
+    inputSchema: s({ deviceId: { type: "string", description: "Device id, e.g. 'amr-04'" } }, ["deviceId"]),
+    handler: async (p) => {
+      const device = INITIAL_DEVICES.find((d) => d.id === p.deviceId);
+      return device ? jsonResult(device) : errorResult(`Unknown device: ${p.deviceId}`);
+    },
+    product: "shield", readOnly: true,
+  },
+  {
+    name: "shield.getCve",
+    description: "Get a single CVE record by id, including the affected package, version, severity, and patch status.",
+    inputSchema: s({ cveId: { type: "string", description: "CVE id, e.g. 'CVE-2024-1101'" } }, ["cveId"]),
+    handler: async (p) => {
+      const cve = INITIAL_CVES.find((c) => c.id === p.cveId);
+      return cve ? jsonResult(cve) : errorResult(`Unknown CVE: ${p.cveId}`);
+    },
+    product: "shield", readOnly: true,
+  },
+  {
+    name: "shield.rotateDeviceKey",
+    description: "Rotate a device's hardware-rooted identity key, returning it to 'verified' status. Use for devices flagged 'rotate_key'.",
+    inputSchema: s({ deviceId: { type: "string", description: "Device id to rotate, e.g. 'amr-04'" } }, ["deviceId"]),
+    handler: async (p) => {
+      const device = INITIAL_DEVICES.find((d) => d.id === p.deviceId);
+      if (!device) return errorResult(`Unknown device: ${p.deviceId}`);
+      return jsonResult({
+        deviceId: device.id,
+        previousStatus: device.status,
+        status: "verified",
+        message: `Key rotation requested for ${device.id}. A new hardware-rooted key will be provisioned and the device re-attested.`,
+      });
+    },
+    product: "shield", readOnly: false,
+  },
+  {
+    name: "shield.quarantineDevice",
+    description: "Quarantine (isolate) a device from the fleet network, marking it 'untrusted'. Use when a device is compromised or fails attestation.",
+    inputSchema: s({
+      deviceId: { type: "string", description: "Device id to quarantine" },
+      reason: { type: "string", description: "Optional reason for the quarantine" },
+    }, ["deviceId"]),
+    handler: async (p) => {
+      const device = INITIAL_DEVICES.find((d) => d.id === p.deviceId);
+      if (!device) return errorResult(`Unknown device: ${p.deviceId}`);
+      return jsonResult({
+        deviceId: device.id,
+        status: "untrusted",
+        reason: (p.reason as string) ?? "manual quarantine",
+        message: `${device.id} quarantined and isolated from the fleet network pending review.`,
+      });
+    },
+    product: "shield", readOnly: false,
+  },
+  {
+    name: "shield.patchCve",
+    description: "Apply the available patch for a CVE across affected robots, moving it from 'open' to 'patched'.",
+    inputSchema: s({ cveId: { type: "string", description: "CVE id to patch, e.g. 'CVE-2024-1101'" } }, ["cveId"]),
+    handler: async (p) => {
+      const cve = INITIAL_CVES.find((c) => c.id === p.cveId);
+      if (!cve) return errorResult(`Unknown CVE: ${p.cveId}`);
+      if (cve.status === "patched") return jsonResult({ cveId: cve.id, status: "patched", message: `${cve.id} is already patched.` });
+      return jsonResult({
+        cveId: cve.id,
+        package: cve.package,
+        status: "patched",
+        message: `Patch scheduled for ${cve.package} (${cve.id}) across all affected robots via signed OTA.`,
+      });
+    },
+    product: "shield", readOnly: false,
+  },
+  {
+    name: "shield.runScan",
+    description: "Run a fresh security scan across the fleet (device attestation + SBOM/CVE re-check) and return the recomputed posture.",
+    inputSchema: s({}),
+    handler: async () => {
+      const verified = INITIAL_DEVICES.filter((d) => d.status === "verified").length;
+      const openCves = INITIAL_CVES.filter((c) => c.status === "open").length;
+      return jsonResult({
+        scanned: INITIAL_DEVICES.length,
+        verified,
+        openCves,
+        completedAt: "just now",
+        message: "Security scan complete. Device attestations re-checked and SBOM re-evaluated against the CVE feed.",
+      });
+    },
+    product: "shield", readOnly: false,
   },
 ];
