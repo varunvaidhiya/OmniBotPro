@@ -66,6 +66,59 @@ export const tools: ToolDefinition[] = [
     readOnly: true,
   },
   {
+    name: "connect.getStatus",
+    description: "Get the current robot connection status: whether connected, the active protocol, address, latency, and whether an e-stop is latched. (Representative snapshot — the live connection is held browser-side.)",
+    inputSchema: s({}),
+    handler: async () => jsonResult({
+      connected: true,
+      protocol: defaultConnectionConfig().protocol,
+      address: defaultConnectionConfig().address,
+      latencyMs: 6,
+      estop: false,
+      note: "Live connection state is browser-side; this is the same data model an orchestration layer would report.",
+    }),
+    product: "connect",
+    readOnly: true,
+  },
+  {
+    name: "connect.getTelemetry",
+    description: "Get the latest telemetry snapshot from the connected robot: pose (x, y, theta), velocity, battery, and IMU.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({
+      pose: { x: 1.24, y: 0.38, theta: 0.11 },
+      velocity: { linearX: 0, linearY: 0, angularZ: 0 },
+      battery: 0.86,
+      imu: { ax: 0.01, ay: -0.02, az: 9.81, gz: 0.0 },
+      ts: Date.now(),
+    }),
+    product: "connect",
+    readOnly: true,
+  },
+  {
+    name: "connect.connect",
+    description: "Open a connection to the robot over a transport protocol. For rosbridge/webserial provide the address (ws URL or serial port); simulated needs none.",
+    inputSchema: s({
+      protocolId: { type: "string", description: "Transport protocol", enum: ["rosbridge", "webserial", "webbluetooth", "simulated"] },
+      address: { type: "string", description: "Address for the transport, e.g. 'ws://192.168.1.101:9090' (optional for simulated)" },
+    }, ["protocolId"]),
+    handler: async (params) => {
+      const proto = getProtocol(params.protocolId as ConnectionProtocol);
+      if (!proto) return errorResult(`Unknown protocol: ${params.protocolId}`);
+      const address = (params.address as string) ?? defaultConnectionConfig().address;
+      return jsonResult({ connected: true, protocol: proto.id, address, message: `Connecting to the robot via ${proto.name}${address ? ` at ${address}` : ""}.` });
+    },
+    product: "connect",
+    readOnly: false,
+  },
+  {
+    name: "connect.disconnect",
+    description: "Close the active robot connection.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({ connected: false, message: "Disconnected from the robot." }),
+    product: "connect",
+    readOnly: false,
+  },
+  {
     name: "connect.sendVelocity",
     description: "Send a velocity command to the connected robot. linearX is forward/back m/s, linearY is strafe m/s (holonomic only), angularZ is yaw rad/s. Values are clamped to hardware limits.",
     inputSchema: s(
@@ -106,6 +159,17 @@ export const tools: ToolDefinition[] = [
     inputSchema: s({}),
     handler: async () => {
       return jsonResult({ estop: false, message: "Emergency stop released. Velocity commands enabled." });
+    },
+    product: "connect",
+    readOnly: false,
+  },
+  {
+    name: "connect.beep",
+    description: "Sound the robot's buzzer for a number of milliseconds — handy to locate or identify a connected robot.",
+    inputSchema: s({ durationMs: { type: "number", description: "Buzzer on-time in milliseconds (clamped to 0–5000)" } }),
+    handler: async (params) => {
+      const ms = Math.max(0, Math.min(5000, Number(params.durationMs ?? 200)));
+      return jsonResult({ sent: true, durationMs: ms, message: `Buzzer sounded for ${ms} ms.` });
     },
     product: "connect",
     readOnly: false,

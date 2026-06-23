@@ -123,4 +123,43 @@ export const tools: ToolDefinition[] = [
     product: "care",
     readOnly: false,
   },
+  {
+    name: "care.createWorkOrder",
+    description: "Create a maintenance work order for a robot component (e.g. after a predictive alert). Returns the new work order.",
+    inputSchema: s({
+      robotId: { type: "string", description: "Robot id, e.g. 'amr-04'" },
+      component: { type: "string", description: "Component needing service, e.g. 'left knee motor'" },
+      urgency: { type: "string", description: "Urgency", enum: ["high", "medium", "low"] },
+      note: { type: "string", description: "Optional description of the issue" },
+    }, ["robotId", "component"]),
+    handler: async (params) => {
+      const id = `wo-${String(WORK_ORDERS.length + 1).padStart(3, "0")}`;
+      return jsonResult({
+        id,
+        robotId: params.robotId,
+        component: params.component,
+        urgency: (params.urgency as string) ?? "medium",
+        status: "open" as WorkOrderStatus,
+        note: (params.note as string) ?? "",
+        created: true,
+        message: `Work order ${id} created for ${params.robotId} (${params.component}).`,
+      });
+    },
+    product: "care",
+    readOnly: false,
+  },
+  {
+    name: "care.getComponentDegradation",
+    description: "Get the degradation trend (temperature toward the failure threshold) for a specific work order's component.",
+    inputSchema: s({ workOrderId: { type: "string", description: "Work order id" } }, ["workOrderId"]),
+    handler: async (params) => {
+      const wo = WORK_ORDERS.find((w) => w.id === params.workOrderId);
+      if (!wo) return errorResult(`Work order not found: ${params.workOrderId}`);
+      const temps: number[] = [];
+      for (let i = 0; i < 60; i++) temps.push(48 + i * 0.5 + Math.random() * 2);
+      return jsonResult({ robotId: wo.robotId, component: wo.component, temps, threshold: 85, currentTemp: temps[temps.length - 1], daysToFailure: wo.daysToFailure });
+    },
+    product: "care",
+    readOnly: true,
+  },
 ];

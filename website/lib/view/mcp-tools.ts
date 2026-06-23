@@ -4,7 +4,7 @@
 
 import {
   type ToolDefinition, type InputSchema, type JsonSchemaProperty,
-  jsonResult,
+  jsonResult, errorResult,
 } from "@/lib/mcp/types";
 
 const LAYERS = [
@@ -49,6 +49,48 @@ export const tools: ToolDefinition[] = [
       const layer = LAYERS.find((l) => l.id === p.layerId);
       if (!layer) return jsonResult({ error: `Layer not found: ${p.layerId}` });
       return jsonResult({ ...layer, visible: !layer.visible, toggled: true });
+    },
+    product: "view", readOnly: false,
+  },
+  {
+    name: "view.setLayerVisibility",
+    description: "Explicitly show or hide a sensor layer in the perception viewer (unlike toggle, sets an exact state).",
+    inputSchema: s({
+      layerId: { type: "string", description: "Layer id" },
+      visible: { type: "boolean", description: "true to show, false to hide" },
+    }, ["layerId", "visible"]),
+    handler: async (p) => {
+      const layer = LAYERS.find((l) => l.id === p.layerId);
+      if (!layer) return errorResult(`Layer not found: ${p.layerId}`);
+      return jsonResult({ ...layer, visible: Boolean(p.visible), message: `Layer '${layer.name}' is now ${p.visible ? "visible" : "hidden"}.` });
+    },
+    product: "view", readOnly: false,
+  },
+  {
+    name: "view.snapshot",
+    description: "Capture a still snapshot of a layer (or the whole viewer) for sharing or annotation. Returns an image handle.",
+    inputSchema: s({ layerId: { type: "string", description: "Layer id to capture; omit for the full composited view" } }),
+    handler: async (p) => {
+      if (p.layerId && !LAYERS.some((l) => l.id === p.layerId)) return errorResult(`Layer not found: ${p.layerId}`);
+      return jsonResult({
+        layerId: (p.layerId as string) ?? "composite",
+        handle: `snapshot-${Date.now()}.png`,
+        message: `Snapshot captured for ${(p.layerId as string) ?? "the composited view"}.`,
+      });
+    },
+    product: "view", readOnly: false,
+  },
+  {
+    name: "view.recordClip",
+    description: "Record a short clip of the live sensor view (selected layers) for later review. Returns a clip handle.",
+    inputSchema: s({
+      durationSec: { type: "number", description: "Clip length in seconds (clamped to 1–60, default 10)" },
+      layerIds: { type: "array", description: "Layer ids to include; omit for all visible layers", items: { type: "string" } },
+    }),
+    handler: async (p) => {
+      const dur = Math.max(1, Math.min(60, Number(p.durationSec ?? 10)));
+      const ids = Array.isArray(p.layerIds) && p.layerIds.length ? (p.layerIds as string[]) : LAYERS.filter((l) => l.visible).map((l) => l.id);
+      return jsonResult({ durationSec: dur, layers: ids, handle: `clip-${Date.now()}.mp4`, message: `Recording a ${dur}s clip of ${ids.length} layer(s).` });
     },
     product: "view", readOnly: false,
   },

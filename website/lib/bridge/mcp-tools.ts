@@ -72,6 +72,68 @@ export const tools: ToolDefinition[] = [
     product: "bridge",
     readOnly: true,
   },
+  {
+    name: "bridge.getImpedanceDefaults",
+    description: "Get the default position-control impedance gains (kp/kd) grouped by body region (leg, waist, arm, hand) for a robot model.",
+    inputSchema: s({ model: { type: "string", description: "Robot model (currently only 'g1')", enum: ["g1"] } }, ["model"]),
+    handler: async (params) => {
+      const model = (params.model as string) ?? "g1";
+      if (model !== "g1") return errorResult(`Impedance defaults not available for model: ${model}`);
+      const byRegion: Record<string, { kp: number; kd: number; joints: number }> = {};
+      for (const j of G1_JOINT_MAP) {
+        const r = (byRegion[j.region] ??= { kp: j.kp, kd: j.kd, joints: 0 });
+        r.joints += 1;
+      }
+      return jsonResult({ model, regions: byRegion });
+    },
+    product: "bridge",
+    readOnly: true,
+  },
+  {
+    name: "bridge.connectAdapter",
+    description: "Bring up the bridge for a protocol adapter, starting the native↔ROS 2 translation. Use bridge.listAdapters for valid ids.",
+    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial"] } }, ["adapterId"]),
+    handler: async (params) => {
+      const a = getAdapter(params.adapterId as string);
+      if (!a) return errorResult(`Adapter not found: ${params.adapterId}`);
+      if (a.status === "unavailable") return errorResult(`Adapter '${a.name}' is unavailable on this deployment.`);
+      return jsonResult({ adapterId: a.id, name: a.name, status: "active", transport: a.transport, message: `Bridge for ${a.name} is now active over ${a.transport}.` });
+    },
+    product: "bridge",
+    readOnly: false,
+  },
+  {
+    name: "bridge.disconnectAdapter",
+    description: "Tear down the bridge for a protocol adapter, stopping translation and returning it to idle.",
+    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial"] } }, ["adapterId"]),
+    handler: async (params) => {
+      const a = getAdapter(params.adapterId as string);
+      if (!a) return errorResult(`Adapter not found: ${params.adapterId}`);
+      return jsonResult({ adapterId: a.id, name: a.name, status: "idle", message: `Bridge for ${a.name} stopped.` });
+    },
+    product: "bridge",
+    readOnly: false,
+  },
+  {
+    name: "bridge.setImpedance",
+    description: "Override the position-control impedance gains (kp/kd) for a body region of a model. Affects how stiff/compliant those joints are.",
+    inputSchema: s({
+      model: { type: "string", description: "Robot model", enum: ["g1"] },
+      region: { type: "string", description: "Body region", enum: ["leg", "waist", "arm", "hand"] },
+      kp: { type: "number", description: "Position gain (stiffness)" },
+      kd: { type: "number", description: "Velocity gain (damping)" },
+    }, ["model", "region", "kp", "kd"]),
+    handler: async (params) => {
+      const affected = G1_JOINT_MAP.filter((j) => j.region === params.region).length;
+      if (!affected) return errorResult(`No joints in region '${params.region}' for ${params.model}.`);
+      return jsonResult({
+        model: params.model, region: params.region, kp: params.kp, kd: params.kd, jointsAffected: affected,
+        message: `Set ${params.region} impedance to kp=${params.kp}, kd=${params.kd} across ${affected} joints.`,
+      });
+    },
+    product: "bridge",
+    readOnly: false,
+  },
 ];
 
 export const resources: ResourceDefinition[] = [

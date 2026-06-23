@@ -13,6 +13,7 @@
 import {
   type ToolDefinition,
   jsonResult,
+  errorResult,
   type InputSchema,
   type JsonSchemaProperty,
 } from "@/lib/mcp/types";
@@ -101,6 +102,52 @@ export const tools: ToolDefinition[] = [
         targetVersion: VERSIONS.STABLE,
         message: `Rollback initiated. Reverting all canary robots to ${VERSIONS.STABLE}.`,
       });
+    },
+    product: "fleet",
+    readOnly: false,
+  },
+  {
+    name: "fleet.getRobot",
+    description: "Get a single fleet robot by id, with its status, battery, software version, and position.",
+    inputSchema: s({ robotId: { type: "string", description: "Robot id, e.g. 'amr-07'" } }, ["robotId"]),
+    handler: async (p) => {
+      const robot = generateInitialFleet(24).find((r) => r.id === p.robotId);
+      return robot ? jsonResult(robot) : errorResult(`Robot not found: ${p.robotId}`);
+    },
+    product: "fleet",
+    readOnly: true,
+  },
+  {
+    name: "fleet.acknowledgeAlert",
+    description: "Acknowledge a fleet alert by id so it stops paging the on-call operator.",
+    inputSchema: s({ alertId: { type: "string", description: "Alert id from fleet.getAlerts, e.g. 'a2'" } }, ["alertId"]),
+    handler: async (p) => {
+      const alert = INITIAL_ALERTS.find((a) => a.id === p.alertId);
+      if (!alert) return errorResult(`Alert not found: ${p.alertId}`);
+      return jsonResult({ alertId: alert.id, acknowledged: true, message: `Alert '${alert.id}' acknowledged.` });
+    },
+    product: "fleet",
+    readOnly: false,
+  },
+  {
+    name: "fleet.restartRobot",
+    description: "Remotely restart a robot's software stack (rosbridge + nodes). Use for a degraded robot before escalating to maintenance.",
+    inputSchema: s({ robotId: { type: "string", description: "Robot id to restart" } }, ["robotId"]),
+    handler: async (p) => {
+      const robot = generateInitialFleet(24).find((r) => r.id === p.robotId);
+      if (!robot) return errorResult(`Robot not found: ${p.robotId}`);
+      return jsonResult({ robotId: robot.id, restarting: true, message: `Restart command sent to ${robot.id}. It should rejoin the fleet shortly.` });
+    },
+    product: "fleet",
+    readOnly: false,
+  },
+  {
+    name: "fleet.setCanaryPercentage",
+    description: "Set the canary rollout percentage — what fraction of healthy robots run the canary version during a staged OTA.",
+    inputSchema: s({ percent: { type: "number", description: "Canary percentage, 0–100" } }, ["percent"]),
+    handler: async (p) => {
+      const pct = Math.max(0, Math.min(100, Number(p.percent)));
+      return jsonResult({ canaryPct: pct, targetVersion: VERSIONS.CANARY, message: `Canary rollout set to ${pct}% on ${VERSIONS.CANARY}.` });
     },
     product: "fleet",
     readOnly: false,

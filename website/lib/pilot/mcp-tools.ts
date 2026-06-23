@@ -65,4 +65,54 @@ export const tools: ToolDefinition[] = [
     handler: async () => jsonResult(DEFAULT_ARM_JOINTS),
     product: "pilot", readOnly: true,
   },
+  {
+    name: "pilot.setControlMode",
+    description: "Switch the Pilot control mode (teleop, nav2, or vla). This drives the control-mode mux for the piloted robot.",
+    inputSchema: s({ mode: { type: "string", description: "Control mode", enum: ["teleop", "nav2", "vla"] } }, ["mode"]),
+    handler: async (p) => {
+      if (!CONTROL_MODES.some((m) => m.id === p.mode)) return errorResult(`Unknown control mode: ${p.mode}`);
+      return jsonResult({ mode: p.mode, active: true, message: `Pilot control mode set to '${p.mode}'.` });
+    },
+    product: "pilot", readOnly: false,
+  },
+  {
+    name: "pilot.setActiveProfile",
+    description: "Select which robot profile is being piloted (e.g. 'omnibot', 'diff-scout', 'ackermann-rover').",
+    inputSchema: s({ profileId: { type: "string", description: "Profile id from pilot.listProfiles" } }, ["profileId"]),
+    handler: async (p) => {
+      if (!PROFILES.some((pr) => pr.id === p.profileId)) return errorResult(`Unknown profile: ${p.profileId}`);
+      return jsonResult({ profileId: p.profileId, active: true, message: `Now piloting '${p.profileId}'.` });
+    },
+    product: "pilot", readOnly: false,
+  },
+  {
+    name: "pilot.commandArm",
+    description: "Command the arm to target joint positions (radians). Provide a map of joint name → position; each value is clamped to that joint's limits. Returns the applied positions.",
+    inputSchema: s({
+      positions: { type: "object", description: "Map of joint name → target radians, e.g. {\"arm_shoulder_pan\":0.5,\"arm_gripper\":0.6}" },
+    }, ["positions"]),
+    handler: async (p) => {
+      const req = (p.positions ?? {}) as Record<string, unknown>;
+      const applied: Record<string, number> = {};
+      const clamped: string[] = [];
+      for (const joint of DEFAULT_ARM_JOINTS) {
+        if (!(joint.name in req)) continue;
+        const raw = Number(req[joint.name]);
+        if (Number.isNaN(raw)) continue;
+        const v = Math.max(joint.min, Math.min(joint.max, raw));
+        if (v !== raw) clamped.push(joint.name);
+        applied[joint.name] = v;
+      }
+      if (Object.keys(applied).length === 0) return errorResult("No valid joint names provided. Use pilot.getArmJoints for names.");
+      return jsonResult({ applied, clamped, message: `Arm commanded to ${Object.keys(applied).length} joint target(s).` });
+    },
+    product: "pilot", readOnly: false,
+  },
+  {
+    name: "pilot.emergencyStop",
+    description: "Engage emergency stop for the piloted robot — zeroes all velocity immediately.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({ estop: true, velocity: zeroVelocity(), message: "Emergency stop engaged. Velocity zeroed." }),
+    product: "pilot", readOnly: false,
+  },
 ];

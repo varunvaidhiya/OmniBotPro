@@ -90,26 +90,45 @@ curl -X POST https://ohho-robotics.com/api/mcp \
 
 ```bash
 curl https://ohho-robotics.com/api/mcp/health
-# → {"status":"ok","server":"ohho-robotics-platform","tools":30,...}
+# → {"status":"ok","server":"ohho-robotics-platform","tools":165,...}
 
 curl https://ohho-robotics.com/api/mcp
-# → {"server":{...},"endpoint":"/api/mcp","toolCount":30,...}
+# → {"server":{...},"endpoint":"/api/mcp","toolCount":165,...}
 ```
 
 ## Available tools
 
 Tools are namespaced as `<product>.<action>`. Each has a JSON Schema for its
-parameters that the AI reads to decide when to call it.
+parameters that the AI reads to decide when to call it. Every one of the 20
+product consoles is covered, with both read (query) and write (action) tools.
+Call `tools/list` for the live, authoritative set with full schemas.
 
-| Product | Tools | Read-only | Write |
-|---|---|---|---|
-| **garage** | `listRobots`, `getRobot`, `listCategories`, `getRobotConfig` | `addRobot`, `deleteRobot`, `updateRobot` |
-| **connect** | `getProtocols`, `getDefaultConfig`, `getProtocol` | `sendVelocity`, `emergencyStop`, `releaseStop` |
-| **bridge** | `listAdapters`, `getAdapter`, `getJointMap`, `getTopics` | — |
-| **market** | `listSkills`, `searchSkills`, `getSkill`, `listAuthors`, `getStats` | — |
-| **twin** | `getState`, `getPredictions`, `getWhatIf`, `getSyncMetrics` | — |
-| **care** | `listWorkOrders`, `getWorkOrder`, `getRepairLog`, `getFleetMetrics`, `getDegradation` | `orderPart`, `updateWorkOrder` |
-| **fleet** | `listRobots`, `getHealth`, `getAlerts`, `getVersions` | `triggerOTA`, `rollbackOTA` |
+| Product | Tools | Highlights (read · write) |
+|---|---:|---|
+| **garage** | 7 + 2 res | `listRobots`, `getRobotConfig` · `addRobot`, `updateRobot`, `deleteRobot` |
+| **connect** | 11 | `getStatus`, `getTelemetry`, `getProtocols` · `connect`, `sendVelocity`, `emergencyStop`, `beep` |
+| **bridge** | 8 + 2 res | `listAdapters`, `getJointMap`, `getImpedanceDefaults` · `connectAdapter`, `setImpedance` |
+| **build** | 8 | `listParts`, `listTemplates`, `validateDesign`, `estimateBom` |
+| **frame** | 7 | `listProcesses`, `getLogs` · `startProcess`, `stopProcess`, `restartProcess` |
+| **bench** | 9 | `getAssembly`, `getStatus` · `flashFirmware`, `runSelfTest`, `runCalibration` |
+| **serve** | 9 | `listModels`, `estimate`, `listScenes` · `predict`, `deploy`, `stop` |
+| **view** | 6 + res | `listLayers` · `toggleLayer`, `setLayerVisibility`, `snapshot`, `recordClip` |
+| **data** | 8 | `listEpisodes`, `searchEpisodes` · `setEpisodeStatus`, `exportDataset`, `pushToHub` |
+| **train** | 8 | `listMethods`, `getStatus`, `getCurve` · `start`, `stop`, `exportCheckpoint`, `launchSweep` |
+| **autonomy** | 8 | `getMission`, `listLocations` · `submitMission`, `navigateTo`, `setMode`, `cancelMission` |
+| **mind** | 9 | `getStatus`, `getMemory` · `submitGoal`, `setBackend`, `respondToHuman`, `addMemory` |
+| **market** | 9 + res | `listSkills`, `searchSkills` · `purchaseSkill`, `installSkill`, `publishSkill`, `rateSkill` |
+| **pilot** | 9 | `listProfiles`, `applyJoystick` · `setControlMode`, `commandArm`, `emergencyStop` |
+| **fleet** | 10 | `listRobots`, `getHealth`, `getAlerts` · `triggerOTA`, `rollbackOTA`, `restartRobot`, `acknowledgeAlert` |
+| **twin** | 7 | `getState`, `getPredictions` · `runWhatIf`, `resync`, `exportReplay` |
+| **care** | 9 | `listWorkOrders`, `getDegradation` · `orderPart`, `createWorkOrder`, `updateWorkOrder` |
+| **comply** | 7 | `listStandards`, `getProgress` · `updateRequirement`, `generateDocument`, `exportAuditPackage` |
+| **shield** | 9 | `listDevices`, `listCves`, `getSecurityPosture` · `rotateDeviceKey`, `patchCve`, `quarantineDevice` |
+| **proof** | 7 | `listSuites`, `getVerdict` · `runSuite`, `generateSafetyCase` |
+
+> ~165 tools total. The in-console **OhhO Assistant** (the "Ask OhhO" launcher)
+> calls this exact registry, so anything an external MCP client can do, the
+> built-in assistant can do too — and new tools are exposed to both automatically.
 
 ## Available resources
 
@@ -139,14 +158,17 @@ AI Client (OpenCode / Claude / Cursor / curl)
   │ Registry     │  lib/mcp/registry.ts — aggregates all tools
   └──┬──────────┘
      │
-     ├── lib/garage/mcp-tools.ts     (7 tools, 2 resources)
-     ├── lib/connect/mcp-tools.ts    (6 tools)
-     ├── lib/bridge/mcp-tools.ts     (4 tools, 2 resources)
-     ├── lib/market/mcp-tools.ts     (5 tools, 1 resource)
-     ├── lib/twin/mcp-tools.ts       (4 tools)
-     ├── lib/care/mcp-tools.ts       (7 tools)
-     └── lib/fleet/mcp-tools.ts      (6 tools)
+     ├── lib/garage/mcp-tools.ts     (tools + resources)
+     ├── lib/connect/mcp-tools.ts
+     ├── lib/bridge/mcp-tools.ts     (tools + resources)
+     ├── lib/market/mcp-tools.ts     (tools + resource)
+     ├── … one lib/<product>/mcp-tools.ts per console …
+     └── lib/proof/mcp-tools.ts      (20 products, ~165 tools total)
 ```
+
+The same registry also backs the in-app assistant
+(`lib/assistant/agent.ts` → `app/api/assistant/route.ts`), so the "Ask OhhO"
+chat on every console drives these tools directly.
 
 No external SDK dependency — the MCP JSON-RPC protocol is implemented
 directly, so it runs in Vercel serverless with zero install.

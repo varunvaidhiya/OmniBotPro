@@ -80,4 +80,42 @@ export const tools: ToolDefinition[] = [
     }),
     product: "train", readOnly: false,
   },
+  {
+    name: "train.getCurve",
+    description: "Get the training curves for the current run: per-epoch loss and success-rate series (representative snapshot).",
+    inputSchema: s({}),
+    handler: async () => jsonResult({
+      epochs: Array.from({ length: 10 }, (_, i) => (i + 1) * 4),
+      loss: [0.92, 0.61, 0.44, 0.36, 0.30, 0.26, 0.23, 0.20, 0.18, 0.17],
+      successRate: [0.21, 0.38, 0.52, 0.63, 0.71, 0.77, 0.81, 0.84, 0.85, 0.86],
+    }),
+    product: "train", readOnly: true,
+  },
+  {
+    name: "train.stop",
+    description: "Stop the current training run. The latest checkpoint is retained.",
+    inputSchema: s({}),
+    handler: async () => jsonResult({ stopped: true, lastCheckpoint: "checkpoint_0040", message: "Training stopped. The latest checkpoint was saved." }),
+    product: "train", readOnly: false,
+  },
+  {
+    name: "train.launchSweep",
+    description: "Launch a Weights & Biases hyperparameter sweep for a training method. Returns the sweep id and dashboard link.",
+    inputSchema: s({
+      method: { type: "string", description: "Training method to sweep", enum: ["smolvla", "act", "diffusion", "openvla", "rl (ppo)"] },
+      project: { type: "string", description: "W&B project name (default 'omnibot')" },
+      trials: { type: "number", description: "Number of trials to run (default 20)" },
+    }, ["method"]),
+    handler: async (p) => {
+      const project = (p.project as string) ?? "omnibot";
+      const trials = Number(p.trials ?? 20);
+      const sweepId = `sweep_${Date.now().toString(36)}`;
+      return jsonResult({
+        launched: true, method: p.method, project, trials, sweepId,
+        url: `https://wandb.ai/${project}/sweeps/${sweepId}`,
+        message: `Bayesian sweep '${sweepId}' launched for ${p.method} (${trials} trials).`,
+      });
+    },
+    product: "train", readOnly: false,
+  },
 ];

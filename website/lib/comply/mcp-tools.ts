@@ -120,4 +120,66 @@ export const tools: ToolDefinition[] = [
     },
     product: "comply", readOnly: true,
   },
+  {
+    name: "comply.getRequirement",
+    description: "Get a single requirement within a standard, including its clause, owner, evidence, and status.",
+    inputSchema: s({
+      standardId: { type: "string", description: "Standard ID", enum: ["eu-machinery", "iso-10218", "iso-13849", "ul-60204"] },
+      requirementId: { type: "string", description: "Requirement ID within the standard, e.g. 'r3'" },
+    }, ["standardId", "requirementId"]),
+    handler: async (p) => {
+      const std = STANDARDS.find((x) => x.id === p.standardId);
+      if (!std) return errorResult(`Standard not found: ${p.standardId}`);
+      const req = std.requirements.find((r) => r.id === p.requirementId);
+      if (!req) return errorResult(`Requirement not found: ${p.requirementId} in ${p.standardId}`);
+      return jsonResult({ standardId: std.id, ...req });
+    },
+    product: "comply", readOnly: true,
+  },
+  {
+    name: "comply.updateRequirement",
+    description: "Update a compliance requirement's status (open/review/done), and optionally its owner and evidence. Use to record progress against a standard.",
+    inputSchema: s({
+      standardId: { type: "string", description: "Standard ID", enum: ["eu-machinery", "iso-10218", "iso-13849", "ul-60204"] },
+      requirementId: { type: "string", description: "Requirement ID within the standard, e.g. 'r3'" },
+      status: { type: "string", description: "New status", enum: ["open", "review", "done"] },
+      owner: { type: "string", description: "New owner (optional)" },
+      evidence: { type: "string", description: "Evidence reference/description (optional)" },
+    }, ["standardId", "requirementId", "status"]),
+    handler: async (p) => {
+      const std = STANDARDS.find((x) => x.id === p.standardId);
+      if (!std) return errorResult(`Standard not found: ${p.standardId}`);
+      const req = std.requirements.find((r) => r.id === p.requirementId);
+      if (!req) return errorResult(`Requirement not found: ${p.requirementId} in ${p.standardId}`);
+      return jsonResult({
+        standardId: std.id,
+        requirementId: req.id,
+        clause: req.clause,
+        previousStatus: req.status,
+        status: p.status,
+        owner: (p.owner as string) ?? req.owner,
+        evidence: (p.evidence as string) ?? req.evidence,
+        message: `${std.title} §${req.clause} updated to '${p.status}'.`,
+      });
+    },
+    product: "comply", readOnly: false,
+  },
+  {
+    name: "comply.exportAuditPackage",
+    description: "Bundle all compliance documents and evidence for every standard into a single audit package for a notified body or auditor.",
+    inputSchema: s({ format: { type: "string", description: "Package format", enum: ["zip", "pdf"] } }),
+    handler: async (p) => {
+      const allReqs = STANDARDS.flatMap((x) => x.requirements);
+      const done = allReqs.filter((r) => r.status === "done").length;
+      return jsonResult({
+        format: (p.format as string) ?? "zip",
+        standards: STANDARDS.length,
+        requirements: allReqs.length,
+        completionPct: Math.round((done / allReqs.length) * 100),
+        handle: `audit-package-${Date.now()}.${(p.format as string) ?? "zip"}`,
+        message: "Audit package compiled with all technical files, risk assessments, and the conformity declaration.",
+      });
+    },
+    product: "comply", readOnly: false,
+  },
 ];
