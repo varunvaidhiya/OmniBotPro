@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "generate:vr": "vitest run -u lib/vr/manifest.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.114.0",

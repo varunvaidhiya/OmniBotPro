@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "theme": {
+    "bg": "#0A0E1A",
+    "surface": "#0F1628",
+    "cyan": "#00D4FF",
+    "violet": "#7C3AED",
+    "violetLite": "#A78BFA",
+    "text": "#FFFFFF",
+    "muted": "rgba(255,255,255,0.52)",
+    "border": "rgba(255,255,255,0.07)",
+    "fonts": {
+      "display": "Space Grotesk",
+      "body": "Inter",
+      "mono": "JetBrains Mono"
+    }
+  },
+  "auth": {
+    "provider": "supabase",
+    "url": "https://ucnyuappgtcpolqdaovv.supabase.co",
+    "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVjbnl1YXBwZ3RjcG9scWRhb3Z2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MjU5NTEsImV4cCI6MjA5NzMwMTk1MX0.Cf3g2nxHtaeGU59UwtCdpuNwQV6cCZ4yvdBSqhAEtls",
+    "signIn": "email_otp",
+    "garageTable": "user_robots"
+  },
+  "products": [
+    {
+      "slug": "pilot",
+      "name": "OhhO Pilot",
+      "tag": "Operate any robot. From anywhere.",
+      "desc": "VR and mobile teleoperation in real time. Pre-loaded robot profiles, a custom robot builder, and arm control via hand tracking.",
+      "accent": "violet",
+      "category": "Operations",
+      "hero": "Operate any robot, from anywhere. VR and mobile teleoperation with pre-loaded robot profiles, a custom robot builder, and arm control via hand tracking — real-time and low-latency.",
+      "highlights": [
+        "VR + mobile teleop",
+        "Hand-tracking arm IK",
+        "Pre-loaded robot profiles",
+        "Live camera view (MJPEG)",
+        "Emergency stop + safe clamps"
+      ],
+      "specs": [
+        {
+          "label": "Platforms",
+          "value": "VR headset + mobile (Android)"
+        },
+        {
+          "label": "Transport",
+          "value": "ROSBridge WebSocket (port 9090)"
+        },
+        {
+          "label": "Arm control",
+          "value": "Hand-tracking IK (VR), joint UI (mobile)"
+        },
+        {
+          "label": "Video",
+          "value": "MJPEG via web_video_server"
+        },
+        {
+          "label": "Safety",
+          "value": "Velocity clamps, e-stop, control-mode mux"
+        },
+        {
+          "label": "Robots",
+          "value": "Pre-loaded profiles + custom builder"
+        }
+      ],
+      "app": {
+        "href": "/pilot",
+        "label": "Open the cockpit"
+      }
+    }
+  ]
+}

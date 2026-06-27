@@ -7,6 +7,12 @@ export default defineConfig({
   resolve: {
     alias: [{ find: /^@\//, replacement: fileURLToPath(new URL("./", import.meta.url)) }],
   },
+  // lib/vr/manifest.ts imports lib/products.tsx (JSX icons). Vite 8 transforms
+  // with Oxc, which otherwise honours tsconfig's `jsx: "preserve"` and leaves
+  // JSX as invalid JS. Force the automatic runtime so .tsx transforms under
+  // vitest; non-JSX tests are unaffected and the icons are never rendered here
+  // (vrProducts() strips them).
+  oxc: { jsx: { runtime: "automatic" } },
   test: {
     environment: "node",
     include: ["lib/**/*.test.ts"],
