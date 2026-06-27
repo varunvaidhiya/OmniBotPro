@@ -1,24 +1,47 @@
 # Multi-Robot VR Teleoperation — Architecture & Build Plan
 
-> Status: **Phase 0a implemented** (platform contract + VR foundation) · rest is design
+> Status: **Phase 0a + 0b implemented** (platform contract, app shell, garage sync) · control layer is next
 > Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
 > Scope: extend `vr_app/` from a single hardcoded OmniBot controller into a
 > **catalog-driven, any-robot** mixed-reality teleoperation app whose robot list,
-> capability model, branding, **login and product console** all mirror the OhhO website.
+> capability model, branding, **login, product console and saved-robot garage** all
+> mirror the OhhO website — **one shared account, no data re-entry**.
 
-### Implemented in this branch (Phase 0a)
+### Connected experience — one identity across web, Android and VR
+
+The headset is not a separate silo. A user signs in **once** (the same Supabase
+account behind the website and Android app) and everything they already have is
+there: the same branding, the same product list, and — critically — the **same
+garage of robots**. Add a robot on the website, and it appears in the headset; no
+re-typing IPs, models, or names. The shared substrate:
+
+- **Identity** — one Supabase project (auth + RLS). The VR app signs in with the
+  same backend; the access token scopes every read to that user.
+- **Data** — the `user_robots` table is the single garage. Web, Android and VR are
+  all just clients of it.
+- **Catalog & branding** — served as static JSON the website generates, so all
+  surfaces render robots and UI identically.
+
+### Implemented in this branch (Phase 0a + 0b)
 
 - **Website** — `Product.vr` flag + **OhhO Pilot** tagged; `lib/vr/manifest.ts` →
-  committed `public/vr/manifest.json` (branding tokens + Supabase auth + VR
-  products); `manifest.test.ts` drift check (9 tests). _All green: `tsc` clean,
-  vitest 102/102._
-- **VR app** — `Core/OhhoTheme.cs` (branding), `Core/Platform/PlatformManifest.cs`
-  (manifest models), `Core/Platform/OhhoPlatform.cs` (fetch + offline fallback),
-  `Core/Platform/SupabaseAuthService.cs` (in-headset email-OTP login), bundled
-  `Assets/Resources/vr_manifest.json`.
+  `public/vr/manifest.json` (branding + Supabase auth + VR products) and
+  `lib/vr/catalog.ts` → `public/vr/catalog.json` (every category + robot type).
+  Drift-checked by `manifest.test.ts` + `catalog.test.ts`. _All green: `tsc`
+  clean, vitest 107/107._
+- **VR — platform** (`Core/Platform/`) — manifest + catalog models, `OhhoPlatform`
+  (fetch + offline), `OhhoCatalog` (lazy catalog + id→model resolution),
+  `SupabaseAuthService` (email-OTP login), **`GarageClient`** (pulls `user_robots`
+  via PostgREST), `Core/OhhoTheme.cs`; bundled `Resources/vr_{manifest,catalog}.json`.
+- **VR — app shell** — `App/OhhoVrApp` (login→console→garage flow, configures the
+  Supabase clients from the manifest, restores sessions), `UI/Auth/LoginPanelController`,
+  `UI/Console/{ConsolePanelController,ProductCardView}`,
+  `UI/Garage/{GaragePanelController,RobotCardView}`.
 
-Next (Phase 0b): the in-headset **login panel** and **product console** UI
-(glass design-system prefabs) that consume the above — see §7 and §10.
+Next (Phase 2): wire a selected garage robot's profile into the control layer
+(`IDriveScheme` + hand-IK `IManipulationScheme`) — see §5 and §10. _The VR C# is
+not built in CI (no Unity toolchain); UI controllers are the wiring layer for
+scene/prefab work in the editor._
 
 ---
 
@@ -345,8 +368,9 @@ the catalog as an SVG/sprite atlas so VR and web share iconography.
 | Phase | Deliverable | Key files |
 |---|---|---|
 | **0a — Platform contract** ✅ | `Product.vr` tag + `OhhO Pilot`; static `vr/manifest.json` (branding + Supabase auth + VR products) + vitest drift check; VR `OhhoTheme`, manifest models, `OhhoPlatform` fetch, `SupabaseAuthService` (email OTP) | `website/lib/vr/*`, `vr_app/.../Core/OhhoTheme.cs`, `Core/Platform/*` |
-| **0b — App shell UI** | Login panel (Supabase OTP) + Console product grid (VR-filtered) + glass design-system prefabs, mirroring `app/login` + the website console; passthrough/MRUK scaffold | VR `UI/Auth/`, `UI/Console/`, `UI/Theme/`, `MR/` |
-| **1 — Robot catalog & selection** | extend manifest with `CATEGORIES` + `ROBOT_TYPES`; garage via PostgREST (`user_robots`); spatial selection UI mirroring `RobotSelector` | `website/lib/vr/*`, VR `Core/Catalog/`, `UI/Selection/` |
+| **0b — App shell + garage sync** ✅ | Login panel (Supabase OTP), Console product grid (VR-filtered), Garage panel pulling the user's `user_robots` from Supabase; static `vr/catalog.json` (categories + robot types) + drift check; `OhhoCatalog` id→model resolution; `GarageClient` (PostgREST) | `website/lib/vr/catalog.*`, VR `App/OhhoVrApp`, `UI/Auth/`, `UI/Console/`, `UI/Garage/`, `Core/Platform/{OhhoCatalog,GarageClient,*Models}` |
+| **0c — Glass design system + MR** | Glass shader + `OhhoTheme`-driven prefabs (GlassPanel/MonoLabel/AccentButton), passthrough + MRUK scaffold; wire the 0b controllers to real scenes | VR `UI/Theme/`, `MR/` |
+| **1 — Robot selection (add)** | spatial "add robot" flow mirroring `RobotSelector` (categories → types → models), writing back to `user_robots` | VR `UI/Selection/` |
 | **2 — Profile + OmniBot end-to-end** | `RobotProfile` from `console-spec`; `MecanumDriveScheme` + `HandIK6DOF`; full OmniBot drive+arm in MR | refactor `RobotConfig.cs`→profile, `BaseController`→scheme, `HandTrackingArmController` |
 | **3 — Generalize** | `IDriveScheme`/`IManipulationScheme` factories; differential, ackermann, quadrotor, quadruped, dual-arm; generic IK (FABRIK/BioIK) | `Control/Drive/*`, `Control/Manip/*` |
 | **4 — Telepresence & data** | WebRTC video; profile-driven recording; robot-side IK toggle (MoveIt Servo) | `UI/CameraFeedViewer`→WebRTC, `Recording/` |
@@ -371,6 +395,7 @@ and reskinned. It proves the whole spine without breaking the existing teleop.
 
 ## 12. Open questions
 
-- Account-linked garage sync in v1 (pull the user's `user_robots` into the
-  headset), or local selection only until later?
+- ~~Account-linked garage sync in v1?~~ **Decided: yes** — the headset pulls the
+  user's `user_robots` from Supabase (`GarageClient`), one shared account across
+  web/Android/VR, no re-entry. _(Implemented in Phase 0b.)_
 - Which non-ROS robot families to bridge first (drones via MAVLink, Unitree SDK, …)?
