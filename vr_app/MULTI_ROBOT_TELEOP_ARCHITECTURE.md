@@ -1,6 +1,6 @@
 # Multi-Robot VR Teleoperation — Architecture & Build Plan
 
-> Status: **Phase 0a + 0b implemented** (platform contract, app shell, garage sync) · control layer is next
+> Status: **Phase 0a–0c implemented** (platform contract, app shell, garage sync, glass UI + passthrough) · teleop control layer is next
 > Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
 > Scope: extend `vr_app/` from a single hardcoded OmniBot controller into a
 > **catalog-driven, any-robot** mixed-reality teleoperation app whose robot list,
@@ -37,6 +37,10 @@ re-typing IPs, models, or names. The shared substrate:
   Supabase clients from the manifest, restores sessions), `UI/Auth/LoginPanelController`,
   `UI/Console/{ConsolePanelController,ProductCardView}`,
   `UI/Garage/{GaragePanelController,RobotCardView}`.
+- **VR — design system + MR (0c)** — `Shaders/OhhoGlass.shader` (frosted glass
+  card), `UI/Theme/{GlassPanel,ThemedText,AccentButton,OhhoFontSet,ThemeApplier}`
+  (branding driven from the manifest tokens), `MR/{PassthroughManager,WorldSpaceUiPlacer}`
+  (Quest passthrough + floating panels). Scene/prefab assembly: `vr_app/SCENE_SETUP.md`.
 
 Next (Phase 2): wire a selected garage robot's profile into the control layer
 (`IDriveScheme` + hand-IK `IManipulationScheme`) — see §5 and §10. _The VR C# is
@@ -369,7 +373,7 @@ the catalog as an SVG/sprite atlas so VR and web share iconography.
 |---|---|---|
 | **0a — Platform contract** ✅ | `Product.vr` tag + `OhhO Pilot`; static `vr/manifest.json` (branding + Supabase auth + VR products) + vitest drift check; VR `OhhoTheme`, manifest models, `OhhoPlatform` fetch, `SupabaseAuthService` (email OTP) | `website/lib/vr/*`, `vr_app/.../Core/OhhoTheme.cs`, `Core/Platform/*` |
 | **0b — App shell + garage sync** ✅ | Login panel (Supabase OTP), Console product grid (VR-filtered), Garage panel pulling the user's `user_robots` from Supabase; static `vr/catalog.json` (categories + robot types) + drift check; `OhhoCatalog` id→model resolution; `GarageClient` (PostgREST) | `website/lib/vr/catalog.*`, VR `App/OhhoVrApp`, `UI/Auth/`, `UI/Console/`, `UI/Garage/`, `Core/Platform/{OhhoCatalog,GarageClient,*Models}` |
-| **0c — Glass design system + MR** | Glass shader + `OhhoTheme`-driven prefabs (GlassPanel/MonoLabel/AccentButton), passthrough + MRUK scaffold; wire the 0b controllers to real scenes | VR `UI/Theme/`, `MR/` |
+| **0c — Glass design system + MR** ✅ | `OhhO/Glass` shader + `OhhoTheme`-driven components (GlassPanel/ThemedText/AccentButton/ThemeApplier + OhhoFontSet), passthrough bootstrap + floating world-space panels; scene-assembly guide | VR `Shaders/OhhoGlass.shader`, `UI/Theme/`, `MR/`, `SCENE_SETUP.md` |
 | **1 — Robot selection (add)** | spatial "add robot" flow mirroring `RobotSelector` (categories → types → models), writing back to `user_robots` | VR `UI/Selection/` |
 | **2 — Profile + OmniBot end-to-end** | `RobotProfile` from `console-spec`; `MecanumDriveScheme` + `HandIK6DOF`; full OmniBot drive+arm in MR | refactor `RobotConfig.cs`→profile, `BaseController`→scheme, `HandTrackingArmController` |
 | **3 — Generalize** | `IDriveScheme`/`IManipulationScheme` factories; differential, ackermann, quadrotor, quadruped, dual-arm; generic IK (FABRIK/BioIK) | `Control/Drive/*`, `Control/Manip/*` |
