@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -21,6 +22,13 @@ namespace OmniBot.VR.UI.Garage
         [SerializeField] private Button refreshButton;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
+
+        /// <summary>
+        /// Fired when the user picks a robot to teleoperate. OhhoVrApp subscribes
+        /// to build the <see cref="OmniBot.VR.Control.RobotProfile"/> and hand off
+        /// to the <see cref="OmniBot.VR.Control.TeleopController"/> (Phase 2).
+        /// </summary>
+        public event Action<GarageRobot> RobotPicked;
 
         private void OnEnable()
         {
@@ -91,9 +99,11 @@ namespace OmniBot.VR.UI.Garage
 
         private void OnRobotSelected(GarageRobot robot)
         {
-            // Phase 2: hand this robot's profile (drive kind + arm DOF) to the
-            // control layer and start teleoperation. For now, confirm the pick.
-            SetStatus($"Selected {robot.DisplayName} — teleop wiring lands in Phase 2.");
+            // Hand the picked robot to the teleop layer. OhhoVrApp subscribes to
+            // RobotPicked, builds the RobotProfile from the catalog entry, and
+            // calls TeleopController.StartTeleop — the Phase 2 spine.
+            SetStatus($"Selected {robot.DisplayName} — starting teleop…");
+            RobotPicked?.Invoke(robot);
         }
 
         private void Clear()

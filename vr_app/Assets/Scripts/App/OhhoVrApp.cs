@@ -1,5 +1,7 @@
 using UnityEngine;
 using OmniBot.VR.Core.Platform;
+using OmniBot.VR.Control;
+using OmniBot.VR.UI.Garage;
 
 namespace OmniBot.VR.App
 {
@@ -28,6 +30,12 @@ namespace OmniBot.VR.App
         [SerializeField] private SupabaseAuthService auth;
         [SerializeField] private GarageClient garage;
 
+        [Header("Teleop (Phase 2)")]
+        [Tooltip("The garage panel controller — listened to for robot selection.")]
+        [SerializeField] private GaragePanelController garagePanelController;
+        [Tooltip("The teleop control layer. Receives the selected robot's profile.")]
+        [SerializeField] private TeleopController teleopController;
+
         private void Awake()
         {
             if (platform == null) platform = OhhoPlatform.Instance;
@@ -39,12 +47,14 @@ namespace OmniBot.VR.App
         {
             if (platform != null) platform.OnLoaded += OnManifestLoaded;
             if (auth != null) auth.OnAuthChanged += OnAuthChanged;
+            if (garagePanelController != null) garagePanelController.RobotPicked += OnRobotPicked;
         }
 
         private void OnDisable()
         {
             if (platform != null) platform.OnLoaded -= OnManifestLoaded;
             if (auth != null) auth.OnAuthChanged -= OnAuthChanged;
+            if (garagePanelController != null) garagePanelController.RobotPicked -= OnRobotPicked;
         }
 
         private void Start()
@@ -72,15 +82,53 @@ namespace OmniBot.VR.App
         }
 
         // ── Panel routing ─────────────────────────────────────────────────────
-        public void ShowLogin() => Activate(login: true, console: false, garage: false);
-        public void ShowConsole() => Activate(login: false, console: true, garage: false);
-        public void ShowGarage() => Activate(login: false, console: false, garage: true);
+        public void ShowLogin() => Activate(login: true, console: false, garage: false, teleop: false);
+        public void ShowConsole() => Activate(login: false, console: true, garage: false, teleop: false);
+        public void ShowGarage() => Activate(login: false, console: false, garage: true, teleop: false);
+        public void ShowTeleop() => Activate(login: false, console: false, garage: false, teleop: true);
 
-        private void Activate(bool login, bool console, bool garage)
+        private void Activate(bool login, bool console, bool garage, bool teleop)
         {
             if (loginPanel != null) loginPanel.SetActive(login);
             if (consolePanel != null) consolePanel.SetActive(console);
             if (garagePanel != null) garagePanel.SetActive(garage);
+            // "teleop" = all app-shell panels off; the floating HUD + camera feed
+            // (separate GameObjects) take over. No panel to activate here yet.
+            _ = teleop;
+        }
+
+        // ── Phase 2: robot selection → teleop ──────────────────────────────────
+
+        /// <summary>
+        /// Called when the user picks a robot in the garage. Builds the
+        /// <see cref="RobotProfile"/> from the catalog entry (drive kind + arm DOF
+        /// + topics + limits), hands it to the <see cref="TeleopController"/>, and
+        /// routes to the teleop view. This is the connected-experience payoff:
+        /// pick a robot, start driving it.
+        /// </summary>
+        private void OnRobotPicked(Core.Platform.GarageRobot robot)
+        {
+            if (robot == null) return;
+            var profile = RobotProfileFactory.FromGarageRobot(robot);
+            if (profile == null)
+            {
+                Debug.LogWarning($"[OhhoVrApp] Could not build a profile for {robot.DisplayName}.");
+                return;
+            }
+            if (teleopController == null)
+            {
+                Debug.LogWarning("[OhhoVrApp] TeleopController not assigned — cannot start teleop.");
+                return;
+            }
+            teleopController.StartTeleop(profile);
+            ShowTeleop();
+        }
+
+        /// <summary>Stop teleoperation and return to the garage.</summary>
+        public void StopTeleopAndReturnToGarage()
+        {
+            if (teleopController != null) teleopController.StopTeleop();
+            ShowGarage();
         }
     }
 }

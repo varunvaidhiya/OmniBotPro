@@ -1,6 +1,6 @@
 # Multi-Robot VR Teleoperation — Architecture & Build Plan
 
-> Status: **Phase 0a–0c implemented** (platform contract, app shell, garage sync, glass UI + passthrough) · teleop control layer is next
+> Status: **Phase 0a–0c + Phase 2 implemented** (platform contract, app shell, garage sync, glass UI + passthrough, profile-driven teleop control layer) · generalization to other drive kinds is next
 > Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
 > Scope: extend `vr_app/` from a single hardcoded OmniBot controller into a
 > **catalog-driven, any-robot** mixed-reality teleoperation app whose robot list,
@@ -46,6 +46,35 @@ Next (Phase 2): wire a selected garage robot's profile into the control layer
 (`IDriveScheme` + hand-IK `IManipulationScheme`) — see §5 and §10. _The VR C# is
 not built in CI (no Unity toolchain); UI controllers are the wiring layer for
 scene/prefab work in the editor._
+
+### Implemented in this branch (Phase 2 — profile-driven teleop)
+
+- **`RobotProfile`** — runtime capability model (C# mirror of
+  `website/lib/garage/robot-config.ts` `RobotConfig`): drive kind, arm DOF,
+  joint specs (names + min/max/home), ROS topics, max velocities, hand-workspace
+  geometry. Replaces the hardcoded `Core/RobotConfig.cs` constants for the
+  control layer.
+- **`RobotProfileFactory`** — derives a `RobotProfile` from a `GarageRobot`
+  (catalog `VrHardwareModel` → `DriveKind` via `DriveSpecs.ParseDrive`; flagship
+  override pins OmniBot to the exact SO-101 6-DOF + mecanum stack). Pure data,
+  offline, no AI call.
+- **`IDriveScheme` / `MecanumDriveScheme`** — drive strategy extracted from the
+  legacy `BaseController.cs` (dead-zone, turbo, e-stop, 20 Hz publish,
+  control-mode management), now reading limits + topics from the profile.
+- **`IManipulationScheme` / `HandIK6DofScheme`** — hand→arm IK retargeting
+  extracted from the legacy `HandTrackingArmController.cs`, wrapping `ArmIKSolver`
+  with profile-driven joint names/limits and a thumbs-up arm-enable toggle.
+- **`ControlSchemeFactory`** — picks the drive + manipulation schemes from the
+  profile (today: mecanum + 6-DOF hand-IK; other drive kinds log a Phase 3 warning).
+- **`IRobotLink` / `RosBridgeLink`** — transport abstraction wrapping
+  `ROSBridgeClient` (mirrors `RobotTransport` on the website), so schemes are
+  testable and the transport is swappable.
+- **`TeleopController`** — MonoBehaviour entry point that pumps OVR input +
+  hand tracking → schemes → `IRobotLink` every frame. Replaces the legacy
+  `BaseController` + `HandTrackingArmController` as the single teleop GameObject.
+- **Wiring** — `GaragePanelController.RobotPicked` event → `OhhoVrApp` builds the
+  profile → `TeleopController.StartTeleop(profile)` → routes to the teleop view.
+  Selecting a robot in the garage now starts driving it.
 
 ---
 
@@ -375,7 +404,7 @@ the catalog as an SVG/sprite atlas so VR and web share iconography.
 | **0b — App shell + garage sync** ✅ | Login panel (Supabase OTP), Console product grid (VR-filtered), Garage panel pulling the user's `user_robots` from Supabase; static `vr/catalog.json` (categories + robot types) + drift check; `OhhoCatalog` id→model resolution; `GarageClient` (PostgREST) | `website/lib/vr/catalog.*`, VR `App/OhhoVrApp`, `UI/Auth/`, `UI/Console/`, `UI/Garage/`, `Core/Platform/{OhhoCatalog,GarageClient,*Models}` |
 | **0c — Glass design system + MR** ✅ | `OhhO/Glass` shader + `OhhoTheme`-driven components (GlassPanel/ThemedText/AccentButton/ThemeApplier + OhhoFontSet), passthrough bootstrap + floating world-space panels; scene-assembly guide | VR `Shaders/OhhoGlass.shader`, `UI/Theme/`, `MR/`, `SCENE_SETUP.md` |
 | **1 — Robot selection (add)** | spatial "add robot" flow mirroring `RobotSelector` (categories → types → models), writing back to `user_robots` | VR `UI/Selection/` |
-| **2 — Profile + OmniBot end-to-end** | `RobotProfile` from `console-spec`; `MecanumDriveScheme` + `HandIK6DOF`; full OmniBot drive+arm in MR | refactor `RobotConfig.cs`→profile, `BaseController`→scheme, `HandTrackingArmController` |
+| **2 — Profile + OmniBot end-to-end** ✅ | `RobotProfile` from catalog (`RobotProfileFactory`); `MecanumDriveScheme` + `HandIK6DofScheme`; full OmniBot drive+arm in MR; `IRobotLink` transport abstraction; `TeleopController` + garage→teleop wiring | `Control/RobotProfile.cs`, `Control/RobotProfileFactory.cs`, `Control/Drive/*`, `Control/Manip/*`, `Control/{IRobotLink,ControlSchemeFactory,TeleopController}.cs`, `App/OhhoVrApp.cs`, `UI/Garage/GaragePanelController.cs` |
 | **3 — Generalize** | `IDriveScheme`/`IManipulationScheme` factories; differential, ackermann, quadrotor, quadruped, dual-arm; generic IK (FABRIK/BioIK) | `Control/Drive/*`, `Control/Manip/*` |
 | **4 — Telepresence & data** | WebRTC video; profile-driven recording; robot-side IK toggle (MoveIt Servo) | `UI/CameraFeedViewer`→WebRTC, `Recording/` |
 | **5 — Polish** | Account link, saved-robot fleet, per-robot calibration, onboarding, tests | — |

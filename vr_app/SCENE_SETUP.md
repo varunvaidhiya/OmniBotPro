@@ -85,6 +85,34 @@ micro-labels). Primary buttons use **`AccentButton`** (PrimaryCyan).
 - Add **`GaragePanelController`**; assign `listParent`, `cardPrefab`, `statusText`,
   `refreshButton`.
 
+### 5d. Teleop controller (Phase 2)
+The teleop control layer — receives the selected robot's profile and pumps VR
+input → drive + hand-IK → ROS every frame.
+
+1. Create a persistent GameObject **"TeleopController"** (child of the OhhoApp
+   bootstrap, or its own DontDestroyOnLoad object).
+2. Add **`TeleopController`** and wire:
+   - `gestureDetector` → the scene `GestureDetector` (auto-found if omitted).
+   - `handWorkspaceOrigin` → a Transform at the robot arm's base position
+     (0.35 m above the robot base by default). The IK scheme anchors hand
+     retargeting to this point.
+   - `linkProvider` → optional; leave null to use the `RosBridgeLink` singleton
+     (wraps `ROSBridgeClient`).
+3. On the **`OhhoVrApp`** bootstrap component, assign the new fields:
+   - `garagePanelController` → the scene `GaragePanelController`.
+   - `teleopController` → the `TeleopController` above.
+
+`OhhoVrApp` subscribes to `GaragePanelController.RobotPicked`: when the user
+selects a robot it builds a `RobotProfile` (`RobotProfileFactory.FromGarageRobot`
+— drive kind + arm DOF + joint limits + ROS topics from the catalog), calls
+`TeleopController.StartTeleop(profile)`, and routes to the teleop view (all
+app-shell panels hidden; the floating HUD + camera feed take over).
+
+The legacy `Input/BaseController.cs` + `Input/HandTrackingArmController.cs`
+MonoBehaviours are superseded by `TeleopController` — remove them from the scene
+(or disable them) to avoid double-publishing `/cmd_vel/teleop` and
+`/arm/joint_commands`.
+
 ## 6. Run
 
 1. Build & Run to the Quest (or Meta XR Simulator).
@@ -93,9 +121,14 @@ micro-labels). Primary buttons use **`AccentButton`** (PrimaryCyan).
    VR products (today **OhhO Pilot**).
 4. Open Pilot → the **garage** lists the robots from your OhhO account (pulled from
    Supabase `user_robots`). Empty? Add one on the website/app — it appears here.
-
-Selecting a robot is wired to a hand-off point; the teleop control layer (drive +
-hand-IK) lands in **Phase 2** (see `MULTI_ROBOT_TELEOP_ARCHITECTURE.md` §5).
+5. **Select a robot** → `OhhoVrApp` builds its `RobotProfile` from the catalog and
+   hands it to `TeleopController`. The app-shell panels hide; the HUD takes over.
+   - **Base:** left stick strafe (vx/vy), right stick X yaw, right grip turbo,
+     both grips e-stop.
+   - **Arm:** right-hand pose → IK → `/arm/joint_commands` @ 20 Hz; pinch →
+     gripper; left-hand thumbs-up (hold 0.5 s) toggles arm enable.
+   - All topics, joint names and limits come from the profile (OmniBot = SO-101
+     6-DOF + mecanum, identical to the old hardcoded constants).
 
 ---
 
