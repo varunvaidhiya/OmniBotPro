@@ -1,0 +1,1771 @@
+{
+  "version": 1,
+  "categories": [
+    {
+      "id": "drones",
+      "label": "Drones",
+      "icon": "Drone",
+      "blurb": "Aerial robots — quadcopters, hexacopters, fixed-wing, and VTOL UAVs.",
+      "color": "#00d4ff"
+    },
+    {
+      "id": "wheeled",
+      "label": "Wheeled Robots",
+      "icon": "Car",
+      "blurb": "Differential, mecanum, ackermann, and omnidirectional ground vehicles.",
+      "color": "#a78bfa"
+    },
+    {
+      "id": "legged",
+      "label": "Legged Robots",
+      "icon": "Footprints",
+      "blurb": "Quadrupeds, hexapods, and other walking robots.",
+      "color": "#f97316"
+    },
+    {
+      "id": "humanoid",
+      "label": "Humanoid Robots",
+      "icon": "User",
+      "blurb": "Bipedal humanoid robots — general-purpose embodied AI platforms.",
+      "color": "#34d399"
+    },
+    {
+      "id": "tracked",
+      "label": "Tracked Robots",
+      "icon": "LayoutList",
+      "blurb": "Tank-tread robots for rough terrain and heavy payloads.",
+      "color": "#fbbf24"
+    },
+    {
+      "id": "marine",
+      "label": "Marine Robots",
+      "icon": "Ship",
+      "blurb": "Autonomous surface vessels and unmanned boats.",
+      "color": "#38bdf8"
+    },
+    {
+      "id": "industrial-arm",
+      "label": "Industrial Arms",
+      "icon": "Armchair",
+      "blurb": "Fixed-base robotic arms — manufacturing, assembly, and lab automation.",
+      "color": "#fb7185"
+    },
+    {
+      "id": "mobile-manipulator",
+      "label": "Mobile Manipulators",
+      "icon": "Bot",
+      "blurb": "Wheeled bases with arms — the full embodied-AI platform.",
+      "color": "#818cf8"
+    },
+    {
+      "id": "swarm",
+      "label": "Swarm Robots",
+      "icon": "Grid3x3",
+      "blurb": "Multi-agent swarms for collective intelligence and distributed tasks.",
+      "color": "#22d3ee"
+    },
+    {
+      "id": "agricultural",
+      "label": "Agricultural",
+      "icon": "Leaf",
+      "blurb": "Precision farming robots — planting, weeding, harvesting, and monitoring.",
+      "color": "#4ade80"
+    },
+    {
+      "id": "underwater-rov",
+      "label": "Underwater ROVs",
+      "icon": "Waves",
+      "blurb": "Remotely operated and autonomous underwater vehicles.",
+      "color": "#0ea5e9"
+    },
+    {
+      "id": "space",
+      "label": "Space Robotics",
+      "icon": "Rocket",
+      "blurb": "Orbital and planetary robots — rovers, satellite servicers, and landers.",
+      "color": "#e2e8f0"
+    },
+    {
+      "id": "medical",
+      "label": "Medical Robots",
+      "icon": "HeartPulse",
+      "blurb": "Surgical, rehabilitation, and hospital-assistance robots.",
+      "color": "#f472b6"
+    },
+    {
+      "id": "delivery",
+      "label": "Delivery Robots",
+      "icon": "Package",
+      "blurb": "Last-mile autonomous delivery platforms — sidewalks to roads.",
+      "color": "#a3e635"
+    },
+    {
+      "id": "inspection",
+      "label": "Inspection Robots",
+      "icon": "Search",
+      "blurb": "Pipeline, infrastructure, and confined-space inspection robots.",
+      "color": "#c084fc"
+    }
+  ],
+  "robotTypes": [
+    {
+      "id": "drone-quadcopter",
+      "name": "Quadcopter",
+      "category": "drones",
+      "tagline": "4-rotor aerial platform — the standard for aerial robotics.",
+      "description": "Quadcopters are the most common multirotor configuration. Four independent rotors provide stable hover, agile maneuvering, and payload capacity from grams to kilograms. Used for inspection, surveying, cinematography, delivery, and research.",
+      "hardwareModels": [
+        {
+          "id": "dji-matrice-300",
+          "specs": {
+            "flightTime": "55 min",
+            "maxPayload": "2.7 kg",
+            "range": "15 km",
+            "weight": "6.3 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 4l-6 6-8 2 1-4 7-2zm0 0l6 6 8 2-1-4-7-2zM8 12l-2 8 4 2 4-6zm16 0l2 8-4 2-4-6zM16 16l4-6-4-6-4 6zM6 22l-2 4 4 2 3-4zm20 0l2 4-4 2-3-4z",
+          "price": "~$13,000",
+          "supportedProducts": [
+            "pilot",
+            "view",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "quadrotor",
+          "hasArm": false,
+          "payloadKg": 2.7,
+          "weightKg": 6.3,
+          "name": "DJI Matrice 300 RTK",
+          "manufacturer": "DJI",
+          "desc": "Enterprise flagship with 55-min flight, IP45 rating, and multi-payload support. 15 km transmission range."
+        },
+        {
+          "id": "dji-mavic-3e",
+          "specs": {
+            "flightTime": "45 min",
+            "camera": "20 MP, 4/3 CMOS",
+            "range": "15 km",
+            "weight": "915 g"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 5L11 9l-7 1 1-3 6-2zm0 0l5 4 7 1-1-3-6-2zM6 11l-1 7 3 2 3-5zm14 0l1 7-3 2-3-5zM16 15l3-5-3-5-3 5zM17 6a2 2 0 100-4 2 2 0 000 4zM4 18v2h24v-2M13 20v5M19 20v5",
+          "price": "~$4,200",
+          "supportedProducts": [
+            "pilot",
+            "view",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "quadrotor",
+          "hasArm": false,
+          "payloadKg": 0.2,
+          "weightKg": 0.915,
+          "name": "DJI Mavic 3 Enterprise",
+          "manufacturer": "DJI",
+          "desc": "Compact enterprise drone with mechanical shutter, RTK module, and 45-min flight. Ideal for mapping and inspection."
+        },
+        {
+          "id": "px4-quad",
+          "specs": {
+            "flightTime": "20-40 min",
+            "frame": "450 mm",
+            "fc": "Pixhawk",
+            "comp": "RPi 5 / Jetson"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3l-7 7M16 3l7 7M9 12l-5 2 2 4 4-4zm14 0l5 2-2 4-4-4zM16 14L9 22l4 3 3-6zm0 0l7 8-4 3-3-6zM7 25l-2 5 7 0 1-3zm18 0l2 5-7 0-1-3zM16 11l4-7M16 11l-4-7",
+          "price": "~$800–3,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "autonomy",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadrotor",
+          "hasArm": false,
+          "payloadKg": 1,
+          "weightKg": 1.5,
+          "name": "PX4 Custom Quad",
+          "manufacturer": "Custom / Open Source",
+          "desc": "Fully open-source PX4/ArduPilot quadcopter. Build your own frame, stack companion computer (RPi/Jetson), and run ROS 2 on board."
+        },
+        {
+          "id": "skydio-x10",
+          "specs": {
+            "flightTime": "40 min",
+            "sensors": "6× 4K nav cameras",
+            "thermal": "FLIR Boson+",
+            "weight": "3.1 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M15 4l-6 7-7 1 2-3 6-3zm2 0l6 7 7 1-2-3-6-3zM4 12l-1 8 5 3 2-7zm18 0l1 8-5 3-2-7zM16 16l4-6-4-8-4 8zM19 5a3 3 0 100-5 3 3 0 000 5zM10 22l-2 6 7 2 1-5zm12 0l2 6-7 2-1-5z",
+          "price": "~$18,000",
+          "supportedProducts": [
+            "pilot",
+            "view",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "quadrotor",
+          "hasArm": false,
+          "payloadKg": 0.8,
+          "weightKg": 3.1,
+          "name": "Skydio X10",
+          "manufacturer": "Skydio",
+          "desc": "AI-powered autonomous drone with 360° obstacle avoidance, FLIR thermal, and 40-min flight. Best-in-class autonomous navigation."
+        }
+      ]
+    },
+    {
+      "id": "drone-hexacopter",
+      "name": "Hexacopter",
+      "category": "drones",
+      "tagline": "6-rotor heavy-lift platform — redundancy and payload.",
+      "description": "Six rotors provide motor-out redundancy and higher payload capacity. Used for heavy-lift cinematography, LiDAR surveying, agricultural spraying, and industrial cargo.",
+      "hardwareModels": [
+        {
+          "id": "dji-agras-t40",
+          "specs": {
+            "payload": "40 kg",
+            "tank": "50 L",
+            "sprayWidth": "11 m",
+            "flightTime": "18 min loaded"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3l-8 5M16 3l8 5M8 10l-6 3 3 5 4-4zm16 0l6 3-3 5-4-4zM16 6l-4 8M16 6l4 8M4 16l-2 6 6 3 2-6zm24 0l2 6-6 3-2-6zM16 14l-4 6 4 4 4-4zm0 0l-6 2M16 14l6 2M14 4h4M20 7h4M8 7h4",
+          "price": "~$25,000",
+          "supportedProducts": [
+            "pilot",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "hexacopter",
+          "hasArm": false,
+          "payloadKg": 40,
+          "weightKg": 38,
+          "name": "DJI Agras T40",
+          "manufacturer": "DJI",
+          "desc": "Agricultural spraying drone with 40 kg payload, 50 L tank, dual radar, and terrain-following. Covers 21 ha/hr."
+        },
+        {
+          "id": "freefly-alta-x",
+          "specs": {
+            "payload": "16 kg",
+            "flightTime": "25–45 min",
+            "fc": "PX4",
+            "weight": "9.5 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 2l-9 6M16 2l9 6M7 9l-5 3 2 6 5-5zm18 0l5 3-2 6-5-5zM16 5l-5 9M16 5l5 9M5 16L2 22l7 4 2-7zm22 0l3 6-7 4-2-7zM16 18l-4 4 4 4 4-4zM12 4h8M15 15h2",
+          "price": "~$17,500",
+          "supportedProducts": [
+            "pilot",
+            "view"
+          ],
+          "ros": "custom",
+          "locomotion": "hexacopter",
+          "hasArm": false,
+          "payloadKg": 16,
+          "weightKg": 9.5,
+          "name": "Freefly Alta X",
+          "manufacturer": "Freefly Systems",
+          "desc": "Heavy-lift cinema hexacopter with 16 kg payload, folding arms, and open-source PX4 autopilot."
+        }
+      ]
+    },
+    {
+      "id": "drone-fixed-wing",
+      "name": "Fixed-Wing UAV",
+      "category": "drones",
+      "tagline": "Long-endurance fixed-wing for mapping and surveying vast areas.",
+      "description": "Fixed-wing UAVs offer flight times of 1-4+ hours, covering hundreds of square kilometers per flight. Used for aerial surveying, agriculture monitoring, pipeline inspection, and defense.",
+      "hardwareModels": [
+        {
+          "id": "wingtra-one",
+          "specs": {
+            "endurance": "54 min",
+            "coverage": "110 ha/flight",
+            "camera": "42 MP full-frame",
+            "weight": "4.5 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 28V12l-10 6 2-4 8-4zm0-16l10 6-2-4-8-4zm0 0V4l-2-2h4l-2 2zm-7 8L3 10l2 3zm14 0l6-2-2 3zm-14 8L3 18l2 3zm14 0l6-2-2 3zM16 18v2M3 16h26v1H3zM3 18h2v6H5zM27 18h-2v6h2z",
+          "price": "~$25,000",
+          "supportedProducts": [
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "vtol-fixed-wing",
+          "hasArm": false,
+          "payloadKg": 0.5,
+          "weightKg": 4.5,
+          "name": "WingtraOne Gen II",
+          "manufacturer": "Wingtra",
+          "desc": "VTOL fixed-wing survey drone. Takes off and lands vertically, flies like a plane. 54-min endurance, 42 MP Sony RX1R II camera."
+        },
+        {
+          "id": "sensefly-ebee-x",
+          "specs": {
+            "endurance": "90 min",
+            "coverage": "500 ha",
+            "payloads": "RGB, NIR, thermal",
+            "weight": "1.6 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 27V10l-12 7 3-5 9-5zm0-17l12 7-3-5-9-5zm0 0V4l-3-3h6l-3 3zM16 20v3M2 14h28M2 14l4-2M30 14l-4-2M9 22h14v2H9z",
+          "price": "~$15,000",
+          "supportedProducts": [
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "fixed-wing",
+          "hasArm": false,
+          "payloadKg": 0.3,
+          "weightKg": 1.6,
+          "name": "senseFly eBee X",
+          "manufacturer": "AgEagle (senseFly)",
+          "desc": "Fixed-wing mapping drone with swappable payloads (RGB, multispectral, thermal). Covers 500 ha/flight."
+        }
+      ]
+    },
+    {
+      "id": "wheeled-differential",
+      "name": "Differential Drive",
+      "category": "wheeled",
+      "tagline": "Two-wheel differential base — the classic mobile robot.",
+      "description": "The simplest and most common wheeled robot configuration. Two independently driven wheels plus a caster for balance. Used in education, research, warehouse logistics, and indoor service robots.",
+      "hardwareModels": [
+        {
+          "id": "turtlebot4",
+          "specs": {
+            "speed": "0.31 m/s",
+            "payload": "9 kg",
+            "sensors": "OAK-D, RPLIDAR",
+            "compute": "RPi 4 4 GB"
+          },
+          "imageUrl": "",
+          "avatarPath": "M6 14h20v8H6zM8 15v6h16v-6zM10 22a3 3 0 01-3-3v-4M22 22a3 3 0 003-3v-4M10 10a2 2 0 100-4 2 2 0 000 4zm12 0a2 2 0 100-4 2 2 0 000 4zM12 16h2v2h-2zm4 0h4v2h-4z",
+          "price": "~$1,200",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 9,
+          "weightKg": 3,
+          "name": "TurtleBot 4",
+          "manufacturer": "Clearpath / Open Robotics",
+          "desc": "The standard ROS 2 education/research platform. iRobot Create 3 base, RPi 4, OAK-D camera, 2-D LiDAR. Runs ROS 2 Humble/Jazzy."
+        },
+        {
+          "id": "turtlebot3",
+          "specs": {
+            "speed": "0.22 m/s",
+            "payload": "15 kg (Burger)",
+            "sensors": "LDS-01 LiDAR",
+            "compute": "RPi 3/4"
+          },
+          "imageUrl": "",
+          "avatarPath": "M7 15h18v7H7zM8 16v5h16v-5zM9 22a2 2 0 01-2-2v-5M23 22a2 2 0 002-2v-5M9 11a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4zM13 19h6M14 17h4",
+          "price": "~$550–1,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 15,
+          "weightKg": 1,
+          "name": "TurtleBot 3 Burger / Waffle",
+          "manufacturer": "ROBOTIS",
+          "desc": "Compact, affordable ROS platform. Burger has 360° LiDAR; Waffle adds an Intel RealSense camera."
+        },
+        {
+          "id": "clearpath-dingo",
+          "specs": {
+            "speed": "1.0 m/s",
+            "payload": "20 kg",
+            "drive": "diff-drive",
+            "compute": "Up to Jetson AGX"
+          },
+          "imageUrl": "",
+          "avatarPath": "M5 13h22v9H5zM6 14v7h20v-7zM7 22a3 3 0 01-2-5v-4M25 22a3 3 0 002-5v-4M6 9a3 3 0 100-5 3 3 0 000 5zm20 0a3 3 0 100-5 3 3 0 000 5zM11 16h10v3H11z",
+          "price": "~$12,000+",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 20,
+          "weightKg": 20,
+          "name": "Clearpath Dingo",
+          "manufacturer": "Clearpath Robotics",
+          "desc": "Indoor research robot for manipulation. Modular payload mounts, 5/12 V power rails, ROS 2-native."
+        }
+      ]
+    },
+    {
+      "id": "wheeled-mecanum",
+      "name": "Mecanum Wheel",
+      "category": "wheeled",
+      "tagline": "Omnidirectional mecanum base — full holonomic motion.",
+      "description": "Four mecanum rollers enable strafing, rotation, and diagonal motion — full 3-DOF planar movement. Used in tight-space logistics, mobile manipulation, and any application needing omnidirectional capability.",
+      "hardwareModels": [
+        {
+          "id": "omnibot",
+          "specs": {
+            "speed": "0.2 m/s",
+            "payload": "5 kg",
+            "arm": "SO-101, 6-DOF",
+            "compute": "RPi 5 8 GB"
+          },
+          "imageUrl": "",
+          "avatarPath": "M6 12h20v10H6zM7 14v7h18v-7zM9 22a3 3 0 01-3-3v-4M23 22a3 3 0 003-3v-4M9 10a4 4 0 01-1-2M9 10l2-1M23 10a4 4 0 001-2M23 10l-2-1M11 16h3v2h-3zm7 0h3v2h-3zM14 13l2 2M18 13l-2 2M12 20l3-4M20 20l-3-4",
+          "price": "~$1,500",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train",
+            "fleet",
+            "comply",
+            "proof",
+            "shield"
+          ],
+          "ros": "ros2",
+          "locomotion": "mecanum",
+          "hasArm": true,
+          "payloadKg": 5,
+          "weightKg": 5,
+          "name": "OmniBot Pro (Reference)",
+          "manufacturer": "OhhO / Open Source",
+          "desc": "OhhO's reference mecanum mobile manipulator. Yahboom X3 base, SO-101 6-DOF arm, Pi 5 brain, full ROS 2 stack. The platform the entire OhhO suite is built on."
+        },
+        {
+          "id": "yahboom-x3",
+          "specs": {
+            "speed": "1.2 m/s",
+            "payload": "5 kg",
+            "odometry": "encoder + IMU",
+            "size": "265×250×130 mm"
+          },
+          "imageUrl": "",
+          "avatarPath": "M7 13h18v9H7zM8 15v6h16v-6zM8 21a2 2 0 01-2-2v-4M24 21a2 2 0 002-2v-4M8 10l2 1M24 10l-2 1M12 16h3v2h-3zm5 0h3v2h-3zM14 14l1 1M18 14l-1 1M14 20l2-3M18 20l-2-3",
+          "price": "~$300–500",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "mecanum",
+          "hasArm": false,
+          "payloadKg": 5,
+          "weightKg": 2.5,
+          "name": "Yahboom Rosmaster X3",
+          "manufacturer": "Yahboom",
+          "desc": "Popular mecanum ROS robot kit. 4 STS servos, encoder odometry, IMU. Add your own SBC and sensors."
+        },
+        {
+          "id": "nexus-4wd",
+          "specs": {
+            "speed": "1.8 m/s",
+            "payload": "25 kg",
+            "drive": "BLDC ×4",
+            "ip": "IP54"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 11h24v12H4zM5 13v9h22v-9zM6 23a3 3 0 01-2-4v-6M26 23a3 3 0 002-4v-6M6 8l3 1M26 8l-3 1M10 16h4v3h-4zm8 0h4v3h-4zM13 14l2 2M19 14l-2 2M12 21l3-4M20 21l-3-4",
+          "price": "~$2,500",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "mecanum",
+          "hasArm": false,
+          "payloadKg": 25,
+          "weightKg": 12,
+          "name": "Nexus 4WD Mecanum",
+          "manufacturer": "Nexus Robot",
+          "desc": "Heavy-duty mecanum base with 100 mm wheels, BLDC motors, and IP54 rating for light outdoor use."
+        }
+      ]
+    },
+    {
+      "id": "wheeled-ackermann",
+      "name": "Ackermann Steering",
+      "category": "wheeled",
+      "tagline": "Car-like steering — for outdoor autonomy and delivery.",
+      "description": "Car-like steering geometry for outdoor, higher-speed applications. Used in autonomous delivery, agriculture, and outdoor logistics where mecanum or differential bases are limited.",
+      "hardwareModels": [
+        {
+          "id": "clearpath-husky",
+          "specs": {
+            "speed": "1.5 m/s",
+            "payload": "75 kg",
+            "drive": "4×4 skid-steer",
+            "rating": "IP65"
+          },
+          "imageUrl": "",
+          "avatarPath": "M3 12h26v11H3zM4 16l2-1v7h20v-7l2 1M5 23h22v2H5zM6 10a3 3 0 100-4 3 3 0 000 4zm20 0a3 3 0 100-4 3 3 0 000 4zM9 17h3v3H9zm11 0h3v3h-3zM16 18v2",
+          "price": "~$35,000+",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "ackermann / skid-steer",
+          "hasArm": false,
+          "payloadKg": 75,
+          "weightKg": 90,
+          "name": "Clearpath Husky A300",
+          "manufacturer": "Clearpath Robotics",
+          "desc": "Rugged outdoor UGV with Ackermann steering. IP65, 75 kg payload, 20 km range. ROS 2-native with full sensor integration."
+        },
+        {
+          "id": "racecar-j",
+          "specs": {
+            "speed": "7 m/s",
+            "scale": "1:10",
+            "compute": "Jetson Orin NX",
+            "lidar": "2-D LiDAR"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 13h24v9H4zM5 14l3-1v7h16v-7l3 1M5 22h22v2H5zM7 10a2 2 0 100-3 2 2 0 000 3zm18 0a2 2 0 100-3 2 2 0 000 3zM16 22v-4h-2l2-4 2 4h-2zM11 18h2v3h-2zM19 18h2v3h-2z",
+          "price": "~$4,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "ackermann",
+          "hasArm": false,
+          "payloadKg": 5,
+          "weightKg": 3.5,
+          "name": "MIT Racecar/J",
+          "manufacturer": "MIT / Open Source",
+          "desc": "Open-source 1/10 scale autonomous vehicle platform. NVIDIA Jetson + VESC motor controller. Used in F1Tenth racing."
+        }
+      ]
+    },
+    {
+      "id": "legged-quadruped",
+      "name": "Quadruped (Dog)",
+      "category": "legged",
+      "tagline": "Four-legged robots — walk, climb, and navigate complex terrain.",
+      "description": "Quadruped robots traverse stairs, gravel, grass, and rubble that wheeled robots cannot. Used for inspection, security, construction monitoring, and research on dynamic locomotion.",
+      "hardwareModels": [
+        {
+          "id": "unitree-go2",
+          "specs": {
+            "dof": "12",
+            "speed": "5 m/s",
+            "payload": "8 kg",
+            "runtime": "1 hr",
+            "weight": "15 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 5l-3 2 1 4M16 5l3 2-1 4M10 10l-6 3 2 5 4-3zm12 0l6 3-2 5-4-3zM8 18l-1 6 4 2 2-5zm12 0l1 6-4 2-2-5zM12 11h8v5h-8zM14 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
+          "price": "~$1,600–$3,750",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 8,
+          "weightKg": 15,
+          "name": "Unitree Go2",
+          "manufacturer": "Unitree Robotics",
+          "desc": "The most popular quadruped. 12-DOF, 8 kg payload, 5 m/s top speed, 4-D LiDAR. ROS 2 SDK with full walking/trotting gaits."
+        },
+        {
+          "id": "unitree-b2",
+          "specs": {
+            "dof": "12",
+            "speed": "6 m/s",
+            "payload": "20 kg",
+            "runtime": "2 hr",
+            "rating": "IP67"
+          },
+          "imageUrl": "",
+          "avatarPath": "M15 4l-4 3 2 5M17 4l4 3-2 5M8 10l-7 4 3 6 5-4zm16 0l7 4-3 6-5-4zM6 20L4 27l5 3 3-6zm14 0l2 7-5 3-3-6zM12 12h8v6h-8zM13 5a2 2 0 100-3 2 2 0 000 3zm6 0a2 2 0 100-3 2 2 0 000 3zM20 14h2M10 14h2",
+          "price": "~$100,000",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 20,
+          "weightKg": 60,
+          "name": "Unitree B2",
+          "manufacturer": "Unitree Robotics",
+          "desc": "High-performance quadruped. 6 m/s, 20 kg payload, 2 hr runtime, IP67 rating. Industrial inspection and security."
+        },
+        {
+          "id": "boston-dynamics-spot",
+          "specs": {
+            "dof": "12",
+            "speed": "1.6 m/s",
+            "payload": "14 kg",
+            "runtime": "90 min",
+            "rating": "IP54"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 4l-4 2 2 5M16 4l4 2-2 5M8 9l-7 3 2 7 5-5zm16 0l7 3-2 7-5-5zM5 19L3 27l5 3 3-7zm15 0l2 8-5 3-3-7zM11 10h10v6H11zM13 3a2 2 0 100-3 2 2 0 000 3zm6 0a2 2 0 100-3 2 2 0 000 3zM16 14v2",
+          "price": "~$75,000+",
+          "supportedProducts": [
+            "pilot",
+            "view",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 14,
+          "weightKg": 32.5,
+          "name": "Boston Dynamics Spot",
+          "manufacturer": "Boston Dynamics",
+          "desc": "The industrial-standard quadruped. Dynamic sensing, autonomous navigation, dock charging, and a rich payload ecosystem. API + SDK for custom autonomy."
+        },
+        {
+          "id": "anymal-d",
+          "specs": {
+            "dof": "12",
+            "speed": "1.3 m/s",
+            "payload": "10 kg",
+            "runtime": "90 min",
+            "rating": "IP67"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3l-5 3 2 6M16 3l5 3-2 6M7 9l-6 3 2 7 4-5zm18 0l6 3-2 7-4-5zM5 19L2 28l6 3 3-8zm17 0l3 9-6 3-3-8zM11 11h10v5H11zM12 4a2 2 0 100-3 2 2 0 000 3zm8 0a2 2 0 100-3 2 2 0 000 3zM20 12v3M12 12v3",
+          "price": "~$150,000+",
+          "supportedProducts": [
+            "view",
+            "autonomy",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 10,
+          "weightKg": 35,
+          "name": "ANYmal D",
+          "manufacturer": "ANYbotics",
+          "desc": "Swiss-engineered quadruped for industrial inspection. Full autonomy with 360° perception, stair climbing, and ATEX certification option."
+        }
+      ]
+    },
+    {
+      "id": "legged-hexapod",
+      "name": "Hexapod",
+      "category": "legged",
+      "tagline": "Six-legged robots — extreme stability and payload.",
+      "description": "Six legs provide static stability — the robot can walk while keeping 3+ feet on the ground. Used for heavy-duty inspection, search and rescue, and terrain that defeats even quadrupeds.",
+      "hardwareModels": [
+        {
+          "id": "phantomx-ax",
+          "specs": {
+            "dof": "18",
+            "servos": "AX-12A",
+            "weight": "2.5 kg",
+            "speed": "0.3 m/s"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 6l-4 2 1 5M16 6l4 2-1 5M16 6v4M8 10l-7 3 2 6 6-4zm16 0l7 3-2 6-6-4zM4 18L2 26l5 3 3-7zm20 0l2 8-5 3-3-7zM11 11h10v5H11zM12 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5 11l-2 1M27 11l2 1",
+          "price": "~$1,500",
+          "supportedProducts": [
+            "build",
+            "serve",
+            "pilot"
+          ],
+          "ros": "ros2",
+          "locomotion": "hexapod",
+          "hasArm": false,
+          "payloadKg": 1.5,
+          "weightKg": 2.5,
+          "name": "PhantomX AX Hexapod",
+          "manufacturer": "Trossen Robotics / Interbotix",
+          "desc": "Open-source 18-DOF hexapod. Dynamixel AX-12A servos, ROS-compatible. Research platform for gait generation and terrain adaptation."
+        }
+      ]
+    },
+    {
+      "id": "humanoid-full",
+      "name": "Full Humanoid",
+      "category": "humanoid",
+      "tagline": "Bipedal humanoid robots — the frontier of embodied AI.",
+      "description": "Full-scale humanoid robots with two legs, two arms, and dexterous hands. The ultimate platform for general-purpose embodied AI — manipulation, navigation, and human-robot interaction in human-designed environments.",
+      "hardwareModels": [
+        {
+          "id": "unitree-h1",
+          "specs": {
+            "dof": "51",
+            "height": "180 cm",
+            "weight": "47 kg",
+            "payload": "10 kg/arm",
+            "speed": "5 km/h"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M8 7l-3 6 2 3 3-4zm16 0l3 6-2 3-3-4zM8 16l-4 8 3 4 4-6zm16 0l4 8-3 4-4-6zM10 10h12v3H10zM10 28v4h4v-4zm8 0v4h4v-4z",
+          "price": "~$90,000",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 10,
+          "weightKg": 47,
+          "name": "Unitree H1",
+          "manufacturer": "Unitree Robotics",
+          "desc": "General-purpose humanoid. 51-DOF, 19-DOF dexterous hands, 5 km/h walking, 3-D LiDAR + depth cameras. Open SDK."
+        },
+        {
+          "id": "unitree-g1",
+          "specs": {
+            "dof": "23–43",
+            "height": "127 cm",
+            "weight": "35 kg",
+            "payload": "2 kg/arm"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M9 7l-3 5 1 3 3-4zm14 0l3 5-1 3-3-4zM9 15l-4 7 3 4 4-6zm14 0l4 7-3 4-4-6zM11 10h10v2H11zM11 26v3h3v-3zm7 0v3h3v-3zM13 28h6",
+          "price": "~$16,000",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 2,
+          "weightKg": 35,
+          "name": "Unitree G1",
+          "manufacturer": "Unitree Robotics",
+          "desc": "Compact humanoid. 23-43 DOF, 3-finger dexterous hands, 14 cm depth camera. Targeted at home and service use."
+        },
+        {
+          "id": "figure-02",
+          "specs": {
+            "dof": "30+",
+            "height": "170 cm",
+            "weight": "60 kg",
+            "payload": "20 kg",
+            "runtime": "5 hr"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 1a2.5 2.5 0 100 4 2.5 2.5 0 000-4zm0 5v3M7 7l-4 7 2 3 4-5zm18 0l4 7-2 3-4-5zM7 17l-5 8 3 5 5-7zm18 0l5 8-3 5-5-7zM9 10h14v3H9zM9 30v2h5v-2zm9 0v2h5v-2zM14 24h4v6h-4z",
+          "price": "Contact manufacturer",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 20,
+          "weightKg": 60,
+          "name": "Figure 02",
+          "manufacturer": "Figure AI",
+          "desc": "Electric humanoid with human-scale dexterity. Built for industrial work — 16-DOF hands, 2.5-hr runtime, integrated AI with speech."
+        },
+        {
+          "id": "fourier-gr2",
+          "specs": {
+            "dof": "53",
+            "height": "175 cm",
+            "weight": "63 kg",
+            "payload": "5 kg/arm"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M7 7l-3 6 2 3 3-4zm18 0l3 6-2 3-3-4zM8 16l-4 8 3 4 4-6zm16 0l4 8-3 4-4-6zM10 10h12v3H10zM10 28v4h3v-4zm9 0v4h3v-4zM16 24v4",
+          "price": "Contact manufacturer",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 5,
+          "weightKg": 63,
+          "name": "Fourier GR-2",
+          "manufacturer": "Fourier Intelligence",
+          "desc": "Humanoid with 53-DOF, 12-DOF dexterous hands with tactile sensing. 1.75 m tall, 63 kg, designed for healthcare and service."
+        }
+      ]
+    },
+    {
+      "id": "tracked-ugv",
+      "name": "Tracked UGV",
+      "category": "tracked",
+      "tagline": "Tank-tread ground vehicles — conquer any terrain.",
+      "description": "Tracked platforms for rough terrain, stairs, mud, and snow. Higher traction and lower ground pressure than wheeled robots. Used for military, search and rescue, mining, and heavy outdoor logistics.",
+      "hardwareModels": [
+        {
+          "id": "clearpath-warthog",
+          "specs": {
+            "payload": "272 kg",
+            "power": "18 kW",
+            "speed": "18 km/h",
+            "rating": "IP65"
+          },
+          "imageUrl": "",
+          "avatarPath": "M3 10h26v14H3zM2 12h2v10H2zm28 0h2v10h-2zM4 11l2-2v12l-2-2zm24 11l-2 2V12l2 2zM10 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM10 17h12v3H10z",
+          "price": "~$80,000+",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "autonomy",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "tracked",
+          "hasArm": false,
+          "payloadKg": 272,
+          "weightKg": 280,
+          "name": "Clearpath Warthog",
+          "manufacturer": "Clearpath Robotics",
+          "desc": "Heavy-duty amphibious tracked UGV. 272 kg payload, 18 kW drivetrain, IP65. Built for mining, agriculture, and defense."
+        },
+        {
+          "id": "clearpath-jackal",
+          "specs": {
+            "speed": "2 m/s",
+            "payload": "20 kg",
+            "rating": "IP62",
+            "runtime": "4 hr"
+          },
+          "imageUrl": "",
+          "avatarPath": "M5 12h22v12H5zM4 13h2v10H4zm24 0h2v10h-2zM6 13l2-2v10l-2-2zm20 10l-2 2V13l2 2zM10 15h4M18 15h4M12 18h8v3h-8zM16 17v5M10 10a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
+          "price": "~$20,000+",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "tracked",
+          "hasArm": false,
+          "payloadKg": 20,
+          "weightKg": 17,
+          "name": "Clearpath Jackal",
+          "manufacturer": "Clearpath Robotics",
+          "desc": "Compact, weatherproof tracked UGV. 20 kg payload, IP62. ROS 2-native. Used for field robotics research."
+        }
+      ]
+    },
+    {
+      "id": "marine-asv",
+      "name": "Autonomous Surface Vessel",
+      "category": "marine",
+      "tagline": "Unmanned surface vessels for ocean and inland water operations.",
+      "description": "Autonomous boats for hydrographic surveying, environmental monitoring, bathymetry, and maritime security. Operate on lakes, rivers, harbors, and coastal waters.",
+      "hardwareModels": [
+        {
+          "id": "heron-asv",
+          "specs": {
+            "endurance": "3 hr",
+            "speed": "1.7 m/s",
+            "payload": "10 kg",
+            "sensors": "GPS, IMU, sonar"
+          },
+          "imageUrl": "",
+          "avatarPath": "M6 12h20v10l-3 4H9l-3-4zM4 16l2-2 2 2v2zm20 0l-2-2-2 2v2zM12 14v-5l4-1 4 1v5M14 9h4M14 20h4v2h-4zM6 19h20",
+          "price": "~$30,000+",
+          "supportedProducts": [
+            "view",
+            "autonomy",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "marine-thruster",
+          "hasArm": false,
+          "payloadKg": 10,
+          "weightKg": 27,
+          "name": "Clearpath Heron",
+          "manufacturer": "Clearpath Robotics",
+          "desc": "ASV for bathymetric and environmental survey. Differential thrust, 3-hr endurance, payload bay with plug-and-play sensors."
+        }
+      ]
+    },
+    {
+      "id": "arm-collaborative",
+      "name": "Collaborative Robot Arm",
+      "category": "industrial-arm",
+      "tagline": "Cobots — safe, teachable robot arms for manufacturing and labs.",
+      "description": "Collaborative robots (cobots) are designed to work alongside humans without safety cages. Used for pick-and-place, assembly, quality inspection, lab automation, and CNC tending.",
+      "hardwareModels": [
+        {
+          "id": "ur5e",
+          "specs": {
+            "dof": "6",
+            "payload": "5 kg",
+            "reach": "850 mm",
+            "repeatability": "±0.03 mm",
+            "weight": "20.6 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M12 4h8v3h-8zM13 7v3h-4l-3 6 3 4 4-2zm11 0v3h4l3 6-3 4-4-2zM16 14v3h-3l-1 4 4 3 4-3-1-4h-3zM13 22l-2 4 4 2 5-2-2-4zm4 7a1.5 1.5 0 100 3 1.5 1.5 0 000-3z",
+          "price": "~$35,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 5,
+          "weightKg": 20.6,
+          "name": "Universal Robots UR5e",
+          "manufacturer": "Universal Robots",
+          "desc": "6-DOF cobot. 5 kg payload, 850 mm reach, ±0.03 mm repeatability. ROS 2 driver via ur_robot_driver. The industry-standard cobot."
+        },
+        {
+          "id": "ur10e",
+          "specs": {
+            "dof": "6",
+            "payload": "12.5 kg",
+            "reach": "1300 mm",
+            "repeatability": "±0.05 mm",
+            "weight": "33.5 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M10 4h12v4H10zM11 8v4h-6l-3 7 4 4 5-3zm16 0v4h6l3 7-4 4-5-3zM14 16v4h-5l-2 5 5 3 5-3-2-5h-5zM12 24l-3 5 5 3 6-3-3-5zm4 9a2 2 0 100 3 2 2 0 000-3z",
+          "price": "~$45,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 12.5,
+          "weightKg": 33.5,
+          "name": "Universal Robots UR10e",
+          "manufacturer": "Universal Robots",
+          "desc": "Heavy-payload cobot. 12.5 kg payload, 1300 mm reach. ROS 2 driver available. Ideal for palletizing and machine tending."
+        },
+        {
+          "id": "franka-panda",
+          "specs": {
+            "dof": "7",
+            "payload": "3 kg",
+            "reach": "855 mm",
+            "torqueSensing": "All 7 joints"
+          },
+          "imageUrl": "",
+          "avatarPath": "M13 4h6v2h-6zM12 6v2h-3l-3 5 2 3 3-1zm8 0v2h3l3 5-2 3-3-1zM14 12v2h-3l-1 4 3 2 4-2-1-4h-2zm14 0l-1 4 3 2 4-2-1-4h-2zm-14-8v2M14 14l-2 5 4 3 5-3-2-5zM13 22l-2 4 5 3 4-2-2-4zm4 7a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$27,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 3,
+          "weightKg": 18,
+          "name": "Franka Research 3",
+          "manufacturer": "Franka Robotics",
+          "desc": "7-DOF torque-controlled research arm. 3 kg payload, 855 mm reach, joint torque sensing. Gold-standard for manipulation research."
+        },
+        {
+          "id": "kinova-gen3",
+          "specs": {
+            "dof": "6 / 7",
+            "payload": "4 kg",
+            "reach": "902 mm",
+            "weight": "7.2 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M12 4h8v3h-8zM11 7v3h-5l-3 7 4 3 5-3zm15 0v3h5l3 7-4 3-5-3zM15 15v2h-5l-1 4 5 3 4-3-1-4h-2zm14-2l-1 4 5 3 4-3-1-4h-2zm-14-9v2M15 15l-2 5 4 3 5-3-2-5zM13 22l-2 4 5 3 4-3-2-4zm4 8a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$35,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 4,
+          "weightKg": 7.2,
+          "name": "Kinova Gen3",
+          "manufacturer": "Kinova Robotics",
+          "desc": "6 or 7-DOF lightweight arm. 4 kg payload, 902 mm reach. Full ROS 2 support, open architecture. Designed for research and assistive tech."
+        },
+        {
+          "id": "dobot-cr10",
+          "specs": {
+            "dof": "6",
+            "payload": "10 kg",
+            "reach": "1525 mm",
+            "repeatability": "±0.03 mm"
+          },
+          "imageUrl": "",
+          "avatarPath": "M10 3h12v4H10zM10 7v5h-7l-2 8 5 4 6-3zm19 0v5h7l2 8-5 4-6-3zM13 18v4h-6l-2 6 6 4 6-4-2-6h-6zM11 25l-3 6 6 3 7-3-3-6zm4 10a2 2 0 100 3 2 2 0 000-3z",
+          "price": "~$14,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 10,
+          "weightKg": 40,
+          "name": "Dobot CR10",
+          "manufacturer": "Dobot",
+          "desc": "6-DOF cobot. 10 kg payload, 1525 mm reach. Cost-effective alternative for education, light industry, and robotics labs."
+        },
+        {
+          "id": "so101-arm",
+          "specs": {
+            "dof": "6",
+            "payload": "0.5 kg",
+            "reach": "0.62 m",
+            "servos": "STS3215 ×6"
+          },
+          "imageUrl": "",
+          "avatarPath": "M13 2h6v3h-6zM12 5v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM14 15v2h-4l-1 5 4 3 5-3-1-5h-3zm14-2l-1 5 4 3 5-3-1-5h-3zm-14-11v2M16 8v4M15 14l-2 4 4 3 5-3-2-4zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$500",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 1.1,
+          "name": "SO-101 (LeRobot 6-DOF)",
+          "manufacturer": "LeRobot / Open Source",
+          "desc": "Open-source 3D-printed 6-DOF arm with Feetech STS3215 servos. 0.62 m reach, 0.5 kg payload. Designed for imitation-learning research."
+        }
+      ]
+    },
+    {
+      "id": "arm-delta",
+      "name": "Delta Robot",
+      "category": "industrial-arm",
+      "tagline": "High-speed parallel robot for pick-and-place and sorting.",
+      "description": "Delta robots use three parallelograms for extreme speed in lightweight pick-and-place. Used in food packaging, pharmaceutical sorting, and electronics assembly.",
+      "hardwareModels": [
+        {
+          "id": "abb-irb360",
+          "specs": {
+            "payload": "1–8 kg",
+            "speed": "200 picks/min",
+            "reach": "1130 mm",
+            "ip": "IP69K option"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM8 6l8-3 8 3M6 10h20l-2 8H8zm8 0v4h4v-4zM12 18l-6 4 4 2 4-4zm8 0l6 4-4 2-4-4zM16 18v3M16 14v2M10 18h12",
+          "price": "~$40,000+",
+          "supportedProducts": [
+            "pilot",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 8,
+          "weightKg": 120,
+          "name": "ABB IRB 360 FlexPicker",
+          "manufacturer": "ABB Robotics",
+          "desc": "Industry-standard delta robot. 1-8 kg payload, up to 200 picks/min. Hygienic design for food handling."
+        }
+      ]
+    },
+    {
+      "id": "mobile-manip-full",
+      "name": "Full Mobile Manipulator",
+      "category": "mobile-manipulator",
+      "tagline": "Wheels + arm — the complete embodied-AI platform.",
+      "description": "A mobile base with a mounted manipulator arm. These are the fully-capable robots — they navigate to a location, then use the arm to interact with the world. The reference platform for embodied AI research and deployment.",
+      "hardwareModels": [
+        {
+          "id": "omnibot-pro",
+          "specs": {
+            "base": "mecanum",
+            "arm": "SO-101, 6-DOF",
+            "speed": "0.2 m/s",
+            "payload": "0.5 kg",
+            "compute": "RPi 5"
+          },
+          "imageUrl": "",
+          "avatarPath": "M5 13h22v9H5zM7 15v6h18v-6zM9 22a3 3 0 01-3-3v-3M23 22a3 3 0 003-3v-3M9 10a4 4 0 01-1-2l2-1M23 10a4 4 0 001-2l-2-1M13 16h2v2h-2zm5 0h2v2h-2zM14 6v4h4V6M13 10h6M13 2l3 2 3-2",
+          "price": "~$1,500",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train",
+            "fleet",
+            "comply",
+            "proof",
+            "shield"
+          ],
+          "ros": "ros2",
+          "locomotion": "mecanum",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 5,
+          "name": "OmniBot Pro (Reference)",
+          "manufacturer": "OhhO / Open Source",
+          "desc": "Yahboom X3 mecanum base + SO-101 6-DOF arm. RPi 5 brain, depth + wrist cameras, full ROS 2 + VLA stack. The complete reference platform."
+        },
+        {
+          "id": "stretch-re2",
+          "specs": {
+            "base": "differential",
+            "arm": "telescoping, 3-DOF",
+            "reach": "1.15 m",
+            "payload": "1.5 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M6 14h20v8H6zM8 16v5h16v-5zM16 6v8h-1M14 6l3-3 3 3M14 22a3 3 0 01-3-3v-4M20 22a3 3 0 013-3v-4M9 12a2 2 0 100-3 2 2 0 000 3zm14 0a2 2 0 100-3 2 2 0 000 3zM12 18h3M17 18h3M14 13l3 3M18 13l-3 3",
+          "price": "~$20,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": true,
+          "payloadKg": 1.5,
+          "weightKg": 24.5,
+          "name": "Hello Robot Stretch RE2",
+          "manufacturer": "Hello Robot Inc.",
+          "desc": "Low-cost mobile manipulator for home/office research. Telescoping arm, compliant gripper, Intel RealSense, ROS 2-native."
+        },
+        {
+          "id": "fetch-mp",
+          "specs": {
+            "base": "differential",
+            "arm": "7-DOF",
+            "reach": "940 mm",
+            "payload": "6 kg (arm)",
+            "speed": "1 m/s"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 12h24v10H4zM6 14v7h20v-7zM7 22a3 3 0 01-2-4v-5M25 22a3 3 0 002-4v-5M15 8v4M13 8l4-3 4 3M7 9a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm18 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM11 19h10M15 7v1M14 12l4 3M18 12l-4 3",
+          "price": "~$100,000+",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": true,
+          "payloadKg": 6,
+          "weightKg": 113,
+          "name": "Fetch Mobile Manipulator",
+          "manufacturer": "Zebra / Fetch Robotics",
+          "desc": "Warehouse mobile manipulator. Differential base + 7-DOF arm, 150 kg payload on base, 6 kg on arm. Designed for logistics AMR research."
+        },
+        {
+          "id": "tracer-arm",
+          "specs": {
+            "base": "differential",
+            "arm": "4–6 DOF option",
+            "speed": "2.6 m/s",
+            "payload": "100 kg (base)"
+          },
+          "imageUrl": "",
+          "avatarPath": "M5 14h22v8H5zM8 16v5h16v-5zM16 8v6M14 8l4-3 4 3M10 12a2 2 0 100-3 2 2 0 000 3zm12 0a2 2 0 100-3 2 2 0 000 3zM9 22a2 2 0 01-2-2v-3M23 22a2 2 0 002-2v-3M14 13l3 3M18 13l-3 3zM11 19h4M17 19h4",
+          "price": "~$8,000–20,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": true,
+          "payloadKg": 2,
+          "weightKg": 25,
+          "name": "AgileX Tracer + Arm",
+          "manufacturer": "AgileX Robotics",
+          "desc": "Mini differential base with optional 4/6-DOF arm. ROS 2 drivers, modular payload, compact for labs and classrooms."
+        }
+      ]
+    },
+    {
+      "id": "swarm-small",
+      "name": "Small Swarm Robot",
+      "category": "swarm",
+      "tagline": "Tiny robots that collaborate — collective intelligence at scale.",
+      "description": "Small, inexpensive robots that work together as a collective. Used for warehouse inventory, search and rescue, educational robotics, and research on emergent behavior and distributed algorithms.",
+      "hardwareModels": [
+        {
+          "id": "khepera-iv",
+          "specs": {
+            "sensors": "12 IR, 5 ultrasonic",
+            "camera": "VGA",
+            "compute": "ARM Linux",
+            "weight": "540 g"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 8h16v16H8zM10 10v12h12V10zM8 8a2 2 0 112-4 2 2 0 01-2 4zM22 8a2 2 0 112 4 2 2 0 01-2-4zM8 24a2 2 0 112 4 2 2 0 01-2-4zM22 24a2 2 0 112 4 2 2 0 01-2-4zM12 14h8v4h-8zM16 6v2M16 24v2",
+          "price": "~$3,500/unit",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 0.3,
+          "weightKg": 0.54,
+          "name": "Khepera IV",
+          "manufacturer": "K-Team / GCtronic",
+          "desc": "Classic swarm research robot. 2 wheels, 12 IR sensors, camera, Linux onboard. ROS-compatible. Used in hundreds of swarm research papers."
+        },
+        {
+          "id": "e-puck2",
+          "specs": {
+            "sensors": "8 IR, ToF, IMU",
+            "camera": "VGA",
+            "compute": "STM32F4",
+            "weight": "130 g"
+          },
+          "imageUrl": "",
+          "avatarPath": "M10 10h12v12H10zM12 12v8h8V12zM10 10a1.5 1.5 0 111-3 1.5 1.5 0 01-1 3zM21 10a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM10 22a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM21 22a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM14 14h4v4h-4zM16 8v2M16 22v2M12 16h8",
+          "price": "~$1,000/unit",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 0,
+          "weightKg": 0.13,
+          "name": "E-Puck2",
+          "manufacturer": "GCtronic",
+          "desc": "Desktop swarm robot. Differential drive, 8 IR proximity, ToF sensor, microphone, speaker, WiFi. Huge open-source ecosystem."
+        }
+      ]
+    },
+    {
+      "id": "agri-precision",
+      "name": "Precision Agriculture",
+      "category": "agricultural",
+      "tagline": "Farming robots — plant, monitor, weed, and harvest autonomously.",
+      "description": "Autonomous platforms for precision agriculture — targeted weeding, selective harvesting, soil analysis, and crop monitoring. Reduce chemical use and labor costs through robotic precision.",
+      "hardwareModels": [
+        {
+          "id": "farmbot",
+          "specs": {
+            "area": "1.5 m² – 18 m²",
+            "precision": "±0.08 cm",
+            "tools": "seeder, weeder, waterer, sensor",
+            "weight": "—"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 2h24v3H4zM4 6h3v22H4zm25 0h-3v22h3zM9 10h14M9 14h14M9 18h14M9 22h14M9 6v2M23 6v2M18 8l-2 4 2 4M14 8l2 4-2 4",
+          "price": "~$3,000",
+          "supportedProducts": [
+            "build",
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "cartesian-gantry",
+          "hasArm": false,
+          "payloadKg": 1,
+          "weightKg": 10,
+          "name": "FarmBot Genesis",
+          "manufacturer": "FarmBot Inc.",
+          "desc": "Open-source CNC farming robot. Cartesian gantry plants, waters, and weeds a garden bed. Fully open hardware + software."
+        },
+        {
+          "id": "ecorobotix-avo",
+          "specs": {
+            "coverage": "10 ha/day",
+            "precision": "6 cm",
+            "power": "solar",
+            "width": "1.5 m"
+          },
+          "imageUrl": "",
+          "avatarPath": "M3 10h26v14H3zM5 12v10h22V12zM5 24h22v2H5zM7 8a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm18 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM22 6l-1 4M10 6l1 4M12 14h8v5h-8zM10 15l-2 2M22 15l2 2",
+          "price": "~$50,000+",
+          "supportedProducts": [
+            "view",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 60,
+          "weightKg": 130,
+          "name": "ecoRobotix AVO",
+          "manufacturer": "ecoRobotix / CNH",
+          "desc": "Autonomous weeding robot. Solar-powered, vision-based precision spraying. Treats only weeds, reducing herbicide by 90%."
+        }
+      ]
+    },
+    {
+      "id": "underwater-rov-inspection",
+      "name": "Inspection ROV",
+      "category": "underwater-rov",
+      "tagline": "Subsea robots — inspect, maintain, and explore underwater.",
+      "description": "Remotely operated underwater vehicles for dam inspection, hull cleaning, aquaculture monitoring, pipeline survey, and marine research. Depth ratings from 100 m to 6,000 m.",
+      "hardwareModels": [
+        {
+          "id": "bluerov2",
+          "specs": {
+            "depth": "100 m",
+            "thrusters": "T200 ×6",
+            "camera": "1080p HD",
+            "weight": "10 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 8h16v16H8zM6 12a2 2 0 116-4 2 2 0 01-6 4zM20 12a2 2 0 116 4 2 2 0 01-6-4zM8 22a2 2 0 10-6 4 2 2 0 006-4zM22 22a2 2 0 106 4 2 2 0 00-6-4zM12 12h2v8h-2zm6 0h2v8h-2zM12 20h8v2h-8zM14 14h4",
+          "price": "~$5,000",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "underwater-6thruster",
+          "hasArm": false,
+          "payloadKg": 2,
+          "weightKg": 10,
+          "name": "BlueROV2",
+          "manufacturer": "Blue Robotics",
+          "desc": "Open-source ROV. 6 thrusters, HD camera, 100 m depth rating. Full ROS 2 integration via ArduSub. The standard for affordable underwater robotics."
+        },
+        {
+          "id": "bluerov2-heavy",
+          "specs": {
+            "depth": "300 m",
+            "thrusters": "T200 ×8",
+            "gripper": "electric 2-jaw",
+            "sonar": "Ping360 scanning"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 7h16v18H8zM5 11a2.5 2.5 0 117-5 2.5 2.5 0 01-7 5zM20 11a2.5 2.5 0 117 5 2.5 2.5 0 01-7-5zM8 24a2 2 0 10-6 4 2 2 0 006-4zM24 24a2 2 0 106 4 2 2 0 00-6-4zM10 12h3v8h-3zm9 0h3v8h-3zM12 20h8v2h-8zM14 14h4M11 8l2-1M19 8l2 1M16 4v3M16 28v-4",
+          "price": "~$15,000",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "underwater-8thruster",
+          "hasArm": true,
+          "payloadKg": 4,
+          "weightKg": 15,
+          "name": "BlueROV2 Heavy",
+          "manufacturer": "Blue Robotics",
+          "desc": "Heavy-configuration ROV with 8 T200 thrusters, gripper, scanning sonar, and 300 m depth rating for inspection missions."
+        }
+      ]
+    },
+    {
+      "id": "space-rover",
+      "name": "Planetary Rover",
+      "category": "space",
+      "tagline": "Exploring other worlds — robotic rovers for planetary science.",
+      "description": "Autonomous rovers for planetary exploration, lunar construction, and orbital servicing. Designed for extreme environments with radiation hardening, thermal management, and multi-year autonomy.",
+      "hardwareModels": [
+        {
+          "id": "exomy",
+          "specs": {
+            "wheels": "6, rocker-bogie",
+            "compute": "RPi 4",
+            "camera": "stereo",
+            "weight": "2.5 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 10h24v8H4zM3 13l2-1v6l-2-1zM29 13l-2-1v6l2-1zM10 9a2 2 0 100-3 2 2 0 000 3zm12 0a2 2 0 100-3 2 2 0 000 3zM6 18l3-1v4l-3-1zM26 18l-3-1v4l3-1zM13 15h6M14 13l2 2M18 13l-2 2M14 18l2-2M18 18l-2-2M16 11v-2",
+          "price": "~$800 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "rocker-bogie",
+          "hasArm": false,
+          "payloadKg": 0.5,
+          "weightKg": 2.5,
+          "name": "ExoMy Rover",
+          "manufacturer": "ESA / Open Source",
+          "desc": "3D-printed Mars rover replica by ESA. 6 wheels with rocker-bogie suspension, RPi compute, stereo cameras. Educational + research platform."
+        },
+        {
+          "id": "nasa-jpl-open-rover",
+          "specs": {
+            "wheels": "6, rocker-bogie",
+            "compute": "RPi",
+            "steering": "4-corner",
+            "weight": "11 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M3 9h26v10H3zM2 12l3-1v8l-3-1zM30 12l-3-1v8l3-1zM9 8a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm14 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM5 18l3-2v5l-3-1zM27 18l-3-2v5l3-1zM12 14h8M13 12l3 3M19 12l-3 3M13 17l3-2M19 17l-3-2M16 10V7M16 18v-1",
+          "price": "~$2,500 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "ros2",
+          "locomotion": "rocker-bogie",
+          "hasArm": false,
+          "payloadKg": 5,
+          "weightKg": 11,
+          "name": "JPL Open Source Rover",
+          "manufacturer": "NASA JPL / Open Source",
+          "desc": "NASA JPL's open-source 6-wheel rover design. Rocker-bogie suspension, corner steering. Used for education and outreach."
+        }
+      ]
+    },
+    {
+      "id": "medical-surgical",
+      "name": "Surgical Robot",
+      "category": "medical",
+      "tagline": "Precision surgical platforms — teleoperated and autonomous.",
+      "description": "Robotic surgical systems that extend the surgeon's capabilities — tremor filtering, motion scaling, and 3-D HD visualization. Used across urology, gynecology, orthopedics, and general surgery.",
+      "hardwareModels": [
+        {
+          "id": "dvrk",
+          "specs": {
+            "arms": "2-4 PSM + ECM",
+            "dof": "7 per arm",
+            "stereo": "HD 3-D",
+            "control": "ROS"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 4h16v3H8zM6 7l3 1v4l-3-1zM20 7l-3 1v4l3-1zM10 13v4l-3 6 5 3 2-5zm8 0v4l3 6-5 3-2-5zM8 28v3h4v-3zm12 0v3h4v-3zM16 7v12M16 19v2M10 10h12M14 23h4",
+          "price": "Research grant / loan",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data",
+            "comply"
+          ],
+          "ros": "ros1",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 2,
+          "weightKg": 200,
+          "name": "da Vinci Research Kit (dVRK)",
+          "manufacturer": "Intuitive / Open Source",
+          "desc": "Open-source research platform based on the da Vinci Surgical System. ROS-based control, stereo endoscope, 7-DOF manipulators. Used in 100+ research labs worldwide."
+        }
+      ]
+    },
+    {
+      "id": "medical-rehab",
+      "name": "Rehabilitation Robot",
+      "category": "medical",
+      "tagline": "Assistive robotics — exoskeletons and therapy platforms.",
+      "description": "Robots for physical rehabilitation, mobility assistance, and prosthetics. Used in post-stroke gait training, spinal cord injury recovery, and powered exoskeleton mobility.",
+      "hardwareModels": [
+        {
+          "id": "myomo-myopro",
+          "specs": {
+            "dof": "elbow + hand",
+            "sensors": "sEMG",
+            "control": "intent-based",
+            "weight": "1.8 kg"
+          },
+          "imageUrl": "",
+          "avatarPath": "M10 4h12v4H10zM12 8v4h-3l-2 6 2 4 3-2zm8 0v4h3l2 6-2 4-3-2zM13 14v3h-2l-1 3 2 2 3-2-1-3h-1zm6 0l-1 3 2 2 3-2-1-3h-1zm-5-6v4M14 14l-2 3 2 2 3-2-2-3zM13 20l-1 3 2 2 1-1-1-3zm5 6a1 1 0 100 2 1 1 0 000-2z",
+          "price": "Insurance-billed",
+          "supportedProducts": [
+            "serve",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "wearable",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 1.8,
+          "name": "MyoPro Orthosis",
+          "manufacturer": "Myomo Inc.",
+          "desc": "Powered arm orthosis that reads surface EMG signals to assist arm movement. FDA-cleared for stroke, SCI, and neuromuscular conditions."
+        }
+      ]
+    },
+    {
+      "id": "delivery-sidewalk",
+      "name": "Sidewalk Delivery",
+      "category": "delivery",
+      "tagline": "Last-mile autonomous delivery — sidewalks and pedestrian zones.",
+      "description": "Compact, sidewalk-navigating delivery robots for food, groceries, and parcels. Speed-limited for pedestrian safety, with curb-dropping capability and remote human oversight.",
+      "hardwareModels": [
+        {
+          "id": "starship-robot",
+          "specs": {
+            "speed": "6 km/h",
+            "range": "6 km",
+            "cargo": "10 kg",
+            "sensors": "12 cameras, ultrasonic, radar"
+          },
+          "imageUrl": "",
+          "avatarPath": "M7 12h18v10H7zM9 14v7h14v-7zM9 22a2 2 0 01-2-2v-4M23 22a2 2 0 002-2v-4M9 10a2 2 0 100-3 2 2 0 000 3zm14 0a2 2 0 100-3 2 2 0 000 3zM12 17h2v2h-2zm6 0h2v2h-2zM16 15v-2M14 13h4",
+          "price": "Contact manufacturer",
+          "supportedProducts": [
+            "view",
+            "autonomy",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "differential-6wheel",
+          "hasArm": false,
+          "payloadKg": 10,
+          "weightKg": 35,
+          "name": "Starship Delivery Robot",
+          "manufacturer": "Starship Technologies",
+          "desc": "The most deployed autonomous delivery robot. 6 wheels, curb-climbing, insulated cargo hold. Millions of commercial deliveries completed."
+        },
+        {
+          "id": "coco-robot",
+          "specs": {
+            "speed": "walking pace",
+            "cargo": "5 kg",
+            "sensors": "cameras + LiDAR",
+            "display": "interactive screen"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 13h16v9H8zM10 15v6h12v-6zM10 22a2 2 0 01-2-2v-3M22 22a2 2 0 002-2v-3M10 9a2 2 0 100-3 2 2 0 000 3zm12 0a2 2 0 100-3 2 2 0 000 3zM13 17h2M17 17h2M14 15l2-1 2 1M16 13v-1M11 18h10",
+          "price": "Contact manufacturer",
+          "supportedProducts": [
+            "view",
+            "autonomy",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 5,
+          "weightKg": 20,
+          "name": "Coco Delivery Robot",
+          "manufacturer": "Coco (formerly Kiwibot)",
+          "desc": "Compact pink sidewalk delivery robot. Emphasizes safe pedestrian interaction with expressive displays and remote-assist capability."
+        }
+      ]
+    },
+    {
+      "id": "inspection-pipe",
+      "name": "Pipeline Inspection",
+      "category": "inspection",
+      "tagline": "Confined-space inspection — pipes, tanks, and infrastructure.",
+      "description": "Robots designed to crawl inside pipes, ducts, tanks, and confined spaces for inspection and maintenance. Used in oil & gas, water utilities, HVAC, and nuclear decommissioning.",
+      "hardwareModels": [
+        {
+          "id": "inyo-crawler",
+          "specs": {
+            "pipeDiameter": "100–1000 mm",
+            "drive": "tracked / magnetic",
+            "camera": "PTZ HD",
+            "sensors": "gas, thermal"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 14h24v6H4zM3 15h2v4H3zm26 0h2v4h-2zM10 12a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm6 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM12 17h8v1h-8zM14 20h4",
+          "price": "~$15,000–50,000",
+          "supportedProducts": [
+            "view",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "tracked",
+          "hasArm": false,
+          "payloadKg": 3,
+          "weightKg": 8,
+          "name": "Inyodrive Pipe Crawler",
+          "manufacturer": "Inyodrive / Custom",
+          "desc": "Modular pipe inspection robot. Tracks or magnetic wheels, PTZ camera, gas sensors. Customizable diameter and length for different pipe sizes."
+        },
+        {
+          "id": "flyability-elios3",
+          "specs": {
+            "flightTime": "10 min",
+            "camera": "4K, thermal option",
+            "lighting": "10K lumens",
+            "rating": "collision-tolerant"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 6h16v16H8zM6 8l2-2v4l-2-2zM18 8l-2-2v4l2-2zM12 12h8v8h-8zM14 14v4h4v-4zM16 8v-3M14 5h4M10 12h-2M24 12h-2M10 20h-2M24 20h-2M12 22h-2M22 22h-2M8 16h-2M24 16h-2",
+          "price": "~$45,000+",
+          "supportedProducts": [
+            "view",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "custom",
+          "locomotion": "quadrotor-caged",
+          "hasArm": false,
+          "payloadKg": 0.3,
+          "weightKg": 1.8,
+          "name": "Flyability Elios 3",
+          "manufacturer": "Flyability",
+          "desc": "Caged indoor inspection drone. Collision-tolerant protective cage, 4K PTZ camera, LiDAR payload, SLAM-based stabilization. For confined-space inspection without human entry."
+        }
+      ]
+    }
+  ]
+}
