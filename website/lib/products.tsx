@@ -80,6 +80,13 @@ export interface Product {
    * surfaces a "launch" CTA and the dashboard mockup becomes a link into it.
    */
   app?: { href: string; label: string };
+  /**
+   * Requires a VR/MR headset. When true, the product is surfaced inside the
+   * OhhO VR console (vr_app) — the headset shows only `vr` products. Today
+   * that's just Pilot (teleoperation); more VR products will set this later.
+   * Consumed by lib/vr/manifest.ts → public/vr/manifest.json.
+   */
+  vr?: boolean;
 }
 
 const stroke = {
@@ -987,6 +994,7 @@ export const PRODUCTS: Product[] = [
     ],
     related: ["autonomy", "view", "fleet", "connect"],
     app: { href: "/pilot", label: "Open the cockpit" },
+    vr: true,
     dashboardCaption:
       "OhhO Pilot — operator HUD with live robot view, hand-tracking arm IK and a latency readout.",
   },

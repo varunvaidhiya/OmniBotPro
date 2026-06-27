@@ -1,9 +1,24 @@
 # Multi-Robot VR Teleoperation — Architecture & Build Plan
 
-> Status: **design / proposal** · Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
+> Status: **Phase 0a implemented** (platform contract + VR foundation) · rest is design
+> Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
 > Scope: extend `vr_app/` from a single hardcoded OmniBot controller into a
 > **catalog-driven, any-robot** mixed-reality teleoperation app whose robot list,
-> capability model, and branding all mirror the OhhO website.
+> capability model, branding, **login and product console** all mirror the OhhO website.
+
+### Implemented in this branch (Phase 0a)
+
+- **Website** — `Product.vr` flag + **OhhO Pilot** tagged; `lib/vr/manifest.ts` →
+  committed `public/vr/manifest.json` (branding tokens + Supabase auth + VR
+  products); `manifest.test.ts` drift check (9 tests). _All green: `tsc` clean,
+  vitest 102/102._
+- **VR app** — `Core/OhhoTheme.cs` (branding), `Core/Platform/PlatformManifest.cs`
+  (manifest models), `Core/Platform/OhhoPlatform.cs` (fetch + offline fallback),
+  `Core/Platform/SupabaseAuthService.cs` (in-headset email-OTP login), bundled
+  `Assets/Resources/vr_manifest.json`.
+
+Next (Phase 0b): the in-headset **login panel** and **product console** UI
+(glass design-system prefabs) that consume the above — see §7 and §10.
 
 ---
 
@@ -247,17 +262,47 @@ Variants selected from `RobotConfig.capabilities` / `armDof`:
 
 ---
 
-## 7. Catalog & garage — single source of truth
+## 7. Platform contract — single source of truth (static export!)
 
-The website is canonical; the VR app fetches, never re-enters robots in C#.
+The website is canonical; the VR app fetches, never re-enters data in C#. One
+constraint shapes *how*: **the site is a static export** (`vercel.json` →
+`outputDirectory: website/out`) with **client-side Supabase auth**. There is no
+runtime server for the headset to call, so the VR app uses two channels the
+static site already supports:
 
-1. **API routes** (extends the existing `/api/robot/console-spec`):
-   - `GET /api/catalog` → `{ categories, robotTypes }` (serialize `CATEGORIES` + `ROBOT_TYPES`).
-   - `GET /api/garage` (auth) → the signed-in user's saved robots (`getUserRobots`).
-   - `GET /api/robot/console-spec?model=<id>` → structured `RobotConfig` per model (exists).
-2. **`RobotCatalogService`** (VR) fetches these, with a **bundled JSON fallback** in `Resources/` for offline.
-3. **Selection UI** mirrors `RobotSelector.tsx`: categories → types → models → confirm, reusing each category's `icon` + `color`.
-4. Optional **account link** (device-code or Meta Platform login) so the Quest shows the user's own garage.
+1. **A static manifest** — `website/lib/vr/manifest.ts` → committed
+   `website/public/vr/manifest.json`, served at `https://ohho-robotics.com/vr/manifest.json`.
+   It carries the **branding tokens**, the **Supabase auth config** (public anon
+   key, identical to the site's), and the **VR-headset products** (`Product.vr === true`).
+   A `vitest` (`manifest.test.ts`) drift-checks the committed copy; the VR app
+   also bundles a fallback at `Resources/vr_manifest.json`. _(Implemented — Phase 0.)_
+2. **Direct Supabase** — the headset talks to GoTrue (`/auth/v1`) and PostgREST
+   (`/rest/v1/user_robots`) with the same anon key + the user's session token,
+   exactly as the website's browser client does. No bespoke backend.
+
+The robot catalog/garage follows the same pattern next: extend the manifest (or a
+sibling static JSON) with `CATEGORIES` + `ROBOT_TYPES`, and read the user's saved
+robots straight from the `user_robots` table via PostgREST (the `RobotSelector`
+flow: categories → types → models → confirm).
+
+### App shell — mirrors the website: login → console → product → teleop
+
+The headset reproduces the website's own flow:
+
+```
+Sign in to OhhO   →   Console (product grid)   →   open a product   →   (Pilot) teleop
+(Supabase email       shows ONLY products            today: Pilot          robot select +
+ OTP, in-headset)     where vr === true              (teleoperation)       drive + hand-IK
+```
+
+- **Login** mirrors `app/login/page.tsx` (Supabase). The site uses an email magic
+  link; the headset uses the **email OTP** path of the *same* GoTrue backend (a
+  short code is typeable in VR), implemented in `SupabaseAuthService`.
+- **Console** mirrors `app/console` + the homepage product grid, but filtered to
+  VR products from the manifest — so today the user sees **OhhO Pilot**, and any
+  future headset products appear automatically when tagged `vr` on the website.
+- Picking **Pilot** drops into the teleop flow (robot selection + the control
+  model in §5).
 
 ---
 
@@ -299,8 +344,9 @@ the catalog as an SVG/sprite atlas so VR and web share iconography.
 
 | Phase | Deliverable | Key files |
 |---|---|---|
-| **0 — Foundations** | `OhhoTheme` + glass shader + passthrough/MRUK scene scaffold; bundled catalog JSON | new `UI/Theme/`, `MR/` |
-| **1 — Catalog & selection** | `/api/catalog` + `/api/garage`; `RobotCatalogService`; spatial selection UI mirroring `RobotSelector` | website `app/api/*`, VR `Core/Catalog/`, `UI/Selection/` |
+| **0a — Platform contract** ✅ | `Product.vr` tag + `OhhO Pilot`; static `vr/manifest.json` (branding + Supabase auth + VR products) + vitest drift check; VR `OhhoTheme`, manifest models, `OhhoPlatform` fetch, `SupabaseAuthService` (email OTP) | `website/lib/vr/*`, `vr_app/.../Core/OhhoTheme.cs`, `Core/Platform/*` |
+| **0b — App shell UI** | Login panel (Supabase OTP) + Console product grid (VR-filtered) + glass design-system prefabs, mirroring `app/login` + the website console; passthrough/MRUK scaffold | VR `UI/Auth/`, `UI/Console/`, `UI/Theme/`, `MR/` |
+| **1 — Robot catalog & selection** | extend manifest with `CATEGORIES` + `ROBOT_TYPES`; garage via PostgREST (`user_robots`); spatial selection UI mirroring `RobotSelector` | `website/lib/vr/*`, VR `Core/Catalog/`, `UI/Selection/` |
 | **2 — Profile + OmniBot end-to-end** | `RobotProfile` from `console-spec`; `MecanumDriveScheme` + `HandIK6DOF`; full OmniBot drive+arm in MR | refactor `RobotConfig.cs`→profile, `BaseController`→scheme, `HandTrackingArmController` |
 | **3 — Generalize** | `IDriveScheme`/`IManipulationScheme` factories; differential, ackermann, quadrotor, quadruped, dual-arm; generic IK (FABRIK/BioIK) | `Control/Drive/*`, `Control/Manip/*` |
 | **4 — Telepresence & data** | WebRTC video; profile-driven recording; robot-side IK toggle (MoveIt Servo) | `UI/CameraFeedViewer`→WebRTC, `Recording/` |
@@ -314,8 +360,10 @@ and reskinned. It proves the whole spine without breaking the existing teleop.
 ## 11. Key decisions (recommendations)
 
 1. **IK location:** headset-side joint streaming for v1; robot-side MoveIt Servo as an opt-in per profile.
-2. **IK solver:** analytic for SO-101, **BioIK** as the universal generic solver (FABRIK if $0 is required).
-3. **Catalog source:** live-fetch from the website + bundled offline fallback. Never duplicate the catalog in C#.
+2. **IK solver:** **FABRIK (free)** as the universal generic solver for non-SO-101 arms,
+   driven by `RobotProfile.joints`; analytic IK for SO-101. _(Decided.)_
+3. **Platform contract:** static `vr/manifest.json` + direct Supabase (the site is a
+   static export). Never duplicate website data in C#. _(Decided / implemented.)_
 4. **Transport:** ROSBridge as the universal contract; non-ROS robots get a bridge node on their side.
 5. **Video:** ship MJPEG (present), upgrade to WebRTC in Phase 4.
 
@@ -323,6 +371,6 @@ and reskinned. It proves the whole spine without breaking the existing teleop.
 
 ## 12. Open questions
 
-- BioIK (paid, one solver for all arms incl. dual-arm) vs FABRIK (free, more hand-rolling)?
-- Account-linked garage sync in v1, or local selection only until later?
+- Account-linked garage sync in v1 (pull the user's `user_robots` into the
+  headset), or local selection only until later?
 - Which non-ROS robot families to bridge first (drones via MAVLink, Unitree SDK, …)?
