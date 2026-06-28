@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ohho-os"
-version = "0.1.0"
+version = "0.2.0"
 description = "OhhO OS — the open-source, robot-agnostic engine for any robot, with or without ROS."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,6 +24,7 @@ dependencies = []
 
 [project.optional-dependencies]
 yaml = ["pyyaml>=6.0"]                       # load robot manifests from .yaml
+serial = ["pyserial>=3.5"]                   # Yahboom serial adapter (OmniBot base)
 unitree = ["cyclonedds>=0.10"]               # Unitree DDS adapter (G1, Go2, H1, B2 …)
 dji = ["pymavlink>=2.4"]                      # DJI / MAVLink adapter (drones)
 serve = ["fastapi>=0.110", "uvicorn>=0.27"]  # serve policies over REST
@@ -32,6 +33,7 @@ ros2 = []                                    # rclpy ships with your ROS 2 distr
 dev = ["pytest>=7"]
 all = [
   "pyyaml>=6.0",
+  "pyserial>=3.5",
   "cyclonedds>=0.10",
   "pymavlink>=2.4",
   "fastapi>=0.110",

@@ -9,12 +9,22 @@ class TestAdapters(unittest.TestCase):
         tp = resolve_transport("sim://", get_spec("sim"))
         self.assertEqual(tp.protocol, "simulated")
 
+    def test_serial_scheme_resolves_to_yahboom(self):
+        tp = resolve_transport("serial:///dev/ttyUSB0", get_spec("omnibot"))
+        self.assertEqual(tp.protocol, "serial")
+        self.assertEqual(tp.port, "/dev/ttyUSB0")
+
+    def test_dds_scheme_resolves_to_unitree(self):
+        tp = resolve_transport("dds://eth0", get_spec("unitree-go2"))
+        self.assertEqual(tp.protocol, "dds")
+        self.assertEqual(tp.address, "eth0")
+
     def test_explicit_unknown_raises(self):
         with self.assertRaises(AdapterUnavailable):
-            resolve_transport("dds://192.168.1.10", get_spec("unitree-go2"))
+            resolve_transport("wat://nope", get_spec("sim"))
 
-    def test_auto_falls_back_to_sim(self):
-        # unitree-go2's adapter ("unitree-dds") isn't bundled -> simulation
+    def test_auto_runs_in_simulation(self):
+        # No explicit transport -> simulation, even for a hardware robot.
         tp = resolve_transport(None, get_spec("unitree-go2"))
         self.assertEqual(tp.protocol, "simulated")
 
