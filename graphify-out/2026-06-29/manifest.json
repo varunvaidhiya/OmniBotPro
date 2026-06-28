@@ -2020,8 +2020,8 @@
     "semantic_hash": ""
   },
   "website/components/Nav.tsx": {
-    "mtime": 1782687697.5693698,
-    "ast_hash": "cc6c4778dd6a610f2c05f7dc8d7df380",
+    "mtime": 1782670746.8736844,
+    "ast_hash": "b188b75ea940dae7ebc2d7f1306b14b6",
     "semantic_hash": ""
   },
   "website/components/Pricing.tsx": {
@@ -2395,8 +2395,8 @@
     "semantic_hash": "dd70ea07f92d555e6884ad845f3283d3"
   },
   "website/app/console/page.tsx": {
-    "mtime": 1782687712.3116708,
-    "ast_hash": "c77a06f9c75ff7ccb8f27dba59b0d37d",
+    "mtime": 1782237691.403539,
+    "ast_hash": "8b3dc4e247efe8ad5762e3b68ca3f64e",
     "semantic_hash": ""
   },
   "website/app/data/page.tsx": {
@@ -5017,111 +5017,6 @@
   "website/public/docs/ohho-os/training-loop.svg": {
     "mtime": 1782686898.8961442,
     "ast_hash": "db958432fa95f5b2b3c17ceff63edfa3",
-    "semantic_hash": ""
-  },
-  "website/docs/video-prompts/ohho-os.md": {
-    "mtime": 1782687425.8479788,
-    "ast_hash": "16a68c7342086a1aba00ef100ab09e92",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/autonomy.png": {
-    "mtime": 1782687558.9646635,
-    "ast_hash": "431d94e178191623aa47e3d161dae1ad",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/bench.png": {
-    "mtime": 1782687486.5329854,
-    "ast_hash": "2549a985c89a18f1e8b3a5cae8f30c38",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/bridge.png": {
-    "mtime": 1782687503.209382,
-    "ast_hash": "7e9ee0397fe483f4a71b1614fe694dc8",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/build.png": {
-    "mtime": 1782687471.7150455,
-    "ast_hash": "b0881370461e5f149c0d0f1f0b2225f3",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/care.png": {
-    "mtime": 1782687638.7520177,
-    "ast_hash": "23b419a103d9961caa7f39f82af46239",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/comply.png": {
-    "mtime": 1782687646.683533,
-    "ast_hash": "61d222cd02dd4290f43e4112908a4b0a",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/connect.png": {
-    "mtime": 1782687494.5995655,
-    "ast_hash": "02a9447f0aafc727b82e30a8f8a7db00",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/data.png": {
-    "mtime": 1782687542.9400725,
-    "ast_hash": "bb15709efe0a349956024da398d198c1",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/fleet.png": {
-    "mtime": 1782687606.2075539,
-    "ast_hash": "093e0af46cd4af8a3eb6a976165f9ca6",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/frame.png": {
-    "mtime": 1782687479.3750124,
-    "ast_hash": "4f81705573949858770f08e89bbf5256",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/market.png": {
-    "mtime": 1782687591.6802526,
-    "ast_hash": "515934d253e88e72ba3da1ad3004ee73",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/mind.png": {
-    "mtime": 1782687585.1484342,
-    "ast_hash": "078dd1951965f298fdf767e381cfa97f",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/ohho-os.png": {
-    "mtime": 1782687529.800533,
-    "ast_hash": "b097f8784879905f375b85e61f9b3f54",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/pilot.png": {
-    "mtime": 1782687598.0397198,
-    "ast_hash": "764773c4d05fc7fbb2cdb32c13fc4d5b",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/proof.png": {
-    "mtime": 1782687529.800533,
-    "ast_hash": "b097f8784879905f375b85e61f9b3f54",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/serve.png": {
-    "mtime": 1782687529.800533,
-    "ast_hash": "b097f8784879905f375b85e61f9b3f54",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/shield.png": {
-    "mtime": 1782687529.800533,
-    "ast_hash": "b097f8784879905f375b85e61f9b3f54",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/train.png": {
-    "mtime": 1782687550.4313529,
-    "ast_hash": "93d05dd6a4ea99b5776ca9688e446145",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/twin.png": {
-    "mtime": 1782687614.348424,
-    "ast_hash": "7799f7900fbe95349ac84dcb6d5b0d77",
-    "semantic_hash": ""
-  },
-  "website/public/videos/products/view.png": {
-    "mtime": 1782687536.4721684,
-    "ast_hash": "cd0e71e3a9591b7e651e974e11351e71",
     "semantic_hash": ""
   }
 }
