@@ -1,29 +1,43 @@
 """Adapter resolution.
 
 Adapters connect the unified Transport interface to a robot's native protocol.
-This build bundles the simulator; hardware adapters (Unitree DDS, DJI MAVLink,
-Modbus, …) land here behind their extras and register their schemes.
+This build bundles: ``sim`` (always), ``serial`` (Yahboom / OmniBot base, needs
+the `[serial]` extra at connect time), and ``dds`` (Unitree Go2, needs `[unitree]`).
+
+Policy: **auto (no explicit transport) runs in simulation** so zero-config use and
+tests never touch hardware; pass an explicit transport URI (``serial://…``,
+``dds://…``) to engage a real robot.
 """
 
 from __future__ import annotations
 
+import importlib.util
 from typing import Optional
 
 from ..registry import RobotSpec
 from ..transport import Transport
+from .errors import AdapterUnavailable
 from .sim import SimTransport
+from .unitree import UnitreeDdsTransport
+from .yahboom import YahboomTransport
 
-
-class AdapterUnavailable(RuntimeError):
-    """Raised when an explicitly requested transport scheme isn't installed."""
-
-
-# Schemes usable in this build.
-AVAILABLE = ("sim",)
+# transport scheme -> hardware adapter class (sim handled separately)
+_HARDWARE = {
+    "serial": YahboomTransport,
+    "yahboom-serial": YahboomTransport,
+    "dds": UnitreeDdsTransport,
+    "unitree-dds": UnitreeDdsTransport,
+}
 
 
 def available_adapters() -> list[str]:
-    return list(AVAILABLE)
+    """Schemes usable in this environment (their runtime deps are importable)."""
+    out = ["sim"]
+    if importlib.util.find_spec("serial") is not None:
+        out.append("serial")
+    if importlib.util.find_spec("cyclonedds") is not None:
+        out.append("dds")
+    return out
 
 
 def resolve_transport(
@@ -33,35 +47,31 @@ def resolve_transport(
 ) -> Transport:
     """Pick a transport for a robot.
 
+    - ``uri=None`` (auto) → the simulator (explicit URIs engage hardware).
     - ``uri="sim://"`` → the simulator.
-    - ``uri`` with another scheme → ``AdapterUnavailable`` (honest, explicit error).
-    - ``uri=None`` (auto) → the robot's real adapter if bundled, else simulation,
-      so any robot can be explored before its hardware adapter is installed.
+    - ``uri="serial://<port>"`` → Yahboom serial adapter.
+    - ``uri="dds://<iface>"`` → Unitree DDS adapter.
+    - any other scheme → ``AdapterUnavailable``.
     """
-    explicit = uri is not None
-    if uri:
-        scheme = uri.split("://", 1)[0].lower()
-    elif spec is not None:
-        scheme = spec.adapter.lower()
-    else:
-        scheme = "sim"
-
+    if uri is None:
+        return SimTransport(spec)
+    scheme, _sep, address = uri.partition("://")
+    scheme = scheme.lower()
     if scheme in ("sim", "simulated"):
         return SimTransport(spec)
-
-    if explicit:
+    cls = _HARDWARE.get(scheme)
+    if cls is None:
         raise AdapterUnavailable(
-            f"Transport '{scheme}' isn't available in this build. "
-            f"Install the matching extra (e.g. pip install 'ohho-os[unitree]') "
-            f"or use transport='sim://'."
+            f"Unknown transport scheme '{scheme}'. Known: sim, serial, dds — "
+            f"or omit the transport to run in simulation."
         )
-
-    # auto: no bundled adapter for this robot yet — fall back to simulation.
-    return SimTransport(spec)
+    return cls(spec, address)
 
 
 __all__ = [
     "SimTransport",
+    "YahboomTransport",
+    "UnitreeDdsTransport",
     "AdapterUnavailable",
     "resolve_transport",
     "available_adapters",

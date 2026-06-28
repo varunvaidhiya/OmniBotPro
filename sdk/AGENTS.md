@@ -24,15 +24,18 @@
 | Runtime port + **native** backend | ✅ working (threaded scheduler, pub/sub, timers, params) |
 | **ROS 2** runtime backend | ⛔ stub — detects rclpy, raises a clear "use native" error |
 | Simulator adapter | ✅ working (holonomic physics + joint servoing) |
-| **Hardware adapters** (Yahboom serial, Unitree DDS, DJI…) | ⛔ not built — auto-connect falls back to sim; explicit non-sim URI raises `AdapterUnavailable` |
+| **Hardware adapters** | 🟡 M1 in progress — `serial://` (Yahboom/OmniBot) + `dds://` (Unitree Go2) built and mock-tested; **on-robot bring-up pending**. DJI/others not built. Auto (no URI) still = sim; explicit `serial://`/`dds://` engages hardware. |
 | Agent loop | ✅ minimal (deterministic `ScriptedBrain`); real reasoner not wired |
 | Training / data / serve | ⛔ not built (extras declared in `pyproject.toml`, no code yet) |
 | CLI (`ohho`) | ✅ `doctor list version connect sim drive agent` |
-| Tests | ✅ 40 `unittest` cases (`sdk/tests/`) |
+| Tests | ✅ 58 `unittest` cases (`sdk/tests/`) |
 | CI | ✅ green (`Lint (ruff)` + repo build); see §7 |
 
-**The next milestone is M1: the two-robot hardware vertical slice** (real Yahboom
-serial adapter for OmniBot + real Unitree DDS adapter for Go2). See §8 and §9.
+**M1 (two-robot hardware vertical slice) is IN PROGRESS.** The Yahboom serial
+(`serial://`) and Unitree DDS (`dds://`) adapters are built and unit-tested against
+the protocols with mock/loopback bytes (no hardware). What remains is **on-robot
+bring-up** (real OmniBot + Go2), wiring the real DDS state subscription, and the
+separate OmniBot arm adapter. See §8.
 
 ---
 
@@ -118,8 +121,12 @@ sdk/
 │   │   ├── native.py     # NativeRuntime — threaded scheduler
 │   │   └── ros2.py       # Ros2Runtime — STUB (raises RuntimeUnavailable); is_available() checks rclpy
 │   ├── adapters/
-│   │   ├── __init__.py   # resolve_transport(uri, spec, runtime), AdapterUnavailable, AVAILABLE=("sim",)
-│   │   └── sim.py        # SimTransport — holonomic physics + joint servoing; step(dt) deterministic; start_sim() thread
+│   │   ├── __init__.py        # resolve_transport(uri, spec, runtime); available_adapters(); scheme map
+│   │   ├── errors.py          # AdapterUnavailable
+│   │   ├── sim.py             # SimTransport — holonomic physics + joint servoing; step(dt) deterministic
+│   │   ├── _yahboom_proto.py  # vendored Yahboom packet codec (pure stdlib): encode + parse_stream
+│   │   ├── yahboom.py         # YahboomTransport — serial:// (OmniBot base); pyserial lazy; _ingest() test seam
+│   │   └── unitree.py         # UnitreeDdsTransport — dds:// (Go2); SDK lazy; velocity_to_move/sportstate_to_telemetry
 │   ├── robot.py          # Robot (RAL) — connect/drive/move_joints/telemetry/emergency_stop/has/disconnect; connect() shortcut
 │   ├── agent.py          # Agent + ScriptedBrain (placeholder); _default_brain() (agent_engine plug-in point)
 │   ├── hardware.py       # resolve_device("auto") -> cuda/mps/cpu (lazy torch)
@@ -253,10 +260,22 @@ compress). M0 is done.
 ### ✅ M0 — Scaffold + sim slice (DONE, merged)
 RAL, native runtime, sim adapter, registry, CLI, 40 tests. Acceptance: met.
 
-### ▶ M1 — Two-robot hardware vertical slice (NEXT)
+### ▶ M1 — Two-robot hardware vertical slice (IN PROGRESS)
 **Goal:** the *same* code drives two very different real robots, proving
 robot-agnosticism. Pair: **OmniBot** (wheeled, USB serial) + **Unitree Go2**
 (quadruped, DDS).
+
+**Done so far (v0.2.0):** `serial://` Yahboom adapter (`ohho/adapters/yahboom.py`
++ vendored codec `_yahboom_proto.py`) and `dds://` Unitree adapter
+(`ohho/adapters/unitree.py`), wired into `resolve_transport`, unit-tested with mock
+serial bytes + pure DDS mapping functions (58 tests). Both raise a clean
+`AdapterUnavailable` when their extra is absent. `[serial]` extra added.
+
+**Remaining (hardware-gated):** on-robot bring-up against the real OmniBot + Go2;
+wire the real Unitree `SportModeState` DDS subscription into `_on_state`; a separate
+OmniBot **arm** adapter (Feetech bus — the base board doesn't drive the arm); an
+`OHHO_HIL=1` on-hardware test harness.
+
 **Deliverables:**
 - `ohho/adapters/yahboom.py` — `YahboomTransport(BaseTransport)` over pyserial.
   **Reuse `packages/yahboom_ros2/yahboom_ros2/protocol.py`** (packet encoder/
@@ -387,5 +406,5 @@ to document the `sdk/` area.
 
 ---
 
-_Last updated: end of the M0 session (SDK `v0.1.0`). When you finish a milestone,
+_Last updated: M1 adapters landed (SDK `v0.2.0`). When you finish a milestone,
 update §0, §3, and §8, and bump `ohho/__init__.py` `__version__`._
