@@ -54,7 +54,12 @@ class TestRuntimeSelection(unittest.TestCase):
     def test_available(self):
         self.assertIn("native", available_runtimes())
 
-    def test_ros2_unavailable_in_m0(self):
+    def test_ros2_unavailable_without_rclpy(self):
+        # On this machine (no rclpy), ros2 runtime should raise
+        from ohho.runtime.ros2 import Ros2Runtime
+
+        if Ros2Runtime.is_available():
+            self.skipTest("rclpy is installed — skipping no-rclpy test")
         with self.assertRaises(RuntimeUnavailable):
             get_runtime("ros2")
 

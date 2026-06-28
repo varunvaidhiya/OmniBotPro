@@ -14,6 +14,7 @@ parameters, or conventions.
 | Directory | Purpose |
 |---|---|
 | `robot_ws/` | ROS 2 workspace (Jazzy, Ubuntu 24.04) |
+| `sdk/` | **OhhO OS** — open-source robot-agnostic engine (the `ohho` package). Robot abstraction, runtimes (native + ROS 2), adapters (sim, Yahboom, Feetech, Unitree, ROS 2), agent brain, data/train/serve, CLI. Apache-2.0. See `sdk/AGENTS.md`. |
 | `packages/` | Standalone Python packages (shared, not ROS-dependent) |
 | `vla_engine/` | PyTorch VLA training/inference (no ROS) |
 | `data_engine/` | Episode-based dataset collection pipeline |

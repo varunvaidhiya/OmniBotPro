@@ -18,12 +18,12 @@ def available_runtimes() -> list[str]:
 def get_runtime(name: str = "auto") -> Runtime:
     """Construct a runtime by name.
 
-    ``auto`` resolves to ``native`` in this build (the ROS 2 backend isn't
-    implemented yet); once it lands, ``auto`` will prefer ``ros2`` when rclpy is
-    available.
+    ``auto`` prefers ``ros2`` when rclpy is available (the full ROS 2 stack),
+    and falls back to ``native`` otherwise — so the same code runs on both
+    backends with zero changes.
     """
     if name in (None, "auto"):
-        name = "native"
+        name = "ros2" if Ros2Runtime.is_available() else "native"
     if name == "native":
         return NativeRuntime()
     if name == "ros2":

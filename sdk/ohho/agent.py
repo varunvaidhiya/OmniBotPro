@@ -43,11 +43,17 @@ class ScriptedBrain:
 
 
 def _default_brain() -> Brain:
-    """Prefer the real reasoning stack if available; otherwise scripted."""
+    """Prefer the real reasoning stack if available; otherwise scripted.
+
+    Tries to load ``ohho.brains.HarnessBrain`` (which lazily imports
+    ``agent_engine`` + ``anthropic``). Falls back to ``ScriptedBrain`` when
+    ``agent_engine`` is not installed (the common case without the ``[agent]``
+    extra).
+    """
     try:
-        # Future wiring: agent_engine's ClaudeToolCallingReasoner over a tool
-        # registry built from the robot's capabilities. Not enabled in M0.
-        raise ImportError
+        from .brains import HarnessBrain
+
+        return HarnessBrain()
     except Exception:
         return ScriptedBrain()
 

@@ -147,6 +147,94 @@ def _cmd_agent(args) -> int:
     return 0
 
 
+def _cmd_serve(args) -> int:
+    from .serve import serve, ServeUnavailable
+
+    try:
+        serve(
+            checkpoint=args.checkpoint,
+            port=args.port,
+            host=args.host,
+            device=args.device,
+            mock=args.mock,
+        )
+    except ServeUnavailable as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    return 0
+
+
+def _cmd_market(args) -> int:
+    from .market import list_skills, run_skill, SkillRequirementsNotMet
+
+    if args.action == "list":
+        skills = list_skills()
+        if not skills:
+            print("no skills registered")
+            return 0
+        for s in skills:
+            reqs = ", ".join(s.requires) or "—"
+            tags = ", ".join(s.tags) or "—"
+            print(
+                f"{s.name:<16} v{s.version:<6} [{reqs}]  "
+                f"tags: {tags}\n  {s.description}"
+            )
+        return 0
+    if args.action == "run":
+        try:
+            bot = Robot.connect(
+                args.robot, transport=args.transport, runtime=args.runtime
+            )
+        except Exception as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        try:
+            result = run_skill(args.skill_name, bot)
+            print(f"skill '{args.skill_name}': {result}")
+        except SkillRequirementsNotMet as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 3
+        except KeyError as e:
+            print(f"error: {e}", file=sys.stderr)
+            return 2
+        finally:
+            bot.disconnect()
+        return 0
+    print("usage: ohho market [list|run]")
+    return 1
+
+
+def _cmd_profile(args) -> int:
+    from . import profiles
+
+    if args.action == "list":
+        for name in profiles.list_profiles():
+            p = profiles.get_profile(name)
+            print(f"{name:<22} {p.description}")
+        return 0
+    if args.action == "show":
+        p = profiles.get_profile(args.profile_name)
+        print(f"profile: {p.name}")
+        print(f"  {p.description}")
+        for node in p.nodes:
+            print(f"  node: {node.name}")
+            print(f"    roles: {', '.join(node.roles)}")
+            print(f"    device: {node.device}  accelerator: {node.accelerator or '—'}")
+            if node.notes:
+                print(f"    notes: {node.notes}")
+        return 0
+    if args.action == "detect":
+        p = profiles.detect_profile()
+        desc = profiles.describe()
+        print(f"detected: {p.name}")
+        print(f"  {p.description}")
+        print(f"  platform: {desc['platform']}")
+        print(f"  device: {desc['device']}")
+        return 0
+    print("usage: ohho profile [list|show|detect]")
+    return 1
+
+
 def _add_robot_args(
     sp: argparse.ArgumentParser, transport_default: Optional[str] = None
 ) -> None:
@@ -193,6 +281,36 @@ def build_parser() -> argparse.ArgumentParser:
     _add_robot_args(a)
     a.add_argument("goal", help='the goal, e.g. "explore the room"')
     a.set_defaults(func=_cmd_agent)
+
+    sv = sub.add_parser("serve", help="serve a trained policy over REST")
+    sv.add_argument("--checkpoint", default="", help="path to trained checkpoint")
+    sv.add_argument("--port", type=int, default=8000)
+    sv.add_argument("--host", default="0.0.0.0")
+    sv.add_argument("--device", default="auto")
+    sv.add_argument(
+        "--mock", action="store_true", help="use a no-op model (sim loop, no GPU)"
+    )
+    sv.set_defaults(func=_cmd_serve)
+
+    mk = sub.add_parser("market", help="list and run robot skills")
+    mk_sub = mk.add_subparsers(dest="action")
+    mk_sub.add_parser("list", help="list registered skills").set_defaults(action="list")
+    mk_run = mk_sub.add_parser("run", help="run a skill on a robot")
+    _add_robot_args(mk_run)
+    mk_run.add_argument("skill_name", help="skill name (see 'ohho market list')")
+    mk_run.set_defaults(action="run")
+    mk.set_defaults(func=_cmd_market)
+
+    pf = sub.add_parser("profile", help="hardware deployment profiles")
+    pf_sub = pf.add_subparsers(dest="action")
+    pf_sub.add_parser("list", help="list built-in profiles").set_defaults(action="list")
+    pf_show = pf_sub.add_parser("show", help="show a specific profile")
+    pf_show.add_argument("profile_name", help="profile name")
+    pf_show.set_defaults(action="show")
+    pf_sub.add_parser(
+        "detect", help="auto-detect the current machine's profile"
+    ).set_defaults(action="detect")
+    pf.set_defaults(func=_cmd_profile)
 
     return p
 

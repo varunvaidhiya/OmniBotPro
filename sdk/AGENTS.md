@@ -9,9 +9,11 @@
 - **What it is:** the open-source, robot-agnostic engine that powers the OhhO
   platform. One API controls any robot, **with or without ROS**, and carries the
   whole stack from perception to training.
-- **Status:** **M0 complete and merged** (PRs #163 brand/docs, #164 SDK core).
-  Installable, 40 unittest cases passing, `ohho` CLI works end-to-end.
-- **Current version:** `0.1.0` (see `ohho/__init__.py` `__version__`).
+- **Status:** **M0–M5 complete — v1.0.0.** All milestones shipped. Installable,
+  151 unittest cases passing (4 HIL tests skip unless `OHHO_HIL=1`), `ohho` CLI
+  works end-to-end with `doctor list version connect sim drive agent serve
+  market profile`.
+- **Current version:** `1.0.0` (see `ohho/__init__.py` `__version__`).
 
 ---
 
@@ -22,20 +24,22 @@
 | Robot Abstraction Layer (`Robot`) | ✅ working |
 | Capability model + registry | ✅ working (OmniBot, Unitree Go2, generic sim) |
 | Runtime port + **native** backend | ✅ working (threaded scheduler, pub/sub, timers, params) |
-| **ROS 2** runtime backend | ⛔ stub — detects rclpy, raises a clear "use native" error |
+| **ROS 2** runtime backend | ✅ **M4 complete** — `Ros2Runtime` (rclpy node: timers, pub/sub via topics, params via node params) + `Ros2Transport` (bridges /cmd_vel, /odom, /arm/joint_states). `get_runtime("auto")` prefers ros2 when rclpy present. `ros2://` scheme registered. Fully testable with `FakeRos2Node` (no ROS 2 needed). |
 | Simulator adapter | ✅ working (holonomic physics + joint servoing) |
-| **Hardware adapters** | 🟡 M1 in progress — `serial://` (Yahboom/OmniBot) + `dds://` (Unitree Go2) built and mock-tested; **on-robot bring-up pending**. DJI/others not built. Auto (no URI) still = sim; explicit `serial://`/`dds://` engages hardware. |
-| Agent loop | ✅ minimal (deterministic `ScriptedBrain`); real reasoner not wired |
-| Training / data / serve | ⛔ not built (extras declared in `pyproject.toml`, no code yet) |
-| CLI (`ohho`) | ✅ `doctor list version connect sim drive agent` |
-| Tests | ✅ 58 `unittest` cases (`sdk/tests/`) |
+| **Hardware adapters** | ✅ M1 software complete — `serial://` (Yahboom base) + `feetech://` (SO-101 arm) + `composite` (base+arm merge for mobile-manipulators) + `dds://` (Unitree Go2 with real state polling) all built and mock-tested. **On-robot bring-up still pending** (hardware-gated). DJI/others not built. |
+| Agent loop | ✅ **real brain** — `HarnessBrain` wires `agent_engine.AgentHarness` (perceive→reason→act→reflect). `ToolRegistry` built from robot capabilities. `ClaudeToolCallingReasoner` over `ReasoningRouter` (cloud Claude when `ANTHROPIC_API_KEY` + `[agent]` extra, echo fallback otherwise). `ScriptedBrain` remains the no-dep fallback. |
+| Training / data / serve | ✅ **M3 complete** — `ohho.data.Recorder` (capture state+action from Robot → LeRobot v2.0), `ohho.train.finetune()` (delegates to lerobot_engine, mock mode for sim), `ohho.serve` (FastAPI server, `ohho serve` CLI). Record→train→serve loop works on sim. |
+| CLI (`ohho`) | ✅ `doctor list version connect sim drive agent serve market profile` |
+| Tests | ✅ 151 `unittest` cases (`sdk/tests/`) + 4 HIL tests (`sdk/tests/hil/`, skip unless `OHHO_HIL=1`) |
 | CI | ✅ green (`Lint (ruff)` + repo build); see §7 |
 
-**M1 (two-robot hardware vertical slice) is IN PROGRESS.** The Yahboom serial
-(`serial://`) and Unitree DDS (`dds://`) adapters are built and unit-tested against
-the protocols with mock/loopback bytes (no hardware). What remains is **on-robot
-bring-up** (real OmniBot + Go2), wiring the real DDS state subscription, and the
-separate OmniBot arm adapter. See §8.
+**M1 (two-robot hardware vertical slice) — software complete.** All four adapters
+(`yahboom`, `feetech`, `composite`, `unitree`) are built and unit-tested against
+the protocols with mock/loopback bytes (no hardware). The Unitree DDS state
+subscription is wired (polling reader thread → `_on_state` → `Telemetry`). The
+OmniBot arm adapter (Feetech bus) is built and composes with the Yahboom base via
+`CompositeTransport`. What remains is **on-robot bring-up** only — running the HIL
+tests against real OmniBot + Go2 hardware. See §8.
 
 ---
 
@@ -105,7 +109,7 @@ across heterogeneous hardware.
 
 ```
 sdk/
-├── pyproject.toml        # name=ohho-os; extras: unitree/dji/ros2/train/serve/yaml/dev/all; console_script `ohho`
+├── pyproject.toml        # name=ohho-os; extras: serial/arm/agent/data/unitree/dji/serve/train/ros2/yaml/dev/all; console_script `ohho`
 ├── README.md             # user-facing quickstart
 ├── AGENTS.md             # ← THIS FILE (handoff + roadmap)
 ├── .gitignore            # egg-info, __pycache__, caches
@@ -119,21 +123,36 @@ sdk/
 │   │   ├── __init__.py   # get_runtime("auto"|"native"|"ros2"), available_runtimes()
 │   │   ├── base.py       # Runtime (ABC): pub/sub + params (concrete) + now/create_timer/start/stop (abstract); TimerHandle; RuntimeUnavailable
 │   │   ├── native.py     # NativeRuntime — threaded scheduler
-│   │   └── ros2.py       # Ros2Runtime — STUB (raises RuntimeUnavailable); is_available() checks rclpy
+│   │   └── ros2.py       # Ros2Runtime — rclpy node (timers, pub/sub, params); node_factory injectable for tests
 │   ├── adapters/
-│   │   ├── __init__.py        # resolve_transport(uri, spec, runtime); available_adapters(); scheme map
+│   │   ├── __init__.py        # resolve_transport(uri, spec, runtime); available_adapters(); scheme map; composite auto-compose
 │   │   ├── errors.py          # AdapterUnavailable
 │   │   ├── sim.py             # SimTransport — holonomic physics + joint servoing; step(dt) deterministic
 │   │   ├── _yahboom_proto.py  # vendored Yahboom packet codec (pure stdlib): encode + parse_stream
 │   │   ├── yahboom.py         # YahboomTransport — serial:// (OmniBot base); pyserial lazy; _ingest() test seam
-│   │   └── unitree.py         # UnitreeDdsTransport — dds:// (Go2); SDK lazy; velocity_to_move/sportstate_to_telemetry
+│   │   ├── feetech.py         # FeetechTransport — feetech:// (SO-101 arm); lerobot lazy; rad↔tick; torque; reader thread
+│   │   ├── composite.py       # CompositeTransport — merges base + arm into one Transport (mobile-manipulators)
+│   │   ├── ros2.py            # Ros2Transport — ros2:// (bridges /cmd_vel, /odom, /joint_states); msg_factory injectable
+│   │   └── unitree.py         # UnitreeDdsTransport — dds:// (Go2); SDK lazy; state polling thread; state_factory injectable
 │   ├── robot.py          # Robot (RAL) — connect/drive/move_joints/telemetry/emergency_stop/has/disconnect; connect() shortcut
-│   ├── agent.py          # Agent + ScriptedBrain (placeholder); _default_brain() (agent_engine plug-in point)
+│   ├── agent.py          # Agent + ScriptedBrain (fallback); _default_brain() lazily loads HarnessBrain
+│   ├── brains.py         # HarnessBrain — wires agent_engine (ToolRegistry from caps, RobotPerceptor, ClaudeToolCallingReasoner)
+│   ├── data/             # ohho.data — Recorder (capture state+action), LeRobot v2.0 writer + reader
+│   │   ├── __init__.py   # exports Recorder, Episode
+│   │   ├── recorder.py   # Recorder — wraps Robot, intercepts drive/move_joints, captures frames
+│   │   ├── writer.py     # write_dataset — LeRobot v2.0 (Parquet via pyarrow, JSON Lines fallback)
+│   │   └── reader.py     # DatasetReader — lightweight reader (no torch needed), stats()
+│   ├── train/            # ohho.train — finetune() delegates to lerobot_engine, mock mode for sim
+│   │   └── __init__.py   # finetune(), SUPPORTED_POLICIES, TrainUnavailable, _mock_train()
+│   ├── serve/            # ohho.serve — FastAPI inference server, `ohho serve` CLI
+│   │   └── __init__.py   # serve(), build_app(), ServeUnavailable, _MockModel
+│   ├── profiles.py       # HardwareProfile, detect_profile(), `ohho profile` CLI
+│   ├── market.py         # Skill registry, @skill decorator, run_skill(), `ohho market` CLI
 │   ├── hardware.py       # resolve_device("auto") -> cuda/mps/cpu (lazy torch)
 │   ├── cli.py            # argparse: doctor/list/version/connect/sim/drive/agent; main()
 │   └── robots/
 │       └── example.json  # example manifest (nested dof/limits) for load_manifest()
-└── tests/                # 40 unittest cases: schema, capabilities, registry, runtime, sim, adapters, robot, agent
+└── tests/                # 85 unittest cases + 4 HIL tests (hil/, skip unless OHHO_HIL=1)
 ```
 
 ---
@@ -260,97 +279,155 @@ compress). M0 is done.
 ### ✅ M0 — Scaffold + sim slice (DONE, merged)
 RAL, native runtime, sim adapter, registry, CLI, 40 tests. Acceptance: met.
 
-### ▶ M1 — Two-robot hardware vertical slice (IN PROGRESS)
+### ✅ M1 — Two-robot hardware vertical slice (SOFTWARE COMPLETE)
 **Goal:** the *same* code drives two very different real robots, proving
 robot-agnosticism. Pair: **OmniBot** (wheeled, USB serial) + **Unitree Go2**
 (quadruped, DDS).
 
-**Done so far (v0.2.0):** `serial://` Yahboom adapter (`ohho/adapters/yahboom.py`
-+ vendored codec `_yahboom_proto.py`) and `dds://` Unitree adapter
-(`ohho/adapters/unitree.py`), wired into `resolve_transport`, unit-tested with mock
-serial bytes + pure DDS mapping functions (58 tests). Both raise a clean
-`AdapterUnavailable` when their extra is absent. `[serial]` extra added.
-
-**Remaining (hardware-gated):** on-robot bring-up against the real OmniBot + Go2;
-wire the real Unitree `SportModeState` DDS subscription into `_on_state`; a separate
-OmniBot **arm** adapter (Feetech bus — the base board doesn't drive the arm); an
-`OHHO_HIL=1` on-hardware test harness.
-
-**Deliverables:**
-- `ohho/adapters/yahboom.py` — `YahboomTransport(BaseTransport)` over pyserial.
-  **Reuse `packages/yahboom_ros2/yahboom_ros2/protocol.py`** (packet encoder/
-  decoder, `packet_motion`, `packet_set_car_type`, checksum). Map `Velocity` →
-  `FUNC_MOTION` (`<bhhh>` car_type, vx×1000, vy×1000, w×1000); decode RX
-  `0xFB` packets → `Odometry`/`Imu`. Mecanum kinematics in
-  `packages/mecanum_drive_ros2` (has a pure-Python mirror).
+**Done (v0.3.0):**
+- `ohho/adapters/yahboom.py` — `YahboomTransport(BaseTransport)` over pyserial,
+  `serial://` scheme. Reuses the vendored codec `_yahboom_proto.py`. Reader thread
+  decodes `0xFB` packets → odometry integration + IMU yaw fusion. Clean
+  `AdapterUnavailable` when `[serial]` missing.
+- `ohho/adapters/feetech.py` — `FeetechTransport(BaseTransport)` for the SO-101
+  6-DOF arm, `feetech://` scheme. Lazy `lerobot` import (`[arm]` extra). rad↔tick
+  conversion (4096 ticks/rev, home 2048), joint clamping, torque enable/disable,
+  reader thread for present positions. Fake bus injectable for tests.
+- `ohho/adapters/composite.py` — `CompositeTransport(base, arm)` merges a base
+  link + arm link into one `Transport`: `send_velocity`→base,
+  `send_joint_command`→arm, `read`→merged telemetry, estop→both. This is what
+  lets a single `Robot` drive the full OmniBot mobile-manipulator.
 - `ohho/adapters/unitree.py` — `UnitreeDdsTransport(BaseTransport)` over
-  `unitree_sdk2_python` (extra `[unitree]`, lazy import). **Reuse the joint-index
-  maps + kp/kd defaults + topic map in `website/lib/bridge/adapters.ts`**
-  (`G1_JOINT_MAP`, `UNITREE_TOPICS`, the `unitree-dds` adapter row). Map
-  `Velocity` → HighCmd; LowState/odometry → `Telemetry`.
-- Register schemes in `adapters/__init__.py` (`AVAILABLE += ("yahboom","unitree")`;
-  parse `serial://`, `dds://`); update `available_adapters()` and `ohho doctor`.
-- **HIL test harness:** `sdk/tests/hil/` (skipped unless `OHHO_HIL=1`) that runs
-  connect→drive→read against real hardware; plus a **loopback/mock test** (feed
-  canned serial/DDS bytes) that runs in CI with no hardware.
-- Extras: real deps in `pyproject.toml` `[unitree]`/serial.
-**Acceptance:** `Robot.connect("omnibot","serial:///dev/ttyUSB0")` and
-`Robot.connect("unitree-go2","dds://<ip>")` both drive + stream telemetry on
-hardware, and `Agent(bot).run(goal)` runs unchanged on both. Mock-byte tests
-pass in CI.
-**Time:** adapter code ~software; final bring-up **hardware-gated**.
-> If hardware isn't on hand: build both adapters against the protocols with
-> mock/loopback tests now; only the on-robot bring-up waits for the bench.
+  `unitree_sdk2py`, `dds://` scheme. **DDS state subscription wired**: polling
+  reader thread calls `SportClient.GetState(SportModeState)` → `_on_state` →
+  `Telemetry` at 20 Hz. `state_factory` injectable for mock tests. Maps
+  `Velocity` → `SportClient.Move(vx, vy, vyaw)`.
+- `resolve_transport` auto-composes: `serial://<base>,<arm>` for a robot with
+  `manipulation` capability returns a `CompositeTransport(Yahboom, Feetech)`.
+- Extras: `[serial]` (pyserial), `[arm]` (lerobot), `[unitree]` (cyclonedds).
+- **Mock/loopback tests** (27 new, 85 total): `test_feetech.py`,
+  `test_composite.py`, updated `test_unitree.py` + `test_adapters.py`.
+- **HIL test harness**: `sdk/tests/hil/test_hil.py` — 4 tests (OmniBot base,
+  OmniBot arm, OmniBot composite, Go2 DDS), skipped unless `OHHO_HIL=1`.
 
-### M2 — Real agent brain
-Wire `agent.py` `_default_brain()` to **`agent_engine`**
-(`agent_engine/reasoners/claude_tool_caller.py` + `reasoning/router.py`); build a
-`ToolRegistry` from the robot's capabilities; keep `ScriptedBrain` as the
-no-dependency fallback. Acceptance: `Agent(bot).run(goal)` performs real
-perceive→reason→act→reflect when `[agent]` extra + `ANTHROPIC_API_KEY` present.
+**Remaining (hardware-gated only):** on-robot bring-up against the real OmniBot
++ Go2 — run `OHHO_HIL=1 python -m unittest discover -s sdk/tests/hil -v` on the
+bench. DJI / MAVLink adapter not started.
 
-### M3 — Training & data pipelines
-`ohho/data/` (record → LeRobot dataset; reuse `data_engine/` +
-`packages/robot_episode_dataset`), `ohho/train/` (delegate to `learning_engine/`
-+ `lerobot_engine/`; `device="auto"` via `hardware.resolve_device`), `ohho/serve/`
-(wrap `packages/vla_serve` FastAPI). Acceptance: record→train→serve loop on the
-sim robot; matches `website/docs/ohho-os/training.md`.
+### ✅ M2 — Real agent brain (DONE)
+Wired `ohho.agent._default_brain()` to **`agent_engine`** via the new
+`ohho/brains.py` module. `HarnessBrain` builds a `ToolRegistry` from the robot's
+capabilities (drive, move_joints, stop, emergency_stop, get_telemetry,
+get_status), creates a `RobotPerceptor` that turns `Robot.telemetry()` into a
+`WorldState`, and runs a `ClaudeToolCallingReasoner` over a `ReasoningRouter`
+(cloud Claude when `ANTHROPIC_API_KEY` + `anthropic` present, echo fallback
+otherwise). `ScriptedBrain` remains the no-dependency fallback when
+`agent_engine` isn't installed. Acceptance met: `Agent(bot).run(goal)` performs
+a real perceive→reason→act→reflect loop; 11 new tests in `test_brains.py`.
 
-### M4 — ROS 2 runtime backend
-Implement `Ros2Runtime` (rclpy) behind the existing `Runtime` port: timers via
-rclpy timers, pub/sub via topics, params via node params. Add `ros2://`
-transport that bridges to the `robot_ws/` stack (Nav2/SLAM/MoveIt). Acceptance:
-`runtime="ros2"` runs the identical Robot/agent/train code with **zero changes
-above the port**. Flip `get_runtime("auto")` to prefer ros2 when rclpy present.
+### ✅ M3 — Training & data pipelines (DONE)
+Built `ohho.data`, `ohho.train`, `ohho.serve` — the record→train→serve loop.
 
-### M5 — Packaging, profiles & community
-PyPI publish (`ohho-os`), `curl | sh` installer behind `ohho.com/install.sh`,
-hardware profiles (reuse `learning_engine/hardware/profiles.py` +
-`onnx_providers`), `ohho market` skill registry, `CONTRIBUTING.md`
-("add a robot = one manifest + one adapter + one test"). Update root `CLAUDE.md`
-to document the `sdk/` area.
+- **`ohho.data.Recorder`** — wraps a `Robot`, intercepts `drive()` and
+  `move_joints()` to capture actions, polls `telemetry()` for state. Frames are
+  9-D (6 arm + 3 base) for mobile-manipulators, 3-D for base-only robots. Manual
+  mode (`start_episode`/`capture_frame`/`stop_episode`) and timer mode
+  (`record_episode`/`stop_recording`). Writes LeRobot v2.0 layout (Parquet via
+  pyarrow `[data]` extra, JSON Lines fallback without it) with `info.json`,
+  `tasks.jsonl`, `episodes.jsonl`.
+- **`ohho.data.DatasetReader`** — lightweight reader (no torch needed) that
+  loads meta + episode data (Parquet or JSON Lines), provides `stats()`,
+  `iter_episodes()`, `all_frames()`.
+- **`ohho.train.finetune()`** — delegates to `lerobot_engine` when torch + lerobot
+  are installed (`[train]` extra). Supports `smolvla`, `act`, `diffusion`,
+  `openvla`. `mock=True` writes a dummy checkpoint from dataset stats (no GPU
+  needed — for the sim acceptance loop).
+- **`ohho.serve`** — `build_app()` returns a FastAPI inference server
+  (testable with `TestClient`); `serve()` launches it via uvicorn. Endpoints:
+  `GET /health`, `POST /load_model`, `POST /predict`. `mock_model=True` uses a
+  no-op model (for the sim loop). Added `ohho serve` CLI command.
+- **Acceptance test** (`test_data.py::TestEndToEndRecordTrainServe`): records 10
+  frames from a sim OmniBot → mock-trains a smolvla checkpoint → launches a mock
+  serve app → `POST /predict` returns a 9-D action vector. 12 new tests.
+
+### ✅ M4 — ROS 2 runtime backend (DONE)
+Implemented `Ros2Runtime` (rclpy node behind the existing `Runtime` port) and
+`Ros2Transport` (bridges the unified Transport to ROS 2 topics).
+
+- **`Ros2Runtime`** (`runtime/ros2.py`) — creates an rclpy node (lazy import,
+  injectable `node_factory` for tests). Overrides `subscribe`/`publish` to bridge
+  to ROS 2 topics (JSON-encoded `std_msgs/String` for the generic bus).
+  Overrides `get_param`/`set_param` to use the node parameter API.
+  `create_timer` uses rclpy timers. `start()` spins the node in a background
+  thread; `stop()` cleans up timers, publishers, subscriptions, and shuts down
+  rclpy.
+- **`Ros2Transport`** (`adapters/ros2.py`) — bridges to real ROS 2 topics:
+  publishes `geometry_msgs/Twist` on `/cmd_vel`, subscribes to
+  `nav_msgs/Odometry` on `/odom`, subscribes to `sensor_msgs/JointState` on
+  `/arm/joint_states`, publishes joint commands on `/arm/joint_commands`.
+  Supports namespace prefixes (`ros2:///robot1`). All message types are
+  imported lazily; `msg_factory` injectable for tests.
+- **`get_runtime("auto")`** — now prefers `ros2` when rclpy is available, falls
+  back to `native` otherwise. Same code, zero changes above the port.
+- **`ros2://` scheme** registered in `resolve_transport`; `available_adapters()`
+  probes for `rclpy`.
+- **Tests** (`test_ros2.py`, 21 new): `FakeRos2Node` simulates the full rclpy
+  node interface — runtime pub/sub, params, timers, transport publishers/
+  subscribers, odometry + joint state callbacks, namespace prefix, estop, auto
+  runtime selection. All run without ROS 2 installed.
+- **Acceptance met:** `runtime="ros2"` runs the identical Robot/agent/train code
+  with zero changes above the port. `Robot.connect("omnibot", "ros2://",
+  runtime="ros2")` drives through `/cmd_vel` and reads `/odom`.
+
+### ✅ M5 — Packaging, profiles & community (DONE)
+- **`ohho.profiles`** — `HardwareProfile` + `NodeSpec` with 5 built-in profiles
+  (`pi_workstation`, `jetson_single`, `workstation_single`, `mac_dev`,
+  `edge_cpu`). `detect_profile()` auto-detects via `OHHO_HW_PROFILE` env var or
+  platform probes. `describe()` for logs/W&B. Added `ohho profile list/show/detect`
+  CLI.
+- **`ohho.market`** — skill registry: `@skill` decorator, `register_skill()`,
+  `list_skills()`, `run_skill()`. 4 built-in skills (`patrol`, `wave`, `stop`,
+  `status`). Capability-gated execution (`SkillRequirementsNotMet` if the robot
+  lacks required caps). Added `ohho market list/run` CLI.
+- **`CONTRIBUTING.md`** — "add a robot = one manifest + one adapter + one test"
+  guide with code examples, the architecture invariants, and a PR checklist.
+- **Root `CLAUDE.md`** — updated to document the `sdk/` area.
+- **Version bumped to `1.0.0`** — all milestones (M0–M5) complete.
+- 22 new tests (`test_market.py` + `test_profiles.py`).
+- **Remaining for PyPI publish:** `python -m build && twine upload` (needs a
+  PyPI account + API token — do this outside the repo).
 
 ---
 
-## 9. START HERE: concrete first steps for M1
+## 9. START HERE: post-1.0 development
 
-1. `pip install -e sdk` and run the tests to confirm a green baseline.
-2. Read `packages/yahboom_ros2/yahboom_ros2/protocol.py` and
-   `website/lib/bridge/adapters.ts` (Unitree maps). Read `confirmed_protocol.py`
-   at repo root for the Yahboom serial reference.
-3. Create `sdk/ohho/adapters/yahboom.py`:
-   - `class YahboomTransport(BaseTransport): protocol = "serial"`.
-   - Lazy `import serial` (pyserial). Constructor takes `(spec, port, baud=115200)`.
-   - `connect()` opens the port, sends `packet_set_car_type(X3)`; `send_velocity`
-     encodes `FUNC_MOTION`; a reader thread decodes `0xFB` packets → cache
-     `Telemetry`; `read()` returns the cache; `emergency_stop()` sends zero.
-   - Honor the invariant: no ROS imports.
-4. Wire `serial://` and a `--port` into `adapters/__init__.py` + `cli.py`.
-5. Add `sdk/tests/test_yahboom_mock.py` — feed canned bytes through the
-   decoder, assert odometry; no hardware needed (runs in CI).
-6. Repeat for `unitree.py` (`dds://`, extra `[unitree]`, mock LowState bytes).
-7. `ruff format sdk/`, run unittest, then commit on a feature branch and open a
-   **draft PR** to `main`. Update §0/§3/§8 of this file as you land each piece.
+All milestones (M0–M5) are complete. OhhO OS is at v1.0.0. To continue:
+
+1. `pip install -e sdk` and run `python -m unittest discover -s sdk/tests` to
+   confirm a green baseline (151 tests, 4 HIL skipped).
+2. **PyPI publish:** `python -m build && twine upload dist/*` (needs PyPI
+   account + API token).
+3. **Installer:** `curl | sh` behind `ohho.com/install.sh`.
+4. **New robots/skills:** follow `sdk/CONTRIBUTING.md` — one manifest + one
+   adapter + one test.
+5. **On-robot M1 bring-up:** `OHHO_HIL=1 python -m unittest discover -s
+   sdk/tests/hil -v` on the bench.
+6. Keep `AGENTS.md` §0/§3/§8 in sync as you add features.
+
+### M1 on-robot bring-up (when hardware is available)
+
+1. Install extras: `pip install -e 'sdk[serial,arm,unitree]'`.
+2. Set env vars: `OHHO_HIL=1`, `OHHO_OMNIBOT_PORT=/dev/ttyUSB0`,
+   `OHHO_OMNIBOT_ARM=/dev/ttyACM0`, `OHHO_GO2_IFACE=eth0`.
+3. Run `python -m unittest discover -s sdk/tests/hil -v`.
+4. Or drive manually:
+   ```python
+   from ohho import Robot
+   with Robot.connect("omnibot", "serial:///dev/ttyUSB0,/dev/ttyACM0") as bot:
+       bot.drive(vx=0.05); bot.move_joints([0, -0.5, 0.5, 0, 0, 0.2])
+    with Robot.connect("unitree-go2", "dds://eth0") as bot:
+        bot.drive(vx=0.3, w=0.2); print(bot.telemetry().odom)
+    ```
 
 ---
 
@@ -363,15 +440,12 @@ to document the `sdk/` area.
 - **Launch robots:** OmniBot + Unitree Go2 (max contrast: wheeled/serial/has-arm
   vs legged/DDS/no-arm).
 - **Language:** Python-first; the web `Transport` types are the shared contract.
-- **License:** `pyproject.toml` declares **Apache-2.0** (placeholder; user to
-  confirm MIT vs Apache-2.0 — both were offered). No `LICENSE` file yet → add one
-  in M5 (or when the user confirms).
-
-### Open questions for the user
-- MIT vs Apache-2.0 for the open core (affects the `LICENSE` file + `pyproject`).
-- Is the dedicated public OSS repo `varunvaidhiya/OmniBotPro`, or a separate
-  clean `ohho-os` repo for launch? (Website `GITHUB_HREF` currently points at
-  OmniBotPro.)
+- **License:** **Apache-2.0** (confirmed by the user). `pyproject.toml` declares
+  it and `sdk/LICENSE` carries the full text + `Copyright 2024 OhhO` notice.
+- **OSS home:** the SDK stays in `varunvaidhiya/OmniBotPro` (confirmed by the
+  user) — `sdk/` is self-contained, `GITHUB_HREF` and `pyproject` `Source` URL
+  already point here. No separate `ohho-os` repo for now; revisit at M5 if a
+  cleaner public face is wanted.
 
 ---
 
@@ -406,5 +480,6 @@ to document the `sdk/` area.
 
 ---
 
-_Last updated: M1 adapters landed (SDK `v0.2.0`). When you finish a milestone,
-update §0, §3, and §8, and bump `ohho/__init__.py` `__version__`._
+_Last updated: M5 complete — OhhO OS v1.0.0. All milestones (M0–M5) shipped.
+151 tests pass. Hardware profiles, skill market, CONTRIBUTING.md, root CLAUDE.md
+updated. Ready for PyPI publish._

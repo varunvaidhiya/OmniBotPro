@@ -38,14 +38,78 @@ class TestUnitreeMapping(unittest.TestCase):
 
     def test_connect_without_sdk_raises_clean_error(self):
         tp = UnitreeDdsTransport(get_spec("unitree-go2"), "eth0")
-        # unitree_sdk2py is not installed in this environment.
         with self.assertRaises(AdapterUnavailable):
             tp.connect()
 
     def test_estop_safe_without_client(self):
         tp = UnitreeDdsTransport(get_spec("unitree-go2"))
-        tp.emergency_stop()  # no client yet -> must not raise
-        tp.send_velocity(Velocity(0.5))  # ignored while stopped / no client
+        tp.emergency_stop()
+        tp.send_velocity(Velocity(0.5))
+
+
+class TestUnitreeStatePolling(unittest.TestCase):
+    """Verify the DDS state reader thread maps state dicts → telemetry."""
+
+    def test_state_factory_feeds_telemetry(self):
+        state = {
+            "position": [1.0, 2.0, 0.0],
+            "velocity": [0.3, 0.0, 0.0],
+            "yaw_speed": 0.4,
+            "imu_rpy": [0.0, 0.0, 1.57],
+            "battery": 0.9,
+        }
+
+        def factory():
+            return lambda: state
+
+        tp = UnitreeDdsTransport(get_spec("unitree-go2"), "eth0", state_factory=factory)
+        seen = []
+        tp.on_telemetry(seen.append)
+        tp.connect()
+        try:
+            import time as _t
+
+            _t.sleep(0.15)
+            self.assertGreaterEqual(len(seen), 1)
+            t = tp.read()
+            self.assertAlmostEqual(t.odom.x, 1.0)
+            self.assertAlmostEqual(t.odom.vx, 0.3)
+            self.assertAlmostEqual(t.battery, 0.9)
+        finally:
+            tp.disconnect()
+
+    def test_state_factory_none_is_safe(self):
+        def factory():
+            return lambda: None
+
+        tp = UnitreeDdsTransport(get_spec("unitree-go2"), state_factory=factory)
+        tp.connect()
+        try:
+            t = tp.read()
+            self.assertEqual(t.odom.x, 0.0)
+        finally:
+            tp.disconnect()
+
+    def test_telemetry_callback_fires_on_state(self):
+        def factory():
+            return lambda: {
+                "position": [1.0, 0.0, 0.0],
+                "velocity": [0.2, 0.0, 0.0],
+                "yaw_speed": 0.0,
+                "imu_rpy": [0.0, 0.0, 0.0],
+            }
+
+        tp = UnitreeDdsTransport(get_spec("unitree-go2"), state_factory=factory)
+        seen = []
+        tp.on_telemetry(seen.append)
+        tp.connect()
+        try:
+            import time as _t
+
+            _t.sleep(0.15)
+            self.assertGreaterEqual(len(seen), 1)
+        finally:
+            tp.disconnect()
 
 
 if __name__ == "__main__":
