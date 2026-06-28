@@ -1,4 +1,6 @@
-export default function ProductDashboard({ slug }: { slug: string }) {
+import { type Accent } from "./dashboardKit";
+
+export default function ProductDashboard({ slug, accent }: { slug: string; accent?: Accent }) {
   return (
     <div className="relative w-full aspect-video rounded-[14px] overflow-hidden" style={{ background: "#0A0E1A" }}>
       <video
