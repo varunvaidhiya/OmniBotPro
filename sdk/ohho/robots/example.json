@@ -1,0 +1,10 @@
+{
+  "id": "my-rover",
+  "name": "My Rover",
+  "category": "wheeled",
+  "capabilities": ["base.drive", "perception.rgb"],
+  "adapter": "sim",
+  "dof": { "base": 3, "arm": 0 },
+  "limits": { "max_lin": 0.8, "max_ang": 1.5 },
+  "joint_names": []
+}

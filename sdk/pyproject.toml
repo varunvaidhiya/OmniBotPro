@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ohho-os"
+version = "0.1.0"
+description = "OhhO OS — the open-source, robot-agnostic engine for any robot, with or without ROS."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "OhhO" }]
+keywords = ["robotics", "ros2", "vla", "agent", "embodied-ai"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# The `base` install is intentionally dependency-free: the core runtime, the
+# robot abstraction layer, the simulator and the CLI run on the standard library
+# alone, on any OS. Add only the extras your robot and workflow need.
+dependencies = []
+
+[project.optional-dependencies]
+yaml = ["pyyaml>=6.0"]                       # load robot manifests from .yaml
+unitree = ["cyclonedds>=0.10"]               # Unitree DDS adapter (G1, Go2, H1, B2 …)
+dji = ["pymavlink>=2.4"]                      # DJI / MAVLink adapter (drones)
+serve = ["fastapi>=0.110", "uvicorn>=0.27"]  # serve policies over REST
+train = ["numpy>=1.24"]                       # training pipelines (delegates to the engines)
+ros2 = []                                    # rclpy ships with your ROS 2 distro — source it, then install this extra
+dev = ["pytest>=7"]
+all = [
+  "pyyaml>=6.0",
+  "cyclonedds>=0.10",
+  "pymavlink>=2.4",
+  "fastapi>=0.110",
+  "uvicorn>=0.27",
+  "numpy>=1.24",
+]
+
+[project.urls]
+Homepage = "https://ohho-robotics.com/os"
+Documentation = "https://ohho-robotics.com/docs/ohho-os"
+Source = "https://github.com/varunvaidhiya/OmniBotPro"
+
+[project.scripts]
+ohho = "ohho.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ohho*"]
+
+[tool.setuptools.package-data]
+ohho = ["robots/*.json"]
