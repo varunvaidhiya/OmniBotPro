@@ -26,42 +26,55 @@
     {
       "slug": "pilot",
       "name": "OhhO Pilot",
-      "tag": "Operate any robot. From anywhere.",
-      "desc": "VR and mobile teleoperation in real time. Pre-loaded robot profiles, a custom robot builder, and arm control via hand tracking.",
+      "tag": "Operate any robot. From anywhere. In mixed reality.",
+      "desc": "Mixed-reality teleoperation on Meta Quest 3. Catalog-driven robot profiles, hand-tracking arm IK, WebRTC video, dual-arm humanoid control, and per-robot calibration — any robot in your garage, one tap to drive.",
       "accent": "violet",
       "category": "Operations",
-      "hero": "Operate any robot, from anywhere. VR and mobile teleoperation with pre-loaded robot profiles, a custom robot builder, and arm control via hand tracking — real-time and low-latency.",
+      "hero": "Put on a Quest 3, see your real room through passthrough, pick any robot from your OhhO garage — a mecanum mobile manipulator, a quadrotor drone, an underwater ROV, a dual-arm humanoid — and teleoperate it with controls appropriate to that robot. Hand-tracking arm IK, WebRTC telepresence video, per-robot calibration, and a catalog-driven spatial add-robot flow that mirrors the website. One shared OhhO account across web, Android and VR.",
       "highlights": [
-        "VR + mobile teleop",
-        "Hand-tracking arm IK",
-        "Pre-loaded robot profiles",
-        "Live camera view (MJPEG)",
-        "Emergency stop + safe clamps"
+        "Mixed-reality passthrough (Meta Quest 3)",
+        "Catalog-driven — any robot, one tap to drive",
+        "Hand-tracking arm IK (analytic + FABRIK)",
+        "WebRTC video with MJPEG fallback",
+        "Dual-arm humanoid control",
+        "Per-robot calibration + quick-resume"
       ],
       "specs": [
         {
-          "label": "Platforms",
-          "value": "VR headset + mobile (Android)"
+          "label": "Headset",
+          "value": "Meta Quest 3 / 3S (mixed reality, passthrough)"
+        },
+        {
+          "label": "Engine",
+          "value": "Unity 2023.3 LTS + Meta XR SDK 60"
         },
         {
           "label": "Transport",
           "value": "ROSBridge WebSocket (port 9090)"
         },
         {
-          "label": "Arm control",
-          "value": "Hand-tracking IK (VR), joint UI (mobile)"
+          "label": "Video",
+          "value": "WebRTC (sub-100 ms) + MJPEG fallback"
         },
         {
-          "label": "Video",
-          "value": "MJPEG via web_video_server"
+          "label": "Drive schemes",
+          "value": "Mecanum, differential, Ackermann, aerial, thruster, legged"
+        },
+        {
+          "label": "Arm IK",
+          "value": "Analytic (SO-101), FABRIK (generic), dual-arm, MoveIt Servo (robot-side)"
         },
         {
           "label": "Safety",
-          "value": "Velocity clamps, e-stop, control-mode mux"
+          "value": "Deadman grip, both-grips e-stop, velocity/joint clamps, connection-loss watchdog"
         },
         {
-          "label": "Robots",
-          "value": "Pre-loaded profiles + custom builder"
+          "label": "Recording",
+          "value": "30 Hz JSONL, profile-driven topics + dims (LeRobot-compatible)"
+        },
+        {
+          "label": "Account",
+          "value": "Shared Supabase identity across web, Android and VR"
         }
       ],
       "app": {

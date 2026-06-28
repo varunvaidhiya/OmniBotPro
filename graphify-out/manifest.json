@@ -2765,8 +2765,8 @@
     "semantic_hash": "b99dbbbdcec0bedb20793f81efa0107a"
   },
   "website/lib/products.tsx": {
-    "mtime": 1782603662.2976809,
-    "ast_hash": "bfb20d19260e7ae63e769c7daad83fc7",
+    "mtime": 1782606322.8800578,
+    "ast_hash": "be49086061ab0df18aaa44c1dd7057a5",
     "semantic_hash": ""
   },
   "website/lib/proof/testing.ts": {
@@ -4290,8 +4290,8 @@
     "semantic_hash": ""
   },
   "website/public/vr/manifest.json": {
-    "mtime": 1782603662.3026807,
-    "ast_hash": "7b1b55d221c5365e4baddfd292730cd0",
+    "mtime": 1782606333.8766527,
+    "ast_hash": "2e9089acf4318d2089f2ec5002eed9db",
     "semantic_hash": ""
   },
   "website/supabase/functions/create-donation-session/index.ts": {

@@ -1,16 +1,16 @@
 # Graph Report - OmniBotPro  (2026-06-28)
 
 ## Corpus Check
-- 827 files · ~876,596 words
+- 827 files · ~877,452 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 8221 nodes · 14258 edges · 679 communities (561 shown, 118 thin omitted)
+- 8221 nodes · 14258 edges · 678 communities (560 shown, 118 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 1395 edges (avg confidence: 0.52)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8efd5760`
+- Built from commit: `e1626cf2`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -576,7 +576,6 @@
 - [[_COMMUNITY_Community 675|Community 675]]
 - [[_COMMUNITY_Community 676|Community 676]]
 - [[_COMMUNITY_Community 677|Community 677]]
-- [[_COMMUNITY_Community 678|Community 678]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `WorldState` - 91 edges
@@ -614,7 +613,7 @@
 - 1-file cycle: `packages/vla_serve/vla_serve/inference/server.py -> packages/vla_serve/vla_serve/inference/server.py`
 - 1-file cycle: `vla_engine/inference/server.py -> vla_engine/inference/server.py`
 
-## Communities (679 total, 118 thin omitted)
+## Communities (678 total, 118 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
@@ -1065,8 +1064,8 @@ Cohesion: 0.23
 Nodes (6): Any, Map, String, WebSocket, ConnectionState, ROSBridgeManager
 
 ### Community 114 - "Community 114"
-Cohesion: 0.17
-Nodes (9): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureListener (+1 more)
+Cohesion: 0.14
+Nodes (12): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureDetector (+4 more)
 
 ### Community 115 - "Community 115"
 Cohesion: 0.15
@@ -1305,8 +1304,8 @@ Cohesion: 0.27
 Nodes (6): ArmIKSolver, OmniBot.VR.Input, float, int, Quaternion, Vector3
 
 ### Community 176 - "Community 176"
-Cohesion: 0.20
-Nodes (5): test_ask_human_for_clarification(), test_list_available_locations(), make_human_tools(), make_navigation_tools(), make_query_tools()
+Cohesion: 0.18
+Nodes (6): test_ask_human_for_clarification(), test_execute_vla_task(), test_list_available_locations(), make_human_tools(), make_query_tools(), make_vla_tools()
 
 ### Community 177 - "Community 177"
 Cohesion: 0.18
@@ -1333,8 +1332,8 @@ Cohesion: 0.14
 Nodes (10): ABC, Abstract base class for all visuomotor policy adapters.  Every model backend (, Abstract interface for Vision-Language-Action models., Load (or download) the model.          Args:             model_path: HuggingF, Predict robot action from an image and natural-language instruction., Any, Image, vla_serve.models.base ~~~~~~~~~~~~~~~~~~~~~ Abstract base class for Vision-Lan (+2 more)
 
 ### Community 183 - "Community 183"
-Cohesion: 0.29
-Nodes (8): _nav_tools(), Unit tests for LangChain tools.  Tools are closures that capture a node refere, test_execute_vla_task(), test_navigate_then_execute_known(), test_navigate_then_execute_unknown_location(), test_navigate_to_known_location(), test_navigate_to_unknown_location_returns_error(), make_vla_tools()
+Cohesion: 0.33
+Nodes (7): _nav_tools(), Unit tests for LangChain tools.  Tools are closures that capture a node refere, test_navigate_then_execute_known(), test_navigate_then_execute_unknown_location(), test_navigate_to_known_location(), test_navigate_to_unknown_location_returns_error(), make_navigation_tools()
 
 ### Community 184 - "Community 184"
 Cohesion: 0.24
@@ -1353,8 +1352,8 @@ Cohesion: 0.26
 Nodes (9): areContentsTheSame(), areItemsTheSame(), ChatAdapter, MsgVH, Int, TextView, View, ViewGroup (+1 more)
 
 ### Community 188 - "Community 188"
-Cohesion: 0.19
-Nodes (21): getHardwareModel(), getRobotTypeForHardware(), applyOverride(), defaultRobotConfig(), deriveRobotConfig(), deriveSensors(), DRIVE_SPECS, DriveSpec (+13 more)
+Cohesion: 0.18
+Nodes (19): isAuthorized(), unauthorizedResponse(), EXPECTED_PRODUCTS, rpc(), getAllPrompts(), getAllResources(), getAllTools(), getResource() (+11 more)
 
 ### Community 189 - "Community 189"
 Cohesion: 0.06
@@ -1497,8 +1496,8 @@ Cohesion: 0.29
 Nodes (6): OmniBot.VR.Core, ROSAdvertiseMessage, ROSIncomingMessage, ROSPublishMessage, ROSSubscribeMessage, ROSUnsubscribeMessage
 
 ### Community 225 - "Community 225"
-Cohesion: 0.23
-Nodes (7): GestureDetector, Boolean, MotionEvent, ScaleGestureDetector, GestureListener, ScaleListener, ScaleListener
+Cohesion: 0.15
+Nodes (10): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureListener (+2 more)
 
 ### Community 226 - "Community 226"
 Cohesion: 0.29
@@ -1613,8 +1612,8 @@ Cohesion: 0.67
 Nodes (3): ruff-format hook, ruff hook, ruff-pre-commit repo
 
 ### Community 332 - "Community 332"
-Cohesion: 0.18
-Nodes (19): isAuthorized(), unauthorizedResponse(), EXPECTED_PRODUCTS, rpc(), getAllPrompts(), getAllResources(), getAllTools(), getResource() (+11 more)
+Cohesion: 0.19
+Nodes (21): getHardwareModel(), getRobotTypeForHardware(), applyOverride(), defaultRobotConfig(), deriveRobotConfig(), deriveSensors(), DRIVE_SPECS, DriveSpec (+13 more)
 
 ### Community 337 - "Community 337"
 Cohesion: 0.11
@@ -1725,8 +1724,8 @@ Cohesion: 0.18
 Nodes (10): Build files, Direction pins, Encoders — TIM1, TIM8, TIM9, TIM10 (period 65535), Flashing, OmniBot STM32 Firmware (LEGACY — not active), Pin / peripheral map (from `Core/Inc/main.h` + `Core/Src/tim.c`), PWM (motor speed) — TIM2–TIM5, period 8399, Serial (+2 more)
 
 ### Community 484 - "Community 484"
-Cohesion: 0.22
-Nodes (6): Bitmap, Canvas, Float, Int, IntArray, SlamMapView
+Cohesion: 0.25
+Nodes (6): FrameConsole(), INITIAL_PROCESSES, Process, useProcessManager(), TelemetryPoint, useSystemTelemetry()
 
 ### Community 485 - "Community 485"
 Cohesion: 0.20
@@ -2265,8 +2264,8 @@ Cohesion: 0.40
 Nodes (3): cors, stripe, VALID_AMOUNTS
 
 ### Community 643 - "Community 643"
-Cohesion: 0.25
-Nodes (6): FrameConsole(), INITIAL_PROCESSES, Process, useProcessManager(), TelemetryPoint, useSystemTelemetry()
+Cohesion: 0.39
+Nodes (5): tools, CVERecord, DeviceIdentity, INITIAL_CVES, INITIAL_DEVICES
 
 ### Community 644 - "Community 644"
 Cohesion: 0.21
@@ -2341,8 +2340,8 @@ Cohesion: 0.22
 Nodes (7): CategoryCardView, OmniBot.VR.UI.Selection, Action, Button, Image, TMP_Text, VrCategory
 
 ### Community 665 - "Community 665"
-Cohesion: 0.39
-Nodes (5): tools, CVERecord, DeviceIdentity, INITIAL_CVES, INITIAL_DEVICES
+Cohesion: 0.33
+Nodes (3): PilotThreeScene(), Props, ThreeSceneState
 
 ### Community 666 - "Community 666"
 Cohesion: 0.25
@@ -2350,27 +2349,27 @@ Nodes (8): 11.1 What it does, 11.2 Launch, 11.3 Prerequisites, 11.4 Verify topic
 
 ### Community 667 - "Community 667"
 Cohesion: 0.33
-Nodes (3): PilotThreeScene(), Props, ThreeSceneState
+Nodes (6): Branch naming, Code style, Engineering Contributions, Known gaps (tracked bugs), Parameter changes, Test coverage expectations
 
 ### Community 668 - "Community 668"
 Cohesion: 0.33
-Nodes (6): Branch naming, Code style, Engineering Contributions, Known gaps (tracked bugs), Parameter changes, Test coverage expectations
+Nodes (6): Branch naming for research, Dataset format, How to propose a benchmarking experiment, Reporting results, Research & Benchmarking Contributions, What counts as a research contribution
 
 ### Community 669 - "Community 669"
-Cohesion: 0.33
-Nodes (6): Branch naming for research, Dataset format, How to propose a benchmarking experiment, Reporting results, Research & Benchmarking Contributions, What counts as a research contribution
+Cohesion: 0.40
+Nodes (5): 5.1 What it does, 5.2 Launch, 5.3 Verify topic interface, 5.4 Test command passthrough (simulation), 5. omnibot_driver — Legacy Mecanum Controller
 
 ### Community 670 - "Community 670"
 Cohesion: 0.40
 Nodes (4): OmniBot.VR.UI.Selection, SelectionState, SelectionStep, string
 
 ### Community 671 - "Community 671"
-Cohesion: 0.40
-Nodes (5): 5.1 What it does, 5.2 Launch, 5.3 Verify topic interface, 5.4 Test command passthrough (simulation), 5. omnibot_driver — Legacy Mecanum Controller
+Cohesion: 0.50
+Nodes (4): Code Documentation, Documentation Requirements, README.md, User Guide
 
 ### Community 672 - "Community 672"
 Cohesion: 0.50
-Nodes (4): Code Documentation, Documentation Requirements, README.md, User Guide
+Nodes (4): 21. data_engine — Bag Ingestion Pipeline, CLI usage, Verify output structure, Verify Parquet schema
 
 ### Community 673 - "Community 673"
 Cohesion: 0.40
@@ -2383,10 +2382,6 @@ Nodes (7): Any, A place reasoning can run: cloud Claude, on-device LLM, DeepX NP
 ### Community 675 - "Community 675"
 Cohesion: 0.50
 Nodes (4): Contributor domain entry points, Digital Twin, Isaac Sim (VLA / training data), Quick-start options
-
-### Community 676 - "Community 676"
-Cohesion: 0.50
-Nodes (4): 21. data_engine — Bag Ingestion Pipeline, CLI usage, Verify output structure, Verify Parquet schema
 
 ### Community 677 - "Community 677"
 Cohesion: 0.67

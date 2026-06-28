@@ -10963,7 +10963,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "views_slammapview_scalelistener",
-      "community": 225,
+      "community": 114,
       "norm_label": "scalelistener"
     },
     {
@@ -10973,7 +10973,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "scalegesturedetector",
-      "community": 225,
+      "community": 114,
       "norm_label": "scalegesturedetector"
     },
     {
@@ -10983,7 +10983,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "views_slammapview_scalelistener_onscale",
-      "community": 225,
+      "community": 114,
       "norm_label": ".onscale()"
     },
     {
@@ -11003,7 +11003,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "gesturedetector",
-      "community": 225,
+      "community": 114,
       "norm_label": "gesturedetector"
     },
     {
@@ -19733,7 +19733,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "policies_base_onnxpolicy_init",
-      "community": 678,
+      "community": 676,
       "norm_label": ".__init__()"
     },
     {
@@ -19793,7 +19793,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "policies_base_rationale_66",
-      "community": 678,
+      "community": 676,
       "norm_label": "``providers`` overrides ep selection outright; otherwise the best         provi"
     },
     {
@@ -26832,7 +26832,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "ui_slammapview_slammapview",
-      "community": 484,
+      "community": 225,
       "norm_label": "slammapview"
     },
     {
@@ -26842,7 +26842,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "packages_rosbridge_android_lib_src_main_kotlin_io_github_rosbridge_ui_slammapview_kt_bitmap",
-      "community": 484,
+      "community": 225,
       "norm_label": "bitmap"
     },
     {
@@ -26852,7 +26852,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "ui_slammapview_slammapview_updatemap",
-      "community": 484,
+      "community": 225,
       "norm_label": ".updatemap()"
     },
     {
@@ -26862,7 +26862,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "packages_rosbridge_android_lib_src_main_kotlin_io_github_rosbridge_ui_slammapview_kt_int",
-      "community": 484,
+      "community": 225,
       "norm_label": "int"
     },
     {
@@ -26872,7 +26872,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "packages_rosbridge_android_lib_src_main_kotlin_io_github_rosbridge_ui_slammapview_kt_intarray",
-      "community": 484,
+      "community": 225,
       "norm_label": "intarray"
     },
     {
@@ -26882,7 +26882,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "ui_slammapview_slammapview_updaterobotpose",
-      "community": 484,
+      "community": 225,
       "norm_label": ".updaterobotpose()"
     },
     {
@@ -26892,7 +26892,7 @@
       "source_location": "L80",
       "_origin": "ast",
       "id": "packages_rosbridge_android_lib_src_main_kotlin_io_github_rosbridge_ui_slammapview_kt_float",
-      "community": 484,
+      "community": 225,
       "norm_label": "float"
     },
     {
@@ -26902,7 +26902,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "ui_slammapview_slammapview_ondraw",
-      "community": 484,
+      "community": 225,
       "norm_label": ".ondraw()"
     },
     {
@@ -26912,7 +26912,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "packages_rosbridge_android_lib_src_main_kotlin_io_github_rosbridge_ui_slammapview_kt_canvas",
-      "community": 484,
+      "community": 225,
       "norm_label": "canvas"
     },
     {
@@ -37485,7 +37485,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_navigation_tools",
-      "community": 176,
+      "community": 183,
       "norm_label": "navigation_tools.py"
     },
     {
@@ -37495,7 +37495,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tools_navigation_tools_make_navigation_tools",
-      "community": 176,
+      "community": 183,
       "norm_label": "make_navigation_tools()"
     },
     {
@@ -37545,7 +37545,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "tools_vla_tools",
-      "community": 183,
+      "community": 176,
       "norm_label": "vla_tools.py"
     },
     {
@@ -37555,7 +37555,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "tools_vla_tools_make_vla_tools",
-      "community": 183,
+      "community": 176,
       "norm_label": "make_vla_tools()"
     },
     {
@@ -38425,7 +38425,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "test_test_tools_test_execute_vla_task",
-      "community": 183,
+      "community": 176,
       "norm_label": "test_execute_vla_task()"
     },
     {
@@ -53681,7 +53681,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "mcp_route",
-      "community": 332,
+      "community": 188,
       "norm_label": "route.ts"
     },
     {
@@ -53691,7 +53691,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "mcp_route_post",
-      "community": 332,
+      "community": 188,
       "norm_label": "post()"
     },
     {
@@ -53701,7 +53701,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "mcp_route_get",
-      "community": 332,
+      "community": 188,
       "norm_label": "get()"
     },
     {
@@ -53711,7 +53711,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "mcp_route_options",
-      "community": 332,
+      "community": 188,
       "norm_label": "options()"
     },
     {
@@ -56161,7 +56161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frame_frameconsole",
-      "community": 643,
+      "community": 484,
       "norm_label": "frameconsole.tsx"
     },
     {
@@ -56171,7 +56171,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "frame_frameconsole_frameconsole",
-      "community": 643,
+      "community": 484,
       "norm_label": "frameconsole()"
     },
     {
@@ -56681,7 +56681,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pilot_pilotthreescene",
-      "community": 667,
+      "community": 665,
       "norm_label": "pilotthreescene.tsx"
     },
     {
@@ -56691,7 +56691,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "pilot_pilotthreescene_props",
-      "community": 667,
+      "community": 665,
       "norm_label": "props"
     },
     {
@@ -56701,7 +56701,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "pilot_pilotthreescene_pilotthreescene",
-      "community": 667,
+      "community": 665,
       "norm_label": "pilotthreescene()"
     },
     {
@@ -56711,7 +56711,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "pilot_pilotthreescene_scenecontent",
-      "community": 667,
+      "community": 665,
       "norm_label": "scenecontent()"
     },
     {
@@ -56721,7 +56721,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "pilot_pilotthreescene_armrig",
-      "community": 667,
+      "community": 665,
       "norm_label": "armrig()"
     },
     {
@@ -61161,7 +61161,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frame_processes",
-      "community": 643,
+      "community": 484,
       "norm_label": "processes.ts"
     },
     {
@@ -61171,7 +61171,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frame_processes_process",
-      "community": 643,
+      "community": 484,
       "norm_label": "process"
     },
     {
@@ -61181,7 +61181,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "frame_processes_initial_processes",
-      "community": 643,
+      "community": 484,
       "norm_label": "initial_processes"
     },
     {
@@ -61191,7 +61191,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "frame_processes_loadpersisted",
-      "community": 643,
+      "community": 484,
       "norm_label": "loadpersisted()"
     },
     {
@@ -61201,7 +61201,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "frame_processes_persist",
-      "community": 643,
+      "community": 484,
       "norm_label": "persist()"
     },
     {
@@ -61211,7 +61211,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "frame_processes_useprocessmanager",
-      "community": 643,
+      "community": 484,
       "norm_label": "useprocessmanager()"
     },
     {
@@ -61221,7 +61221,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "frame_system",
-      "community": 643,
+      "community": 484,
       "norm_label": "system.ts"
     },
     {
@@ -61231,7 +61231,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "frame_system_telemetrypoint",
-      "community": 643,
+      "community": 484,
       "norm_label": "telemetrypoint"
     },
     {
@@ -61241,7 +61241,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "frame_system_usesystemtelemetry",
-      "community": 643,
+      "community": 484,
       "norm_label": "usesystemtelemetry()"
     },
     {
@@ -61291,7 +61291,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "garage_robotcontext_robotresolver",
-      "community": 188,
+      "community": 332,
       "norm_label": "robotresolver()"
     },
     {
@@ -61581,7 +61581,7 @@
       "source_location": "L963",
       "_origin": "ast",
       "id": "garage_robot_catalog_gethardwaremodel",
-      "community": 188,
+      "community": 332,
       "norm_label": "gethardwaremodel()"
     },
     {
@@ -61591,7 +61591,7 @@
       "source_location": "L967",
       "_origin": "ast",
       "id": "garage_robot_catalog_getrobottypeforhardware",
-      "community": 188,
+      "community": 332,
       "norm_label": "getrobottypeforhardware()"
     },
     {
@@ -61621,7 +61621,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "garage_robot_config_test",
-      "community": 188,
+      "community": 332,
       "norm_label": "robot-config.test.ts"
     },
     {
@@ -61631,7 +61631,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "garage_robot_config",
-      "community": 188,
+      "community": 332,
       "norm_label": "robot-config.ts"
     },
     {
@@ -61651,7 +61651,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "garage_robot_config_drivespec",
-      "community": 188,
+      "community": 332,
       "norm_label": "drivespec"
     },
     {
@@ -61661,7 +61661,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "garage_robot_config_drive_specs",
-      "community": 188,
+      "community": 332,
       "norm_label": "drive_specs"
     },
     {
@@ -61671,7 +61671,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "garage_robot_config_parsedrive",
-      "community": 188,
+      "community": 332,
       "norm_label": "parsedrive()"
     },
     {
@@ -61691,7 +61691,7 @@
       "source_location": "L137",
       "_origin": "ast",
       "id": "garage_robot_config_sensorspec",
-      "community": 188,
+      "community": 332,
       "norm_label": "sensorspec"
     },
     {
@@ -61701,7 +61701,7 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "garage_robot_config_jointspec",
-      "community": 188,
+      "community": 332,
       "norm_label": "jointspec"
     },
     {
@@ -61731,7 +61731,7 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "garage_robot_config_so101_joints",
-      "community": 188,
+      "community": 332,
       "norm_label": "so101_joints"
     },
     {
@@ -61741,7 +61741,7 @@
       "source_location": "L214",
       "_origin": "ast",
       "id": "garage_robot_config_generic_joint_labels",
-      "community": 188,
+      "community": 332,
       "norm_label": "generic_joint_labels"
     },
     {
@@ -61751,7 +61751,7 @@
       "source_location": "L217",
       "_origin": "ast",
       "id": "garage_robot_config_genericjoints",
-      "community": 188,
+      "community": 332,
       "norm_label": "genericjoints()"
     },
     {
@@ -61761,7 +61761,7 @@
       "source_location": "L232",
       "_origin": "ast",
       "id": "garage_robot_config_parsedof",
-      "community": 188,
+      "community": 332,
       "norm_label": "parsedof()"
     },
     {
@@ -61771,7 +61771,7 @@
       "source_location": "L240",
       "_origin": "ast",
       "id": "garage_robot_config_parsespeed",
-      "community": 188,
+      "community": 332,
       "norm_label": "parsespeed()"
     },
     {
@@ -61781,7 +61781,7 @@
       "source_location": "L250",
       "_origin": "ast",
       "id": "garage_robot_config_parsecompute",
-      "community": 188,
+      "community": 332,
       "norm_label": "parsecompute()"
     },
     {
@@ -61791,7 +61791,7 @@
       "source_location": "L272",
       "_origin": "ast",
       "id": "garage_robot_config_derivesensors",
-      "community": 188,
+      "community": 332,
       "norm_label": "derivesensors()"
     },
     {
@@ -61801,7 +61801,7 @@
       "source_location": "L390",
       "_origin": "ast",
       "id": "garage_robot_config_deriverobotconfig",
-      "community": 188,
+      "community": 332,
       "norm_label": "deriverobotconfig()"
     },
     {
@@ -61811,7 +61811,7 @@
       "source_location": "L481",
       "_origin": "ast",
       "id": "garage_robot_config_flagship_overrides",
-      "community": 188,
+      "community": 332,
       "norm_label": "flagship_overrides"
     },
     {
@@ -61821,7 +61821,7 @@
       "source_location": "L563",
       "_origin": "ast",
       "id": "garage_robot_config_applyoverride",
-      "community": 188,
+      "community": 332,
       "norm_label": "applyoverride()"
     },
     {
@@ -61831,7 +61831,7 @@
       "source_location": "L577",
       "_origin": "ast",
       "id": "garage_robot_config_getrobotconfig",
-      "community": 188,
+      "community": 332,
       "norm_label": "getrobotconfig()"
     },
     {
@@ -61841,7 +61841,7 @@
       "source_location": "L586",
       "_origin": "ast",
       "id": "garage_robot_config_defaultrobotconfig",
-      "community": 188,
+      "community": 332,
       "norm_label": "defaultrobotconfig()"
     },
     {
@@ -61941,7 +61941,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "garage_types_getcategory",
-      "community": 188,
+      "community": 332,
       "norm_label": "getcategory()"
     },
     {
@@ -62151,7 +62151,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "mcp_auth",
-      "community": 332,
+      "community": 188,
       "norm_label": "auth.ts"
     },
     {
@@ -62161,7 +62161,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "mcp_auth_isauthorized",
-      "community": 332,
+      "community": 188,
       "norm_label": "isauthorized()"
     },
     {
@@ -62171,7 +62171,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "mcp_auth_unauthorizedresponse",
-      "community": 332,
+      "community": 188,
       "norm_label": "unauthorizedresponse()"
     },
     {
@@ -62181,7 +62181,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "mcp_coverage_test",
-      "community": 332,
+      "community": 188,
       "norm_label": "coverage.test.ts"
     },
     {
@@ -62191,7 +62191,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "mcp_coverage_test_expected_products",
-      "community": 332,
+      "community": 188,
       "norm_label": "expected_products"
     },
     {
@@ -62201,7 +62201,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "mcp_mcp_test",
-      "community": 332,
+      "community": 188,
       "norm_label": "mcp.test.ts"
     },
     {
@@ -62211,7 +62211,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "mcp_mcp_test_rpc",
-      "community": 332,
+      "community": 188,
       "norm_label": "rpc()"
     },
     {
@@ -62261,7 +62261,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "mcp_registry_getalltools",
-      "community": 332,
+      "community": 188,
       "norm_label": "getalltools()"
     },
     {
@@ -62271,7 +62271,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "mcp_registry_getallresources",
-      "community": 332,
+      "community": 188,
       "norm_label": "getallresources()"
     },
     {
@@ -62281,7 +62281,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "mcp_registry_getallprompts",
-      "community": 332,
+      "community": 188,
       "norm_label": "getallprompts()"
     },
     {
@@ -62291,7 +62291,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "mcp_registry_gettool",
-      "community": 332,
+      "community": 188,
       "norm_label": "gettool()"
     },
     {
@@ -62301,7 +62301,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "mcp_registry_getresource",
-      "community": 332,
+      "community": 188,
       "norm_label": "getresource()"
     },
     {
@@ -62321,7 +62321,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "mcp_server",
-      "community": 332,
+      "community": 188,
       "norm_label": "server.ts"
     },
     {
@@ -62331,7 +62331,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "mcp_server_handlemcprequest",
-      "community": 332,
+      "community": 188,
       "norm_label": "handlemcprequest()"
     },
     {
@@ -62341,7 +62341,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "mcp_server_handlemcpbatch",
-      "community": 332,
+      "community": 188,
       "norm_label": "handlemcpbatch()"
     },
     {
@@ -62351,7 +62351,7 @@
       "source_location": "L114",
       "_origin": "ast",
       "id": "mcp_server_ok",
-      "community": 332,
+      "community": 188,
       "norm_label": "ok()"
     },
     {
@@ -62361,7 +62361,7 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "mcp_server_rpcerror",
-      "community": 332,
+      "community": 188,
       "norm_label": "rpcerror()"
     },
     {
@@ -62371,7 +62371,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "mcp_server_tooltomcp",
-      "community": 332,
+      "community": 188,
       "norm_label": "tooltomcp()"
     },
     {
@@ -62381,7 +62381,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "mcp_server_mcptoolresult",
-      "community": 332,
+      "community": 188,
       "norm_label": "mcptoolresult()"
     },
     {
@@ -62401,7 +62401,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "mcp_types_jsonrpcrequest",
-      "community": 332,
+      "community": 188,
       "norm_label": "jsonrpcrequest"
     },
     {
@@ -62411,7 +62411,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "mcp_types_jsonrpcresponse",
-      "community": 332,
+      "community": 188,
       "norm_label": "jsonrpcresponse"
     },
     {
@@ -62521,7 +62521,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "mcp_types_server_info",
-      "community": 332,
+      "community": 188,
       "norm_label": "server_info"
     },
     {
@@ -64321,7 +64321,7 @@
       "source_location": "L173",
       "_origin": "ast",
       "id": "sim_three_physics_threephysicsprovider_getsceneobjects",
-      "community": 667,
+      "community": 665,
       "norm_label": ".getsceneobjects()"
     },
     {
@@ -64491,7 +64491,7 @@
       "source_location": "L273",
       "_origin": "ast",
       "id": "sim_types_threescenestate",
-      "community": 667,
+      "community": 665,
       "norm_label": "threescenestate"
     },
     {
@@ -64778,7 +64778,7 @@
       "label": "PRODUCT_SLUGS",
       "file_type": "code",
       "source_file": "website/lib/products.tsx",
-      "source_location": "L1411",
+      "source_location": "L1419",
       "_origin": "ast",
       "id": "lib_products_product_slugs",
       "community": 110,
@@ -64788,7 +64788,7 @@
       "label": "getProduct()",
       "file_type": "code",
       "source_file": "website/lib/products.tsx",
-      "source_location": "L1413",
+      "source_location": "L1421",
       "_origin": "ast",
       "id": "lib_products_getproduct",
       "community": 110,
@@ -64798,7 +64798,7 @@
       "label": "relatedProducts()",
       "file_type": "code",
       "source_file": "website/lib/products.tsx",
-      "source_location": "L1417",
+      "source_location": "L1425",
       "_origin": "ast",
       "id": "lib_products_relatedproducts",
       "community": 110,
@@ -64808,7 +64808,7 @@
       "label": "accentColor()",
       "file_type": "code",
       "source_file": "website/lib/products.tsx",
-      "source_location": "L1426",
+      "source_location": "L1434",
       "_origin": "ast",
       "id": "lib_products_accentcolor",
       "community": 110,
@@ -65601,7 +65601,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "shield_mcp_tools",
-      "community": 665,
+      "community": 643,
       "norm_label": "mcp-tools.ts"
     },
     {
@@ -65611,7 +65611,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "shield_mcp_tools_s",
-      "community": 665,
+      "community": 643,
       "norm_label": "s()"
     },
     {
@@ -65621,7 +65621,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "shield_mcp_tools_tools",
-      "community": 665,
+      "community": 643,
       "norm_label": "tools"
     },
     {
@@ -65631,7 +65631,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "shield_security",
-      "community": 665,
+      "community": 643,
       "norm_label": "security.ts"
     },
     {
@@ -65641,7 +65641,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "shield_security_deviceidentity",
-      "community": 665,
+      "community": 643,
       "norm_label": "deviceidentity"
     },
     {
@@ -65651,7 +65651,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "shield_security_cverecord",
-      "community": 665,
+      "community": 643,
       "norm_label": "cverecord"
     },
     {
@@ -65661,7 +65661,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "shield_security_initial_devices",
-      "community": 665,
+      "community": 643,
       "norm_label": "initial_devices"
     },
     {
@@ -65671,7 +65671,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "shield_security_initial_cves",
-      "community": 665,
+      "community": 643,
       "norm_label": "initial_cves"
     },
     {
@@ -65681,7 +65681,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "shield_simulation",
-      "community": 665,
+      "community": 643,
       "norm_label": "simulation.ts"
     },
     {
@@ -68711,7 +68711,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "contributing_engineering_contributions",
-      "community": 668,
+      "community": 667,
       "norm_label": "engineering contributions"
     },
     {
@@ -68721,7 +68721,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "contributing_branch_naming",
-      "community": 668,
+      "community": 667,
       "norm_label": "branch naming"
     },
     {
@@ -68731,7 +68731,7 @@
       "source_location": "L129",
       "_origin": "ast",
       "id": "contributing_code_style",
-      "community": 668,
+      "community": 667,
       "norm_label": "code style"
     },
     {
@@ -68741,7 +68741,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "contributing_parameter_changes",
-      "community": 668,
+      "community": 667,
       "norm_label": "parameter changes"
     },
     {
@@ -68751,7 +68751,7 @@
       "source_location": "L142",
       "_origin": "ast",
       "id": "contributing_known_gaps_tracked_bugs",
-      "community": 668,
+      "community": 667,
       "norm_label": "known gaps (tracked bugs)"
     },
     {
@@ -68761,7 +68761,7 @@
       "source_location": "L148",
       "_origin": "ast",
       "id": "contributing_test_coverage_expectations",
-      "community": 668,
+      "community": 667,
       "norm_label": "test coverage expectations"
     },
     {
@@ -68771,7 +68771,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "contributing_research_benchmarking_contributions",
-      "community": 669,
+      "community": 668,
       "norm_label": "research & benchmarking contributions"
     },
     {
@@ -68781,7 +68781,7 @@
       "source_location": "L158",
       "_origin": "ast",
       "id": "contributing_what_counts_as_a_research_contribution",
-      "community": 669,
+      "community": 668,
       "norm_label": "what counts as a research contribution"
     },
     {
@@ -68791,7 +68791,7 @@
       "source_location": "L166",
       "_origin": "ast",
       "id": "contributing_how_to_propose_a_benchmarking_experiment",
-      "community": 669,
+      "community": 668,
       "norm_label": "how to propose a benchmarking experiment"
     },
     {
@@ -68801,7 +68801,7 @@
       "source_location": "L177",
       "_origin": "ast",
       "id": "contributing_dataset_format",
-      "community": 669,
+      "community": 668,
       "norm_label": "dataset format"
     },
     {
@@ -68811,7 +68811,7 @@
       "source_location": "L190",
       "_origin": "ast",
       "id": "contributing_branch_naming_for_research",
-      "community": 669,
+      "community": 668,
       "norm_label": "branch naming for research"
     },
     {
@@ -68821,7 +68821,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "contributing_reporting_results",
-      "community": 669,
+      "community": 668,
       "norm_label": "reporting results"
     },
     {
@@ -70381,7 +70381,7 @@
       "source_location": "L588",
       "_origin": "ast",
       "id": "testing_guide_5_omnibot_driver_legacy_mecanum_controller",
-      "community": 671,
+      "community": 669,
       "norm_label": "5. omnibot_driver \u2014 legacy mecanum controller"
     },
     {
@@ -70391,7 +70391,7 @@
       "source_location": "L592",
       "_origin": "ast",
       "id": "testing_guide_5_1_what_it_does",
-      "community": 671,
+      "community": 669,
       "norm_label": "5.1 what it does"
     },
     {
@@ -70401,7 +70401,7 @@
       "source_location": "L596",
       "_origin": "ast",
       "id": "testing_guide_5_2_launch",
-      "community": 671,
+      "community": 669,
       "norm_label": "5.2 launch"
     },
     {
@@ -70411,7 +70411,7 @@
       "source_location": "L602",
       "_origin": "ast",
       "id": "testing_guide_5_3_verify_topic_interface",
-      "community": 671,
+      "community": 669,
       "norm_label": "5.3 verify topic interface"
     },
     {
@@ -70421,7 +70421,7 @@
       "source_location": "L611",
       "_origin": "ast",
       "id": "testing_guide_5_4_test_command_passthrough_simulation",
-      "community": 671,
+      "community": 669,
       "norm_label": "5.4 test command passthrough (simulation)"
     },
     {
@@ -71181,7 +71181,7 @@
       "source_location": "L1830",
       "_origin": "ast",
       "id": "testing_guide_21_data_engine_bag_ingestion_pipeline",
-      "community": 676,
+      "community": 672,
       "norm_label": "21. data_engine \u2014 bag ingestion pipeline"
     },
     {
@@ -71191,7 +71191,7 @@
       "source_location": "L1842",
       "_origin": "ast",
       "id": "testing_guide_cli_usage",
-      "community": 676,
+      "community": 672,
       "norm_label": "cli usage"
     },
     {
@@ -71201,7 +71201,7 @@
       "source_location": "L1852",
       "_origin": "ast",
       "id": "testing_guide_verify_output_structure",
-      "community": 676,
+      "community": 672,
       "norm_label": "verify output structure"
     },
     {
@@ -71211,7 +71211,7 @@
       "source_location": "L1865",
       "_origin": "ast",
       "id": "testing_guide_verify_parquet_schema",
-      "community": 676,
+      "community": 672,
       "norm_label": "verify parquet schema"
     },
     {
@@ -72291,7 +72291,7 @@
       "source_location": "L514",
       "_origin": "ast",
       "id": "android_app_robot_app_prompt_documentation_requirements",
-      "community": 672,
+      "community": 671,
       "norm_label": "documentation requirements"
     },
     {
@@ -72301,7 +72301,7 @@
       "source_location": "L516",
       "_origin": "ast",
       "id": "android_app_robot_app_prompt_readme_md",
-      "community": 672,
+      "community": 671,
       "norm_label": "readme.md"
     },
     {
@@ -72311,7 +72311,7 @@
       "source_location": "L524",
       "_origin": "ast",
       "id": "android_app_robot_app_prompt_code_documentation",
-      "community": 672,
+      "community": 671,
       "norm_label": "code documentation"
     },
     {
@@ -72321,7 +72321,7 @@
       "source_location": "L529",
       "_origin": "ast",
       "id": "android_app_robot_app_prompt_user_guide",
-      "community": 672,
+      "community": 671,
       "norm_label": "user guide"
     },
     {
@@ -168931,9 +168931,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/CategoryCardView.cs",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview",
-      "target": "monobehaviour",
-      "confidence_score": 1.0
+      "target": "monobehaviour"
     },
     {
       "relation": "inherits",
@@ -168941,9 +168941,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/ModelCardView.cs",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview",
-      "target": "monobehaviour",
-      "confidence_score": 1.0
+      "target": "monobehaviour"
     },
     {
       "relation": "inherits",
@@ -168951,9 +168951,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "monobehaviour",
-      "confidence_score": 1.0
+      "target": "monobehaviour"
     },
     {
       "relation": "inherits",
@@ -168961,9 +168961,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/TypeCardView.cs",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview",
-      "target": "monobehaviour",
-      "confidence_score": 1.0
+      "target": "monobehaviour"
     },
     {
       "relation": "inherits",
@@ -169136,9 +169136,9 @@
       "source_location": "L83",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "app_ohhovrapp_ohhovrapp_onmanifestloaded",
-      "target": "vr_app_assets_scripts_app_ohhovrapp_cs_vrmanifest",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_app_ohhovrapp_cs_vrmanifest"
     },
     {
       "relation": "calls",
@@ -169353,9 +169353,9 @@
       "source_location": "L36",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_calibrationmanager_robotcalibration",
-      "target": "vr_app_assets_scripts_control_calibrationmanager_cs_int",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_calibrationmanager_cs_int"
     },
     {
       "relation": "method",
@@ -172312,9 +172312,9 @@
       "source_location": "L71",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_bool",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_bool"
     },
     {
       "relation": "references",
@@ -172334,9 +172334,9 @@
       "source_location": "L28",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_gesturedetector",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_gesturedetector"
     },
     {
       "relation": "references",
@@ -172345,9 +172345,9 @@
       "source_location": "L56",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_idrivescheme",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_idrivescheme"
     },
     {
       "relation": "references",
@@ -172356,9 +172356,9 @@
       "source_location": "L57",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_imanipulationscheme",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_imanipulationscheme"
     },
     {
       "relation": "references",
@@ -172367,9 +172367,9 @@
       "source_location": "L45",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_irobotlink",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_irobotlink"
     },
     {
       "relation": "references",
@@ -172389,9 +172389,9 @@
       "source_location": "L48",
       "weight": 1.0,
       "context": "return_type",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller_resolvelink",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_irobotlink",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_irobotlink"
     },
     {
       "relation": "calls",
@@ -172466,9 +172466,9 @@
       "source_location": "L170",
       "weight": 1.0,
       "context": "return_type",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller_buildhandpose",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_handpose",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_handpose"
     },
     {
       "relation": "references",
@@ -172477,9 +172477,9 @@
       "source_location": "L170",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller_buildhandpose",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand"
     },
     {
       "relation": "references",
@@ -172488,9 +172488,9 @@
       "source_location": "L210",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller_isthumbsup",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand"
     },
     {
       "relation": "references",
@@ -172499,9 +172499,9 @@
       "source_location": "L185",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "control_teleopcontroller_teleopcontroller_tickthumbsuptoggle",
-      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_control_teleopcontroller_cs_ovrhand"
     },
     {
       "relation": "calls",
@@ -178100,9 +178100,9 @@
       "source_location": "L16",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "tests_controlschemefactorytests_controlschemefactorytests_makeprofile",
-      "target": "vr_app_assets_scripts_tests_controlschemefactorytests_cs_drivekind",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_tests_controlschemefactorytests_cs_drivekind"
     },
     {
       "relation": "references",
@@ -178626,9 +178626,9 @@
       "source_location": "L14",
       "weight": 1.0,
       "context": "return_type",
+      "confidence_score": 1.0,
       "source": "tests_fabriksolvertests_fabriksolvertests_makejoints",
-      "target": "vr_app_assets_scripts_tests_fabriksolvertests_cs_jointspec",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_tests_fabriksolvertests_cs_jointspec"
     },
     {
       "relation": "calls",
@@ -180192,9 +180192,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs",
       "source_location": "L175",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_closeaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_closeaddrobot"
     },
     {
       "relation": "method",
@@ -180242,9 +180242,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs",
       "source_location": "L180",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_onrobotadded",
-      "confidence_score": 1.0
+      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_onrobotadded"
     },
     {
       "relation": "method",
@@ -180262,9 +180262,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs",
       "source_location": "L169",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_openaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_openaddrobot"
     },
     {
       "relation": "method",
@@ -180323,9 +180323,9 @@
       "source_location": "L34",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_button",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_button"
     },
     {
       "relation": "references",
@@ -180345,9 +180345,9 @@
       "source_location": "L42",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_list",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_list"
     },
     {
       "relation": "references",
@@ -180356,9 +180356,9 @@
       "source_location": "L26",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_robotcardview",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_robotcardview"
     },
     {
       "relation": "references",
@@ -180367,9 +180367,9 @@
       "source_location": "L36",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_robotselectioncontroller",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_robotselectioncontroller"
     },
     {
       "relation": "references",
@@ -180400,9 +180400,9 @@
       "source_location": "L115",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_populate",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_list",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_list"
     },
     {
       "relation": "calls",
@@ -180433,9 +180433,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs",
       "source_location": "L183",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_onrobotadded",
-      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_reload",
-      "confidence_score": 1.0
+      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_reload"
     },
     {
       "relation": "calls",
@@ -180488,9 +180488,9 @@
       "source_location": "L92",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_oncatalogready",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_vrcatalog",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_vrcatalog"
     },
     {
       "relation": "calls",
@@ -180543,9 +180543,9 @@
       "source_location": "L115",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_populate",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_userrobot",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_userrobot"
     },
     {
       "relation": "references",
@@ -180554,9 +180554,9 @@
       "source_location": "L180",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_onrobotadded",
-      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_userrobot",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_fleetpanelcontroller_cs_userrobot"
     },
     {
       "relation": "calls",
@@ -180598,9 +180598,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs",
       "source_location": "L182",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_fleetpanelcontroller_fleetpanelcontroller_onrobotadded",
-      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_closeaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_fleetpanelcontroller_fleetpanelcontroller_closeaddrobot"
     },
     {
       "relation": "contains",
@@ -180638,9 +180638,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs",
       "source_location": "L149",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller",
-      "target": "garage_garagepanelcontroller_garagepanelcontroller_closeaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_garagepanelcontroller_garagepanelcontroller_closeaddrobot"
     },
     {
       "relation": "method",
@@ -180688,9 +180688,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs",
       "source_location": "L154",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller",
-      "target": "garage_garagepanelcontroller_garagepanelcontroller_onrobotadded",
-      "confidence_score": 1.0
+      "target": "garage_garagepanelcontroller_garagepanelcontroller_onrobotadded"
     },
     {
       "relation": "method",
@@ -180708,9 +180708,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller",
-      "target": "garage_garagepanelcontroller_garagepanelcontroller_openaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_garagepanelcontroller_garagepanelcontroller_openaddrobot"
     },
     {
       "relation": "method",
@@ -180760,9 +180760,9 @@
       "source_location": "L29",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_gameobject",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_gameobject"
     },
     {
       "relation": "references",
@@ -180793,9 +180793,9 @@
       "source_location": "L26",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller",
-      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_robotselectioncontroller",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_robotselectioncontroller"
     },
     {
       "relation": "references",
@@ -180848,9 +180848,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs",
       "source_location": "L157",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller_onrobotadded",
-      "target": "garage_garagepanelcontroller_garagepanelcontroller_reload",
-      "confidence_score": 1.0
+      "target": "garage_garagepanelcontroller_garagepanelcontroller_reload"
     },
     {
       "relation": "calls",
@@ -180969,9 +180969,9 @@
       "source_location": "L154",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller_onrobotadded",
-      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_userrobot",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_garage_garagepanelcontroller_cs_userrobot"
     },
     {
       "relation": "calls",
@@ -181002,9 +181002,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "garage_garagepanelcontroller_garagepanelcontroller_onrobotadded",
-      "target": "garage_garagepanelcontroller_garagepanelcontroller_closeaddrobot",
-      "confidence_score": 1.0
+      "target": "garage_garagepanelcontroller_garagepanelcontroller_closeaddrobot"
     },
     {
       "relation": "contains",
@@ -182027,9 +182027,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/CategoryCardView.cs",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_categorycardview",
-      "target": "selection_categorycardview_categorycardview",
-      "confidence_score": 1.0
+      "target": "selection_categorycardview_categorycardview"
     },
     {
       "relation": "contains",
@@ -182037,9 +182037,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/CategoryCardView.cs",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_categorycardview",
-      "target": "selection_categorycardview_omnibot_vr_ui_selection",
-      "confidence_score": 1.0
+      "target": "selection_categorycardview_omnibot_vr_ui_selection"
     },
     {
       "relation": "method",
@@ -182047,9 +182047,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/CategoryCardView.cs",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview",
-      "target": "selection_categorycardview_categorycardview_bind",
-      "confidence_score": 1.0
+      "target": "selection_categorycardview_categorycardview_bind"
     },
     {
       "relation": "references",
@@ -182058,9 +182058,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview",
-      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_button",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_button"
     },
     {
       "relation": "references",
@@ -182080,9 +182080,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview",
-      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_tmp_text",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_tmp_text"
     },
     {
       "relation": "references",
@@ -182091,9 +182091,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_action",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_action"
     },
     {
       "relation": "references",
@@ -182102,9 +182102,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "selection_categorycardview_categorycardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_vrcategory",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_categorycardview_cs_vrcategory"
     },
     {
       "relation": "contains",
@@ -182112,9 +182112,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/ModelCardView.cs",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_modelcardview",
-      "target": "selection_modelcardview_modelcardview",
-      "confidence_score": 1.0
+      "target": "selection_modelcardview_modelcardview"
     },
     {
       "relation": "contains",
@@ -182122,9 +182122,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/ModelCardView.cs",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_modelcardview",
-      "target": "selection_modelcardview_omnibot_vr_ui_selection",
-      "confidence_score": 1.0
+      "target": "selection_modelcardview_omnibot_vr_ui_selection"
     },
     {
       "relation": "method",
@@ -182132,9 +182132,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/ModelCardView.cs",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview",
-      "target": "selection_modelcardview_modelcardview_bind",
-      "confidence_score": 1.0
+      "target": "selection_modelcardview_modelcardview_bind"
     },
     {
       "relation": "references",
@@ -182143,9 +182143,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview",
-      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_button",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_button"
     },
     {
       "relation": "references",
@@ -182154,9 +182154,9 @@
       "source_location": "L20",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview",
-      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_tmp_text",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_tmp_text"
     },
     {
       "relation": "references",
@@ -182165,9 +182165,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_action",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_action"
     },
     {
       "relation": "references",
@@ -182176,9 +182176,9 @@
       "source_location": "L23",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "selection_modelcardview_modelcardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_vrhardwaremodel",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_modelcardview_cs_vrhardwaremodel"
     },
     {
       "relation": "contains",
@@ -182186,9 +182186,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_omnibot_vr_ui_selection",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_omnibot_vr_ui_selection"
     },
     {
       "relation": "contains",
@@ -182196,9 +182196,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller"
     },
     {
       "relation": "references",
@@ -182207,9 +182207,9 @@
       "source_location": "L38",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "categorycardview",
-      "confidence_score": 1.0
+      "target": "categorycardview"
     },
     {
       "relation": "references",
@@ -182218,9 +182218,9 @@
       "source_location": "L41",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "modelcardview",
-      "confidence_score": 1.0
+      "target": "modelcardview"
     },
     {
       "relation": "method",
@@ -182228,9 +182228,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L198",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_back",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_back"
     },
     {
       "relation": "method",
@@ -182238,9 +182238,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L215",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_cancel",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_cancel"
     },
     {
       "relation": "method",
@@ -182248,9 +182248,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L303",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned"
     },
     {
       "relation": "method",
@@ -182258,9 +182258,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_oncategorypicked",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_oncategorypicked"
     },
     {
       "relation": "method",
@@ -182268,9 +182268,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L168",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_onconfirm",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_onconfirm"
     },
     {
       "relation": "method",
@@ -182278,9 +182278,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L77",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_ondisable",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_ondisable"
     },
     {
       "relation": "method",
@@ -182288,9 +182288,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_onenable",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_onenable"
     },
     {
       "relation": "method",
@@ -182298,9 +182298,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L146",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_onmodelpicked",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_onmodelpicked"
     },
     {
       "relation": "method",
@@ -182308,9 +182308,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L156",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_onnamenext",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_onnamenext"
     },
     {
       "relation": "method",
@@ -182318,9 +182318,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L139",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_ontypepicked",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_ontypepicked"
     },
     {
       "relation": "method",
@@ -182328,9 +182328,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L88",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_open",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_open"
     },
     {
       "relation": "method",
@@ -182338,9 +182338,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L227",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories"
     },
     {
       "relation": "method",
@@ -182348,9 +182348,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L260",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels"
     },
     {
       "relation": "method",
@@ -182358,9 +182358,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L243",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes"
     },
     {
       "relation": "method",
@@ -182368,9 +182368,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L284",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_prepareconfirmstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_prepareconfirmstep"
     },
     {
       "relation": "method",
@@ -182378,9 +182378,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L277",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_preparenamestep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_preparenamestep"
     },
     {
       "relation": "method",
@@ -182388,9 +182388,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L309",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive"
     },
     {
       "relation": "method",
@@ -182398,9 +182398,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L314",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "method",
@@ -182408,9 +182408,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "references",
@@ -182419,9 +182419,9 @@
       "source_location": "L60",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "selectionstate",
-      "confidence_score": 1.0
+      "target": "selectionstate"
     },
     {
       "relation": "references",
@@ -182430,9 +182430,9 @@
       "source_location": "L40",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "typecardview",
-      "confidence_score": 1.0
+      "target": "typecardview"
     },
     {
       "relation": "references",
@@ -182441,9 +182441,9 @@
       "source_location": "L54",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_button",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_button"
     },
     {
       "relation": "references",
@@ -182452,9 +182452,9 @@
       "source_location": "L31",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_gameobject",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_gameobject"
     },
     {
       "relation": "references",
@@ -182463,9 +182463,9 @@
       "source_location": "L61",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_list",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_list"
     },
     {
       "relation": "references",
@@ -182485,9 +182485,9 @@
       "source_location": "L56",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_tmp_text",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_tmp_text"
     },
     {
       "relation": "references",
@@ -182496,9 +182496,9 @@
       "source_location": "L36",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_transform",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_transform"
     },
     {
       "relation": "references",
@@ -182507,9 +182507,9 @@
       "source_location": "L309",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_gameobject",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_gameobject"
     },
     {
       "relation": "calls",
@@ -182518,9 +182518,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_open",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182529,9 +182529,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L212",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_back",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182540,9 +182540,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L136",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_oncategorypicked",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182551,9 +182551,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_onmodelpicked",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182562,9 +182562,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L165",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_onnamenext",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182573,9 +182573,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L143",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_ontypepicked",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep"
     },
     {
       "relation": "calls",
@@ -182584,9 +182584,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L124",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories"
     },
     {
       "relation": "calls",
@@ -182595,9 +182595,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L126",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels"
     },
     {
       "relation": "calls",
@@ -182606,9 +182606,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes"
     },
     {
       "relation": "calls",
@@ -182617,9 +182617,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L128",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_prepareconfirmstep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_prepareconfirmstep"
     },
     {
       "relation": "calls",
@@ -182628,9 +182628,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_preparenamestep",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_preparenamestep"
     },
     {
       "relation": "calls",
@@ -182639,9 +182639,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_showcurrentstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive"
     },
     {
       "relation": "references",
@@ -182650,9 +182650,9 @@
       "source_location": "L132",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_oncategorypicked",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrcategory",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrcategory"
     },
     {
       "relation": "references",
@@ -182661,9 +182661,9 @@
       "source_location": "L139",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_ontypepicked",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrrobottype",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrrobottype"
     },
     {
       "relation": "references",
@@ -182672,9 +182672,9 @@
       "source_location": "L146",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_onmodelpicked",
-      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrhardwaremodel",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_robotselectioncontroller_cs_vrhardwaremodel"
     },
     {
       "relation": "calls",
@@ -182683,9 +182683,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L161",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_onnamenext",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182694,9 +182694,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L170",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_onconfirm",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182705,9 +182705,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_cancel",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setpanelactive"
     },
     {
       "relation": "calls",
@@ -182716,9 +182716,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L229",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned"
     },
     {
       "relation": "calls",
@@ -182727,9 +182727,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L231",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatecategories",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182738,9 +182738,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L245",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned"
     },
     {
       "relation": "calls",
@@ -182749,9 +182749,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L247",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatetypes",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182760,9 +182760,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L262",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_clearspawned"
     },
     {
       "relation": "calls",
@@ -182771,9 +182771,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L265",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_populatemodels",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182782,9 +182782,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L281",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_preparenamestep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "calls",
@@ -182793,9 +182793,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs",
       "source_location": "L298",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_robotselectioncontroller_robotselectioncontroller_prepareconfirmstep",
-      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus",
-      "confidence_score": 1.0
+      "target": "selection_robotselectioncontroller_robotselectioncontroller_setstatus"
     },
     {
       "relation": "contains",
@@ -182803,9 +182803,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/SelectionState.cs",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_selectionstate",
-      "target": "selection_selectionstate_omnibot_vr_ui_selection",
-      "confidence_score": 1.0
+      "target": "selection_selectionstate_omnibot_vr_ui_selection"
     },
     {
       "relation": "contains",
@@ -182813,9 +182813,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/SelectionState.cs",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_selectionstate",
-      "target": "selection_selectionstate_selectionstate",
-      "confidence_score": 1.0
+      "target": "selection_selectionstate_selectionstate"
     },
     {
       "relation": "references",
@@ -182824,9 +182824,9 @@
       "source_location": "L31",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_selectionstate_selectionstate",
-      "target": "selectionstep",
-      "confidence_score": 1.0
+      "target": "selectionstep"
     },
     {
       "relation": "references",
@@ -182845,9 +182845,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/TypeCardView.cs",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_typecardview",
-      "target": "selection_typecardview_omnibot_vr_ui_selection",
-      "confidence_score": 1.0
+      "target": "selection_typecardview_omnibot_vr_ui_selection"
     },
     {
       "relation": "contains",
@@ -182855,9 +182855,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/TypeCardView.cs",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_typecardview",
-      "target": "selection_typecardview_typecardview",
-      "confidence_score": 1.0
+      "target": "selection_typecardview_typecardview"
     },
     {
       "relation": "method",
@@ -182865,9 +182865,9 @@
       "source_file": "vr_app/Assets/Scripts/UI/Selection/TypeCardView.cs",
       "source_location": "L21",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview",
-      "target": "selection_typecardview_typecardview_bind",
-      "confidence_score": 1.0
+      "target": "selection_typecardview_typecardview_bind"
     },
     {
       "relation": "references",
@@ -182876,9 +182876,9 @@
       "source_location": "L19",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview",
-      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_button",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_button"
     },
     {
       "relation": "references",
@@ -182887,9 +182887,9 @@
       "source_location": "L18",
       "weight": 1.0,
       "context": "field",
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview",
-      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_tmp_text",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_tmp_text"
     },
     {
       "relation": "references",
@@ -182898,9 +182898,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "context": "parameter_type",
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_action",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_action"
     },
     {
       "relation": "references",
@@ -182909,9 +182909,9 @@
       "source_location": "L21",
       "weight": 1.0,
       "context": "generic_arg",
+      "confidence_score": 1.0,
       "source": "selection_typecardview_typecardview_bind",
-      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_vrrobottype",
-      "confidence_score": 1.0
+      "target": "vr_app_assets_scripts_ui_selection_typecardview_cs_vrrobottype"
     },
     {
       "relation": "contains",
@@ -226839,9 +226839,9 @@
       "source_file": "vr_app/SCENE_SETUP.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "vr_app_scene_setup_5_ui_panels_world_space_glass_themed",
-      "target": "vr_app_scene_setup_5c_bis_add_robot_selection_flow_phase_1",
-      "confidence_score": 1.0
+      "target": "vr_app_scene_setup_5c_bis_add_robot_selection_flow_phase_1"
     },
     {
       "relation": "contains",
@@ -232255,5 +232255,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8efd5760012ecfc5cfbfd190e03dbc1d8ed0ee65"
+  "built_at_commit": "e1626cf297fe420bdc7f2bd2f3bc899224533592"
 }
