@@ -75,11 +75,24 @@ function fileToSlug(absPath: string): { slug: string[]; isIndex: boolean } {
   return { slug: parts, isIndex: false };
 }
 
+// Brand / acronym tokens that shouldn't be naively title-cased — e.g. the
+// `ohho-os` docs folder should read "OhhO OS", not "Ohho Os".
+const HUMANIZE_OVERRIDES: Record<string, string> = {
+  ohho: "OhhO",
+  os: "OS",
+  ai: "AI",
+  api: "API",
+  ros: "ROS",
+  vla: "VLA",
+  rl: "RL",
+  sdk: "SDK",
+};
+
 function humanize(key: string): string {
   if (!key) return "General";
   return key
     .split(/[-_]/g)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .map((w) => HUMANIZE_OVERRIDES[w.toLowerCase()] ?? w.charAt(0).toUpperCase() + w.slice(1))
     .join(" ");
 }
 

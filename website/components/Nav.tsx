@@ -2,14 +2,15 @@
 
 import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF, UPGRADE_HREF } from "@/lib/site";
+import { DOCS_HREF, GITHUB_HREF, PRODUCTS_HREF, PRICING_HREF, UPGRADE_HREF, OS_HREF } from "@/lib/site";
 import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
-// Marketing links shown to visitors (not signed in).
-const MARKETING_LINKS = ["Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
+// Marketing links shown to visitors (not signed in). "OhhO OS" leads — it's the
+// open engine that sits on top of (and powers) every product.
+const MARKETING_LINKS = ["OhhO OS", "Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
 // Lean links for any signed-in user — no product/pricing/team marketing clutter.
 // Docs stays available after sign-in (it's public reference, not a console).
 const DEV_LINKS = ["Docs", "Link"];
@@ -28,6 +29,7 @@ export default function Nav() {
 
   const navHref = (link: string): string => {
     switch (link) {
+      case "OhhO OS": return OS_HREF;
       case "Products": return PRODUCTS_HREF;
       case "Pricing": return PRICING_HREF;
       case "How it Works": return "/#how";
@@ -65,20 +67,24 @@ export default function Nav() {
       </a>
 
       <div className="hidden md:flex items-center gap-1">
-        {links.map((link) => (
-          <a
-            key={link}
-            href={navHref(link)}
-            target={link === "GitHub" ? "_blank" : undefined}
-            rel={link === "GitHub" ? "noopener noreferrer" : undefined}
-            className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5"
-            style={{ color: "rgba(255,255,255,0.52)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-            onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.52)")}
-          >
-            {link}
-          </a>
-        ))}
+        {links.map((link) => {
+          const isOS = link === "OhhO OS";
+          const base = isOS ? "var(--cyan)" : "rgba(255,255,255,0.52)";
+          return (
+            <a
+              key={link}
+              href={navHref(link)}
+              target={link === "GitHub" ? "_blank" : undefined}
+              rel={link === "GitHub" ? "noopener noreferrer" : undefined}
+              className="text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5 whitespace-nowrap"
+              style={{ color: base }}
+              onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+              onMouseLeave={(e) => (e.currentTarget.style.color = base)}
+            >
+              {link}
+            </a>
+          );
+        })}
         {user && (
           <a
             href="/garage"
