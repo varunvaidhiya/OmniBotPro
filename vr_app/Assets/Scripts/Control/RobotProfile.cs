@@ -3,6 +3,19 @@ using System.Collections.Generic;
 namespace OmniBot.VR.Control
 {
     /// <summary>
+    /// Where IK is solved for the arm — determines whether the manipulation
+    /// scheme streams joint angles (headset-side) or a Cartesian target pose
+    /// (robot-side, solved by MoveIt 2 Servo with collision awareness).
+    /// </summary>
+    public enum IkLocation
+    {
+        /// <summary>Solve IK in Unity, stream joint angles. Lowest latency.</summary>
+        Headset,
+        /// <summary>Stream Cartesian target, let MoveIt Servo solve on the robot. Collision-aware.</summary>
+        Robot,
+    }
+
+    /// <summary>
     /// Runtime capability profile for the robot the user picked in their garage —
     /// a C# mirror of <c>website/lib/garage/robot-config.ts</c>
     /// <c>RobotConfig</c>. Replaces the hardcoded <c>Core/RobotConfig.cs</c>
@@ -65,6 +78,15 @@ namespace OmniBot.VR.Control
         /// <summary>True if this is a dual-arm humanoid (two arms driven by two hands).</summary>
         public bool IsDualArm;
 
+        // ── IK location (Phase 4) ──────────────────────────────────────────────
+        /// <summary>
+        /// Where inverse kinematics is solved. <c>Headset</c> = solve in Unity,
+        /// stream joint angles (default, lowest latency). <c>Robot</c> = stream
+        /// the Cartesian target pose, let MoveIt 2 Servo solve on the robot
+        /// (collision-aware, higher latency but safer).
+        /// </summary>
+        public IkLocation IkLocation;
+
         public int TotalDof => ArmDof + BaseDof;
     }
 
@@ -79,9 +101,10 @@ namespace OmniBot.VR.Control
         // Publish (teleop → robot)
         public string CmdVel;           // base velocity (Twist)
         public string ControlMode;      // cmd_vel_mux mode string
-        public string ArmCommands;      // arm joint positions (JointState)
+        public string ArmCommands;      // arm joint positions (JointState) — headset IK
         public string ArmEnable;        // arm enable bool
         public string EmergencyStop;    // e-stop bool
+        public string IkTargetPose;     // Cartesian EE target (PoseStamped) — robot IK (MoveIt Servo)
 
         // Subscribe (robot → teleop)
         public string Odom;

@@ -114,6 +114,7 @@ namespace OmniBot.VR.Control
                 IsStationary = isStationary,
                 IsLegged = isLegged,
                 IsDualArm = category == "humanoid",
+                IkLocation = IkLocation.Headset, // default: solve in Unity
                 Topics = BuildTopics(spec.BaseDof, hasArm, category, jointStatesTopic),
                 HandWorkspaceRadius = HandWorkspaceRadius,
                 ArmBaseHeight = hasArm ? So101BaseHeight : 0f,
@@ -131,6 +132,7 @@ namespace OmniBot.VR.Control
                 ArmCommands   = hasArm ? "/arm/joint_commands" : "",
                 ArmEnable     = hasArm ? "/arm/enable" : "",
                 EmergencyStop = "/emergency_stop",
+                IkTargetPose  = hasArm ? "/servo_server/target_pose" : "",
                 Odom          = baseDof > 0 ? "/odom" : "",
                 Imu           = "/imu/data",
                 JointStates   = jointStates,
@@ -180,6 +182,9 @@ namespace OmniBot.VR.Control
                     p.ArmMaxReach = 0.850f;
                     p.ArmLinkLengths = new float[] { 0.425f, 0.392f, 0.033f };
                     p.IsDualArm = false;
+                    // UR5e runs with MoveIt 2 Servo → solve IK on the robot (collision-aware)
+                    p.IkLocation = IkLocation.Robot;
+                    p.Topics.IkTargetPose = "/servo_server/target_pose";
                     break;
                 case "unitree-g1":
                 case "unitree-h1":

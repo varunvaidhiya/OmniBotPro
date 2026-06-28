@@ -105,6 +105,15 @@ namespace OmniBot.VR.Control.Manip
             targetRelativeToBase = Vector3.ClampMagnitude(targetRelativeToBase, _profile.ArmMaxReach * 0.98f);
             Vector3 absoluteTarget = armBaseWorld + targetRelativeToBase;
 
+            // ── Robot-side IK: stream the Cartesian target, let MoveIt Servo solve ──
+            if (_profile.IkLocation == IkLocation.Robot &&
+                !string.IsNullOrEmpty(_profile.Topics.IkTargetPose))
+            {
+                PublishTargetPose(absoluteTarget, rightHand.Rotation, link);
+                return true;
+            }
+
+            // ── Headset-side IK: solve locally, stream joint angles ──────────────
             // 2. Solve IK (solver works in world space anchored at the arm base)
             float[] newAngles = _ikSolver.SolveIK(absoluteTarget, rightHand.Rotation, _currentAngles);
 
@@ -122,6 +131,22 @@ namespace OmniBot.VR.Control.Manip
             var msg = new JointStateMsg((string[])_jointNames.Clone(), newAngles);
             link.Publish(_profile.Topics.ArmCommands, msg);
             return true;
+        }
+
+        /// <summary>
+        /// Publishes the Cartesian end-effector target as a PoseStamped to the
+        /// MoveIt Servo topic. The robot solves IK with collision awareness.
+        /// </summary>
+        private void PublishTargetPose(Vector3 position, Quaternion rotation, IRobotLink link)
+        {
+            // Express the target in the arm base frame (relative to the workspace origin)
+            Vector3 localPos = _workspaceOrigin.InverseTransformPoint(position);
+            Quaternion localRot = Quaternion.Inverse(_workspaceOrigin.rotation) * rotation;
+
+            var pose = new PoseStampedMsg(
+                new Vector3Msg(localPos.x, localPos.y, localPos.z),
+                new QuaternionMsg(localRot.x, localRot.y, localRot.z, localRot.w));
+            link.Publish(_profile.Topics.IkTargetPose, pose);
         }
 
         public void Stop(IRobotLink link)

@@ -1,6 +1,8 @@
 using UnityEngine;
 using OmniBot.VR.Core;
 using OmniBot.VR.Input;
+using OmniBot.VR.Video;
+using OmniBot.VR.Recording;
 using OmniBot.VR.Control.Drive;
 using OmniBot.VR.Control.Manip;
 
@@ -33,6 +35,12 @@ namespace OmniBot.VR.Control
         [Header("Link")]
         [Tooltip("Robot transport. Defaults to the ROSBridge singleton (RosBridgeLink).")]
         [SerializeField] private MonoBehaviour linkProvider;
+
+        [Header("Phase 4 — video + recording")]
+        [Tooltip("Profile-driven camera feed. Configure() is called on StartTeleop.")]
+        [SerializeField] private CameraFeedController cameraFeed;
+        [Tooltip("Profile-driven dataset recorder. Configure() is called on StartTeleop.")]
+        [SerializeField] private ProfileDrivenRecorder recorder;
 
         private IRobotLink _link;
         private IRobotLink Link => _link ?? (_link = ResolveLink());
@@ -128,7 +136,11 @@ namespace OmniBot.VR.Control
             AdvertiseTopics(profile);
             _teleopActive = true;
 
-            Debug.Log($"[TeleopController] Teleop started — {profile.Name} ({profile.Drive}, arm {(profile.HasArm ? $"{profile.ArmDof}-DOF" : "none")}).");
+            // Phase 4: configure the camera feed + recorder from the profile
+            if (cameraFeed != null) cameraFeed.Configure(profile);
+            if (recorder != null) recorder.Configure(profile);
+
+            Debug.Log($"[TeleopController] Teleop started — {profile.Name} ({profile.Drive}, arm {(profile.HasArm ? $"{profile.ArmDof}-DOF" : "none")}), IK={profile.IkLocation}.");
         }
 
         /// <summary>Stop teleoperation: zero velocity, disarm arm, drop the schemes.</summary>
@@ -243,6 +255,8 @@ namespace OmniBot.VR.Control
                 Link.Advertise(p.Topics.ArmEnable, "std_msgs/Bool");
             if (!string.IsNullOrEmpty(p.Topics.EmergencyStop))
                 Link.Advertise(p.Topics.EmergencyStop, "std_msgs/Bool");
+            if (!string.IsNullOrEmpty(p.Topics.IkTargetPose))
+                Link.Advertise(p.Topics.IkTargetPose, "geometry_msgs/PoseStamped");
         }
     }
 }
