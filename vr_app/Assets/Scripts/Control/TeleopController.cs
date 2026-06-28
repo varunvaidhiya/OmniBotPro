@@ -57,6 +57,11 @@ namespace OmniBot.VR.Control
         private IManipulationScheme _manip;
         private bool _teleopActive;
 
+        /// <summary>One-line drive control hint (for onboarding / HUD).</summary>
+        public string DriveHint => _drive?.HudHint ?? "No drive on this robot";
+        /// <summary>One-line manipulation control hint (for onboarding / HUD).</summary>
+        public string ManipHint => _manip?.HudHint ?? "No arm on this robot";
+
         // ── Thumbs-up gesture state (ported from HandTrackingArmController) ──────
         private bool _wasThumbsUp;
         private float _thumbsUpHoldTimer;

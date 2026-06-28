@@ -1,16 +1,16 @@
 # Graph Report - OmniBotPro  (2026-06-28)
 
 ## Corpus Check
-- 808 files · ~867,645 words
+- 814 files · ~871,350 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 7913 nodes · 13823 edges · 666 communities (549 shown, 117 thin omitted)
+- 8022 nodes · 13964 edges · 657 communities (542 shown, 115 thin omitted)
 - Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 1395 edges (avg confidence: 0.52)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `a51f52e3`
+- Built from commit: `78dc7d7b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -541,29 +541,20 @@
 - [[_COMMUNITY_Community 640|Community 640]]
 - [[_COMMUNITY_Community 641|Community 641]]
 - [[_COMMUNITY_Community 642|Community 642]]
-- [[_COMMUNITY_Community 643|Community 643]]
-- [[_COMMUNITY_Community 644|Community 644]]
 - [[_COMMUNITY_Community 645|Community 645]]
 - [[_COMMUNITY_Community 646|Community 646]]
 - [[_COMMUNITY_Community 647|Community 647]]
 - [[_COMMUNITY_Community 648|Community 648]]
-- [[_COMMUNITY_Community 649|Community 649]]
 - [[_COMMUNITY_Community 650|Community 650]]
 - [[_COMMUNITY_Community 651|Community 651]]
 - [[_COMMUNITY_Community 652|Community 652]]
 - [[_COMMUNITY_Community 653|Community 653]]
-- [[_COMMUNITY_Community 654|Community 654]]
-- [[_COMMUNITY_Community 655|Community 655]]
 - [[_COMMUNITY_Community 656|Community 656]]
 - [[_COMMUNITY_Community 657|Community 657]]
 - [[_COMMUNITY_Community 658|Community 658]]
 - [[_COMMUNITY_Community 659|Community 659]]
 - [[_COMMUNITY_Community 660|Community 660]]
 - [[_COMMUNITY_Community 661|Community 661]]
-- [[_COMMUNITY_Community 662|Community 662]]
-- [[_COMMUNITY_Community 663|Community 663]]
-- [[_COMMUNITY_Community 664|Community 664]]
-- [[_COMMUNITY_Community 665|Community 665]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `WorldState` - 91 edges
@@ -601,19 +592,19 @@
 - 1-file cycle: `packages/vla_serve/vla_serve/inference/server.py -> packages/vla_serve/vla_serve/inference/server.py`
 - 1-file cycle: `vla_engine/inference/server.py -> vla_engine/inference/server.py`
 
-## Communities (666 total, 117 thin omitted)
+## Communities (657 total, 115 thin omitted)
 
 ### Community 0 - "Community 0"
 Cohesion: 0.06
-Nodes (60): DataCollector, EpisodeEvaluator, PlanCheck, Policy, PolicyTrainer, Minimal multimodal LLM client used by judges, evaluators and     vision-reward, Judges an episode: language-goal verification, self-critique, etc., A deployable policy. Foundation-model policies (OpenVLA, SmolVLA),     ONNX RL (+52 more)
+Nodes (57): DataCollector, EpisodeEvaluator, PlanCheck, Policy, PolicyTrainer, Minimal multimodal LLM client used by judges, evaluators and     vision-reward, Judges an episode: language-goal verification, self-critique, etc., A deployable policy. Foundation-model policies (OpenVLA, SmolVLA),     ONNX RL (+49 more)
 
 ### Community 1 - "Community 1"
-Cohesion: 0.05
-Nodes (41): Roll a policy in a simulation env and record episodes.      The env's reward/d, SimRolloutCollector, Episode, ndarray, ReplayDataset, Transition, Any, Episode (+33 more)
+Cohesion: 0.09
+Nodes (12): Episode, ndarray, ReplayDataset, Transition, EpisodicReplayStore, PrioritizedReplayBuffer, Experience replay — in-memory transition buffers and an episodic store.  - ``U, Outcome-stratified episode sampling over the on-disk ReplayDataset.      Failu (+4 more)
 
 ### Community 2 - "Community 2"
-Cohesion: 0.10
-Nodes (16): IterationReport, ReplayDataset, Any, Episode, EvaluationReport, TrainResult, ContinualLearningScheduler, ContinualState (+8 more)
+Cohesion: 0.11
+Nodes (11): IterationReport, ReplayDataset, Any, Episode, EvaluationReport, TrainResult, ContinualState, Check triggers and run one loop iteration when warranted. (+3 more)
 
 ### Community 3 - "Community 3"
 Cohesion: 0.14
@@ -628,8 +619,8 @@ Cohesion: 0.04
 Nodes (45): Add named locations, Arm not responding to SmolVLA commands, Autonomous Navigation (Nav2), Data Collection for Fine-Tuning, Dataset structure, Deploy on the robot, Fine-Tuning SmolVLA, Gazebo (for development without hardware) (+37 more)
 
 ### Community 6 - "Community 6"
-Cohesion: 0.15
-Nodes (4): jointCommandTopic(), parseJoints(), parseOdom(), RosbridgeTransport
+Cohesion: 0.08
+Nodes (19): IVideoSource, MethodInfo, object, Type, MjpegVideoSource, OmniBot.VR.Video, OmniBot.VR.Video, WebRtcVideoSource (+11 more)
 
 ### Community 7 - "Community 7"
 Cohesion: 0.11
@@ -637,7 +628,7 @@ Nodes (55): Goal, Reflection, ToolCall, ToolRegistry, ToolResult, Any, Ports (in
 
 ### Community 8 - "Community 8"
 Cohesion: 0.05
-Nodes (86): check_slo(), print_stats(), Run a callable N times and collect wall-clock durations in milliseconds., Check p95 against SLO table. Prints PASS/WARN/FAIL.     Returns False if p95 >, Print a formatted stats line for a benchmark result., TimingHarness, ndarray, Measure base64 encoding cost for a 640×480 JPEG frame.     This overhead applie (+78 more)
+Nodes (65): print_stats(), Run a callable N times and collect wall-clock durations in milliseconds., Like run() but also collects return values. Useful for throughput tests., Print a formatted stats line for a benchmark result., TimingHarness, ndarray, ndarray, Compare theta-wrapping strategies:       A) math.atan2(sin(theta), cos(theta)) (+57 more)
 
 ### Community 9 - "Community 9"
 Cohesion: 0.14
@@ -664,16 +655,16 @@ Cohesion: 0.08
 Nodes (16): main(), OtaAgentNode, Over-the-Air update agent for OmniBot., Response, Path, Request, node(), Unit tests for OtaAgentNode — pure logic, no hardware or network required.  Te (+8 more)
 
 ### Community 15 - "Community 15"
-Cohesion: 0.10
-Nodes (31): Enum, Accelerator, AcceleratorType, apple_chip(), describe(), detect_accelerators(), _device_tree_model(), is_apple_silicon() (+23 more)
+Cohesion: 0.13
+Nodes (27): Accelerator, AcceleratorType, apple_chip(), describe(), detect_accelerators(), _device_tree_model(), is_apple_silicon(), is_jetson() (+19 more)
 
 ### Community 16 - "Community 16"
 Cohesion: 0.08
 Nodes (15): Any, ndarray, Goal, Reflection, WorldState, Compact natural-language summary for the reasoner's prompt., A single fused snapshot of the robot's situation at one tick., Flat observation dict for the safety verifier.          ``state`` is the canon (+7 more)
 
 ### Community 17 - "Community 17"
-Cohesion: 0.27
-Nodes (6): Isaac Sim Randomization Config, Learning Loop Configuration, Arm Training Configuration, Domain Randomization Configuration, Navigation Training Configuration, WandB Sweep Arm
+Cohesion: 0.19
+Nodes (11): Isaac Sim Randomization Config, Learning Loop Configuration, ACT Model Configuration, Diffusion Policy Configuration, OmniBot Mobile Manip Configuration, SmolVLA Configuration, WandB Sweep SmolVLA, Arm Training Configuration (+3 more)
 
 ### Community 18 - "Community 18"
 Cohesion: 0.10
@@ -692,32 +683,32 @@ Cohesion: 0.06
 Nodes (38): Joy, Time, Twist, RxPacket, _build_rx_pkt(), Tests for yahboom_ros2.protocol — TX builder and RX parser.  These cover the e, Construct a valid RX packet: [0xFF, 0xFB, LEN, TYPE, PAYLOAD..., CS]., TestBuildPacket (+30 more)
 
 ### Community 22 - "Community 22"
-Cohesion: 0.12
-Nodes (23): AccountPage(), capitalize(), Home(), useAuth(), ConsoleNavButton(), PaidFeatureGate(), PaidFeatureGateProps, ACTIVE_STATUSES (+15 more)
+Cohesion: 0.11
+Nodes (26): AccountPage(), capitalize(), Home(), AuthGate(), useAuth(), ConsoleGate(), ConsoleNavButton(), OAuthButtons() (+18 more)
 
 ### Community 23 - "Community 23"
-Cohesion: 0.22
-Nodes (14): ProductCard(), accentColor(), getProduct(), relatedProducts(), productHref(), capitalize(), PLAN_META, ProductFinalCta() (+6 more)
+Cohesion: 0.08
+Nodes (16): ActionRecord, double, durationSecs, filePath, frames, ObsRecord, ActionRecord, ObsRecord (+8 more)
 
 ### Community 24 - "Community 24"
-Cohesion: 0.04
-Nodes (42): ConsoleGate(), metadata, metadata, metadata, metadata, metadata, metadata, metadata (+34 more)
+Cohesion: 0.05
+Nodes (36): metadata, metadata, metadata, metadata, metadata, metadata, getHardwareModel(), getRobotTypeForHardware() (+28 more)
 
 ### Community 25 - "Community 25"
 Cohesion: 0.08
-Nodes (25): CameraView(), tools, formatUptime(), TelemetryPanel(), ArmJoint, BaseType, baseTypeFor(), DEFAULT_ARM_JOINTS (+17 more)
+Nodes (25): CameraView(), formatUptime(), TelemetryPanel(), ArmJoint, BaseType, baseTypeFor(), getProfile(), jointsForProfile() (+17 more)
 
 ### Community 26 - "Community 26"
-Cohesion: 0.06
-Nodes (30): Any, ndarray, Observation, Any, Episode, ndarray, TrainResult, make_policy() (+22 more)
+Cohesion: 0.07
+Nodes (31): Any, ndarray, Observation, Any, Episode, ndarray, TrainResult, make_policy() (+23 more)
 
 ### Community 27 - "Community 27"
 Cohesion: 0.08
 Nodes (28): BaseModel, Request/response schemas for the vla_serve REST API., _get_model_class(), health(), vla_serve FastAPI inference server.  Environment variables ------------------, Health check — no auth required., Dependency: validate X-API-Key header if VLA_API_KEY is configured., Token-bucket rate limiter — raises HTTP 429 when exhausted. (+20 more)
 
 ### Community 28 - "Community 28"
-Cohesion: 0.15
-Nodes (12): Alternative: Xbox Control (Manual), Device 1: Yahboom ROS Board, Device 3: Windows PC (The AI Brain), Running the OmniBot: Full System Guide, Step 1: Network Check ⚠️, Step 2: Run OpenVLA (AI Control), Step 3: Send Commands, Summary Checklist (+4 more)
+Cohesion: 0.05
+Nodes (38): Alternative: Xbox Control (Manual), Device 1: Yahboom ROS Board, Device 2: Raspberry Pi 5 (The Robot), Device 3: Windows PC (The AI Brain), Running the OmniBot: Full System Guide, Step 1: Login, Step 1: Network Check ⚠️, Step 2: Build (If code changed) (+30 more)
 
 ### Community 29 - "Community 29"
 Cohesion: 0.11
@@ -728,24 +719,24 @@ Cohesion: 0.11
 Nodes (16): Build & Test, CI/CD, Data Engine & Dataset Format, Deployment Configuration, Gazebo Simulation, graphify, Key Physical Constants, Launch Commands (+8 more)
 
 ### Community 31 - "Community 31"
-Cohesion: 0.18
-Nodes (10): HandIK6DofScheme, OmniBot.VR.Control.Manip, ArmIKSolver, bool, float, HandPose, IRobotLink, RobotProfile (+2 more)
+Cohesion: 0.15
+Nodes (12): ArmIKSolver, HandIK6DofScheme, OmniBot.VR.Control.Manip, Quaternion, Vector3, bool, float, HandPose (+4 more)
 
 ### Community 32 - "Community 32"
 Cohesion: 0.09
-Nodes (13): ConcurrentQueue, OmniBot.VR.Core, ROSBridgeClient, object, Task, Action, bool, Dictionary (+5 more)
+Nodes (13): ConcurrentQueue, OmniBot.VR.Core, ROSBridgeClient, Task, Action, bool, Dictionary, float (+5 more)
 
 ### Community 33 - "Community 33"
 Cohesion: 0.08
-Nodes (15): ActionRecord, durationSecs, filePath, frames, ObsRecord, ActionRecord, DatasetRecorder, ObsRecord (+7 more)
+Nodes (15): ActionRecord, DatasetRecorder, ObsRecord, OmniBot.VR.Recording, TimestepRecord, ActionRecord, double, durationSecs (+7 more)
 
 ### Community 34 - "Community 34"
-Cohesion: 0.17
-Nodes (14): Skip test/module if rclpy is not importable., skip_if_no_ros(), _build_accel_packet(), _build_attitude_packet(), _build_gyro_packet(), _build_rx_packet(), _build_velocity_packet(), _make_mock_serial() (+6 more)
+Cohesion: 0.13
+Nodes (17): Path, Write benchmark results to benchmarks/results/<name>_<timestamp>.json.     Crea, Skip test/module if rclpy is not importable., skip_if_no_ros(), write_results(), _build_accel_packet(), _build_attitude_packet(), _build_gyro_packet() (+9 more)
 
 ### Community 35 - "Community 35"
-Cohesion: 0.27
-Nodes (10): _bench_model(), _load_adapter(), make_obs(), benchmarks/inference/bench_policy_inference.py ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~, Build a synthetic observation dict matching the adapter's expected schema., Run the full benchmark suite for one model type. Returns stats dict., test_bench_policy_action_shape(), test_bench_policy_load() (+2 more)
+Cohesion: 0.10
+Nodes (28): check_slo(), Check p95 against SLO table. Prints PASS/WARN/FAIL.     Returns False if p95 >, _bench_model(), _load_adapter(), make_obs(), benchmarks/inference/bench_policy_inference.py ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~, Build a synthetic observation dict matching the adapter's expected schema., Run the full benchmark suite for one model type. Returns stats dict. (+20 more)
 
 ### Community 36 - "Community 36"
 Cohesion: 0.06
@@ -804,8 +795,8 @@ Cohesion: 0.08
 Nodes (24): MecanumController, baud_rate_, calculateWheelVelocities, cmd_vel_sub_, cmdVelCallback, odom_pub_, port_name_, publishOdometry (+16 more)
 
 ### Community 50 - "Community 50"
-Cohesion: 0.08
-Nodes (31): RobotConnectionValue, RosbridgeMessage, SimulatedTransport, ConnectionConfig, ConnectionState, JointReading, Odometry, RobotTelemetry (+23 more)
+Cohesion: 0.06
+Nodes (26): createTransport(), RobotConnectionValue, jointCommandTopic(), parseJoints(), parseOdom(), RosbridgeMessage, RosbridgeTransport, SimulatedTransport (+18 more)
 
 ### Community 51 - "Community 51"
 Cohesion: 0.11
@@ -820,8 +811,8 @@ Cohesion: 0.11
 Nodes (12): Regex, Renderer, Toggle, ConnectionPanel, OmniBot.VR.UI, bool, Button, Color (+4 more)
 
 ### Community 54 - "Community 54"
-Cohesion: 0.11
-Nodes (14): mecanum_drive_ros2 — Generic mecanum wheel kinematics for ROS 2., forward_kinematics(), integrate_pose(), inverse_kinematics(), mecanum_drive_ros2.kinematics ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Pure-Python mecanu, Body twist → wheel angular velocities.      Args:         vx:    Forward velo, Wheel angular velocities → body twist.      Args:         wheels: (fl, fr, bl, Integrate body twist into 2-D pose over time dt.      Returns updated (x, y, t (+6 more)
+Cohesion: 0.16
+Nodes (11): mecanum_drive_ros2 — Generic mecanum wheel kinematics for ROS 2., forward_kinematics(), inverse_kinematics(), mecanum_drive_ros2.kinematics ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Pure-Python mecanu, Body twist → wheel angular velocities.      Args:         vx:    Forward velo, Wheel angular velocities → body twist.      Args:         wheels: (fl, fr, bl, RobotGeometry, WheelVelocities (+3 more)
 
 ### Community 55 - "Community 55"
 Cohesion: 0.13
@@ -845,19 +836,19 @@ Nodes (5): AgentHarness, Answer an outstanding ``ask_human`` checkpoint; loop re
 
 ### Community 60 - "Community 60"
 Cohesion: 0.13
-Nodes (10): RawImage, Texture2D, CameraFeedViewer, OmniBot.VR.UI, Coroutine, float, IEnumerator, int (+2 more)
+Nodes (10): CameraFeedViewer, OmniBot.VR.UI, Coroutine, float, IEnumerator, int, RawImage, string (+2 more)
 
 ### Community 61 - "Community 61"
 Cohesion: 0.20
 Nodes (5): _MockNode, Minimal stub mimicking the parts of LangchainAgentNode that tools access., test_cancel_mission(), test_get_robot_status(), make_status_tools()
 
 ### Community 62 - "Community 62"
-Cohesion: 0.10
-Nodes (5): _jpeg_b64(), Tests for the vla_serve package.  Covers utils/image, inference/schema, models, test_decode_data_uri_prefix(), test_decode_plain_b64(), test_predict_model_not_loaded_returns_503()
+Cohesion: 0.08
+Nodes (12): _FakeVLAModel, _jpeg_b64(), Tests for the vla_serve package.  Covers utils/image, inference/schema, models, Lightweight stand-in — no ML libraries required., test_decode_data_uri_prefix(), test_decode_plain_b64(), test_openvla_predict_unloaded_raises(), test_predict_model_not_loaded_returns_503() (+4 more)
 
 ### Community 63 - "Community 63"
-Cohesion: 0.06
-Nodes (46): ActionMapper, Any, Goal, ndarray, Reflection, ToolResult, WorldState, DataSource (+38 more)
+Cohesion: 0.05
+Nodes (56): ActionMapper, Any, Goal, ndarray, Reflection, ToolResult, WorldState, DataSource (+48 more)
 
 ### Community 64 - "Community 64"
 Cohesion: 0.13
@@ -868,8 +859,8 @@ Cohesion: 0.07
 Nodes (14): EntityMemory, Persistent JSON-backed memory for objects and their last known locations.     T, main(), world_state_node — fuses scattered robot state into one snapshot.  Subscribes, WorldStateNode, _yaw_from_quaternion(), Any, Bool (+6 more)
 
 ### Community 66 - "Community 66"
-Cohesion: 0.12
-Nodes (17): AgentPhase, Backend, buildTranscript(), IDLE_WORLD, LOOP_PHASES, LoopEvent, LoopPhase, NAMED (+9 more)
+Cohesion: 0.10
+Nodes (18): AgentPhase, Backend, buildTranscript(), IDLE_WORLD, LOOP_PHASES, LoopEvent, LoopPhase, NAMED (+10 more)
 
 ### Community 67 - "Community 67"
 Cohesion: 0.13
@@ -884,8 +875,8 @@ Cohesion: 0.11
 Nodes (12): ActionTerm, ArmJointDeltaActionTerm, MecanumWheelActionTerm, Converts 6D joint position deltas to absolute position targets.      Accumulat, Clip delta and accumulate joint targets, enforcing limits., Write position targets to arm articulation., Initialise targets from current joint state on episode reset., Converts 3D body-frame velocity deltas (Δvx, Δvy, Δω) to 4 wheel     angular ve (+4 more)
 
 ### Community 70 - "Community 70"
-Cohesion: 0.23
-Nodes (17): getSupabase(), capitalize(), ConsoleHub(), consoles, addUserRobot(), deleteUserRobot(), fromRow(), generateId() (+9 more)
+Cohesion: 0.16
+Nodes (20): getSupabase(), capitalize(), ConsoleHub(), consoles, addUserRobot(), deleteUserRobot(), fromRow(), generateId() (+12 more)
 
 ### Community 71 - "Community 71"
 Cohesion: 0.14
@@ -901,15 +892,15 @@ Nodes (13): compute_ipm_homography(), Compute the 3×3 homography mapping image 
 
 ### Community 74 - "Community 74"
 Cohesion: 0.05
-Nodes (56): predictServer(), predictTransformers(), predictWebGPU(), ServerPredictResponse, base(), curlCmd(), healthCmd(), launchCmd() (+48 more)
+Nodes (57): predictServer(), predictTransformers(), predictWebGPU(), ServerPredictResponse, base(), curlCmd(), healthCmd(), launchCmd() (+49 more)
 
 ### Community 76 - "Community 76"
-Cohesion: 0.10
-Nodes (3): buildExport(), ThreePhysicsProvider, SimulatedFrame
+Cohesion: 0.11
+Nodes (3): buildExport(), ThreePhysicsProvider, JointState
 
 ### Community 77 - "Community 77"
-Cohesion: 0.09
-Nodes (6): clamp(), HybridProvider, META, rampToward(), RosMessage, Odometry
+Cohesion: 0.10
+Nodes (6): clamp(), HybridProvider, META, rampToward(), RosMessage, Velocity
 
 ### Community 78 - "Community 78"
 Cohesion: 0.13
@@ -945,7 +936,7 @@ Nodes (11): main(), Update intrinsics from CameraInfo (preferred over YAML param
 
 ### Community 86 - "Community 86"
 Cohesion: 0.13
-Nodes (12): PilotThreeScene(), Props, META, RosbridgeMessage, createRecorder(), RecordingFrame, SceneObject, SIM_PROVIDERS (+4 more)
+Nodes (11): PilotThreeScene(), Props, META, createRecorder(), RecordingFrame, SceneObject, SIM_PROVIDERS, SimTier (+3 more)
 
 ### Community 87 - "Community 87"
 Cohesion: 0.14
@@ -960,16 +951,12 @@ Cohesion: 0.18
 Nodes (8): _make_config(), OmniBotDataGenerator, AutoGen offline data generator for OmniBot.  Generates training artefacts for, Generate a named_locations.yaml entry from a natural language description., Draft a multi-step mission script as YAML for human review.          Returns a, AutoGen-based offline generator for OmniBot training data.      Uses an Assist, Generate SmolVLA task description strings for a given scenario.          Each, Any
 
 ### Community 90 - "Community 90"
-Cohesion: 0.17
-Nodes (17): Skip test/module if CUDA is unavailable., skip_if_no_cuda(), _make_test_image_b64(), Measure base64 decode + PIL open cost (server-side per request)., Verify server is up. Skip all server tests if not running., POST /load_model — measure model loading time.     One-shot. Informational for, First /predict call after model load — may be slower due to GPU warmup., Steady-state /predict latency: 20 samples after 3-call warmup.     Separates cl (+9 more)
+Cohesion: 0.14
+Nodes (20): Skip test/module if CUDA is unavailable., skip_if_no_cuda(), _make_test_image_b64(), benchmarks/inference/bench_vla_inference.py ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~, Measure base64 decode + PIL open cost (server-side per request)., Verify server is up. Skip all server tests if not running., POST /load_model — measure model loading time.     One-shot. Informational for, First /predict call after model load — may be slower due to GPU warmup. (+12 more)
 
 ### Community 91 - "Community 91"
 Cohesion: 0.15
 Nodes (10): main(), Thread function to continuously read from the serial port., Process data received from the serial port.          Args:             data (, ROS2 Node for bridging communication between ROS and the STM32 microcontroller., Compute mecanum-wheel forward kinematics and integrate odometry.          Meca, Publish nav_msgs/Odometry and broadcast the odom→base_link TF., Send a heartbeat message to the STM32., Connect to the serial port. (+2 more)
-
-### Community 93 - "Community 93"
-Cohesion: 0.07
-Nodes (6): IsaacSimProvider, META, META, MuJoCoProvider, SimulatorStatus, Velocity
 
 ### Community 94 - "Community 94"
 Cohesion: 0.11
@@ -984,8 +971,8 @@ Cohesion: 0.16
 Nodes (8): Bundle, LayoutInflater, View, ViewGroup, ControlsFragment, ControlsViewModel, FragmentControlsBinding, ObjectAnimator
 
 ### Community 97 - "Community 97"
-Cohesion: 0.22
-Nodes (4): Any, TaskOutcome, EpisodeLoggerNode, main()
+Cohesion: 0.13
+Nodes (13): getSerial(), int16(), SerialLike, SerialPortLike, usesYahboom(), WebSerialTransport, buildPacket(), clampInt16() (+5 more)
 
 ### Community 98 - "Community 98"
 Cohesion: 0.12
@@ -1000,16 +987,16 @@ Cohesion: 0.21
 Nodes (7): Any, ConnectionState, Map, String, WebSocket, ConnectionState, ROSBridgeManager
 
 ### Community 101 - "Community 101"
-Cohesion: 0.05
-Nodes (29): Registry, Multi-objective reward for a single step.      ``terms`` holds the raw (unweig, RewardBreakdown, ExecutionLogCollector, Data collection layer — every way experience enters the system.  | Collector, Convert LeRobot datasets recorded by ``teleop_recorder_node`` /     ``lerobot_e, Ingest ros2 bags through the existing ``data_engine`` pipeline     (``data_engi, Ingest episodes written by ``learning_engine/ros2/episode_logger_node``. (+21 more)
+Cohesion: 0.22
+Nodes (4): Any, TaskOutcome, EpisodeLoggerNode, main()
 
 ### Community 102 - "Community 102"
-Cohesion: 0.24
-Nodes (12): Props, getScene(), initSceneState(), SceneObject, ScenePreset, SCENES, SceneState, tickScene() (+4 more)
+Cohesion: 0.23
+Nodes (13): Props, DEFAULT_ARM_JOINTS, getScene(), initSceneState(), SceneObject, ScenePreset, SCENES, SceneState (+5 more)
 
 ### Community 103 - "Community 103"
 Cohesion: 0.05
-Nodes (58): BenchmarkResult, BenchmarkResult, DatasetIOBenchmark, default_observation(), episodes_for_training(), InferenceBenchmark, _latency_stats(), AI performance benchmarks — same suites on every target hardware.  Each suite (+50 more)
+Nodes (71): BenchmarkResult, BenchmarkResult, DatasetIOBenchmark, default_observation(), episodes_for_training(), InferenceBenchmark, _latency_stats(), AI performance benchmarks — same suites on every target hardware.  Each suite (+63 more)
 
 ### Community 104 - "Community 104"
 Cohesion: 0.24
@@ -1028,16 +1015,16 @@ Cohesion: 0.15
 Nodes (9): Bundle, Float, LayoutInflater, View, ViewGroup, ClosedFloatingPointRange, FragmentSettingsBinding, SettingsFragment (+1 more)
 
 ### Community 108 - "Community 108"
-Cohesion: 0.16
-Nodes (11): AutonomyConsole(), MODES, ControlMode, interpolate(), MissionStep, NAMED_LOCATIONS, PATH, Phase (+3 more)
+Cohesion: 0.13
+Nodes (12): AutonomyConsole(), MODES, ControlMode, interpolate(), MissionStep, NAMED_LOCATIONS, PATH, Phase (+4 more)
 
 ### Community 109 - "Community 109"
 Cohesion: 0.15
 Nodes (16): BenchConsole(), dot(), StatusGlyph(), assemblyFor(), AssemblyStep, Calibration, calibrationsFor(), CAMERA_KINDS (+8 more)
 
 ### Community 110 - "Community 110"
-Cohesion: 0.12
-Nodes (22): Accent, Category, Faq, Feature, PlanAccess, PlanName, Product, PRODUCT_SLUGS (+14 more)
+Cohesion: 0.09
+Nodes (36): ProductCard(), Accent, accentColor(), Category, Faq, Feature, getProduct(), PlanAccess (+28 more)
 
 ### Community 111 - "Community 111"
 Cohesion: 0.17
@@ -1052,8 +1039,8 @@ Cohesion: 0.23
 Nodes (6): Any, Map, String, WebSocket, ConnectionState, ROSBridgeManager
 
 ### Community 114 - "Community 114"
-Cohesion: 0.14
-Nodes (12): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureDetector (+4 more)
+Cohesion: 0.17
+Nodes (9): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureListener (+1 more)
 
 ### Community 115 - "Community 115"
 Cohesion: 0.15
@@ -1108,7 +1095,7 @@ Cohesion: 0.13
 Nodes (14): OmnibotArmActionsCfg, OmnibotArmObservationsCfg, OmnibotArmRewardsCfg, OmnibotArmSceneCfg, OmnibotArmTerminationsCfg, OmniBot Arm Manipulation RL Environment for Isaac Lab.  Trains a precision pic, Joint position delta actions for the arm., 30D arm observation space. (+6 more)
 
 ### Community 129 - "Community 129"
-Cohesion: 0.27
+Cohesion: 0.25
 Nodes (11): Alert, AlertSeverity, generateInitialFleet(), INITIAL_ALERTS, Robot, RobotStatus, VERSIONS, FleetConsole() (+3 more)
 
 ### Community 130 - "Community 130"
@@ -1160,8 +1147,8 @@ Cohesion: 0.14
 Nodes (13): build, env, buildCommand, cleanUrls, NEXT_PUBLIC_OAUTH_PROVIDERS, NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, NEXT_PUBLIC_SUPABASE_URL (+5 more)
 
 ### Community 142 - "Community 142"
-Cohesion: 0.12
-Nodes (7): metadata, ALL_LINKS, DEV_LINKS, metadata, metadata, members, metadata
+Cohesion: 0.11
+Nodes (8): metadata, ALL_LINKS, DEV_LINKS, Footer(), metadata, metadata, members, metadata
 
 ### Community 143 - "Community 143"
 Cohesion: 0.24
@@ -1172,8 +1159,8 @@ Cohesion: 0.27
 Nodes (7): AmSilence, AmAlert, Boolean, CreateSilenceRequest, List, String, AlertManagerApi
 
 ### Community 145 - "Community 145"
-Cohesion: 0.27
-Nodes (8): Int, String, ViewGroup, WandBRun, areContentsTheSame(), areItemsTheSame(), VH, WandBRunAdapter
+Cohesion: 0.24
+Nodes (9): Int, String, ViewGroup, WandBRun, ListAdapter, areContentsTheSame(), areItemsTheSame(), VH (+1 more)
 
 ### Community 146 - "Community 146"
 Cohesion: 0.21
@@ -1193,7 +1180,7 @@ Nodes (12): _build_mlp_actor(), export_onnx(), export_torchscript(), load_policy
 
 ### Community 150 - "Community 150"
 Cohesion: 0.11
-Nodes (28): defaultConnectionConfig(), effectiveConnectionConfig(), persistConnectionConfig(), readConnectionConfig(), ConnectButton(), Props, ConnectionBar(), CONSOLE_ROUTES (+20 more)
+Nodes (26): defaultConnectionConfig(), effectiveConnectionConfig(), persistConnectionConfig(), readConnectionConfig(), ConnectButton(), Props, ConnectionBar(), CONSOLE_ROUTES (+18 more)
 
 ### Community 151 - "Community 151"
 Cohesion: 0.21
@@ -1224,16 +1211,16 @@ Cohesion: 0.09
 Nodes (14): main(), Convert ROS Image to numpy HxWx3 uint8 RGB., True if button transitioned 0→1 this tick., Capture and append one frame to the episode buffer., Save the current episode buffer to disk., Save episode using LeRobot HuggingFace dataset format., Fallback: save episode as .npz file., Records teleoperation episodes in LeRobot HF dataset format. (+6 more)
 
 ### Community 158 - "Community 158"
-Cohesion: 0.23
-Nodes (10): areContentsTheSame(), areItemsTheSame(), ChatAdapter, MsgVH, Int, TextView, View, ViewGroup (+2 more)
+Cohesion: 0.26
+Nodes (9): areContentsTheSame(), areItemsTheSame(), ChatAdapter, MsgVH, Int, TextView, View, ViewGroup (+1 more)
 
 ### Community 159 - "Community 159"
 Cohesion: 0.23
 Nodes (7): File, Int, List, TextView, ViewGroup, LogAdapter, ViewHolder
 
 ### Community 160 - "Community 160"
-Cohesion: 0.17
-Nodes (14): Path, Write benchmark results to benchmarks/results/<name>_<timestamp>.json.     Crea, write_results(), ndarray, bev_stitch(), numpy_to_tensor(), benchmarks/system/bench_full_pipeline.py ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~, Replicate smolvla_node._numpy_to_tensor(). (+6 more)
+Cohesion: 0.29
+Nodes (8): ndarray, bev_stitch(), numpy_to_tensor(), Replicate smolvla_node._numpy_to_tensor()., Break down the full pipeline into timed stages:     1. BEV stitch (4 cameras), Replicate bev_stitcher_node._timer_cb() without ROS., test_bench_pipeline_stages(), _tiled_homographies()
 
 ### Community 161 - "Community 161"
 Cohesion: 0.18
@@ -1312,24 +1299,24 @@ Cohesion: 0.33
 Nodes (10): init_gamepad(), main(), open_camera(), parse_args(), ndarray, Returns (base_vel_3d, record_pressed, discard_pressed)., read_frame(), read_gamepad() (+2 more)
 
 ### Community 181 - "Community 181"
-Cohesion: 0.18
-Nodes (10): Any, CandidatePlan, ndarray, Observation, Policy, RewardModel, Soft score from a RewardModel (or any callable scorer) estimating how     likel, First action of the selected plan (receding-horizon execution). (+2 more)
+Cohesion: 0.11
+Nodes (18): Any, CandidatePlan, ndarray, Observation, Policy, RewardModel, Always outputs zeros — the safe fallback the verifier can select when     every, ZeroPolicy (+10 more)
 
 ### Community 182 - "Community 182"
-Cohesion: 0.18
-Nodes (8): Abstract interface for Vision-Language-Action models., Load (or download) the model.          Args:             model_path: HuggingF, Predict robot action from an image and natural-language instruction., Any, Image, vla_serve.models.base ~~~~~~~~~~~~~~~~~~~~~ Abstract base class for Vision-Lan, VLAModel, ndarray
+Cohesion: 0.14
+Nodes (10): ABC, Abstract base class for all visuomotor policy adapters.  Every model backend (, Abstract interface for Vision-Language-Action models., Load (or download) the model.          Args:             model_path: HuggingF, Predict robot action from an image and natural-language instruction., Any, Image, vla_serve.models.base ~~~~~~~~~~~~~~~~~~~~~ Abstract base class for Vision-Lan (+2 more)
 
 ### Community 183 - "Community 183"
 Cohesion: 0.33
 Nodes (7): _nav_tools(), Unit tests for LangChain tools.  Tools are closures that capture a node refere, test_navigate_then_execute_known(), test_navigate_then_execute_unknown_location(), test_navigate_to_known_location(), test_navigate_to_unknown_location_returns_error(), make_navigation_tools()
 
 ### Community 184 - "Community 184"
-Cohesion: 0.12
-Nodes (10): ArmCmdMux, main(), Mode-based arm joint command multiplexer.      Parameters     ----------, Image, JointState, String, BevCalibrator, main() (+2 more)
+Cohesion: 0.24
+Nodes (5): ArmCmdMux, main(), Mode-based arm joint command multiplexer.      Parameters     ----------, JointState, String
 
 ### Community 185 - "Community 185"
-Cohesion: 0.24
-Nodes (6): TrainConsole(), Gpu, METHODS, RunState, TrainConfig, useTraining()
+Cohesion: 0.08
+Nodes (15): PaidFeatureGate(), PaidFeatureGateProps, AgentConfig, AGENTS, AgentTransport, ENDPOINT_URL, LinkConsole(), metadata (+7 more)
 
 ### Community 186 - "Community 186"
 Cohesion: 0.33
@@ -1365,7 +1352,7 @@ Nodes (27): Common Issues, Communication Protocol Changes, Conclusion, Debugging
 
 ### Community 194 - "Community 194"
 Cohesion: 0.13
-Nodes (29): callOpenRouter(), openRouterConfigured(), OpenRouterOptions, OpenRouterResult, ORMessage, ORTool, ORToolCall, AssistantRequest (+21 more)
+Nodes (28): callOpenRouter(), openRouterConfigured(), OpenRouterOptions, OpenRouterResult, ORMessage, ORTool, ORToolCall, AssistantRequest (+20 more)
 
 ### Community 195 - "Community 195"
 Cohesion: 0.24
@@ -1376,8 +1363,8 @@ Cohesion: 0.31
 Nodes (4): ndarray, Converts the robot's latest camera frame to a natural language scene description, Synchronous — must be called from a worker thread, not the ROS spin thread., SceneDescriber
 
 ### Community 197 - "Community 197"
-Cohesion: 0.33
-Nodes (6): CVERecord, DeviceIdentity, INITIAL_CVES, INITIAL_DEVICES, ShieldConsole(), useSecuritySimulation()
+Cohesion: 0.14
+Nodes (4): _cpu_mem_sample(), _NvmlSampler, Parses a running `tegrastats` stream (Jetson)., _TegrastatsSampler
 
 ### Community 198 - "Community 198"
 Cohesion: 0.25
@@ -1388,15 +1375,15 @@ Cohesion: 0.28
 Nodes (7): Bundle, LayoutInflater, View, ViewGroup, RobotViewerViewModel, RobotViewerFragment, RobotViewerScreen()
 
 ### Community 200 - "Community 200"
-Cohesion: 0.21
-Nodes (3): getSerial(), int16(), WebSerialTransport
+Cohesion: 0.09
+Nodes (22): classify_outcome(), episode_frames(), _parse_reply(), Pull the best available camera stream from an episode., episode_stats(), _parse_json(), Cheap numeric summary used by both evaluators., Episode (+14 more)
 
 ### Community 201 - "Community 201"
-Cohesion: 0.06
-Nodes (35): cachedConsoleSpec(), cachedEnrichment(), cacheGet(), cacheSet(), enrichKey(), fetchConsoleSpec(), fetchEnrichment(), specKey() (+27 more)
+Cohesion: 0.12
+Nodes (13): cachedConsoleSpec(), cachedEnrichment(), cacheGet(), cacheSet(), enrichKey(), fetchConsoleSpec(), fetchEnrichment(), specKey() (+5 more)
 
 ### Community 202 - "Community 202"
-Cohesion: 0.16
+Cohesion: 0.15
 Nodes (12): CtaBanner(), Accent, GlassCard(), HowItWorks(), steps, plans, Pricing(), PricingCard() (+4 more)
 
 ### Community 203 - "Community 203"
@@ -1408,20 +1395,20 @@ Cohesion: 0.28
 Nodes (4): BaseController, OmniBot.VR.Input, bool, float
 
 ### Community 205 - "Community 205"
-Cohesion: 0.20
-Nodes (6): Extract an action vector from OpenVLA's generated text.          OpenVLA model, OpenVLAModel, OpenVLA model implementation for vla_serve., Wrapper for OpenVLA models hosted on HuggingFace     (e.g., openvla/openvla-7b), test_vla_model_abstract(), VLAModel
+Cohesion: 0.09
+Nodes (19): Load the model from a specific path or huggingface hub ID., Given an image and natural language instruction, predict the robot action., Abstract Base Class for Vision-Language-Action models., Extract an action vector from OpenVLA's generated text.          OpenVLA model, Extract an action vector from OpenVLA's generated text.          OpenVLA model, Run inference using OpenVLA.          Returns:             dict with 'vector', Any, Image (+11 more)
 
 ### Community 206 - "Community 206"
 Cohesion: 0.25
 Nodes (4): Any, Map, String, ROSBridgeListener
 
 ### Community 207 - "Community 207"
-Cohesion: 0.15
-Nodes (10): Bitmap, Boolean, Canvas, Float, Int, IntArray, MotionEvent, GestureListener (+2 more)
+Cohesion: 0.22
+Nodes (6): Bitmap, Canvas, Float, Int, IntArray, SlamMapView
 
 ### Community 208 - "Community 208"
-Cohesion: 0.26
-Nodes (8): tools, HeatmapValue, INITIAL_COVERAGE, INITIAL_SUITES, REGRESSION_DATA, TestSuite, ProofConsole(), useProofSimulation()
+Cohesion: 0.38
+Nodes (6): tools, HeatmapValue, INITIAL_COVERAGE, INITIAL_SUITES, REGRESSION_DATA, TestSuite
 
 ### Community 209 - "Community 209"
 Cohesion: 0.22
@@ -1432,20 +1419,20 @@ Cohesion: 0.20
 Nodes (6): main(), Test node for Yahboom ROS Robot Expansion Board.      This node provides simpl, Run a sequence of test commands to verify board functionality., Send a custom command to the Yahboom board.          Args:             comman, YahboomTestNode, Serial
 
 ### Community 211 - "Community 211"
-Cohesion: 0.39
-Nodes (6): SensorKind, layersFor(), layerType(), SensorLayer, useSensors(), ViewConsole()
+Cohesion: 0.13
+Nodes (11): RawImage, TMP_Text, CameraFeedController, OmniBot.VR.Video, bool, int, IVideoSource, List (+3 more)
 
 ### Community 212 - "Community 212"
 Cohesion: 0.29
 Nodes (4): ActivityMainBinding, Bundle, AppCompatActivity, MainActivity
 
 ### Community 213 - "Community 213"
-Cohesion: 0.11
-Nodes (20): metadata, AssistantMount(), CONSOLE_SEGMENTS, SEGMENT_LABEL, AuthContext, AuthContextValue, AuthProvider(), callbackUrl() (+12 more)
+Cohesion: 0.14
+Nodes (16): metadata, AssistantMount(), CONSOLE_SEGMENTS, SEGMENT_LABEL, AuthContext, AuthContextValue, AuthProvider(), callbackUrl() (+8 more)
 
 ### Community 214 - "Community 214"
-Cohesion: 0.17
-Nodes (11): 1. Hardware Connection, 2. Verify Connection, 3. How It Works (Data Flow), 4. Running the Teleop, 5. Controls (Default Mapping), Option A: USB (Simplest), Option B: Bluetooth, Step 1: Install Dependencies (+3 more)
+Cohesion: 0.11
+Nodes (22): callKimi(), KimiOptions, KimiResult, parseJsonObject(), ConsolePanel, PANEL_KINDS, PanelKind, RobotEnrichment (+14 more)
 
 ### Community 215 - "Community 215"
 Cohesion: 0.25
@@ -1481,15 +1468,15 @@ Nodes (7): dcgm_exporter service, grafana service, loki service, metrics_bridge_
 
 ### Community 223 - "Community 223"
 Cohesion: 0.29
-Nodes (6): ImuMsg, OmniBot.VR.Core, QuaternionMsg, Vector3Msg, double, HeaderMsg
+Nodes (6): ImuMsg, OmniBot.VR.Core, double, HeaderMsg, QuaternionMsg, Vector3Msg
 
 ### Community 224 - "Community 224"
 Cohesion: 0.29
 Nodes (6): OmniBot.VR.Core, ROSAdvertiseMessage, ROSIncomingMessage, ROSPublishMessage, ROSSubscribeMessage, ROSUnsubscribeMessage
 
 ### Community 225 - "Community 225"
-Cohesion: 0.21
-Nodes (8): ABC, Abstract base class for all visuomotor policy adapters.  Every model backend (, Load the model from a specific path or huggingface hub ID., Abstract Base Class for Vision-Language-Action models., Any, Image, ndarray, VLAModel
+Cohesion: 0.23
+Nodes (7): GestureDetector, Boolean, MotionEvent, ScaleGestureDetector, GestureListener, ScaleListener, ScaleListener
 
 ### Community 226 - "Community 226"
 Cohesion: 0.29
@@ -1523,9 +1510,13 @@ Nodes (5): Path, _chunk(), main(), validate_dataset.py ------------------- Valid
 Cohesion: 0.33
 Nodes (3): NetworkModule, Gson, OkHttpClient
 
+### Community 234 - "Community 234"
+Cohesion: 0.25
+Nodes (7): SensorKind, metadata, layersFor(), layerType(), SensorLayer, useSensors(), ViewConsole()
+
 ### Community 235 - "Community 235"
-Cohesion: 0.09
-Nodes (22): 1.1 Camera Setup, 1.2 Teleop Hardware, 1.3 Verify Before Recording, 1. Hardware Setup, 2. Arm Calibration (one-time, when arm arrives), 5.1 Prerequisites, 5.2 Run Fine-Tuning, 5.3 Key Training Arguments (+14 more)
+Cohesion: 0.07
+Nodes (27): 1.1 Camera Setup, 1.2 Teleop Hardware, 1.3 Verify Before Recording, 1. Hardware Setup, 2. Arm Calibration (one-time, when arm arrives), 3.1 Launch Full System, 3.2 Recording Controls (Xbox Controller), 3.3 What Gets Recorded Per Frame (+19 more)
 
 ### Community 236 - "Community 236"
 Cohesion: 0.33
@@ -1600,20 +1591,20 @@ Cohesion: 0.67
 Nodes (3): ruff-format hook, ruff hook, ruff-pre-commit repo
 
 ### Community 332 - "Community 332"
-Cohesion: 0.16
-Nodes (21): isAuthorized(), unauthorizedResponse(), EXPECTED_PRODUCTS, rpc(), getAllPrompts(), getAllResources(), getAllTools(), getResource() (+13 more)
+Cohesion: 0.18
+Nodes (19): isAuthorized(), unauthorizedResponse(), EXPECTED_PRODUCTS, rpc(), getAllPrompts(), getAllResources(), getAllTools(), getResource() (+11 more)
 
 ### Community 337 - "Community 337"
-Cohesion: 0.16
-Nodes (11): Android App Launcher Icon, Mecanum Drive CMakeLists, Mecanum Parameters, Mecanum Drive README, Robot Episode Dataset README, BEV Stitcher Parameters, BEV Stitcher README, ROSBridge Android JitPack Config (+3 more)
+Cohesion: 0.11
+Nodes (17): Android App Launcher Icon, Mecanum Drive CMakeLists, Mecanum Parameters, Mecanum Drive README, Android (JitPack), OmniBot Reusable Packages, Python packages (PyPI), Quick Install (+9 more)
 
 ### Community 344 - "Community 344"
 Cohesion: 0.29
 Nodes (6): [0.1.0] — 2026-01-15, Added, Added — Core robot stack, Changelog, Fixed, [Unreleased]
 
 ### Community 414 - "Community 414"
-Cohesion: 0.15
-Nodes (13): 2026-05-29 — Perception Stack Bringup + Astra Pro Driver, Duplicate node crash root cause (slam_toolbox SIGABRT), Final State at End of Day, Key design decisions, Launch commands, Master Launch Files, Real CPU numbers on Pi 5 (measured at runtime), SLAM 3D Mapping — what each node does (+5 more)
+Cohesion: 0.10
+Nodes (20): 2026-05-29 — Perception Stack Bringup + Astra Pro Driver, Duplicate node crash root cause (slam_toolbox SIGABRT), Final State at End of Day, Key design decisions, Launch commands, Master Launch Files, Mistake 1: Tried ros-jazzy-orbbec-camera first, Mistake 2: Fixed Jazzy headers one at a time instead of batching (+12 more)
 
 ### Community 448 - "Community 448"
 Cohesion: 0.11
@@ -1640,12 +1631,12 @@ Cohesion: 0.13
 Nodes (20): DocsIndexPage(), metadata, Doc, DocGroup, DocMeta, DOCS_ROOT, extractTitle(), fileToSlug() (+12 more)
 
 ### Community 455 - "Community 455"
-Cohesion: 0.28
-Nodes (4): SupabaseAuthService, Action, IEnumerator, VrAuthConfig
+Cohesion: 0.13
+Nodes (15): ErrorResponse, OmniBot.VR.Core.Platform, OtpRequest, RefreshRequest, SessionResponse, SupabaseAuthService, SupabaseUser, VerifyRequest (+7 more)
 
 ### Community 456 - "Community 456"
-Cohesion: 0.12
-Nodes (16): 15. omnibot_description — URDF, 16. packages/yahboom_ros2 — Protocol Library, 17. packages/ros2_bev_stitcher — BEV Node, 18. packages/vla_serve — FastAPI Server, 19. packages/robot_episode_dataset — Dataset Utilities, 20. vla_engine — OpenVLA Model & Server, 23. Root-level Hardware Debug Scripts, Existing test coverage (+8 more)
+Cohesion: 0.08
+Nodes (25): 15. omnibot_description — URDF, 16. packages/yahboom_ros2 — Protocol Library, 17. packages/ros2_bev_stitcher — BEV Node, 18. packages/vla_serve — FastAPI Server, 19. packages/robot_episode_dataset — Dataset Utilities, 20. vla_engine — OpenVLA Model & Server, 21. data_engine — Bag Ingestion Pipeline, 23. Root-level Hardware Debug Scripts (+17 more)
 
 ### Community 459 - "Community 459"
 Cohesion: 0.14
@@ -1704,20 +1695,20 @@ Cohesion: 0.18
 Nodes (11): BEV stitcher (geometric IPM), Nav2 motion limits (must match driver), `omnibot_arm`, `omnibot_bringup`, `omnibot_driver`, `omnibot_hybrid`, `omnibot_lerobot`, `omnibot_navigation` (+3 more)
 
 ### Community 481 - "Community 481"
-Cohesion: 0.25
-Nodes (6): FrameConsole(), INITIAL_PROCESSES, Process, useProcessManager(), TelemetryPoint, useSystemTelemetry()
+Cohesion: 0.09
+Nodes (24): ComplyConsole(), downloadText(), INITIAL_STANDARDS, Requirement, Standard, useCompliance(), FrameConsole(), INITIAL_PROCESSES (+16 more)
 
 ### Community 482 - "Community 482"
 Cohesion: 0.18
 Nodes (10): Build files, Direction pins, Encoders — TIM1, TIM8, TIM9, TIM10 (period 65535), Flashing, OmniBot STM32 Firmware (LEGACY — not active), Pin / peripheral map (from `Core/Inc/main.h` + `Core/Src/tim.c`), PWM (motor speed) — TIM2–TIM5, period 8399, Serial (+2 more)
 
 ### Community 483 - "Community 483"
-Cohesion: 0.40
-Nodes (5): 5.1 What it does, 5.2 Launch, 5.3 Verify topic interface, 5.4 Test command passthrough (simulation), 5. omnibot_driver — Legacy Mecanum Controller
+Cohesion: 0.10
+Nodes (3): META, MuJoCoProvider, SimulatedFrame
 
 ### Community 484 - "Community 484"
-Cohesion: 0.20
-Nodes (6): Before You Start, Contributing to OmniBot, Getting Help, Issue Labels, Submitting a Pull Request, Table of Contents
+Cohesion: 0.11
+Nodes (18): Before You Start, Branch naming, Branch naming for research, Code style, Contributing to OmniBot, Dataset format, Engineering Contributions, Getting Help (+10 more)
 
 ### Community 485 - "Community 485"
 Cohesion: 0.20
@@ -1728,12 +1719,12 @@ Cohesion: 0.20
 Nodes (10): Benchmark any target & auto-publish, Install, Layout, OmniBot Learning Engine, Quickstart: continual learning, Quickstart: one post-training iteration in simulation, Quickstart: record real-robot episodes (on the Pi), Quickstart: verified inference (Best-of-N + safety) (+2 more)
 
 ### Community 487 - "Community 487"
-Cohesion: 0.24
-Nodes (11): ErrorResponse, OmniBot.VR.Core.Platform, OtpRequest, RefreshRequest, SessionResponse, SupabaseUser, VerifyRequest, SupabaseUser (+3 more)
+Cohesion: 0.14
+Nodes (12): benchmarks/kinematics/bench_mecanum_kinematics.py ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~, Numpy vectorized batch integrate_pose — benchmark potential speedup over     th, inverse_kinematics() — body twist → 4 wheel ω (used at 20–100 Hz)., forward_kinematics() — 4 wheel ω → body twist., integrate_pose() — 2× trig per call, critical at 100 Hz odometry., test_bench_forward_kinematics(), test_bench_integrate_pose(), test_bench_integrate_pose_numpy_batch() (+4 more)
 
 ### Community 488 - "Community 488"
-Cohesion: 0.18
-Nodes (10): 1. Network Setup (Crucial), 2. Desktop PC Setup (Inference), 3. Usage Steps, Distributed OpenVLA Setup Guide, On Both Machines (Pi & PC):, Step 1: Start Robot (On Pi), Step 2: Start AI (On PC), Step 3: Send Commands (+2 more)
+Cohesion: 0.16
+Nodes (7): Any, CurriculumScheduler, DomainRandomizer, Curriculum learning and domain randomization.  Both are simulator-agnostic: th, Promotes through stages based on rolling success rate.      Example::, Record an episode result; returns True if the stage advanced., Samples per-episode randomization params from configured ranges and     pushes
 
 ### Community 489 - "Community 489"
 Cohesion: 0.20
@@ -1760,7 +1751,7 @@ Cohesion: 0.22
 Nodes (8): Agent Engine — Architecture, Components, Ports (`core/interfaces.py`), Reuse (not rebuilt) — `integrations/learning_engine.py`, ROS edge (in `omnibot_orchestration`), Testing, The loop (`core/harness.py`), omnibot_orchestration ROS package
 
 ### Community 495 - "Community 495"
-Cohesion: 0.22
+Cohesion: 0.15
 Nodes (8): Benchmark / research checklist, Contribution track, Engineering checklist, Notes for reviewer, Results table, Screenshots / recordings, Summary, Type of change
 
 ### Community 496 - "Community 496"
@@ -1792,8 +1783,8 @@ Cohesion: 0.25
 Nodes (8): Communication Protocol, Data Flow, High-Level Block Diagram, Mecanum Wheel Kinematics, OmniBot Mecanum Wheel Robot - System Workflow, ROS2 Environment (Raspberry Pi 5), System Components Description, Yahboom ROS Robot Expansion Board
 
 ### Community 503 - "Community 503"
-Cohesion: 0.18
-Nodes (13): ACT Model Configuration, Diffusion Policy Configuration, Inference test (standalone, no ROS), Layout, lerobot_engine, Models, Record (standalone, no ROS), See also (+5 more)
+Cohesion: 0.25
+Nodes (8): Inference test (standalone, no ROS), Layout, lerobot_engine, Models, Record (standalone, no ROS), See also, Setup, Train
 
 ### Community 504 - "Community 504"
 Cohesion: 0.25
@@ -1845,15 +1836,15 @@ Nodes (7): 9.1 What it does, 9.2 Launch, 9.3 Verify topics, 9.4 Test joint state
 
 ### Community 516 - "Community 516"
 Cohesion: 0.13
-Nodes (12): OmniBot.VR.Control, TeleopController, bool, float, GestureDetector, HandPose, IDriveScheme, IManipulationScheme (+4 more)
+Nodes (12): CameraFeedController, OmniBot.VR.Control, TeleopController, OVRHand, ProfileDrivenRecorder, bool, float, HandPose (+4 more)
 
 ### Community 517 - "Community 517"
 Cohesion: 0.09
 Nodes (21): auth, anonKey, garageTable, provider, signIn, url, body, display (+13 more)
 
 ### Community 518 - "Community 518"
-Cohesion: 0.39
-Nodes (6): ComplyConsole(), downloadText(), INITIAL_STANDARDS, Requirement, Standard, useCompliance()
+Cohesion: 0.24
+Nodes (6): Any, Episode, Transition, RewardBreakdown, Build from config: ``[{name: goal_progress, weight: 1.0, ...}]``., Recompute rewards for every step of an episode (offline         annotation of d
 
 ### Community 519 - "Community 519"
 Cohesion: 0.53
@@ -1864,8 +1855,8 @@ Cohesion: 0.40
 Nodes (5): _pointcloud_to_sectors(), Project depth pointcloud to 8 horizontal lidar sectors., Project a PointCloud2 message onto the XY plane and compute the minimum     ran, PointCloud2, ndarray
 
 ### Community 521 - "Community 521"
-Cohesion: 0.19
-Nodes (13): FLEET_METRICS, FleetMetrics, REPAIR_LOG, RepairLogEntry, Urgency, WORK_ORDERS, WorkOrder, WorkOrderStatus (+5 more)
+Cohesion: 0.21
+Nodes (12): FLEET_METRICS, FleetMetrics, REPAIR_LOG, RepairLogEntry, Urgency, WORK_ORDERS, WorkOrder, WorkOrderStatus (+4 more)
 
 ### Community 522 - "Community 522"
 Cohesion: 0.40
@@ -1892,16 +1883,16 @@ Cohesion: 0.16
 Nodes (10): GaragePanelController, OmniBot.VR.UI.Garage, RobotCardView, Button, GarageRobot, List, TMP_Text, Transform (+2 more)
 
 ### Community 528 - "Community 528"
-Cohesion: 0.29
-Nodes (7): Mistake 1: Tried ros-jazzy-orbbec-camera first, Mistake 2: Fixed Jazzy headers one at a time instead of batching, Mistake 3: Didn't wait long enough between kill and relaunch, Mistake 4: Wrong wrist camera device path in launch file, Mistake 5: git add on an embedded repo, Mistake 6: Assumed /dev/videoN order matches camera position, Mistakes Made and How They Were Fixed
+Cohesion: 0.20
+Nodes (9): HeaderMsg, OmniBot.VR.Core, PoseMsg, PoseStampedMsg, QuaternionMsg, PoseMsg, QuaternionMsg, Vector3Msg (+1 more)
 
 ### Community 529 - "Community 529"
 Cohesion: 0.40
 Nodes (5): 4.1 What it does, 4.2 Launch, 4.3 Simulate encoder input (hardware not required), 4.4 Unit tests — encoder packet parsing, 4. omnibot_driver — Serial Bridge Node
 
 ### Community 530 - "Community 530"
-Cohesion: 0.29
-Nodes (5): Extract an action vector from OpenVLA's generated text.          OpenVLA model, Run inference using OpenVLA.          Returns:             dict with 'vector', Any, Image, ndarray
+Cohesion: 0.20
+Nodes (4): onnx_providers(), Execution providers for ONNX Runtime sessions on this machine,     best-first,, ``providers`` overrides EP selection outright; otherwise the best         provi, TestDeepX
 
 ### Community 532 - "Community 532"
 Cohesion: 0.14
@@ -1940,32 +1931,32 @@ Cohesion: 0.18
 Nodes (12): FabrikSolver, DualArmManipulationScheme, OmniBot.VR.Control.Manip, bool, float, HandPose, int, IRobotLink (+4 more)
 
 ### Community 546 - "Community 546"
-Cohesion: 0.15
-Nodes (13): AuthorPanel(), CATEGORIES, MarketConsole(), resources, tools, Author, AUTHORS, getAuthor() (+5 more)
+Cohesion: 0.14
+Nodes (14): AuthorPanel(), CATEGORIES, MarketConsole(), resources, tools, Author, AUTHORS, getAuthor() (+6 more)
 
 ### Community 563 - "Community 563"
-Cohesion: 0.50
-Nodes (4): 21. data_engine — Bag Ingestion Pipeline, CLI usage, Verify output structure, Verify Parquet schema
+Cohesion: 0.29
+Nodes (5): Image, BevCalibrator, main(), Detect corners, compute homographies, save to .npz.         Returns True on suc, One-shot ROS 2 node that captures frames, detects checkerboard corners,     com
 
 ### Community 564 - "Community 564"
-Cohesion: 0.15
-Nodes (14): RobotBadge(), useRobot(), PilotConsole(), ServeConsole(), tools, Prediction, PREDICTIONS, TWIN_STATS (+6 more)
+Cohesion: 0.21
+Nodes (9): Prediction, PREDICTIONS, TWIN_STATS, TwinState, WHATIF_RESULTS, WhatIfResult, INITIAL_STATE, useTwinSimulation() (+1 more)
 
 ### Community 565 - "Community 565"
 Cohesion: 0.22
 Nodes (18): cmd_vel_mux.py, langchain_agent_node, mission_planner.py, `omnibot_arm`, `omnibot_bringup`, omnibot_description package, omnibot_firmware package, `omnibot_hybrid` (+10 more)
 
 ### Community 566 - "Community 566"
-Cohesion: 0.17
-Nodes (11): ADAPTERS, AdapterStatus, BridgeAdapter, G1_JOINT_MAP, getAdapter(), JointMapEntry, RosTopic, UNITREE_TOPICS (+3 more)
+Cohesion: 0.15
+Nodes (14): ADAPTERS, AdapterStatus, BridgeAdapter, G1_JOINT_MAP, getAdapter(), JointMapEntry, RosTopic, UNITREE_TOPICS (+6 more)
 
 ### Community 567 - "Community 567"
 Cohesion: 0.18
 Nodes (10): OmniBot.VR.Control, RobotProfileFactory, Dictionary, GarageRobot, float, JointSpec, RobotProfile, RobotTopics (+2 more)
 
 ### Community 568 - "Community 568"
-Cohesion: 0.06
-Nodes (36): ClaudeVLMClient, _encode_png_b64(), VLM clients used as AI judges across the evaluation and reward layers.  ``Clau, Deterministic client for tests and offline dry-runs., StaticVLMClient, classify_outcome(), episode_frames(), _parse_reply() (+28 more)
+Cohesion: 0.05
+Nodes (26): Registry, Multi-objective reward for a single step.      ``terms`` holds the raw (unweig, RewardBreakdown, ExecutionLogCollector, Ingest ros2 bags through the existing ``data_engine`` pipeline     (``data_engi, Ingest episodes written by ``learning_engine/ros2/episode_logger_node``., RosbagCollector, _jsonable() (+18 more)
 
 ### Community 569 - "Community 569"
 Cohesion: 0.20
@@ -1976,8 +1967,8 @@ Cohesion: 0.17
 Nodes (15): OmniBot.VR.Core.Platform, VrAppLink, VrAuthConfig, VrFonts, VrManifest, VrProduct, VrProductSpec, VrTheme (+7 more)
 
 ### Community 571 - "Community 571"
-Cohesion: 0.38
-Nodes (5): _FakeVLAModel, Lightweight stand-in — no ML libraries required., test_openvla_predict_unloaded_raises(), test_predict_success(), test_vla_model_concrete_subclass()
+Cohesion: 0.32
+Nodes (5): ClaudeVLMClient, _encode_png_b64(), VLM clients used as AI judges across the evaluation and reward layers.  ``Clau, ndarray, VLMClient
 
 ### Community 572 - "Community 572"
 Cohesion: 0.19
@@ -1993,11 +1984,11 @@ Nodes (5): IRobotLink, OmniBot.VR.Control, RosBridgeLink, Action, T
 
 ### Community 575 - "Community 575"
 Cohesion: 0.21
-Nodes (8): DriveSchemeBase, OmniBot.VR.Control.Drive, TeleopInput, bool, float, IRobotLink, RobotProfile, TwistMsg
+Nodes (8): DriveSchemeBase, OmniBot.VR.Control.Drive, bool, float, IRobotLink, RobotProfile, TeleopInput, TwistMsg
 
 ### Community 576 - "Community 576"
-Cohesion: 0.22
-Nodes (5): AgentConfig, AGENTS, AgentTransport, ENDPOINT_URL, LinkConsole()
+Cohesion: 0.33
+Nodes (6): 5.1 Prerequisites, 5.2 Run Fine-Tuning, 5.3 Key Training Arguments, 5.4 Training on a Cloud GPU (if no local GPU), 5.5 Monitoring Training, 5. Training SmolVLA
 
 ### Community 577 - "Community 577"
 Cohesion: 0.23
@@ -2020,8 +2011,8 @@ Cohesion: 0.15
 Nodes (12): 1. Project Settings, 2. Fonts (branding parity), 3. Bootstrap GameObject ("OhhoApp"), 4. Camera rig + passthrough, 5. UI panels (world-space, glass, themed), 5a. Login panel, 5b. Console panel, 5c. Garage panel (+4 more)
 
 ### Community 582 - "Community 582"
-Cohesion: 0.18
-Nodes (11): OmniBot.VR.Control, RobotProfile, RobotTopics, DriveKind, List, bool, float, int (+3 more)
+Cohesion: 0.17
+Nodes (12): OmniBot.VR.Control, RobotProfile, RobotTopics, DriveKind, IkLocation, bool, float, int (+4 more)
 
 ### Community 583 - "Community 583"
 Cohesion: 0.23
@@ -2033,7 +2024,7 @@ Nodes (11): Contributor domain entry points, data_engine directory, deploy.py sc
 
 ### Community 585 - "Community 585"
 Cohesion: 0.33
-Nodes (6): Branch naming, Code style, Engineering Contributions, Known gaps (tracked bugs), Parameter changes, Test coverage expectations
+Nodes (3): IDisposable, IVideoSource, OmniBot.VR.Video
 
 ### Community 586 - "Community 586"
 Cohesion: 0.22
@@ -2172,12 +2163,8 @@ Cohesion: 0.29
 Nodes (6): Deployment note (HTTPS ↔ ws://), Extending, How it fits together, OhhO Connect — robot connection layer, Per-robot settings, Protocols
 
 ### Community 620 - "Community 620"
-Cohesion: 0.33
-Nodes (6): Branch naming for research, Dataset format, How to propose a benchmarking experiment, Reporting results, Research & Benchmarking Contributions, What counts as a research contribution
-
-### Community 621 - "Community 621"
-Cohesion: 0.33
-Nodes (6): 4.1 Install Data Engine, 4.2 Single Bag → Dataset Episode, 4.3 Batch Convert All Episodes, 4.4 Dataset Layout, 4.5 Validate the Dataset, 4. Converting Bags → Dataset
+Cohesion: 0.50
+Nodes (4): Connection Errors, Data Validation, Error Handling & Edge Cases, Safety Features
 
 ### Community 622 - "Community 622"
 Cohesion: 0.33
@@ -2263,14 +2250,6 @@ Nodes (5): Extended 16 s variant, OhhO View — Product Video Prompt, Platform c
 Cohesion: 0.40
 Nodes (3): cors, stripe, VALID_AMOUNTS
 
-### Community 643 - "Community 643"
-Cohesion: 0.33
-Nodes (6): Android (JitPack), OmniBot Reusable Packages, Python packages (PyPI), Quick Install, Release Status, ROS 2 packages (Jazzy)
-
-### Community 644 - "Community 644"
-Cohesion: 0.40
-Nodes (4): Given an image and natural language instruction, predict the robot action., Any, Image, ndarray
-
 ### Community 645 - "Community 645"
 Cohesion: 0.40
 Nodes (4): ScriptableObject, OhhoFontSet, OmniBot.VR.UI.Theme, TMP_FontAsset
@@ -2290,14 +2269,6 @@ Nodes (3): DriveKindIds, OmniBot.VR.Control, string
 ### Community 651 - "Community 651"
 Cohesion: 0.67
 Nodes (3): Architecture & Data Flow, Complete topic map, High-level diagram
-
-### Community 654 - "Community 654"
-Cohesion: 0.40
-Nodes (5): 3.1 Launch Full System, 3.2 Recording Controls (Xbox Controller), 3.3 What Gets Recorded Per Frame, 3.4 Episode Quality Guidelines, 3. Recording Teleoperation Episodes
-
-### Community 655 - "Community 655"
-Cohesion: 0.40
-Nodes (5): Device 2: Raspberry Pi 5 (The Robot), Step 1: Login, Step 2: Build (If code changed), Step 3: Launch Drivers, Step 4: Launch Camera (Crucial for VLA)
 
 ### Community 656 - "Community 656"
 Cohesion: 0.40
@@ -2323,14 +2294,6 @@ Nodes (5): 25. CI/CD Pipeline, Check CI status, Known gaps, Run CI locally (act)
 Cohesion: 0.40
 Nodes (5): 6.1 What it does, 6.2 Launch, 6.3 Expected sequence, 6.4 Custom command test, 6. omnibot_driver — Hardware Test Node
 
-### Community 662 - "Community 662"
-Cohesion: 0.50
-Nodes (4): Connection Errors, Data Validation, Error Handling & Edge Cases, Safety Features
-
-### Community 663 - "Community 663"
-Cohesion: 0.67
-Nodes (3): ndarray, Generate tiled homographies matching bev_stitcher_node fallback path., _tiled_homographies()
-
 ## Ambiguous Edges - Review These
 - ``ros2_bev_stitcher`` → `Android App`  [AMBIGUOUS]
   AGENTS.md · relation: references
@@ -2338,9 +2301,9 @@ Nodes (3): ndarray, Generate tiled homographies matching bev_stitcher_node fallb
   .github/workflows/deploy-website.yml · relation: semantically_similar_to
 
 ## Knowledge Gaps
-- **2079 isolated node(s):** `OmniBot.VR.Control`, `Transform`, `OmniBot.VR.Control.Drive`, `TwistMsg`, `OmniBot.VR.Control.Drive` (+2074 more)
+- **2121 isolated node(s):** `OmniBot.VR.Control.Manip`, `float`, `ArmIKSolver`, `string`, `bool` (+2116 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **117 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **115 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -2349,12 +2312,12 @@ _Questions this graph is uniquely positioned to answer:_
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **What is the exact relationship between `README.md` and `Deploy Website Workflow`?**
   _Edge tagged AMBIGUOUS (relation: semantically_similar_to) - confidence is low._
-- **Why does `AgentNode` connect `Community 4` to `Community 65`, `Community 101`, `Community 7`, `Community 44`, `Community 16`, `Community 59`?**
-  _High betweenness centrality (0.034) - this node is a cross-community bridge._
-- **Why does `ReplayDataset` connect `Community 101` to `Community 0`, `Community 1`, `Community 2`, `Community 97`, `Community 4`, `Community 103`, `Community 63`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `EpisodeLoggerNode` connect `Community 97` to `Community 44`, `Community 63`?**
-  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `AgentNode` connect `Community 4` to `Community 65`, `Community 7`, `Community 44`, `Community 16`, `Community 568`, `Community 59`?**
+  _High betweenness centrality (0.031) - this node is a cross-community bridge._
+- **Why does `ReplayDataset` connect `Community 568` to `Community 0`, `Community 1`, `Community 4`, `Community 101`, `Community 103`, `Community 181`, `Community 26`, `Community 63`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `EpisodeLoggerNode` connect `Community 101` to `Community 44`, `Community 63`?**
+  _High betweenness centrality (0.012) - this node is a cross-community bridge._
 - **Are the 53 inferred relationships involving `WorldState` (e.g. with `Goal` and `Reflection`) actually correct?**
   _`WorldState` has 53 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 57 inferred relationships involving `ToolResult` (e.g. with `Goal` and `Reflection`) actually correct?**

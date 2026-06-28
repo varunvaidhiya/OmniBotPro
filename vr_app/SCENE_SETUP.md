@@ -98,15 +98,27 @@ input → drive + hand-IK → ROS every frame.
      retargeting to this point.
    - `linkProvider` → optional; leave null to use the `RosBridgeLink` singleton
      (wraps `ROSBridgeClient`).
-3. On the **`OhhoVrApp`** bootstrap component, assign the new fields:
-   - `garagePanelController` → the scene `GaragePanelController`.
+ 3. On the **`OhhoVrApp`** bootstrap component, assign the new fields:
+   - `garagePanelController` → the scene `GaragePanelController` (or `fleetPanelController` for the enhanced fleet view with quick-resume).
    - `teleopController` → the `TeleopController` above.
+   - `onboarding` → the scene `OnboardingController` (optional; shows first-run hints).
+4. **Camera feed** — add a `CameraFeedController` to a world-space panel with a
+   `RawImage` + `TMP_Text` overlay. Assign `displayImage` + `cameraNameOverlay`.
+   On `TeleopController`, assign the `cameraFeed` field so it gets configured
+   with the robot's camera topics on `StartTeleop`.
+5. **Recording** — add a `ProfileDrivenRecorder` MonoBehaviour. Assign it on
+   `TeleopController.recorder` so it subscribes to the profile's topics.
+6. **Onboarding panel** — a world-space Canvas with drive/manip/safety `TMP_Text`
+   fields + the `OnboardingController` component. Dismissed by B button or a
+   dismiss button; only shows once (reset via `OnboardingController.Reset()`).
 
 `OhhoVrApp` subscribes to `GaragePanelController.RobotPicked`: when the user
 selects a robot it builds a `RobotProfile` (`RobotProfileFactory.FromGarageRobot`
-— drive kind + arm DOF + joint limits + ROS topics from the catalog), calls
-`TeleopController.StartTeleop(profile)`, and routes to the teleop view (all
-app-shell panels hidden; the floating HUD + camera feed take over).
+— drive kind + arm DOF + joint limits + ROS topics from the catalog), applies
+per-robot calibration (`CalibrationManager.Load` + `ApplyTo`), saves it as the
+last robot (`LastRobotStore.Save` for quick-resume), calls
+`TeleopController.StartTeleop(profile)`, routes to the teleop view, and shows
+the onboarding hints on the first session.
 
 The legacy `Input/BaseController.cs` + `Input/HandTrackingArmController.cs`
 MonoBehaviours are superseded by `TeleopController` — remove them from the scene

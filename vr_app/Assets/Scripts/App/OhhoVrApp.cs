@@ -33,8 +33,14 @@ namespace OmniBot.VR.App
         [Header("Teleop (Phase 2)")]
         [Tooltip("The garage panel controller — listened to for robot selection.")]
         [SerializeField] private GaragePanelController garagePanelController;
+        [Tooltip("The fleet panel controller — enhanced garage with quick-resume. Optional.")]
+        [SerializeField] private FleetPanelController fleetPanelController;
         [Tooltip("The teleop control layer. Receives the selected robot's profile.")]
         [SerializeField] private TeleopController teleopController;
+
+        [Header("Phase 5 — polish")]
+        [Tooltip("First-run onboarding overlay. Shows control hints on the first teleop session.")]
+        [SerializeField] private OnboardingController onboarding;
 
         private void Awake()
         {
@@ -48,6 +54,11 @@ namespace OmniBot.VR.App
             if (platform != null) platform.OnLoaded += OnManifestLoaded;
             if (auth != null) auth.OnAuthChanged += OnAuthChanged;
             if (garagePanelController != null) garagePanelController.RobotPicked += OnRobotPicked;
+            if (fleetPanelController != null)
+            {
+                fleetPanelController.RobotPicked += OnRobotPicked;
+                fleetPanelController.QuickResume += OnQuickResume;
+            }
         }
 
         private void OnDisable()
@@ -55,6 +66,11 @@ namespace OmniBot.VR.App
             if (platform != null) platform.OnLoaded -= OnManifestLoaded;
             if (auth != null) auth.OnAuthChanged -= OnAuthChanged;
             if (garagePanelController != null) garagePanelController.RobotPicked -= OnRobotPicked;
+            if (fleetPanelController != null)
+            {
+                fleetPanelController.RobotPicked -= OnRobotPicked;
+                fleetPanelController.QuickResume -= OnQuickResume;
+            }
         }
 
         private void Start()
@@ -120,8 +136,60 @@ namespace OmniBot.VR.App
                 Debug.LogWarning("[OhhoVrApp] TeleopController not assigned — cannot start teleop.");
                 return;
             }
+
+            // Phase 5: apply per-robot calibration (workspace offsets, IK location, velocity caps)
+            var cal = CalibrationManager.Load(profile.RobotId);
+            CalibrationManager.ApplyTo(profile, cal);
+
+            // Save as the last robot for quick-resume
+            var conn = OmniBot.VR.Core.ConnectionManager.Instance;
+            LastRobotStore.Save(profile.RobotId, robot.DisplayName,
+                conn != null ? conn.CurrentIp : "192.168.1.101",
+                conn != null ? conn.CurrentPort : 9090);
+
             teleopController.StartTeleop(profile);
             ShowTeleop();
+
+            // Phase 5: show onboarding hints on the first session
+            if (onboarding != null)
+                onboarding.ShowIfFirstTime(teleopController.DriveHint, teleopController.ManipHint);
+        }
+
+        /// <summary>
+        /// Quick-resume: jump straight into teleop with the last-driven robot.
+        /// Resolves the saved robot id from the catalog, builds + calibrates the
+        /// profile, and starts teleop. Falls back to the garage if the robot is
+        /// no longer in the user's account.
+        /// </summary>
+        private void OnQuickResume()
+        {
+            if (!LastRobotStore.HasLastRobot)
+            {
+                ShowGarage();
+                return;
+            }
+
+            string robotId = LastRobotStore.LastRobotId;
+            var catalog = OhhoCatalog.Instance;
+            if (catalog == null || !catalog.IsLoaded) { ShowGarage(); return; }
+
+            // Find the robot in the user's garage by hardware model id
+            var garageClient = GarageClient.Instance;
+            if (garageClient == null) { ShowGarage(); return; }
+
+            garageClient.GetUserRobots((robots, err) =>
+            {
+                if (err != null || robots == null) { ShowGarage(); return; }
+                Core.Platform.UserRobot match = null;
+                foreach (var r in robots)
+                {
+                    if (r.HardwareModelId == robotId) { match = r; break; }
+                }
+                if (match == null) { ShowGarage(); return; }
+                var resolved = catalog.Resolve(match);
+                if (resolved == null) { ShowGarage(); return; }
+                OnRobotPicked(resolved);
+            });
         }
 
         /// <summary>Stop teleoperation and return to the garage.</summary>
