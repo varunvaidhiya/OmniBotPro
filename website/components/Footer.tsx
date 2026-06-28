@@ -1,13 +1,13 @@
 "use client";
 
-import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF } from "@/lib/site";
+import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF, OS_HREF } from "@/lib/site";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
 // Full marketing footer links (visitors / free users).
-const ALL_LINKS = ["Products", "Pricing", "Docs", "GitHub", "Team", "Contact"];
+const ALL_LINKS = ["OhhO OS", "Products", "Pricing", "Docs", "GitHub", "Team", "Contact"];
 // Dev-focused footer links for subscribed users — no product/pricing/team marketing.
-const DEV_LINKS = ["Docs", "GitHub", "Contact"];
+const DEV_LINKS = ["OhhO OS", "Docs", "GitHub", "Contact"];
 
 export default function Footer() {
   const { user, subscription } = useAuth();
@@ -16,6 +16,7 @@ export default function Footer() {
 
   const footerHref = (link: string): string => {
     switch (link) {
+      case "OhhO OS": return OS_HREF;
       case "Products": return "/#products";
       case "Pricing": return "/#pricing";
       case "Docs": return DOCS_HREF;

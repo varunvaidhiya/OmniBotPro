@@ -6,7 +6,7 @@
  * For a signed-in user with an active subscription, the home page IS the
  * console: they're redirected to /console so their focus stays on their
  * robots, not on product/pricing marketing. Visitors and free users see the
- * full marketing site (hero, products, pricing, CTA).
+ * full marketing site (hero, OhhO OS umbrella, products, pricing, CTA).
  */
 
 import { useEffect } from "react";
@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
+import OhhoOS from "@/components/OhhoOS";
 import Products from "@/components/Products";
 import HowItWorks from "@/components/HowItWorks";
 import Pricing from "@/components/Pricing";
@@ -51,6 +52,7 @@ export default function Home() {
       <main>
         <Hero />
         <StatsBar />
+        <OhhoOS />
         <Products />
         <HowItWorks />
         <Pricing />
