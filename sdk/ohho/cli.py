@@ -28,7 +28,9 @@ def _cmd_doctor(args) -> int:
     print(f"  adapters    : {', '.join(available_adapters())}  (others via extras)")
     print(f"  device      : {resolve_device('auto')}")
     print(f"  robots      : {', '.join(s.id for s in list_specs())}")
-    print("  recommended : runtime=native  (ROS 2 backend arrives in a later milestone)")
+    print(
+        "  recommended : runtime=native  (ROS 2 backend arrives in a later milestone)"
+    )
     return 0
 
 
@@ -56,7 +58,9 @@ def _cmd_connect(args) -> int:
         time.sleep(0.3)
         t = bot.telemetry()
         if t and t.odom:
-            print(f"  odom   : x={t.odom.x:.3f} y={t.odom.y:.3f} theta={t.odom.theta:.3f}")
+            print(
+                f"  odom   : x={t.odom.x:.3f} y={t.odom.y:.3f} theta={t.odom.theta:.3f}"
+            )
         if t and t.battery is not None:
             print(f"  battery: {t.battery * 100:.0f}%")
     finally:
@@ -70,7 +74,9 @@ def _cmd_sim(args) -> int:
     except UnknownRobot as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
-    print(f"simulating {bot.spec.name} — driving a pattern for {args.seconds:.0f}s (Ctrl-C to stop)")
+    print(
+        f"simulating {bot.spec.name} — driving a pattern for {args.seconds:.0f}s (Ctrl-C to stop)"
+    )
     try:
         i = 0
         end = time.monotonic() + args.seconds
@@ -108,7 +114,9 @@ def _cmd_drive(args) -> int:
         print(f"error: {e}", file=sys.stderr)
         return 2
     try:
-        print(f"driving {bot.spec.id}: vx={args.vx} vy={args.vy} w={args.w} for {args.seconds:.0f}s")
+        print(
+            f"driving {bot.spec.id}: vx={args.vx} vy={args.vy} w={args.w} for {args.seconds:.0f}s"
+        )
         end = time.monotonic() + args.seconds
         while time.monotonic() < end:
             bot.drive(vx=args.vx, vy=args.vy, w=args.w)
@@ -117,7 +125,9 @@ def _cmd_drive(args) -> int:
         time.sleep(0.1)
         t = bot.telemetry()
         if t and t.odom:
-            print(f"final odom: x={t.odom.x:.3f} y={t.odom.y:.3f} theta={t.odom.theta:.3f}")
+            print(
+                f"final odom: x={t.odom.x:.3f} y={t.odom.y:.3f} theta={t.odom.theta:.3f}"
+            )
     finally:
         bot.disconnect()
     return 0
@@ -137,18 +147,28 @@ def _cmd_agent(args) -> int:
     return 0
 
 
-def _add_robot_args(sp: argparse.ArgumentParser, transport_default: Optional[str] = None) -> None:
+def _add_robot_args(
+    sp: argparse.ArgumentParser, transport_default: Optional[str] = None
+) -> None:
     sp.add_argument("robot", help="robot id (see `ohho list`)")
-    sp.add_argument("--transport", default=transport_default, help="transport URI, e.g. sim://")
+    sp.add_argument(
+        "--transport", default=transport_default, help="transport URI, e.g. sim://"
+    )
     sp.add_argument("--runtime", default="auto", choices=["auto", "native", "ros2"])
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="ohho", description="OhhO OS — the open robot engine.")
-    p.add_argument("-V", "--version", action="store_true", help="print version and exit")
+    p = argparse.ArgumentParser(
+        prog="ohho", description="OhhO OS — the open robot engine."
+    )
+    p.add_argument(
+        "-V", "--version", action="store_true", help="print version and exit"
+    )
     sub = p.add_subparsers(dest="command")
 
-    sub.add_parser("doctor", help="show environment, runtimes, adapters and robots").set_defaults(func=_cmd_doctor)
+    sub.add_parser(
+        "doctor", help="show environment, runtimes, adapters and robots"
+    ).set_defaults(func=_cmd_doctor)
     sub.add_parser("list", help="list built-in robots").set_defaults(func=_cmd_list)
     sub.add_parser("version", help="print version").set_defaults(func=_cmd_version)
 
@@ -171,7 +191,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("agent", help="hand a natural-language goal to the agent")
     _add_robot_args(a)
-    a.add_argument("goal", help="the goal, e.g. \"explore the room\"")
+    a.add_argument("goal", help='the goal, e.g. "explore the room"')
     a.set_defaults(func=_cmd_agent)
 
     return p

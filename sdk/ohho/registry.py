@@ -110,7 +110,9 @@ def get_spec(robot_id: str) -> RobotSpec:
         return _REGISTRY[robot_id]
     except KeyError:
         known = ", ".join(sorted(_REGISTRY))
-        raise UnknownRobot(f"unknown robot '{robot_id}'. Known robots: {known}") from None
+        raise UnknownRobot(
+            f"unknown robot '{robot_id}'. Known robots: {known}"
+        ) from None
 
 
 def list_specs() -> list[RobotSpec]:

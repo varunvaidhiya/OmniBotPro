@@ -138,6 +138,8 @@ class Robot:
         return f"<Robot {self.spec.id} via {kind} on {self._rt.name}>"
 
 
-def connect(robot_id: str, transport: Optional[str] = None, runtime: str = "auto") -> Robot:
+def connect(
+    robot_id: str, transport: Optional[str] = None, runtime: str = "auto"
+) -> Robot:
     """Module-level shortcut for :meth:`Robot.connect`."""
     return Robot.connect(robot_id, transport=transport, runtime=runtime)

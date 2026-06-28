@@ -35,10 +35,14 @@ class NativeRuntime(Runtime):
     def now(self) -> float:
         return time.monotonic()
 
-    def create_timer(self, period_s: float, callback: Callable[[], None]) -> TimerHandle:
+    def create_timer(
+        self, period_s: float, callback: Callable[[], None]
+    ) -> TimerHandle:
         handle = TimerHandle()
         with self._lock:
-            self._timers.append(_Timer(period_s, callback, self.now() + period_s, handle))
+            self._timers.append(
+                _Timer(period_s, callback, self.now() + period_s, handle)
+            )
         return handle
 
     def start(self) -> None:
