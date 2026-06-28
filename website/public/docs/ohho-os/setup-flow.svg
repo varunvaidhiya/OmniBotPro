@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" fill="none" font-family="system-ui, sans-serif">
+  <rect width="800" height="400" rx="16" fill="#0a0e1a"/>
+  <!-- Step 1: Install -->
+  <rect x="30" y="40" width="170" height="280" rx="12" fill="#0d1424" stroke="#00d4ff" stroke-width="1.5"/>
+  <circle cx="115" cy="70" r="18" fill="#00d4ff" opacity="0.15"/>
+  <text x="115" y="76" text-anchor="middle" fill="#00d4ff" font-size="18" font-weight="700">1</text>
+  <text x="115" y="108" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="600">Install</text>
+  <rect x="50" y="125" width="130" height="55" rx="6" fill="#0a0e1a" stroke="#1e2a44"/>
+  <text x="60" y="145" fill="#00d4ff" font-size="11" font-family="monospace">$ pip install</text>
+  <text x="60" y="162" fill="#00d4ff" font-size="11" font-family="monospace">  'ohho-os[base]'</text>
+  <text x="115" y="210" text-anchor="middle" fill="#8b9bb4" font-size="11">Python 3.10+</text>
+  <text x="115" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">Any OS · No ROS</text>
+  <text x="115" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">needed</text>
+  <rect x="55" y="270" width="120" height="28" rx="6" fill="#00d4ff" opacity="0.1" stroke="#00d4ff" stroke-width="0.8"/>
+  <text x="115" y="288" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="600">ohho doctor</text>
+  <!-- Arrow -->
+  <line x1="200" y1="180" x2="230" y2="180" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="228,175 228,185 235,180" fill="#2a3654"/>
+  <!-- Step 2: Connect -->
+  <rect x="235" y="40" width="170" height="280" rx="12" fill="#0d1424" stroke="#00d4ff" stroke-width="1.5"/>
+  <circle cx="320" cy="70" r="18" fill="#00d4ff" opacity="0.15"/>
+  <text x="320" y="76" text-anchor="middle" fill="#00d4ff" font-size="18" font-weight="700">2</text>
+  <text x="320" y="108" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="600">Connect</text>
+  <rect x="255" y="125" width="130" height="55" rx="6" fill="#0a0e1a" stroke="#1e2a44"/>
+  <text x="265" y="145" fill="#00d4ff" font-size="11" font-family="monospace">from ohho import</text>
+  <text x="265" y="162" fill="#00d4ff" font-size="11" font-family="monospace">  Robot</text>
+  <text x="320" y="210" text-anchor="middle" fill="#8b9bb4" font-size="11">sim:// — built-in sim</text>
+  <text x="320" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">serial:// — Yahboom</text>
+  <text x="320" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">dds:// — Unitree</text>
+  <rect x="260" y="270" width="120" height="28" rx="6" fill="#00d4ff" opacity="0.1" stroke="#00d4ff" stroke-width="0.8"/>
+  <text x="320" y="288" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="600">ohho connect omnibot</text>
+  <!-- Arrow -->
+  <line x1="405" y1="180" x2="435" y2="180" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="433,175 433,185 440,180" fill="#2a3654"/>
+  <!-- Step 3: Control -->
+  <rect x="440" y="40" width="170" height="280" rx="12" fill="#0d1424" stroke="#a78bfa" stroke-width="1.5"/>
+  <circle cx="525" cy="70" r="18" fill="#a78bfa" opacity="0.15"/>
+  <text x="525" y="76" text-anchor="middle" fill="#a78bfa" font-size="18" font-weight="700">3</text>
+  <text x="525" y="108" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="600">Control</text>
+  <rect x="460" y="125" width="130" height="55" rx="6" fill="#0a0e1a" stroke="#1e2a44"/>
+  <text x="470" y="145" fill="#a78bfa" font-size="11" font-family="monospace">bot.drive(vx=0.2)</text>
+  <text x="470" y="162" fill="#a78bfa" font-size="11" font-family="monospace">bot.move_joints(...)</text>
+  <text x="525" y="210" text-anchor="middle" fill="#8b9bb4" font-size="11">Capability-gated</text>
+  <text x="525" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">Same API on any robot</text>
+  <text x="525" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">ROS or no-ROS</text>
+  <rect x="465" y="270" width="120" height="28" rx="6" fill="#a78bfa" opacity="0.1" stroke="#a78bfa" stroke-width="0.8"/>
+  <text x="525" y="288" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">ohho drive omnibot</text>
+  <!-- Arrow -->
+  <line x1="610" y1="180" x2="640" y2="180" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="638,175 638,185 645,180" fill="#2a3654"/>
+  <!-- Step 4: Automate -->
+  <rect x="645" y="40" width="130" height="280" rx="12" fill="#0d1424" stroke="#a78bfa" stroke-width="1.5"/>
+  <circle cx="710" cy="70" r="18" fill="#a78bfa" opacity="0.15"/>
+  <text x="710" y="76" text-anchor="middle" fill="#a78bfa" font-size="18" font-weight="700">4</text>
+  <text x="710" y="108" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="600">Automate</text>
+  <rect x="660" y="125" width="100" height="55" rx="6" fill="#0a0e1a" stroke="#1e2a44"/>
+  <text x="670" y="145" fill="#a78bfa" font-size="10" font-family="monospace">Agent(bot).run(</text>
+  <text x="670" y="162" fill="#a78bfa" font-size="10" font-family="monospace">  "explore")</text>
+  <text x="710" y="210" text-anchor="middle" fill="#8b9bb4" font-size="11">Record → Train</text>
+  <text x="710" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">→ Serve</text>
+  <text x="710" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">→ Skills</text>
+  <rect x="655" y="270" width="110" height="28" rx="6" fill="#a78bfa" opacity="0.1" stroke="#a78bfa" stroke-width="0.8"/>
+  <text x="710" y="288" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">ohho agent</text>
+  <!-- Bottom label -->
+  <text x="400" y="360" text-anchor="middle" fill="#6b7a99" font-size="12">From zero to a moving robot in 4 steps — less than 5 minutes</text>
+</svg>

@@ -7,8 +7,11 @@ changing a single argument.
 ```python
 Robot.connect("omnibot", runtime="native")   # no ROS — pip and go
 Robot.connect("omnibot", runtime="ros2")      # full ROS 2 stack
-Robot.connect("omnibot")                        # auto-detect
+Robot.connect("omnibot")                        # auto-detect (prefers ros2)
 ```
+
+`get_runtime("auto")` prefers `ros2` when rclpy is available, and falls back to
+`native` otherwise — so the same code runs on both backends with zero changes.
 
 ## At a glance
 
@@ -30,6 +33,51 @@ Robot.connect("omnibot")                        # auto-detect
 Note that the intelligence rows — agent, training, data, serving — are identical
 on both runtimes. Only the robotics middleware differs.
 
+## The native runtime
+
+`NativeRuntime` is a pure-Python threaded scheduler. It provides:
+
+- **Timers** — a background thread fires registered timers at their period.
+- **Pub/sub** — an in-process message bus (`subscribe`/`publish`).
+- **Parameters** — an in-memory key-value store (`get_param`/`set_param`).
+
+No ROS, no DDS, no heavy dependencies. Runs anywhere Python runs.
+
+## The ROS 2 runtime
+
+`Ros2Runtime` wraps an rclpy node. It provides:
+
+- **Timers** — via `node.create_timer(period, callback)`.
+- **Pub/sub** — via ROS 2 topics. The generic bus uses `std_msgs/String` with
+  JSON-encoded payloads. `Ros2Transport` uses real message types (`Twist`,
+  `Odometry`, `JointState`) for hardware topics.
+- **Parameters** — via `node.declare_parameter` / `node.get_parameter`.
+- **Spinning** — `start()` spins the node in a background thread; `stop()`
+  cleans up all timers, publishers, subscriptions, and shuts down rclpy.
+
+### ROS 2 transport
+
+`Ros2Transport` bridges the unified Transport interface to real ROS 2 topics:
+
+| OhhO | ROS 2 topic | Message type |
+|---|---|---|
+| `send_velocity()` | `/cmd_vel` | `geometry_msgs/Twist` |
+| `read()` odom | `/odom` | `nav_msgs/Odometry` |
+| `read()` joints | `/arm/joint_states` | `sensor_msgs/JointState` |
+| `send_joint_command()` | `/arm/joint_commands` | `sensor_msgs/JointState` |
+
+Namespace prefixes supported: `ros2:///robot1` → `/robot1/cmd_vel`, etc.
+
+### Auto-detect
+
+```python
+# On a ROS 2 machine: auto picks ros2
+bot = Robot.connect("omnibot", "ros2://")  # full ROS 2 stack
+
+# On a laptop: auto picks native
+bot = Robot.connect("omnibot")  # sim or direct driver
+```
+
 ## Choose no-ROS if…
 
 - You are getting started, or running a single robot
@@ -41,7 +89,7 @@ on both runtimes. Only the robotics middleware differs.
 **Advantage over ROS:** zero setup friction, lightweight, pure Python, runs
 anywhere.
 
-## Choose ROS 2 if…
+## Choose ROS 2 if...
 
 - You need Nav2, SLAM or MoveIt 2
 - You are running multiple robots, or multiple machines

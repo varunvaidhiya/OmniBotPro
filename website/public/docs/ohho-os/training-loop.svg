@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" fill="none" font-family="system-ui, sans-serif">
+  <rect width="800" height="300" rx="16" fill="#0a0e1a"/>
+  <text x="400" y="30" text-anchor="middle" fill="#e2e8f0" font-size="14" font-weight="700">The Record → Train → Serve Loop</text>
+  <!-- Record box -->
+  <rect x="30" y="60" width="200" height="100" rx="10" fill="#0d1424" stroke="#00d4ff" stroke-width="1.5"/>
+  <text x="130" y="88" text-anchor="middle" fill="#00d4ff" font-size="14" font-weight="700">Record</text>
+  <text x="130" y="110" text-anchor="middle" fill="#8b9bb4" font-size="11">ohho.data.Recorder</text>
+  <text x="130" y="128" text-anchor="middle" fill="#8b9bb4" font-size="11">9-D state + action frames</text>
+  <text x="130" y="146" text-anchor="middle" fill="#8b9bb4" font-size="11">LeRobot v2.0 (Parquet)</text>
+  <!-- Arrow -->
+  <line x1="230" y1="110" x2="270" y2="110" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="268,105 268,115 275,110" fill="#2a3654"/>
+  <!-- Train box -->
+  <rect x="275" y="60" width="200" height="100" rx="10" fill="#0d1424" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="375" y="88" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="700">Train</text>
+  <text x="375" y="110" text-anchor="middle" fill="#8b9bb4" font-size="11">ohho.train.finetune()</text>
+  <text x="375" y="128" text-anchor="middle" fill="#8b9bb4" font-size="11">smolvla · act · diffusion</text>
+  <text x="375" y="146" text-anchor="middle" fill="#8b9bb4" font-size="11">device="auto" · mock mode</text>
+  <!-- Arrow -->
+  <line x1="475" y1="110" x2="515" y2="110" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="513,105 513,115 520,110" fill="#2a3654"/>
+  <!-- Serve box -->
+  <rect x="520" y="60" width="200" height="100" rx="10" fill="#0d1424" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="620" y="88" text-anchor="middle" fill="#fbbf24" font-size="14" font-weight="700">Serve</text>
+  <text x="620" y="110" text-anchor="middle" fill="#8b9bb4" font-size="11">ohho.serve (FastAPI)</text>
+  <text x="620" y="128" text-anchor="middle" fill="#8b9bb4" font-size="11">POST /predict</text>
+  <text x="620" y="146" text-anchor="middle" fill="#8b9bb4" font-size="11">image + instruction → action</text>
+  <!-- Loop back arrow -->
+  <path d="M 620 160 Q 620 220 400 220 Q 130 220 130 160" stroke="#2a3654" stroke-width="2" fill="none" stroke-dasharray="5 3"/>
+  <polygon points="125,158 135,158 130,165" fill="#2a3654"/>
+  <text x="375" y="245" text-anchor="middle" fill="#6b7a99" font-size="11">continual learning — the robot keeps improving in the field</text>
+  <!-- Agent box below -->
+  <rect x="275" y="190" width="250" height="50" rx="8" fill="#0d1424" stroke="#34d399" stroke-width="1"/>
+  <text x="400" y="212" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">Agent: perceive → reason → act → reflect</text>
+  <text x="400" y="228" text-anchor="middle" fill="#8b9bb4" font-size="10">uses trained policies as tools</text>
+</svg>

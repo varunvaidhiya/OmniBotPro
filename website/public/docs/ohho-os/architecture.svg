@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" fill="none" font-family="system-ui, sans-serif">
+  <rect width="800" height="520" rx="16" fill="#0a0e1a"/>
+  <!-- Layer: Your Code -->
+  <rect x="40" y="30" width="720" height="70" rx="10" fill="#0d1424" stroke="#1e2a44"/>
+  <text x="400" y="58" text-anchor="middle" fill="#8b9bb4" font-size="12" font-weight="600" letter-spacing="2">YOUR CODE</text>
+  <text x="400" y="82" text-anchor="middle" fill="#e2e8f0" font-size="16" font-weight="500">Agent (Mind) · Train · Data · Serve · Skills</text>
+  <!-- Arrow down -->
+  <line x1="400" y1="100" x2="400" y2="130" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="395,128 405,128 400,135" fill="#2a3654"/>
+  <!-- Layer: Robot Abstraction Layer -->
+  <rect x="40" y="135" width="720" height="75" rx="10" fill="#0e1628" stroke="#00d4ff" stroke-width="1.5"/>
+  <text x="400" y="160" text-anchor="middle" fill="#00d4ff" font-size="12" font-weight="600" letter-spacing="2">ROBOT ABSTRACTION LAYER</text>
+  <text x="400" y="188" text-anchor="middle" fill="#e2e8f0" font-size="15">Robot · drive() · move_joints() · telemetry() · has(capability)</text>
+  <!-- Arrow down splits -->
+  <line x1="400" y1="210" x2="400" y2="225" stroke="#2a3654" stroke-width="2"/>
+  <line x1="200" y1="225" x2="600" y2="225" stroke="#2a3654" stroke-width="2"/>
+  <line x1="200" y1="225" x2="200" y2="245" stroke="#2a3654" stroke-width="2"/>
+  <line x1="600" y1="225" x2="600" y2="245" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="195,243 205,243 200,250" fill="#2a3654"/>
+  <polygon points="595,243 605,243 600,250" fill="#2a3654"/>
+  <!-- Runtime port -->
+  <rect x="120" y="250" width="280" height="95" rx="10" fill="#0d1424" stroke="#00d4ff" stroke-width="1.5"/>
+  <text x="260" y="278" text-anchor="middle" fill="#00d4ff" font-size="13" font-weight="700">Native Runtime</text>
+  <text x="260" y="300" text-anchor="middle" fill="#8b9bb4" font-size="12">No ROS · pure Python</text>
+  <text x="260" y="318" text-anchor="middle" fill="#8b9bb4" font-size="12">threaded scheduler</text>
+  <text x="260" y="336" text-anchor="middle" fill="#8b9bb4" font-size="12">direct drivers</text>
+  <rect x="400" y="250" width="280" height="95" rx="10" fill="#0d1424" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="540" y="278" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">ROS 2 Runtime</text>
+  <text x="540" y="300" text-anchor="middle" fill="#8b9bb4" font-size="12">rclpy · Nav2 · SLAM</text>
+  <text x="540" y="318" text-anchor="middle" fill="#8b9bb4" font-size="12">MoveIt 2 · DDS</text>
+  <text x="540" y="336" text-anchor="middle" fill="#8b9bb4" font-size="12">ros2_control</text>
+  <!-- Arrows down to adapters -->
+  <line x1="260" y1="345" x2="260" y2="370" stroke="#2a3654" stroke-width="2"/>
+  <line x1="540" y1="345" x2="540" y2="370" stroke="#2a3654" stroke-width="2"/>
+  <polygon points="255,368 265,368 260,375" fill="#2a3654"/>
+  <polygon points="535,368 545,368 540,375" fill="#2a3654"/>
+  <!-- Adapters row -->
+  <rect x="40" y="375" width="720" height="65" rx="10" fill="#0d1424" stroke="#1e2a44"/>
+  <text x="400" y="398" text-anchor="middle" fill="#8b9bb4" font-size="12" font-weight="600" letter-spacing="2">ADAPTERS</text>
+  <!-- Adapter chips -->
+  <rect x="60" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
+  <text x="105" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">sim</text>
+  <rect x="160" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
+  <text x="205" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">yahboom</text>
+  <rect x="260" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
+  <text x="305" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">feetech</text>
+  <rect x="360" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#a78bfa" stroke-width="0.8"/>
+  <text x="405" y="425" text-anchor="middle" fill="#a78bfa" font-size="11">unitree-dds</text>
+  <rect x="460" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#a78bfa" stroke-width="0.8"/>
+  <text x="505" y="425" text-anchor="middle" fill="#a78bfa" font-size="11">ros2</text>
+  <rect x="560" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#1e2a44"/>
+  <text x="605" y="425" text-anchor="middle" fill="#8b9bb4" font-size="11">dji</text>
+  <rect x="660" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#1e2a44"/>
+  <text x="705" y="425" text-anchor="middle" fill="#8b9bb4" font-size="11">composite</text>
+  <!-- Hardware row -->
+  <rect x="40" y="455" width="720" height="50" rx="10" fill="#0a0e1a" stroke="#1e2a44" stroke-dasharray="4 4"/>
+  <text x="400" y="475" text-anchor="middle" fill="#8b9bb4" font-size="12" font-weight="600" letter-spacing="2">HARDWARE</text>
+  <text x="400" y="493" text-anchor="middle" fill="#6b7a99" font-size="11">OmniBot · Unitree Go2 · SO-101 Arm · DJI Drones · Any ROS 2 Robot · Sim</text>
+</svg>

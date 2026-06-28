@@ -20,7 +20,7 @@ const DIFFERENTIATORS = [
   {
     title: "ROS optional — never required",
     body:
-      "Most agentic robot stacks force a choice: go all-in on ROS, or abandon it entirely. OhhO OS runs both ways — a lightweight pure-Python runtime or the full ROS 2 stack — and you switch between them with a single argument.",
+      "Most agentic robot stacks force a choice: go all-in on ROS, or abandon it entirely. OhhO OS runs both ways — a lightweight pure-Python runtime or the full ROS 2 stack — and you switch with a single argument. get_runtime(\"auto\") detects ROS 2 automatically.",
     icon: Network,
   },
   {
@@ -30,15 +30,15 @@ const DIFFERENTIATORS = [
     icon: GitBranch,
   },
   {
-    title: "The whole lifecycle, one engine",
+    title: "Agent · Train · Serve — built in",
     body:
-      "Other frameworks stop at control. OhhO OS also carries perception, data, training, simulation, fleet and safety — the same engine from first prototype to certified fleet.",
+      "A real perceive→reason→act→reflect agent brain, record→train→serve training pipeline, and a skill market — all from the same pip install. Mock mode for sim loops, device=\"auto\" everywhere.",
     icon: Layers,
   },
   {
     title: "Open source, zero lock-in",
     body:
-      "MIT / Apache licensed. Self-host every line, bring your own models and data, and move to OhhO Cloud only when you want managed GPUs, training and fleet operations.",
+      "Apache-2.0 licensed. 151 tests passing. Self-host every line, bring your own models and data, and move to OhhO Cloud only when you want managed GPUs, training and fleet operations.",
     icon: Cpu,
   },
 ];
@@ -80,7 +80,7 @@ export default function OhhoOS() {
                 <span className="text-cyan">OhhO</span> OS
               </div>
               <div className="font-mono text-[11px] tracking-[0.04em]" style={{ color: "rgba(255,255,255,0.55)" }}>
-                Python · ROS 2 · No-ROS · Agents · Training
+                v1.0.0 · Python · ROS 2 · No-ROS · Agent · Train · Serve · Skills
               </div>
             </GlassCard>
           </div>
@@ -144,16 +144,23 @@ export default function OhhoOS() {
 
           <div className="flex items-center gap-[14px] flex-wrap justify-center">
             <Link
-              href={OS_HREF}
+              href={`${DOCS_HREF}/ohho-os/setup`}
               className="inline-flex items-center gap-2 text-sm font-semibold px-[24px] py-[12px] rounded-lg transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
             >
-              Explore OhhO OS <ArrowRight size={15} strokeWidth={2.5} />
+              Setup Guide <ArrowRight size={15} strokeWidth={2.5} />
+            </Link>
+            <Link
+              href={OS_HREF}
+              className="inline-flex items-center gap-2 text-sm font-medium px-[24px] py-[12px] rounded-lg transition-all duration-200 hover:opacity-90"
+              style={{ background: "rgba(255,255,255,0.04)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.16)" }}
+            >
+              Explore OhhO OS
             </Link>
             <Link
               href={`${DOCS_HREF}/ohho-os`}
-              className="inline-flex items-center gap-2 text-sm font-medium px-[24px] py-[12px] rounded-lg transition-all duration-200 hover:opacity-90"
-              style={{ background: "rgba(255,255,255,0.04)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.16)" }}
+              className="inline-flex items-center gap-2 text-sm font-medium px-[24px] py-[12px] rounded-lg transition-all duration-200"
+              style={{ color: "rgba(255,255,255,0.55)" }}
             >
               Read the docs
             </Link>

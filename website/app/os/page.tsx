@@ -4,16 +4,50 @@ import Footer from "@/components/Footer";
 import { DOCS_HREF, GITHUB_HREF } from "@/lib/site";
 
 export const metadata = {
-  title: "OhhO OS — The Open Robot Engine | OhhO",
+  title: "OhhO OS v1.0.0 — The Open Robot Engine | OhhO",
   description:
-    "OhhO OS is the open-source, robot-agnostic engine that powers every OhhO product. Control any robot with or without ROS, switch hardware without rewriting, and train policies — all from one engine.",
+    "OhhO OS v1.0.0 is the open-source, robot-agnostic engine that powers every OhhO product. Control any robot with or without ROS, agent brain, data collection, training, serving, skills — all from one pip install.",
 };
+
+// ── v1.0.0 Feature pillars ────────────────────────────────────────────────────
+const FEATURE_PILLARS: { icon: string; title: string; body: string }[] = [
+  {
+    icon: "Control",
+    title: "6 adapters · 2 runtimes",
+    body: "sim, Yahboom serial, Feetech arm, Unitree DDS, ROS 2 topics, and composite (base+arm merge). Native runtime or ROS 2 — auto-detects which is available.",
+  },
+  {
+    icon: "Agent",
+    title: "Real agent brain",
+    body: "HarnessBrain wires agent_engine — perceive→reason→act→reflect with Claude tool-calling. Tools built automatically from robot capabilities. ScriptedBrain fallback needs zero deps.",
+  },
+  {
+    icon: "Train",
+    title: "Record → Train → Serve",
+    body: "Recorder captures 9-D state+action to LeRobot v2.0. finetune() delegates to lerobot_engine (smolvla/act/diffusion/openvla). FastAPI server with /predict endpoint.",
+  },
+  {
+    icon: "Skills",
+    title: "Skill market",
+    body: "@skill decorator, ohho market list/run, 4 built-in skills (patrol, wave, stop, status). Capability-gated — a skill that needs manipulation won't run on a base-only robot.",
+  },
+  {
+    icon: "Profiles",
+    title: "Hardware profiles",
+    body: "5 built-in profiles (pi_workstation, jetson_single, workstation_single, mac_dev, edge_cpu). ohho profile detect auto-detects your machine. device=\"auto\" everywhere.",
+  },
+  {
+    icon: "CLI",
+    title: "10 CLI commands",
+    body: "ohho doctor list version connect sim drive agent serve market profile — everything from diagnostics to serving a policy, from one command.",
+  },
+];
 
 // ── Differentiators (deliberately competitor-agnostic) ───────────────────────
 const DIFFERENTIATORS: { title: string; body: string }[] = [
   {
     title: "ROS optional — never required",
-    body: "Most agentic robot stacks force a choice: go all-in on ROS, or abandon it entirely. OhhO OS runs both ways — a lightweight pure-Python runtime or the full ROS 2 stack — and you switch with a single argument.",
+    body: "Most agentic robot stacks force a choice: go all-in on ROS, or abandon it entirely. OhhO OS runs both ways — a lightweight pure-Python runtime or the full ROS 2 stack — and you switch with a single argument. get_runtime(\"auto\") detects ROS 2 automatically.",
   },
   {
     title: "Truly robot-agnostic",
@@ -21,19 +55,19 @@ const DIFFERENTIATORS: { title: string; body: string }[] = [
   },
   {
     title: "The whole lifecycle, one engine",
-    body: "Other frameworks stop at control. OhhO OS also carries perception, data collection, training, simulation, fleet and safety — the same engine from first prototype to certified fleet.",
+    body: "Other frameworks stop at control. OhhO OS also carries the agent brain, data collection, training, serving, and skills — the same engine from first prototype to deployed fleet.",
   },
   {
     title: "Agent-native by design",
-    body: "A continuous perceive → reason → act → reflect loop is built in, with a pluggable brain — cloud or on-device. Agents are first-class, not bolted on after the fact.",
+    body: "A continuous perceive → reason → act → reflect loop powered by agent_engine with a Claude tool-calling reasoner. Tools are built automatically from the robot's capabilities. ScriptedBrain fallback needs zero deps.",
   },
   {
     title: "Training built in",
-    body: "Collect demonstrations, fine-tune VLA, imitation and RL policies, and run continual learning from the same library you control robots with — not a separate toolchain.",
+    body: "Record demonstrations → fine-tune VLA policies (SmolVLA, ACT, diffusion, OpenVLA) → serve over REST → close the loop. All with device=\"auto\" hardware detection. Mock mode for sim loops — no GPU needed.",
   },
   {
     title: "Open source, zero lock-in",
-    body: "MIT / Apache licensed. Self-host every line, bring your own models and data, and move to OhhO Cloud only when you want managed GPUs, training and fleet operations.",
+    body: "Apache-2.0 licensed. 151 tests passing. Self-host every line, bring your own models and data, and move to OhhO Cloud only when you want managed GPUs, training and fleet operations.",
   },
 ];
 
@@ -59,8 +93,8 @@ const ROBOT_CATEGORIES = [
 ];
 
 const ADAPTERS = [
-  "Unitree DDS", "DJI MAVLink", "Modbus", "EtherCAT", "Yahboom serial",
-  "ROSBridge", "Web Serial", "Bluetooth LE", "Simulator",
+  "Simulator", "Yahboom serial", "Feetech arm", "Unitree DDS", "ROS 2 topics", "Composite",
+  "DJI MAVLink", "Modbus", "EtherCAT", "ROSBridge", "Web Serial", "+ more",
 ];
 
 function cellColor(v: string): string {
@@ -110,28 +144,48 @@ export default function OhhoOsPage() {
 
           <div className="flex flex-wrap items-center gap-3 mb-20">
             <Link
-              href={`${DOCS_HREF}/ohho-os`}
+              href={`${DOCS_HREF}/ohho-os/setup`}
               className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
             >
-              Read the docs →
+              Setup Guide →
+            </Link>
+            <Link
+              href={`${DOCS_HREF}/ohho-os`}
+              className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg transition-all duration-200"
+              style={{ background: "rgba(255,255,255,0.04)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.16)" }}
+            >
+              Read the docs
             </Link>
             <a
               href={GITHUB_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg transition-all duration-200"
-              style={{ background: "rgba(255,255,255,0.04)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.16)" }}
+              style={{ color: "rgba(255,255,255,0.6)" }}
             >
               View on GitHub
             </a>
-            <Link
-              href="/#products"
-              className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg transition-all duration-200"
-              style={{ color: "rgba(255,255,255,0.6)" }}
-            >
-              Browse the 19 products
-            </Link>
+          </div>
+
+          {/* ── v1.0.0 Features ── */}
+          <SectionHeading kicker="v1.0.0" title="What's in the box" />
+          <p className="text-[15px] leading-[1.7] max-w-2xl mb-10" style={{ color: "rgba(255,255,255,0.6)" }}>
+            Six adapters, two runtimes, a real agent brain, the record→train→serve loop,
+            a skill market, hardware profiles, and ten CLI commands — 151 tests, Apache-2.0.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-24">
+            {FEATURE_PILLARS.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-2xl p-5 backdrop-blur-md"
+                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
+              >
+                <div className="font-mono text-[10px] tracking-widest uppercase mb-2" style={{ color: "var(--cyan)" }}>{f.icon}</div>
+                <div className="font-display text-[16px] font-semibold mb-2 legible">{f.title}</div>
+                <p className="text-[13px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.58)" }}>{f.body}</p>
+              </div>
+            ))}
           </div>
 
           {/* ── Why it is different ── */}
@@ -253,10 +307,12 @@ export default function OhhoOsPage() {
           <SectionHeading kicker="Get started" title="From install to a moving robot" />
           <ol className="space-y-4 mb-10">
             {[
-              ["Install", "pip install 'ohho-os[base]' — add [unitree], [dji], [ros2], [train] or [all] as you need them."],
-              ["Connect", "Robot.connect(\"omnibot\") picks a runtime automatically, or pass runtime=\"native\" / \"ros2\"."],
-              ["Control", "Drive the base, command joints, or hand a goal to the built-in agent: agent.run(\"find the red cup\")."],
-              ["Train", "Record demonstrations with ohho.data, fine-tune with ohho.train, and serve the policy back to the robot."],
+              ["Install", "pip install 'ohho-os[base]' — add [serial], [arm], [unitree], [agent], [train], [serve] or [ros2] as you need them."],
+              ["Connect", "Robot.connect(\"omnibot\") auto-detects the runtime, or pass transport=\"sim://\" / \"serial://\" / \"dds://\" / \"ros2://\"."],
+              ["Control", "bot.drive(vx=0.2), bot.move_joints([...]), bot.telemetry() — same API on any robot. Capability-gated, safe no-ops."],
+              ["Automate", "Agent(bot).run(\"explore the room\") — perceive→reason→act→reflect loop with Claude tool-calling."],
+              ["Train & Serve", "Recorder → finetune() → ohho serve — record→train→serve loop with mock mode for sim (no GPU needed)."],
+              ["Skills", "ohho market list / ohho market run omnibot patrol — 4 built-in skills, or write your own with @skill."],
             ].map(([t, b], i) => (
               <li key={t} className="flex gap-4">
                 <span className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-mono text-[12px] font-semibold" style={{ background: "var(--cyan)", color: "var(--bg)" }}>{i + 1}</span>
@@ -267,13 +323,22 @@ export default function OhhoOsPage() {
               </li>
             ))}
           </ol>
-          <Link
-            href={`${DOCS_HREF}/ohho-os`}
-            className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
-            style={{ background: "var(--cyan)", color: "var(--bg)" }}
-          >
-            Read the full documentation →
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href={`${DOCS_HREF}/ohho-os/setup`}
+              className="inline-flex items-center gap-2 text-sm font-semibold px-6 py-3 rounded-lg transition-all duration-200 hover:-translate-y-0.5"
+              style={{ background: "var(--cyan)", color: "var(--bg)" }}
+            >
+              Read the setup guide →
+            </Link>
+            <Link
+              href={`${DOCS_HREF}/ohho-os`}
+              className="inline-flex items-center gap-2 text-sm font-medium px-6 py-3 rounded-lg transition-all duration-200"
+              style={{ background: "rgba(255,255,255,0.04)", color: "var(--text)", border: "1px solid rgba(255,255,255,0.16)" }}
+            >
+              Full documentation
+            </Link>
+          </div>
         </div>
       </main>
       <Footer />
