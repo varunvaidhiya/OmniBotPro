@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OmniBot.VR.Core.Platform;
 using OmniBot.VR.Control;
+using OmniBot.VR.UI.Selection;
 
 namespace OmniBot.VR.UI.Garage
 {
@@ -25,11 +26,18 @@ namespace OmniBot.VR.UI.Garage
         [SerializeField] private RobotCardView cardPrefab;
         [SerializeField] private TMP_Text statusText;
         [SerializeField] private Button refreshButton;
+        [SerializeField] private Button addRobotButton;
 
         [Header("Quick-resume")]
         [SerializeField] private GameObject quickResumeBanner;
         [SerializeField] private TMP_Text quickResumeLabel;
         [SerializeField] private Button quickResumeButton;
+
+        [Header("Add-robot flow (Phase 1)")]
+        [Tooltip("The robot selection controller. Opened when Add Robot is pressed.")]
+        [SerializeField] private RobotSelectionController selectionController;
+        [Tooltip("The selection flow panel (hidden until Add Robot is pressed).")]
+        [SerializeField] private GameObject selectionPanel;
 
         private readonly List<GameObject> _spawned = new List<GameObject>();
 
@@ -43,6 +51,13 @@ namespace OmniBot.VR.UI.Garage
         {
             if (refreshButton != null) refreshButton.onClick.AddListener(Reload);
             if (quickResumeButton != null) quickResumeButton.onClick.AddListener(() => QuickResume?.Invoke());
+            if (addRobotButton != null) addRobotButton.onClick.AddListener(OpenAddRobot);
+            if (selectionController != null)
+            {
+                selectionController.OnRobotAdded += OnRobotAdded;
+                selectionController.OnCancelled += CloseAddRobot;
+            }
+            if (selectionPanel != null) selectionPanel.SetActive(false);
             UpdateQuickResumeBanner();
             Reload();
         }
@@ -50,6 +65,12 @@ namespace OmniBot.VR.UI.Garage
         private void OnDisable()
         {
             if (refreshButton != null) refreshButton.onClick.RemoveListener(Reload);
+            if (addRobotButton != null) addRobotButton.onClick.RemoveListener(OpenAddRobot);
+            if (selectionController != null)
+            {
+                selectionController.OnRobotAdded -= OnRobotAdded;
+                selectionController.OnCancelled -= CloseAddRobot;
+            }
         }
 
         public void Reload()
@@ -141,6 +162,25 @@ namespace OmniBot.VR.UI.Garage
         private void SetStatus(string s)
         {
             if (statusText != null) statusText.text = s;
+        }
+
+        // ── Phase 1: add-robot flow ──────────────────────────────────────────────
+
+        private void OpenAddRobot()
+        {
+            if (selectionPanel != null) selectionPanel.SetActive(true);
+            selectionController?.Open();
+        }
+
+        private void CloseAddRobot()
+        {
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+        }
+
+        private void OnRobotAdded(UserRobot robot)
+        {
+            CloseAddRobot();
+            Reload();
         }
     }
 }

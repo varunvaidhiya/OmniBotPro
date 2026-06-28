@@ -3800,8 +3800,8 @@
     "semantic_hash": ""
   },
   "vr_app/Assets/Scripts/UI/Garage/GaragePanelController.cs": {
-    "mtime": 1782604101.2127488,
-    "ast_hash": "1f9433a9f7a27e0afa4e993fe7ea25a8",
+    "mtime": 1782606074.87886,
+    "ast_hash": "ff3a1e1789f55f13caab85e83a982572",
     "semantic_hash": ""
   },
   "vr_app/Assets/Scripts/UI/Garage/RobotCardView.cs": {
@@ -4310,13 +4310,13 @@
     "semantic_hash": ""
   },
   "vr_app/MULTI_ROBOT_TELEOP_ARCHITECTURE.md": {
-    "mtime": 1782605921.7650015,
-    "ast_hash": "6ca62657ff4d516182b79eadc75953bb",
+    "mtime": 1782606120.5185735,
+    "ast_hash": "6e478b0aaf5ae4f4b1330629479f9207",
     "semantic_hash": ""
   },
   "vr_app/SCENE_SETUP.md": {
-    "mtime": 1782605931.7261105,
-    "ast_hash": "8ee08baf0860cec49d6aa22e094568a9",
+    "mtime": 1782606131.1447704,
+    "ast_hash": "8a3b22d31744e5f6961e2ef878ba6cb0",
     "semantic_hash": ""
   },
   "website/MCP_SETUP.md": {
@@ -4630,13 +4630,38 @@
     "semantic_hash": ""
   },
   "vr_app/Assets/Scripts/UI/Garage/FleetPanelController.cs": {
-    "mtime": 1782605838.0412354,
-    "ast_hash": "51d2ef27216aff05358aceef9ad7bfe5",
+    "mtime": 1782606096.4123785,
+    "ast_hash": "1ac4b16f5d5682cdc136df2b4b0be055",
     "semantic_hash": ""
   },
   "vr_app/Assets/Scripts/UI/OnboardingController.cs": {
     "mtime": 1782605823.3843174,
     "ast_hash": "63a3a764ed877ca0cb153b86167271e5",
+    "semantic_hash": ""
+  },
+  "vr_app/Assets/Scripts/UI/Selection/CategoryCardView.cs": {
+    "mtime": 1782606026.855338,
+    "ast_hash": "3dc650a836cadbc8242b400717f723a2",
+    "semantic_hash": ""
+  },
+  "vr_app/Assets/Scripts/UI/Selection/ModelCardView.cs": {
+    "mtime": 1782606031.0184853,
+    "ast_hash": "b97c35dbda399a20fc003758b4ee4514",
+    "semantic_hash": ""
+  },
+  "vr_app/Assets/Scripts/UI/Selection/RobotSelectionController.cs": {
+    "mtime": 1782606053.9339597,
+    "ast_hash": "fa547de6537fffb1091a55fc32ee22d0",
+    "semantic_hash": ""
+  },
+  "vr_app/Assets/Scripts/UI/Selection/SelectionState.cs": {
+    "mtime": 1782606024.4756815,
+    "ast_hash": "3bdbbf1efb6b8e04f7f1714486ab9abe",
+    "semantic_hash": ""
+  },
+  "vr_app/Assets/Scripts/UI/Selection/TypeCardView.cs": {
+    "mtime": 1782606028.4736786,
+    "ast_hash": "1866ec8e3bb5492453b956c508c6d8d5",
     "semantic_hash": ""
   }
 }

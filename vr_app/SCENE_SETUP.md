@@ -82,8 +82,36 @@ micro-labels). Primary buttons use **`AccentButton`** (PrimaryCyan).
 - A list container `listParent`, status `TMP_Text`, optional "Refresh" `Button`.
 - **Robot card prefab**: name + model `ThemedText`, a category `Image` dot, a
   `Button`; add **`RobotCardView`**.
-- Add **`GaragePanelController`**; assign `listParent`, `cardPrefab`, `statusText`,
-  `refreshButton`.
+- Add **`GaragePanelController`** (or **`FleetPanelController`** for the enhanced
+  fleet view with quick-resume + status badges); assign `listParent`, `cardPrefab`,
+  `statusText`, `refreshButton`.
+- An **"Add Robot"** `Button` — assign `addRobotButton`. Opens the selection flow.
+
+### 5c-bis. Add-robot selection flow (Phase 1)
+A five-step spatial wizard mirroring the website's `RobotSelector`:
+**categories → types → models → name → confirm**. One world-space panel with five
+child step panels, three card prefabs, and a `RobotSelectionController`.
+
+1. Create a world-space Canvas **"SelectionPanel"** (hidden by default) with five
+   child GameObjects: `CategoryStep`, `TypeStep`, `ModelStep`, `NameStep`,
+   `ConfirmStep`. Each has a list container (`Transform`) for its cards.
+2. Add **`RobotSelectionController`** and assign:
+   - The five step panels + their list containers (`categoryListParent`,
+     `typeListParent`, `modelListParent`).
+   - Three card prefabs: **`CategoryCardView`** (label + blurb + color dot),
+     **`TypeCardView`** (name + tagline), **`ModelCardView`** (name +
+     manufacturer + specs summary).
+   - `backButton`, `cancelButton`, `stepHeader` (TMP_Text).
+   - Name step: `nameInput` (TMP_InputField) + `nameNextButton`.
+   - Confirm step: `confirmSummary` (TMP_Text) + `confirmButton`.
+   - `statusText` for errors/success.
+3. On the **garage/fleet panel**, assign `selectionController` → this controller
+   and `selectionPanel` → the SelectionPanel. The Add-Robot button opens it;
+   `OnRobotAdded` closes it and reloads the garage.
+
+On confirm, `RobotSelectionController` calls `GarageClient.AddUserRobot`, which
+writes a row to Supabase `user_robots` — the same table the website/app use — so
+the new robot immediately appears in the garage ready to teleoperate.
 
 ### 5d. Teleop controller (Phase 2)
 The teleop control layer — receives the selected robot's profile and pumps VR
