@@ -12,8 +12,8 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 // open engine that sits on top of (and powers) every product.
 const MARKETING_LINKS = ["OhhO OS", "Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
 // Lean links for any signed-in user — no product/pricing/team marketing clutter.
-// Docs stays available after sign-in (it's public reference, not a console).
-const DEV_LINKS = ["Docs", "Link"];
+// OhhO OS + Docs stay available after sign-in (the engine + public reference).
+const DEV_LINKS = ["OhhO OS", "Docs", "Link"];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);

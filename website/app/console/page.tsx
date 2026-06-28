@@ -12,7 +12,8 @@
  */
 
 import { Suspense, useCallback, useEffect, useState } from "react";
-import { Loader2, Bot, Plug } from "lucide-react";
+import { Loader2, Bot, Plug, Cpu } from "lucide-react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 
 import Nav from "@/components/Nav";
@@ -150,8 +151,31 @@ function ConsoleHub() {
             </p>
           </div>
 
-          {/* OhhO Link — AI agent connector */}
-          <div className="mb-8">
+          {/* OhhO OS + OhhO Link — the engine + AI agent connector */}
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {/* OhhO OS — the open engine */}
+            <Link href="/os">
+              <GlassCard accent="cyan" interactive padding="20px" radius={16}>
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ color: "var(--cyan)", background: "rgba(0,212,255,0.12)", border: "1px solid rgba(0,212,255,0.24)" }}>
+                    <Cpu size={18} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[14px]">OhhO OS</span>
+                      <span className="inline-flex items-center gap-1 text-[8.5px] font-mono font-semibold px-1.5 py-[2px] rounded-full" style={{ background: "rgba(0,212,255,0.16)", color: "var(--cyan)", border: "1px solid rgba(0,212,255,0.32)" }}>
+                        v1.0.0
+                      </span>
+                    </div>
+                    <div className="text-[12px] mt-0.5 leading-[1.5]" style={{ color: "rgba(255,255,255,0.52)" }}>
+                      The open engine — 6 adapters, 2 runtimes, agent brain, train &amp; serve, skills
+                    </div>
+                  </div>
+                </div>
+              </GlassCard>
+            </Link>
+
+            {/* OhhO Link — AI agent connector */}
             <a href="/link">
               <GlassCard accent="cyan" interactive padding="20px" radius={16}>
                 <div className="flex items-start gap-3">
