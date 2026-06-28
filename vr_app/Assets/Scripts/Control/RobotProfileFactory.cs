@@ -36,6 +36,12 @@ namespace OmniBot.VR.Control
         private const float So101Link3 = 0.080f;
         private const float So101BaseHeight = 0.350f;
 
+        // SO-101 link lengths array (for the generic FABRIK solver).
+        private static readonly float[] So101LinkLengths = { So101Link1, So101Link2, So101Link3 };
+
+        // Generic default link length when a flagship arm's geometry is unknown.
+        private const float GenericLinkLength = 0.10f;
+
         // Hand-tracking workspace radius (matches the old RobotConfig constant).
         private const float HandWorkspaceRadius = 0.40f;
 
@@ -107,10 +113,12 @@ namespace OmniBot.VR.Control
                 IsUnderwater = isUnderwater,
                 IsStationary = isStationary,
                 IsLegged = isLegged,
+                IsDualArm = category == "humanoid",
                 Topics = BuildTopics(spec.BaseDof, hasArm, category, jointStatesTopic),
                 HandWorkspaceRadius = HandWorkspaceRadius,
                 ArmBaseHeight = hasArm ? So101BaseHeight : 0f,
                 ArmMaxReach = hasArm ? So101Link1 + So101Link2 + So101Link3 : 0f,
+                ArmLinkLengths = hasArm ? (float[])So101LinkLengths.Clone() : null,
             };
         }
 
@@ -151,6 +159,8 @@ namespace OmniBot.VR.Control
                     p.MaxAngVel = 1.0f;
                     p.ArmBaseHeight = So101BaseHeight;
                     p.ArmMaxReach = So101Link1 + So101Link2 + So101Link3;
+                    p.ArmLinkLengths = (float[])So101LinkLengths.Clone();
+                    p.IsDualArm = false;
                     // OmniBot publishes arm commands + enables on the arm_ topics.
                     p.Topics.ArmCommands = "/arm/joint_commands";
                     p.Topics.ArmEnable = "/arm/enable";
@@ -161,6 +171,25 @@ namespace OmniBot.VR.Control
                     p.ArmDof = 6;
                     p.ArmBaseHeight = So101BaseHeight;
                     p.ArmMaxReach = So101Link1 + So101Link2 + So101Link3;
+                    p.ArmLinkLengths = (float[])So101LinkLengths.Clone();
+                    break;
+                case "ur5e":
+                    // UR5e: 6-DOF, 850 mm reach. Link lengths approximate from UR spec.
+                    p.ArmDof = 6;
+                    p.ArmBaseHeight = 0.180f;
+                    p.ArmMaxReach = 0.850f;
+                    p.ArmLinkLengths = new float[] { 0.425f, 0.392f, 0.033f };
+                    p.IsDualArm = false;
+                    break;
+                case "unitree-g1":
+                case "unitree-h1":
+                case "figure-02":
+                    // Humanoid dual-arm: two 7-DOF arms driven by two hands.
+                    p.IsDualArm = true;
+                    p.ArmDof = 14;
+                    p.ArmBaseHeight = 1.20f;
+                    p.ArmMaxReach = 0.70f;
+                    p.ArmLinkLengths = new float[] { 0.20f, 0.20f, 0.15f, 0.05f, 0.05f, 0.05f };
                     break;
             }
         }

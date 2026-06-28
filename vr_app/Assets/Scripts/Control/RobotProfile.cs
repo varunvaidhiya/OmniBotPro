@@ -54,6 +54,16 @@ namespace OmniBot.VR.Control
         public float ArmBaseHeight;
         /// <summary>Max arm reach (sum of link lengths), metres. 0 if no arm.</summary>
         public float ArmMaxReach;
+        /// <summary>
+        /// Link lengths between consecutive arm joints, metres. Used by the
+        /// generic FABRIK solver for non-SO-101 arms. For SO-101 these are
+        /// [0.117, 0.133, 0.080] (upper arm, forearm, wrist). Empty if the arm
+        /// geometry is unknown — the solver falls back to equal-length segments.
+        /// </summary>
+        public float[] ArmLinkLengths;
+
+        /// <summary>True if this is a dual-arm humanoid (two arms driven by two hands).</summary>
+        public bool IsDualArm;
 
         public int TotalDof => ArmDof + BaseDof;
     }

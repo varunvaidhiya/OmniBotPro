@@ -1,6 +1,6 @@
 # Multi-Robot VR Teleoperation — Architecture & Build Plan
 
-> Status: **Phase 0a–0c + Phase 2 implemented** (platform contract, app shell, garage sync, glass UI + passthrough, profile-driven teleop control layer) · generalization to other drive kinds is next
+> Status: **Phase 0a–0c + Phase 2–3 implemented** (platform contract, app shell, garage sync, glass UI + passthrough, profile-driven teleop, generalized drive + manipulation schemes) · telepresence video is next
 > Target headset: **Meta Quest 3 / 3S** (mixed reality, passthrough)
 > Scope: extend `vr_app/` from a single hardcoded OmniBot controller into a
 > **catalog-driven, any-robot** mixed-reality teleoperation app whose robot list,
@@ -75,6 +75,34 @@ scene/prefab work in the editor._
 - **Wiring** — `GaragePanelController.RobotPicked` event → `OhhoVrApp` builds the
   profile → `TeleopController.StartTeleop(profile)` → routes to the teleop view.
   Selecting a robot in the garage now starts driving it.
+
+### Implemented in this branch (Phase 3 — generalized drive + manipulation)
+
+- **`DriveSchemeBase`** — abstract base class extracting the shared e-stop
+  (both-grips), turbo (right grip), dead-zone, 20 Hz publish-timing and
+  control-mode management from `MecanumDriveScheme`. Every drive scheme
+  inherits it and only implements `ComputeVelocity` → `TwistMsg`.
+- **`DifferentialDriveScheme`** — `[v, ω]` for differential / skid-steer /
+  tracked / rocker-bogie / unknown bases (TurtleBot 4, tracked robots).
+- **`AckermannDriveScheme`** — `[v, δ]` for car-like steering.
+- **`AerialDriveScheme`** — `[vx, vy, vz, ω]` for quadrotors / hexacopters /
+  VTOLs (mode-2 RC mapping: left stick = throttle + yaw, right = translate).
+  Idle mode reverts to `"offboard"` instead of `"nav2"`.
+- **`ThrusterDriveScheme`** — `[surge, sway, heave, yaw]` for underwater ROVs.
+- **`FabrikSolver`** — generic FABRIK IK for arbitrary serial chains, driven by
+  `RobotProfile.ArmLinkLengths` + `JointSpec` limits. Used for non-SO-101 arms
+  and dual-arm humanoids where the analytic SO-101 solver doesn't apply.
+- **`GripperOnlyScheme`** — pinch → gripper for robots with a single-DOF
+  gripper and no arm joints (drones, simple AMRs).
+- **`DualArmManipulationScheme`** — two hands → two arms for humanoids (Unitree
+  G1, Figure 02). Two independent `FabrikSolver` chains, published in one
+  `JointState` message with `r_` / `l_` prefixed joint names.
+- **`ControlSchemeFactory`** — dispatches every `DriveKind` to its scheme and
+  every arm topology (1-DOF gripper / 6-DOF hand-IK / 7+ DOF dual-arm / 2–5 DOF
+  generic) to its manipulation scheme.
+- **`RobotProfile`** — added `ArmLinkLengths` (link geometry for FABRIK) and
+  `IsDualArm` flag; `RobotProfileFactory` sets them for flagship arms (SO-101,
+  UR5e, Unitree G1/H1, Figure 02).
 
 ---
 
@@ -405,7 +433,7 @@ the catalog as an SVG/sprite atlas so VR and web share iconography.
 | **0c — Glass design system + MR** ✅ | `OhhO/Glass` shader + `OhhoTheme`-driven components (GlassPanel/ThemedText/AccentButton/ThemeApplier + OhhoFontSet), passthrough bootstrap + floating world-space panels; scene-assembly guide | VR `Shaders/OhhoGlass.shader`, `UI/Theme/`, `MR/`, `SCENE_SETUP.md` |
 | **1 — Robot selection (add)** | spatial "add robot" flow mirroring `RobotSelector` (categories → types → models), writing back to `user_robots` | VR `UI/Selection/` |
 | **2 — Profile + OmniBot end-to-end** ✅ | `RobotProfile` from catalog (`RobotProfileFactory`); `MecanumDriveScheme` + `HandIK6DofScheme`; full OmniBot drive+arm in MR; `IRobotLink` transport abstraction; `TeleopController` + garage→teleop wiring | `Control/RobotProfile.cs`, `Control/RobotProfileFactory.cs`, `Control/Drive/*`, `Control/Manip/*`, `Control/{IRobotLink,ControlSchemeFactory,TeleopController}.cs`, `App/OhhoVrApp.cs`, `UI/Garage/GaragePanelController.cs` |
-| **3 — Generalize** | `IDriveScheme`/`IManipulationScheme` factories; differential, ackermann, quadrotor, quadruped, dual-arm; generic IK (FABRIK/BioIK) | `Control/Drive/*`, `Control/Manip/*` |
+| **3 — Generalize** ✅ | `DriveSchemeBase` shared infrastructure + `DifferentialDriveScheme`, `AckermannDriveScheme`, `AerialDriveScheme`, `ThrusterDriveScheme`; legged reuses mecanum (gait gestures = Phase 5); `FabrikSolver` generic IK; `GripperOnlyScheme`, `DualArmManipulationScheme`; `ControlSchemeFactory` dispatches all drive kinds + arm topologies; `ArmLinkLengths` + `IsDualArm` on `RobotProfile` | `Control/Drive/{DriveSchemeBase,Differential,Ackermann,Aerial,Thruster}DriveScheme.cs`, `Control/Manip/{FabrikSolver,GripperOnly,DualArm}*.cs`, `Control/ControlSchemeFactory.cs`, `Control/RobotProfile.cs`, `Control/RobotProfileFactory.cs` |
 | **4 — Telepresence & data** | WebRTC video; profile-driven recording; robot-side IK toggle (MoveIt Servo) | `UI/CameraFeedViewer`→WebRTC, `Recording/` |
 | **5 — Polish** | Account link, saved-robot fleet, per-robot calibration, onboarding, tests | — |
 
