@@ -6,12 +6,112 @@
     {
       "label": "page.tsx",
       "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "console_page",
+      "community": 70,
+      "norm_label": "page.tsx"
+    },
+    {
+      "label": "consoles",
+      "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "console_page_consoles",
+      "community": 70,
+      "norm_label": "consoles"
+    },
+    {
+      "label": "ConsolePage()",
+      "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "console_page_consolepage",
+      "community": 70,
+      "norm_label": "consolepage()"
+    },
+    {
+      "label": "ConsoleHub()",
+      "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "console_page_consolehub",
+      "community": 70,
+      "norm_label": "consolehub()"
+    },
+    {
+      "label": "capitalize()",
+      "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L243",
+      "_origin": "ast",
+      "id": "console_page_capitalize",
+      "community": 70,
+      "norm_label": "capitalize()"
+    },
+    {
+      "label": "ConsoleShell()",
+      "file_type": "code",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L248",
+      "_origin": "ast",
+      "id": "console_page_consoleshell",
+      "community": 70,
+      "norm_label": "consoleshell()"
+    },
+    {
+      "label": "Nav.tsx",
+      "file_type": "code",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "components_nav",
+      "community": 22,
+      "norm_label": "nav.tsx"
+    },
+    {
+      "label": "MARKETING_LINKS",
+      "file_type": "code",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "components_nav_marketing_links",
+      "community": 22,
+      "norm_label": "marketing_links"
+    },
+    {
+      "label": "DEV_LINKS",
+      "file_type": "code",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L16",
+      "_origin": "ast",
+      "id": "components_nav_dev_links",
+      "community": 22,
+      "norm_label": "dev_links"
+    },
+    {
+      "label": "Nav()",
+      "file_type": "code",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L18",
+      "_origin": "ast",
+      "id": "components_nav_nav",
+      "community": 22,
+      "norm_label": "nav()"
+    },
+    {
+      "label": "page.tsx",
+      "file_type": "code",
       "source_file": "website/app/os/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "os_page",
       "community": 676,
-      "norm_label": "page.tsx"
+      "norm_label": "page.tsx",
+      "id": "os_page"
     },
     {
       "label": "metadata",
@@ -19,9 +119,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L6",
       "_origin": "ast",
-      "id": "os_page_metadata",
       "community": 676,
-      "norm_label": "metadata"
+      "norm_label": "metadata",
+      "id": "os_page_metadata"
     },
     {
       "label": "FEATURE_PILLARS",
@@ -29,9 +129,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L13",
       "_origin": "ast",
-      "id": "os_page_feature_pillars",
       "community": 676,
-      "norm_label": "feature_pillars"
+      "norm_label": "feature_pillars",
+      "id": "os_page_feature_pillars"
     },
     {
       "label": "DIFFERENTIATORS",
@@ -39,9 +139,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L47",
       "_origin": "ast",
-      "id": "os_page_differentiators",
       "community": 676,
-      "norm_label": "differentiators"
+      "norm_label": "differentiators",
+      "id": "os_page_differentiators"
     },
     {
       "label": "RUNTIME_ROWS",
@@ -49,9 +149,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L75",
       "_origin": "ast",
-      "id": "os_page_runtime_rows",
       "community": 676,
-      "norm_label": "runtime_rows"
+      "norm_label": "runtime_rows",
+      "id": "os_page_runtime_rows"
     },
     {
       "label": "ROBOT_CATEGORIES",
@@ -59,9 +159,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L90",
       "_origin": "ast",
-      "id": "os_page_robot_categories",
       "community": 676,
-      "norm_label": "robot_categories"
+      "norm_label": "robot_categories",
+      "id": "os_page_robot_categories"
     },
     {
       "label": "ADAPTERS",
@@ -69,9 +169,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L95",
       "_origin": "ast",
-      "id": "os_page_adapters",
       "community": 676,
-      "norm_label": "adapters"
+      "norm_label": "adapters",
+      "id": "os_page_adapters"
     },
     {
       "label": "cellColor()",
@@ -79,9 +179,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L100",
       "_origin": "ast",
-      "id": "os_page_cellcolor",
       "community": 676,
-      "norm_label": "cellcolor()"
+      "norm_label": "cellcolor()",
+      "id": "os_page_cellcolor"
     },
     {
       "label": "OhhoOsPage()",
@@ -89,9 +189,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L106",
       "_origin": "ast",
-      "id": "os_page_ohhoospage",
       "community": 676,
-      "norm_label": "ohhoospage()"
+      "norm_label": "ohhoospage()",
+      "id": "os_page_ohhoospage"
     },
     {
       "label": "SectionHeading()",
@@ -99,9 +199,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L349",
       "_origin": "ast",
-      "id": "os_page_sectionheading",
       "community": 676,
-      "norm_label": "sectionheading()"
+      "norm_label": "sectionheading()",
+      "id": "os_page_sectionheading"
     },
     {
       "label": "RuntimeCard()",
@@ -109,9 +209,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L358",
       "_origin": "ast",
-      "id": "os_page_runtimecard",
       "community": 676,
-      "norm_label": "runtimecard()"
+      "norm_label": "runtimecard()",
+      "id": "os_page_runtimecard"
     },
     {
       "label": "OhhoOS.tsx",
@@ -119,9 +219,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "components_ohhoos",
       "community": 705,
-      "norm_label": "ohhoos.tsx"
+      "norm_label": "ohhoos.tsx",
+      "id": "components_ohhoos"
     },
     {
       "label": "DIFFERENTIATORS",
@@ -129,9 +229,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L19",
       "_origin": "ast",
-      "id": "components_ohhoos_differentiators",
       "community": 705,
-      "norm_label": "differentiators"
+      "norm_label": "differentiators",
+      "id": "components_ohhoos_differentiators"
     },
     {
       "label": "PRODUCT_CHIPS",
@@ -139,9 +239,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L46",
       "_origin": "ast",
-      "id": "components_ohhoos_product_chips",
       "community": 705,
-      "norm_label": "product_chips"
+      "norm_label": "product_chips",
+      "id": "components_ohhoos_product_chips"
     },
     {
       "label": "ROBOT_CHIPS",
@@ -149,9 +249,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L47",
       "_origin": "ast",
-      "id": "components_ohhoos_robot_chips",
       "community": 705,
-      "norm_label": "robot_chips"
+      "norm_label": "robot_chips",
+      "id": "components_ohhoos_robot_chips"
     },
     {
       "label": "OhhoOS()",
@@ -159,9 +259,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L49",
       "_origin": "ast",
-      "id": "components_ohhoos_ohhoos",
       "community": 705,
-      "norm_label": "ohhoos()"
+      "norm_label": "ohhoos()",
+      "id": "components_ohhoos_ohhoos"
     },
     {
       "label": "Connector()",
@@ -169,9 +269,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L174",
       "_origin": "ast",
-      "id": "components_ohhoos_connector",
       "community": 705,
-      "norm_label": "connector()"
+      "norm_label": "connector()",
+      "id": "components_ohhoos_connector"
     },
     {
       "label": "ChipRow()",
@@ -179,9 +279,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L186",
       "_origin": "ast",
-      "id": "components_ohhoos_chiprow",
       "community": 705,
-      "norm_label": "chiprow()"
+      "norm_label": "chiprow()",
+      "id": "components_ohhoos_chiprow"
     },
     {
       "label": "README.md",
@@ -189,9 +289,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_readme",
       "community": 702,
-      "norm_label": "readme.md"
+      "norm_label": "readme.md",
+      "id": "ohho_os_readme"
     },
     {
       "label": "OhhO OS",
@@ -199,9 +299,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_readme_ohho_os",
       "community": 710,
-      "norm_label": "ohho os"
+      "norm_label": "ohho os",
+      "id": "ohho_os_readme_ohho_os"
     },
     {
       "label": "Why OhhO OS is different",
@@ -209,9 +309,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L14",
       "_origin": "ast",
-      "id": "ohho_os_readme_why_ohho_os_is_different",
       "community": 710,
-      "norm_label": "why ohho os is different"
+      "norm_label": "why ohho os is different",
+      "id": "ohho_os_readme_why_ohho_os_is_different"
     },
     {
       "label": "Five lines to a moving robot",
@@ -219,9 +319,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L34",
       "_origin": "ast",
-      "id": "ohho_os_readme_five_lines_to_a_moving_robot",
       "community": 710,
-      "norm_label": "five lines to a moving robot"
+      "norm_label": "five lines to a moving robot",
+      "id": "ohho_os_readme_five_lines_to_a_moving_robot"
     },
     {
       "label": "What's in v1.0.0",
@@ -229,9 +329,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L44",
       "_origin": "ast",
-      "id": "ohho_os_readme_what_s_in_v1_0_0",
       "community": 710,
-      "norm_label": "what's in v1.0.0"
+      "norm_label": "what's in v1.0.0",
+      "id": "ohho_os_readme_what_s_in_v1_0_0"
     },
     {
       "label": "Documentation",
@@ -239,9 +339,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L58",
       "_origin": "ast",
-      "id": "ohho_os_readme_documentation",
       "community": 710,
-      "norm_label": "documentation"
+      "norm_label": "documentation",
+      "id": "ohho_os_readme_documentation"
     },
     {
       "label": "Where it fits",
@@ -249,9 +349,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L74",
       "_origin": "ast",
-      "id": "ohho_os_readme_where_it_fits",
       "community": 710,
-      "norm_label": "where it fits"
+      "norm_label": "where it fits",
+      "id": "ohho_os_readme_where_it_fits"
     },
     {
       "label": "architecture.md",
@@ -259,9 +359,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_architecture",
       "community": 702,
-      "norm_label": "architecture.md"
+      "norm_label": "architecture.md",
+      "id": "ohho_os_architecture"
     },
     {
       "label": "Architecture",
@@ -269,9 +369,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_architecture_architecture",
       "community": 707,
-      "norm_label": "architecture"
+      "norm_label": "architecture",
+      "id": "ohho_os_architecture_architecture"
     },
     {
       "label": "The layers",
@@ -279,9 +379,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "ohho_os_architecture_the_layers",
       "community": 707,
-      "norm_label": "the layers"
+      "norm_label": "the layers",
+      "id": "ohho_os_architecture_the_layers"
     },
     {
       "label": "The one invariant rule",
@@ -289,9 +389,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L33",
       "_origin": "ast",
-      "id": "ohho_os_architecture_the_one_invariant_rule",
       "community": 707,
-      "norm_label": "the one invariant rule"
+      "norm_label": "the one invariant rule",
+      "id": "ohho_os_architecture_the_one_invariant_rule"
     },
     {
       "label": "Capability-typed commands",
@@ -299,9 +399,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L40",
       "_origin": "ast",
-      "id": "ohho_os_architecture_capability_typed_commands",
       "community": 707,
-      "norm_label": "capability-typed commands"
+      "norm_label": "capability-typed commands",
+      "id": "ohho_os_architecture_capability_typed_commands"
     },
     {
       "label": "Agent-native",
@@ -309,9 +409,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L56",
       "_origin": "ast",
-      "id": "ohho_os_architecture_agent_native",
       "community": 707,
-      "norm_label": "agent-native"
+      "norm_label": "agent-native",
+      "id": "ohho_os_architecture_agent_native"
     },
     {
       "label": "The record \u2192 train \u2192 serve loop",
@@ -319,9 +419,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L70",
       "_origin": "ast",
-      "id": "ohho_os_architecture_the_record_train_serve_loop",
       "community": 707,
-      "norm_label": "the record \u2192 train \u2192 serve loop"
+      "norm_label": "the record \u2192 train \u2192 serve loop",
+      "id": "ohho_os_architecture_the_record_train_serve_loop"
     },
     {
       "label": "Extending OhhO OS",
@@ -329,9 +429,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L84",
       "_origin": "ast",
-      "id": "ohho_os_architecture_extending_ohho_os",
       "community": 707,
-      "norm_label": "extending ohho os"
+      "norm_label": "extending ohho os",
+      "id": "ohho_os_architecture_extending_ohho_os"
     },
     {
       "label": "install.md",
@@ -339,9 +439,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_install",
       "community": 702,
-      "norm_label": "install.md"
+      "norm_label": "install.md",
+      "id": "ohho_os_install"
     },
     {
       "label": "Install OhhO OS",
@@ -349,9 +449,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_install_install_ohho_os",
       "community": 708,
-      "norm_label": "install ohho os"
+      "norm_label": "install ohho os",
+      "id": "ohho_os_install_install_ohho_os"
     },
     {
       "label": "Requirements",
@@ -359,9 +459,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L5",
       "_origin": "ast",
-      "id": "ohho_os_install_requirements",
       "community": 708,
-      "norm_label": "requirements"
+      "norm_label": "requirements",
+      "id": "ohho_os_install_requirements"
     },
     {
       "label": "Quick install",
@@ -369,9 +469,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L13",
       "_origin": "ast",
-      "id": "ohho_os_install_quick_install",
       "community": 708,
-      "norm_label": "quick install"
+      "norm_label": "quick install",
+      "id": "ohho_os_install_quick_install"
     },
     {
       "label": "Extras",
@@ -379,9 +479,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L23",
       "_origin": "ast",
-      "id": "ohho_os_install_extras",
       "community": 708,
-      "norm_label": "extras"
+      "norm_label": "extras",
+      "id": "ohho_os_install_extras"
     },
     {
       "label": "Verify",
@@ -389,9 +489,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L53",
       "_origin": "ast",
-      "id": "ohho_os_install_verify",
       "community": 708,
-      "norm_label": "verify"
+      "norm_label": "verify",
+      "id": "ohho_os_install_verify"
     },
     {
       "label": "Install from source (development)",
@@ -399,9 +499,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L72",
       "_origin": "ast",
-      "id": "ohho_os_install_install_from_source_development",
       "community": 708,
-      "norm_label": "install from source (development)"
+      "norm_label": "install from source (development)",
+      "id": "ohho_os_install_install_from_source_development"
     },
     {
       "label": "Next",
@@ -409,9 +509,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L81",
       "_origin": "ast",
-      "id": "ohho_os_install_next",
       "community": 708,
-      "norm_label": "next"
+      "norm_label": "next",
+      "id": "ohho_os_install_next"
     },
     {
       "label": "quickstart.md",
@@ -419,9 +519,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_quickstart",
       "community": 702,
-      "norm_label": "quickstart.md"
+      "norm_label": "quickstart.md",
+      "id": "ohho_os_quickstart"
     },
     {
       "label": "Quickstart",
@@ -429,9 +529,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_quickstart",
       "community": 700,
-      "norm_label": "quickstart"
+      "norm_label": "quickstart",
+      "id": "ohho_os_quickstart_quickstart"
     },
     {
       "label": "1. Connect",
@@ -439,9 +539,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_1_connect",
       "community": 700,
-      "norm_label": "1. connect"
+      "norm_label": "1. connect",
+      "id": "ohho_os_quickstart_1_connect"
     },
     {
       "label": "2. Drive and read telemetry",
@@ -449,9 +549,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L27",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_2_drive_and_read_telemetry",
       "community": 700,
-      "norm_label": "2. drive and read telemetry"
+      "norm_label": "2. drive and read telemetry",
+      "id": "ohho_os_quickstart_2_drive_and_read_telemetry"
     },
     {
       "label": "3. Hand it a goal (the agent)",
@@ -459,9 +559,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L42",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_3_hand_it_a_goal_the_agent",
       "community": 700,
-      "norm_label": "3. hand it a goal (the agent)"
+      "norm_label": "3. hand it a goal (the agent)",
+      "id": "ohho_os_quickstart_3_hand_it_a_goal_the_agent"
     },
     {
       "label": "4. Record data and train",
@@ -469,9 +569,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L58",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_4_record_data_and_train",
       "community": 700,
-      "norm_label": "4. record data and train"
+      "norm_label": "4. record data and train",
+      "id": "ohho_os_quickstart_4_record_data_and_train"
     },
     {
       "label": "5. Serve the trained policy",
@@ -479,9 +579,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L78",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_5_serve_the_trained_policy",
       "community": 700,
-      "norm_label": "5. serve the trained policy"
+      "norm_label": "5. serve the trained policy",
+      "id": "ohho_os_quickstart_5_serve_the_trained_policy"
     },
     {
       "label": "6. Run a skill",
@@ -489,9 +589,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L84",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_6_run_a_skill",
       "community": 700,
-      "norm_label": "6. run a skill"
+      "norm_label": "6. run a skill",
+      "id": "ohho_os_quickstart_6_run_a_skill"
     },
     {
       "label": "CLI shortcuts",
@@ -499,9 +599,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L91",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_cli_shortcuts",
       "community": 700,
-      "norm_label": "cli shortcuts"
+      "norm_label": "cli shortcuts",
+      "id": "ohho_os_quickstart_cli_shortcuts"
     },
     {
       "label": "The same loop on a different robot",
@@ -509,9 +609,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L105",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_the_same_loop_on_a_different_robot",
       "community": 700,
-      "norm_label": "the same loop on a different robot"
+      "norm_label": "the same loop on a different robot",
+      "id": "ohho_os_quickstart_the_same_loop_on_a_different_robot"
     },
     {
       "label": "Next",
@@ -519,9 +619,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L114",
       "_origin": "ast",
-      "id": "ohho_os_quickstart_next",
       "community": 700,
-      "norm_label": "next"
+      "norm_label": "next",
+      "id": "ohho_os_quickstart_next"
     },
     {
       "label": "robots.md",
@@ -529,9 +629,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_robots",
       "community": 702,
-      "norm_label": "robots.md"
+      "norm_label": "robots.md",
+      "id": "ohho_os_robots"
     },
     {
       "label": "Supported robots",
@@ -539,9 +639,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_robots_supported_robots",
       "community": 647,
-      "norm_label": "supported robots"
+      "norm_label": "supported robots",
+      "id": "ohho_os_robots_supported_robots"
     },
     {
       "label": "Robot categories",
@@ -549,9 +649,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L7",
       "_origin": "ast",
-      "id": "ohho_os_robots_robot_categories",
       "community": 647,
-      "norm_label": "robot categories"
+      "norm_label": "robot categories",
+      "id": "ohho_os_robots_robot_categories"
     },
     {
       "label": "Built-in robots (v1.0.0)",
@@ -559,9 +659,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L20",
       "_origin": "ast",
-      "id": "ohho_os_robots_built_in_robots_v1_0_0",
       "community": 647,
-      "norm_label": "built-in robots (v1.0.0)"
+      "norm_label": "built-in robots (v1.0.0)",
+      "id": "ohho_os_robots_built_in_robots_v1_0_0"
     },
     {
       "label": "The capability model",
@@ -569,9 +669,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L30",
       "_origin": "ast",
-      "id": "ohho_os_robots_the_capability_model",
       "community": 647,
-      "norm_label": "the capability model"
+      "norm_label": "the capability model",
+      "id": "ohho_os_robots_the_capability_model"
     },
     {
       "label": "Capability vocabulary",
@@ -579,9 +679,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L55",
       "_origin": "ast",
-      "id": "ohho_os_robots_capability_vocabulary",
       "community": 647,
-      "norm_label": "capability vocabulary"
+      "norm_label": "capability vocabulary",
+      "id": "ohho_os_robots_capability_vocabulary"
     },
     {
       "label": "Protocol adapters (v1.0.0)",
@@ -589,9 +689,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L66",
       "_origin": "ast",
-      "id": "ohho_os_robots_protocol_adapters_v1_0_0",
       "community": 647,
-      "norm_label": "protocol adapters (v1.0.0)"
+      "norm_label": "protocol adapters (v1.0.0)",
+      "id": "ohho_os_robots_protocol_adapters_v1_0_0"
     },
     {
       "label": "Composite transport",
@@ -599,9 +699,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L79",
       "_origin": "ast",
-      "id": "ohho_os_robots_composite_transport",
       "community": 647,
-      "norm_label": "composite transport"
+      "norm_label": "composite transport",
+      "id": "ohho_os_robots_composite_transport"
     },
     {
       "label": "Add a robot",
@@ -609,9 +709,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L95",
       "_origin": "ast",
-      "id": "ohho_os_robots_add_a_robot",
       "community": 647,
-      "norm_label": "add a robot"
+      "norm_label": "add a robot",
+      "id": "ohho_os_robots_add_a_robot"
     },
     {
       "label": "1. Write a manifest (JSON or YAML)",
@@ -619,9 +719,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L100",
       "_origin": "ast",
-      "id": "ohho_os_robots_1_write_a_manifest_json_or_yaml",
       "community": 647,
-      "norm_label": "1. write a manifest (json or yaml)"
+      "norm_label": "1. write a manifest (json or yaml)",
+      "id": "ohho_os_robots_1_write_a_manifest_json_or_yaml"
     },
     {
       "label": "2. Write an adapter (subclass `BaseTransport`)",
@@ -629,9 +729,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L115",
       "_origin": "ast",
-      "id": "ohho_os_robots_2_write_an_adapter_subclass_basetransport",
       "community": 647,
-      "norm_label": "2. write an adapter (subclass `basetransport`)"
+      "norm_label": "2. write an adapter (subclass `basetransport`)",
+      "id": "ohho_os_robots_2_write_an_adapter_subclass_basetransport"
     },
     {
       "label": "3. Register the scheme + write a test",
@@ -639,9 +739,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L125",
       "_origin": "ast",
-      "id": "ohho_os_robots_3_register_the_scheme_write_a_test",
       "community": 647,
-      "norm_label": "3. register the scheme + write a test"
+      "norm_label": "3. register the scheme + write a test",
+      "id": "ohho_os_robots_3_register_the_scheme_write_a_test"
     },
     {
       "label": "runtimes.md",
@@ -649,9 +749,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_runtimes",
       "community": 702,
-      "norm_label": "runtimes.md"
+      "norm_label": "runtimes.md",
+      "id": "ohho_os_runtimes"
     },
     {
       "label": "Runtimes: ROS vs no-ROS",
@@ -659,9 +759,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
       "community": 701,
-      "norm_label": "runtimes: ros vs no-ros"
+      "norm_label": "runtimes: ros vs no-ros",
+      "id": "ohho_os_runtimes_runtimes_ros_vs_no_ros"
     },
     {
       "label": "At a glance",
@@ -669,9 +769,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L16",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_at_a_glance",
       "community": 701,
-      "norm_label": "at a glance"
+      "norm_label": "at a glance",
+      "id": "ohho_os_runtimes_at_a_glance"
     },
     {
       "label": "The native runtime",
@@ -679,9 +779,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L36",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_the_native_runtime",
       "community": 701,
-      "norm_label": "the native runtime"
+      "norm_label": "the native runtime",
+      "id": "ohho_os_runtimes_the_native_runtime"
     },
     {
       "label": "The ROS 2 runtime",
@@ -689,9 +789,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L46",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_the_ros_2_runtime",
       "community": 701,
-      "norm_label": "the ros 2 runtime"
+      "norm_label": "the ros 2 runtime",
+      "id": "ohho_os_runtimes_the_ros_2_runtime"
     },
     {
       "label": "ROS 2 transport",
@@ -699,9 +799,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L58",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_ros_2_transport",
       "community": 701,
-      "norm_label": "ros 2 transport"
+      "norm_label": "ros 2 transport",
+      "id": "ohho_os_runtimes_ros_2_transport"
     },
     {
       "label": "Auto-detect",
@@ -709,9 +809,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L71",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_auto_detect",
       "community": 701,
-      "norm_label": "auto-detect"
+      "norm_label": "auto-detect",
+      "id": "ohho_os_runtimes_auto_detect"
     },
     {
       "label": "Choose no-ROS if\u2026",
@@ -719,9 +819,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L81",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_choose_no_ros_if",
       "community": 701,
-      "norm_label": "choose no-ros if..."
+      "norm_label": "choose no-ros if...",
+      "id": "ohho_os_runtimes_choose_no_ros_if"
     },
     {
       "label": "Choose ROS 2 if...",
@@ -729,9 +829,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L92",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_choose_ros_2_if",
       "community": 701,
-      "norm_label": "choose ros 2 if..."
+      "norm_label": "choose ros 2 if...",
+      "id": "ohho_os_runtimes_choose_ros_2_if"
     },
     {
       "label": "There is no wrong choice",
@@ -739,9 +839,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L102",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_there_is_no_wrong_choice",
       "community": 701,
-      "norm_label": "there is no wrong choice"
+      "norm_label": "there is no wrong choice",
+      "id": "ohho_os_runtimes_there_is_no_wrong_choice"
     },
     {
       "label": "How it works",
@@ -749,9 +849,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L116",
       "_origin": "ast",
-      "id": "ohho_os_runtimes_how_it_works",
       "community": 701,
-      "norm_label": "how it works"
+      "norm_label": "how it works",
+      "id": "ohho_os_runtimes_how_it_works"
     },
     {
       "label": "setup.md",
@@ -759,9 +859,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_setup",
       "community": 702,
-      "norm_label": "setup.md"
+      "norm_label": "setup.md",
+      "id": "ohho_os_setup"
     },
     {
       "label": "Setup Guide \u2014 From Zero to a Moving Robot",
@@ -769,9 +869,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
       "community": 483,
-      "norm_label": "setup guide \u2014 from zero to a moving robot"
+      "norm_label": "setup guide \u2014 from zero to a moving robot",
+      "id": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot"
     },
     {
       "label": "Prerequisites",
@@ -779,9 +879,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L11",
       "_origin": "ast",
-      "id": "ohho_os_setup_prerequisites",
       "community": 483,
-      "norm_label": "prerequisites"
+      "norm_label": "prerequisites",
+      "id": "ohho_os_setup_prerequisites"
     },
     {
       "label": "Step 1 \u2014 Install OhhO OS",
@@ -789,9 +889,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L22",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_1_install_ohho_os",
       "community": 483,
-      "norm_label": "step 1 \u2014 install ohho os"
+      "norm_label": "step 1 \u2014 install ohho os",
+      "id": "ohho_os_setup_step_1_install_ohho_os"
     },
     {
       "label": "Install extras for your robot",
@@ -799,9 +899,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L34",
       "_origin": "ast",
-      "id": "ohho_os_setup_install_extras_for_your_robot",
       "community": 483,
-      "norm_label": "install extras for your robot"
+      "norm_label": "install extras for your robot",
+      "id": "ohho_os_setup_install_extras_for_your_robot"
     },
     {
       "label": "Verify your installation",
@@ -809,9 +909,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L56",
       "_origin": "ast",
-      "id": "ohho_os_setup_verify_your_installation",
       "community": 483,
-      "norm_label": "verify your installation"
+      "norm_label": "verify your installation",
+      "id": "ohho_os_setup_verify_your_installation"
     },
     {
       "label": "Step 2 \u2014 Connect Your First Robot",
@@ -819,9 +919,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L81",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_2_connect_your_first_robot",
       "community": 709,
-      "norm_label": "step 2 \u2014 connect your first robot"
+      "norm_label": "step 2 \u2014 connect your first robot",
+      "id": "ohho_os_setup_step_2_connect_your_first_robot"
     },
     {
       "label": "Option A: Use the simulator (no hardware)",
@@ -829,9 +929,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L86",
       "_origin": "ast",
-      "id": "ohho_os_setup_option_a_use_the_simulator_no_hardware",
       "community": 709,
-      "norm_label": "option a: use the simulator (no hardware)"
+      "norm_label": "option a: use the simulator (no hardware)",
+      "id": "ohho_os_setup_option_a_use_the_simulator_no_hardware"
     },
     {
       "label": "Option B: Connect to a real OmniBot (Yahboom serial + Feetech arm)",
@@ -839,9 +939,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L99",
       "_origin": "ast",
-      "id": "ohho_os_setup_option_b_connect_to_a_real_omnibot_yahboom_serial_feetech_arm",
       "community": 709,
-      "norm_label": "option b: connect to a real omnibot (yahboom serial + feetech arm)"
+      "norm_label": "option b: connect to a real omnibot (yahboom serial + feetech arm)",
+      "id": "ohho_os_setup_option_b_connect_to_a_real_omnibot_yahboom_serial_feetech_arm"
     },
     {
       "label": "Option C: Connect to a Unitree Go2 (DDS)",
@@ -849,9 +949,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L110",
       "_origin": "ast",
-      "id": "ohho_os_setup_option_c_connect_to_a_unitree_go2_dds",
       "community": 709,
-      "norm_label": "option c: connect to a unitree go2 (dds)"
+      "norm_label": "option c: connect to a unitree go2 (dds)",
+      "id": "ohho_os_setup_option_c_connect_to_a_unitree_go2_dds"
     },
     {
       "label": "Option D: Connect via ROS 2",
@@ -859,9 +959,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L120",
       "_origin": "ast",
-      "id": "ohho_os_setup_option_d_connect_via_ros_2",
       "community": 709,
-      "norm_label": "option d: connect via ros 2"
+      "norm_label": "option d: connect via ros 2",
+      "id": "ohho_os_setup_option_d_connect_via_ros_2"
     },
     {
       "label": "Auto-detect runtime",
@@ -869,9 +969,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L133",
       "_origin": "ast",
-      "id": "ohho_os_setup_auto_detect_runtime",
       "community": 709,
-      "norm_label": "auto-detect runtime"
+      "norm_label": "auto-detect runtime",
+      "id": "ohho_os_setup_auto_detect_runtime"
     },
     {
       "label": "CLI shortcut",
@@ -879,9 +979,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L142",
       "_origin": "ast",
-      "id": "ohho_os_setup_cli_shortcut",
       "community": 709,
-      "norm_label": "cli shortcut"
+      "norm_label": "cli shortcut",
+      "id": "ohho_os_setup_cli_shortcut"
     },
     {
       "label": "Step 3 \u2014 Drive and Read Telemetry",
@@ -889,9 +989,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L153",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_3_drive_and_read_telemetry",
       "community": 483,
-      "norm_label": "step 3 \u2014 drive and read telemetry"
+      "norm_label": "step 3 \u2014 drive and read telemetry",
+      "id": "ohho_os_setup_step_3_drive_and_read_telemetry"
     },
     {
       "label": "CLI shortcuts",
@@ -899,9 +999,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L177",
       "_origin": "ast",
-      "id": "ohho_os_setup_cli_shortcuts",
       "community": 483,
-      "norm_label": "cli shortcuts"
+      "norm_label": "cli shortcuts",
+      "id": "ohho_os_setup_cli_shortcuts"
     },
     {
       "label": "Step 4 \u2014 Hand It a Goal (Agent)",
@@ -909,9 +1009,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L186",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_4_hand_it_a_goal_agent",
       "community": 483,
-      "norm_label": "step 4 \u2014 hand it a goal (agent)"
+      "norm_label": "step 4 \u2014 hand it a goal (agent)",
+      "id": "ohho_os_setup_step_4_hand_it_a_goal_agent"
     },
     {
       "label": "CLI shortcut",
@@ -919,9 +1019,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L209",
       "_origin": "ast",
-      "id": "ohho_os_setup_cli_shortcut_209",
       "community": 483,
-      "norm_label": "cli shortcut"
+      "norm_label": "cli shortcut",
+      "id": "ohho_os_setup_cli_shortcut_209"
     },
     {
       "label": "Step 5 \u2014 Record Data, Train, and Serve (Optional)",
@@ -929,9 +1029,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L217",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_5_record_data_train_and_serve_optional",
       "community": 483,
-      "norm_label": "step 5 \u2014 record data, train, and serve (optional)"
+      "norm_label": "step 5 \u2014 record data, train, and serve (optional)",
+      "id": "ohho_os_setup_step_5_record_data_train_and_serve_optional"
     },
     {
       "label": "Record an episode",
@@ -939,9 +1039,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L224",
       "_origin": "ast",
-      "id": "ohho_os_setup_record_an_episode",
       "community": 483,
-      "norm_label": "record an episode"
+      "norm_label": "record an episode",
+      "id": "ohho_os_setup_record_an_episode"
     },
     {
       "label": "Train a policy",
@@ -949,9 +1049,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L239",
       "_origin": "ast",
-      "id": "ohho_os_setup_train_a_policy",
       "community": 483,
-      "norm_label": "train a policy"
+      "norm_label": "train a policy",
+      "id": "ohho_os_setup_train_a_policy"
     },
     {
       "label": "Serve the policy",
@@ -959,9 +1059,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L252",
       "_origin": "ast",
-      "id": "ohho_os_setup_serve_the_policy",
       "community": 483,
-      "norm_label": "serve the policy"
+      "norm_label": "serve the policy",
+      "id": "ohho_os_setup_serve_the_policy"
     },
     {
       "label": "Step 6 \u2014 Run Skills (Optional)",
@@ -969,9 +1069,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L270",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_6_run_skills_optional",
       "community": 483,
-      "norm_label": "step 6 \u2014 run skills (optional)"
+      "norm_label": "step 6 \u2014 run skills (optional)",
+      "id": "ohho_os_setup_step_6_run_skills_optional"
     },
     {
       "label": "Step 7 \u2014 Check Your Hardware Profile (Optional)",
@@ -979,9 +1079,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L300",
       "_origin": "ast",
-      "id": "ohho_os_setup_step_7_check_your_hardware_profile_optional",
       "community": 483,
-      "norm_label": "step 7 \u2014 check your hardware profile (optional)"
+      "norm_label": "step 7 \u2014 check your hardware profile (optional)",
+      "id": "ohho_os_setup_step_7_check_your_hardware_profile_optional"
     },
     {
       "label": "Troubleshooting",
@@ -989,9 +1089,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L312",
       "_origin": "ast",
-      "id": "ohho_os_setup_troubleshooting",
       "community": 483,
-      "norm_label": "troubleshooting"
+      "norm_label": "troubleshooting",
+      "id": "ohho_os_setup_troubleshooting"
     },
     {
       "label": "Next Steps",
@@ -999,9 +1099,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L327",
       "_origin": "ast",
-      "id": "ohho_os_setup_next_steps",
       "community": 483,
-      "norm_label": "next steps"
+      "norm_label": "next steps",
+      "id": "ohho_os_setup_next_steps"
     },
     {
       "label": "skills.md",
@@ -1009,9 +1109,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_skills",
       "community": 702,
-      "norm_label": "skills.md"
+      "norm_label": "skills.md",
+      "id": "ohho_os_skills"
     },
     {
       "label": "Skills & Market",
@@ -1019,9 +1119,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_skills_skills_market",
       "community": 703,
-      "norm_label": "skills & market"
+      "norm_label": "skills & market",
+      "id": "ohho_os_skills_skills_market"
     },
     {
       "label": "Built-in skills",
@@ -1029,9 +1129,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L8",
       "_origin": "ast",
-      "id": "ohho_os_skills_built_in_skills",
       "community": 703,
-      "norm_label": "built-in skills"
+      "norm_label": "built-in skills",
+      "id": "ohho_os_skills_built_in_skills"
     },
     {
       "label": "List and run skills",
@@ -1039,9 +1139,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L17",
       "_origin": "ast",
-      "id": "ohho_os_skills_list_and_run_skills",
       "community": 703,
-      "norm_label": "list and run skills"
+      "norm_label": "list and run skills",
+      "id": "ohho_os_skills_list_and_run_skills"
     },
     {
       "label": "Use skills in Python",
@@ -1049,9 +1149,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L37",
       "_origin": "ast",
-      "id": "ohho_os_skills_use_skills_in_python",
       "community": 703,
-      "norm_label": "use skills in python"
+      "norm_label": "use skills in python",
+      "id": "ohho_os_skills_use_skills_in_python"
     },
     {
       "label": "Write your own skill",
@@ -1059,9 +1159,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L55",
       "_origin": "ast",
-      "id": "ohho_os_skills_write_your_own_skill",
       "community": 703,
-      "norm_label": "write your own skill"
+      "norm_label": "write your own skill",
+      "id": "ohho_os_skills_write_your_own_skill"
     },
     {
       "label": "Capability gating",
@@ -1069,9 +1169,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L86",
       "_origin": "ast",
-      "id": "ohho_os_skills_capability_gating",
       "community": 703,
-      "norm_label": "capability gating"
+      "norm_label": "capability gating",
+      "id": "ohho_os_skills_capability_gating"
     },
     {
       "label": "The Skill dataclass",
@@ -1079,9 +1179,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L102",
       "_origin": "ast",
-      "id": "ohho_os_skills_the_skill_dataclass",
       "community": 703,
-      "norm_label": "the skill dataclass"
+      "norm_label": "the skill dataclass",
+      "id": "ohho_os_skills_the_skill_dataclass"
     },
     {
       "label": "Next",
@@ -1089,9 +1189,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L119",
       "_origin": "ast",
-      "id": "ohho_os_skills_next",
       "community": 703,
-      "norm_label": "next"
+      "norm_label": "next",
+      "id": "ohho_os_skills_next"
     },
     {
       "label": "training.md",
@@ -1099,9 +1199,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_training",
       "community": 702,
-      "norm_label": "training.md"
+      "norm_label": "training.md",
+      "id": "ohho_os_training"
     },
     {
       "label": "Training pipelines",
@@ -1109,9 +1209,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "ohho_os_training_training_pipelines",
       "community": 531,
-      "norm_label": "training pipelines"
+      "norm_label": "training pipelines",
+      "id": "ohho_os_training_training_pipelines"
     },
     {
       "label": "The loop",
@@ -1119,9 +1219,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "ohho_os_training_the_loop",
       "community": 531,
-      "norm_label": "the loop"
+      "norm_label": "the loop",
+      "id": "ohho_os_training_the_loop"
     },
     {
       "label": "1. Collect data",
@@ -1129,9 +1229,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L16",
       "_origin": "ast",
-      "id": "ohho_os_training_1_collect_data",
       "community": 531,
-      "norm_label": "1. collect data"
+      "norm_label": "1. collect data",
+      "id": "ohho_os_training_1_collect_data"
     },
     {
       "label": "What gets recorded",
@@ -1139,9 +1239,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L46",
       "_origin": "ast",
-      "id": "ohho_os_training_what_gets_recorded",
       "community": 531,
-      "norm_label": "what gets recorded"
+      "norm_label": "what gets recorded",
+      "id": "ohho_os_training_what_gets_recorded"
     },
     {
       "label": "Dataset format",
@@ -1149,9 +1249,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L61",
       "_origin": "ast",
-      "id": "ohho_os_training_dataset_format",
       "community": 531,
-      "norm_label": "dataset format"
+      "norm_label": "dataset format",
+      "id": "ohho_os_training_dataset_format"
     },
     {
       "label": "Read a dataset back",
@@ -1159,9 +1259,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L78",
       "_origin": "ast",
-      "id": "ohho_os_training_read_a_dataset_back",
       "community": 531,
-      "norm_label": "read a dataset back"
+      "norm_label": "read a dataset back",
+      "id": "ohho_os_training_read_a_dataset_back"
     },
     {
       "label": "2. Train",
@@ -1169,9 +1269,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L89",
       "_origin": "ast",
-      "id": "ohho_os_training_2_train",
       "community": 531,
-      "norm_label": "2. train"
+      "norm_label": "2. train",
+      "id": "ohho_os_training_2_train"
     },
     {
       "label": "Mock mode (no GPU needed)",
@@ -1179,9 +1279,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L107",
       "_origin": "ast",
-      "id": "ohho_os_training_mock_mode_no_gpu_needed",
       "community": 531,
-      "norm_label": "mock mode (no gpu needed)"
+      "norm_label": "mock mode (no gpu needed)",
+      "id": "ohho_os_training_mock_mode_no_gpu_needed"
     },
     {
       "label": "Supported policies",
@@ -1189,9 +1289,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L123",
       "_origin": "ast",
-      "id": "ohho_os_training_supported_policies",
       "community": 531,
-      "norm_label": "supported policies"
+      "norm_label": "supported policies",
+      "id": "ohho_os_training_supported_policies"
     },
     {
       "label": "3. Serve",
@@ -1199,9 +1299,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L132",
       "_origin": "ast",
-      "id": "ohho_os_training_3_serve",
       "community": 531,
-      "norm_label": "3. serve"
+      "norm_label": "3. serve",
+      "id": "ohho_os_training_3_serve"
     },
     {
       "label": "Endpoints",
@@ -1209,9 +1309,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L147",
       "_origin": "ast",
-      "id": "ohho_os_training_endpoints",
       "community": 531,
-      "norm_label": "endpoints"
+      "norm_label": "endpoints",
+      "id": "ohho_os_training_endpoints"
     },
     {
       "label": "Build a testable app (no server launch)",
@@ -1219,9 +1319,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L164",
       "_origin": "ast",
-      "id": "ohho_os_training_build_a_testable_app_no_server_launch",
       "community": 531,
-      "norm_label": "build a testable app (no server launch)"
+      "norm_label": "build a testable app (no server launch)",
+      "id": "ohho_os_training_build_a_testable_app_no_server_launch"
     },
     {
       "label": "4. Continual learning",
@@ -1229,9 +1329,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L175",
       "_origin": "ast",
-      "id": "ohho_os_training_4_continual_learning",
       "community": 531,
-      "norm_label": "4. continual learning"
+      "norm_label": "4. continual learning",
+      "id": "ohho_os_training_4_continual_learning"
     },
     {
       "label": "Hardware-aware everywhere",
@@ -1239,9 +1339,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L181",
       "_origin": "ast",
-      "id": "ohho_os_training_hardware_aware_everywhere",
       "community": 531,
-      "norm_label": "hardware-aware everywhere"
+      "norm_label": "hardware-aware everywhere",
+      "id": "ohho_os_training_hardware_aware_everywhere"
     },
     {
       "label": "CLAUDE.md",
@@ -62460,66 +62560,6 @@
     {
       "label": "page.tsx",
       "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "page.tsx",
-      "id": "console_page"
-    },
-    {
-      "label": "consoles",
-      "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L29",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "consoles",
-      "id": "console_page_consoles"
-    },
-    {
-      "label": "ConsolePage()",
-      "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L31",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "consolepage()",
-      "id": "console_page_consolepage"
-    },
-    {
-      "label": "ConsoleHub()",
-      "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L41",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "consolehub()",
-      "id": "console_page_consolehub"
-    },
-    {
-      "label": "capitalize()",
-      "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L219",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "capitalize()",
-      "id": "console_page_capitalize"
-    },
-    {
-      "label": "ConsoleShell()",
-      "file_type": "code",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L224",
-      "_origin": "ast",
-      "community": 70,
-      "norm_label": "consoleshell()",
-      "id": "console_page_consoleshell"
-    },
-    {
-      "label": "page.tsx",
-      "file_type": "code",
       "source_file": "website/app/data/page.tsx",
       "source_location": "L1",
       "_origin": "ast",
@@ -63466,46 +63506,6 @@
       "community": 202,
       "norm_label": "stepitem()",
       "id": "components_howitworks_stepitem"
-    },
-    {
-      "label": "Nav.tsx",
-      "file_type": "code",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 22,
-      "norm_label": "nav.tsx",
-      "id": "components_nav"
-    },
-    {
-      "label": "MARKETING_LINKS",
-      "file_type": "code",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L12",
-      "_origin": "ast",
-      "community": 22,
-      "norm_label": "marketing_links",
-      "id": "components_nav_marketing_links"
-    },
-    {
-      "label": "DEV_LINKS",
-      "file_type": "code",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L15",
-      "_origin": "ast",
-      "community": 22,
-      "norm_label": "dev_links",
-      "id": "components_nav_dev_links"
-    },
-    {
-      "label": "Nav()",
-      "file_type": "code",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L17",
-      "_origin": "ast",
-      "community": 22,
-      "norm_label": "nav()",
-      "id": "components_nav_nav"
     },
     {
       "label": "Pricing.tsx",
@@ -90764,14 +90764,567 @@
   ],
   "links": [
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "auth_authprovider"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "auth_authprovider_useauth"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L19",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "auth_consolegate"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "auth_plans"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "auth_plans_hasconsoleaccess"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "components_glasscard"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "components_glasscard_glasscard"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L195",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "console_page_capitalize"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "console_page_consolehub"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "console_page_consolepage"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L29",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "console_page_consoles"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L200",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "console_page_consoleshell"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_client"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_client_adduserrobot"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_client_deleteuserrobot"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_client_getuserrobots"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_garageview"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_robotselector"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_types"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L27",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "garage_types_userrobot"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "lib_products"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L25",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page",
+      "target": "lib_products_products"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "source": "console_page_consolehub",
+      "target": "auth_authprovider_useauth"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "console_page_consolehub",
+      "target": "auth_plans_hasconsoleaccess"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/console/page.tsx",
+      "source_location": "L101",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "console_page_consolehub",
+      "target": "console_page_capitalize"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/about/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "about_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/account/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "account_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "app_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_authprovider"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_authprovider_useauth"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_consolenavbutton"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_consolenavbutton_consolenavbutton"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_plans"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_plans_hasconsoleaccess"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "auth_usermenu"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "components_nav_dev_links"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "components_nav_marketing_links"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "components_nav_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "components_nav",
+      "target": "lib_site"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/docs/page.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "docs_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/garage/GaragePageClient.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "garage_garagepageclient",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/login/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "login_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/news/ohho-mind/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "ohho_mind_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/news/omnivla-engine/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "omnivla_engine_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/team/page.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "team_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/upgrade/page.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "upgrade_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/docs/[...slug]/page.tsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "website_app_docs_slug_page_tsx_slug_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "website/app/products/[slug]/page.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "website_app_products_slug_page_tsx_slug_page",
+      "target": "components_nav"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "components_nav_nav",
+      "target": "auth_authprovider_useauth"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "website/components/Nav.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "components_nav_nav",
+      "target": "auth_plans_hasconsoleaccess"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/app/os/page.tsx",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_adapters",
-      "confidence_score": 1.0
+      "target": "os_page_adapters"
     },
     {
       "relation": "contains",
@@ -90779,9 +91332,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_cellcolor",
-      "confidence_score": 1.0
+      "target": "os_page_cellcolor"
     },
     {
       "relation": "contains",
@@ -90789,9 +91342,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_differentiators",
-      "confidence_score": 1.0
+      "target": "os_page_differentiators"
     },
     {
       "relation": "contains",
@@ -90799,9 +91352,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_feature_pillars",
-      "confidence_score": 1.0
+      "target": "os_page_feature_pillars"
     },
     {
       "relation": "contains",
@@ -90809,9 +91362,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_metadata",
-      "confidence_score": 1.0
+      "target": "os_page_metadata"
     },
     {
       "relation": "contains",
@@ -90819,9 +91372,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L106",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_ohhoospage",
-      "confidence_score": 1.0
+      "target": "os_page_ohhoospage"
     },
     {
       "relation": "contains",
@@ -90829,9 +91382,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_robot_categories",
-      "confidence_score": 1.0
+      "target": "os_page_robot_categories"
     },
     {
       "relation": "contains",
@@ -90839,9 +91392,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L75",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_runtime_rows",
-      "confidence_score": 1.0
+      "target": "os_page_runtime_rows"
     },
     {
       "relation": "contains",
@@ -90849,9 +91402,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L358",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_runtimecard",
-      "confidence_score": 1.0
+      "target": "os_page_runtimecard"
     },
     {
       "relation": "contains",
@@ -90859,9 +91412,9 @@
       "source_file": "website/app/os/page.tsx",
       "source_location": "L349",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "os_page",
-      "target": "os_page_sectionheading",
-      "confidence_score": 1.0
+      "target": "os_page_sectionheading"
     },
     {
       "relation": "contains",
@@ -90869,9 +91422,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_chiprow",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_chiprow"
     },
     {
       "relation": "contains",
@@ -90879,9 +91432,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L174",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_connector",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_connector"
     },
     {
       "relation": "contains",
@@ -90889,9 +91442,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L19",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_differentiators",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_differentiators"
     },
     {
       "relation": "contains",
@@ -90899,9 +91452,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L49",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_ohhoos",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_ohhoos"
     },
     {
       "relation": "contains",
@@ -90909,9 +91462,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_product_chips",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_product_chips"
     },
     {
       "relation": "contains",
@@ -90919,9 +91472,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L47",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "components_ohhoos_robot_chips",
-      "confidence_score": 1.0
+      "target": "components_ohhoos_robot_chips"
     },
     {
       "relation": "imports",
@@ -90930,9 +91483,9 @@
       "source_file": "website/components/OhhoOS.tsx",
       "source_location": "L15",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "components_ohhoos",
-      "target": "hooks_usescrollreveal_usescrollreveal",
-      "confidence_score": 1.0
+      "target": "hooks_usescrollreveal_usescrollreveal"
     },
     {
       "relation": "references",
@@ -90940,9 +91493,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L69",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_architecture",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture"
     },
     {
       "relation": "references",
@@ -90950,9 +91503,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L62",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_install",
-      "confidence_score": 1.0
+      "target": "ohho_os_install"
     },
     {
       "relation": "references",
@@ -90960,9 +91513,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L63",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_quickstart",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart"
     },
     {
       "relation": "contains",
@@ -90970,9 +91523,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_readme_ohho_os",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_ohho_os"
     },
     {
       "relation": "references",
@@ -90980,9 +91533,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_robots",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots"
     },
     {
       "relation": "references",
@@ -90990,9 +91543,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L64",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_runtimes",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes"
     },
     {
       "relation": "references",
@@ -91000,9 +91553,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L60",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_setup",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup"
     },
     {
       "relation": "references",
@@ -91010,9 +91563,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills"
     },
     {
       "relation": "references",
@@ -91020,9 +91573,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L68",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme",
-      "target": "ohho_os_training",
-      "confidence_score": 1.0
+      "target": "ohho_os_training"
     },
     {
       "relation": "contains",
@@ -91030,9 +91583,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme_ohho_os",
-      "target": "ohho_os_readme_documentation",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_documentation"
     },
     {
       "relation": "contains",
@@ -91040,9 +91593,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme_ohho_os",
-      "target": "ohho_os_readme_five_lines_to_a_moving_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_five_lines_to_a_moving_robot"
     },
     {
       "relation": "contains",
@@ -91050,9 +91603,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme_ohho_os",
-      "target": "ohho_os_readme_what_s_in_v1_0_0",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_what_s_in_v1_0_0"
     },
     {
       "relation": "contains",
@@ -91060,9 +91613,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L74",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme_ohho_os",
-      "target": "ohho_os_readme_where_it_fits",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_where_it_fits"
     },
     {
       "relation": "contains",
@@ -91070,9 +91623,9 @@
       "source_file": "website/docs/ohho-os/README.md",
       "source_location": "L14",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_readme_ohho_os",
-      "target": "ohho_os_readme_why_ohho_os_is_different",
-      "confidence_score": 1.0
+      "target": "ohho_os_readme_why_ohho_os_is_different"
     },
     {
       "relation": "contains",
@@ -91080,9 +91633,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture",
-      "target": "ohho_os_architecture_architecture",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_architecture"
     },
     {
       "relation": "references",
@@ -91090,9 +91643,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture",
-      "target": "ohho_os_runtimes",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes"
     },
     {
       "relation": "references",
@@ -91100,9 +91653,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L90",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture",
-      "target": "ohho_os_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills"
     },
     {
       "relation": "references",
@@ -91110,9 +91663,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L82",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture",
-      "target": "ohho_os_training",
-      "confidence_score": 1.0
+      "target": "ohho_os_training"
     },
     {
       "relation": "references",
@@ -91120,9 +91673,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L330",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_architecture",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture"
     },
     {
       "relation": "contains",
@@ -91130,9 +91683,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_agent_native",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_agent_native"
     },
     {
       "relation": "contains",
@@ -91140,9 +91693,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L40",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_capability_typed_commands",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_capability_typed_commands"
     },
     {
       "relation": "contains",
@@ -91150,9 +91703,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_extending_ohho_os",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_extending_ohho_os"
     },
     {
       "relation": "contains",
@@ -91160,9 +91713,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_the_layers",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_the_layers"
     },
     {
       "relation": "contains",
@@ -91170,9 +91723,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_the_one_invariant_rule",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_the_one_invariant_rule"
     },
     {
       "relation": "contains",
@@ -91180,9 +91733,9 @@
       "source_file": "website/docs/ohho-os/architecture.md",
       "source_location": "L70",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_architecture_architecture",
-      "target": "ohho_os_architecture_the_record_train_serve_loop",
-      "confidence_score": 1.0
+      "target": "ohho_os_architecture_the_record_train_serve_loop"
     },
     {
       "relation": "contains",
@@ -91190,9 +91743,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install",
-      "target": "ohho_os_install_install_ohho_os",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_install_ohho_os"
     },
     {
       "relation": "references",
@@ -91200,9 +91753,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install",
-      "target": "ohho_os_quickstart",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart"
     },
     {
       "relation": "references",
@@ -91210,9 +91763,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L85",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install",
-      "target": "ohho_os_runtimes",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes"
     },
     {
       "relation": "references",
@@ -91220,9 +91773,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L83",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install",
-      "target": "ohho_os_setup",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup"
     },
     {
       "relation": "contains",
@@ -91230,9 +91783,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L23",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_extras",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_extras"
     },
     {
       "relation": "contains",
@@ -91240,9 +91793,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L72",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_install_from_source_development",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_install_from_source_development"
     },
     {
       "relation": "contains",
@@ -91250,9 +91803,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_next",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_next"
     },
     {
       "relation": "contains",
@@ -91260,9 +91813,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L13",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_quick_install",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_quick_install"
     },
     {
       "relation": "contains",
@@ -91270,9 +91823,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L5",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_requirements",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_requirements"
     },
     {
       "relation": "contains",
@@ -91280,9 +91833,9 @@
       "source_file": "website/docs/ohho-os/install.md",
       "source_location": "L53",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_install_install_ohho_os",
-      "target": "ohho_os_install_verify",
-      "confidence_score": 1.0
+      "target": "ohho_os_install_verify"
     },
     {
       "relation": "contains",
@@ -91290,9 +91843,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_quickstart_quickstart",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_quickstart"
     },
     {
       "relation": "references",
@@ -91300,9 +91853,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L118",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_robots",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots"
     },
     {
       "relation": "references",
@@ -91310,9 +91863,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L117",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_runtimes",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes"
     },
     {
       "relation": "references",
@@ -91320,9 +91873,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L6",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_setup",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup"
     },
     {
       "relation": "references",
@@ -91330,9 +91883,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills"
     },
     {
       "relation": "references",
@@ -91340,9 +91893,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart",
-      "target": "ohho_os_training",
-      "confidence_score": 1.0
+      "target": "ohho_os_training"
     },
     {
       "relation": "contains",
@@ -91350,9 +91903,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_1_connect",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_1_connect"
     },
     {
       "relation": "contains",
@@ -91360,9 +91913,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L27",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_2_drive_and_read_telemetry",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_2_drive_and_read_telemetry"
     },
     {
       "relation": "contains",
@@ -91370,9 +91923,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L42",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_3_hand_it_a_goal_the_agent",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_3_hand_it_a_goal_the_agent"
     },
     {
       "relation": "contains",
@@ -91380,9 +91933,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_4_record_data_and_train",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_4_record_data_and_train"
     },
     {
       "relation": "contains",
@@ -91390,9 +91943,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_5_serve_the_trained_policy",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_5_serve_the_trained_policy"
     },
     {
       "relation": "contains",
@@ -91400,9 +91953,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L84",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_6_run_a_skill",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_6_run_a_skill"
     },
     {
       "relation": "contains",
@@ -91410,9 +91963,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L91",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_cli_shortcuts",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_cli_shortcuts"
     },
     {
       "relation": "contains",
@@ -91420,9 +91973,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L114",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_next",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_next"
     },
     {
       "relation": "contains",
@@ -91430,9 +91983,9 @@
       "source_file": "website/docs/ohho-os/quickstart.md",
       "source_location": "L105",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_quickstart_quickstart",
-      "target": "ohho_os_quickstart_the_same_loop_on_a_different_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_quickstart_the_same_loop_on_a_different_robot"
     },
     {
       "relation": "contains",
@@ -91440,9 +91993,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots",
-      "target": "ohho_os_robots_supported_robots",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_supported_robots"
     },
     {
       "relation": "references",
@@ -91450,9 +92003,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L332",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_robots",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots"
     },
     {
       "relation": "contains",
@@ -91460,9 +92013,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L95",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_supported_robots",
-      "target": "ohho_os_robots_add_a_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_add_a_robot"
     },
     {
       "relation": "contains",
@@ -91470,9 +92023,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_supported_robots",
-      "target": "ohho_os_robots_built_in_robots_v1_0_0",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_built_in_robots_v1_0_0"
     },
     {
       "relation": "contains",
@@ -91480,9 +92033,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L66",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_supported_robots",
-      "target": "ohho_os_robots_protocol_adapters_v1_0_0",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_protocol_adapters_v1_0_0"
     },
     {
       "relation": "contains",
@@ -91490,9 +92043,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L7",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_supported_robots",
-      "target": "ohho_os_robots_robot_categories",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_robot_categories"
     },
     {
       "relation": "contains",
@@ -91500,9 +92053,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L30",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_supported_robots",
-      "target": "ohho_os_robots_the_capability_model",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_the_capability_model"
     },
     {
       "relation": "contains",
@@ -91510,9 +92063,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_the_capability_model",
-      "target": "ohho_os_robots_capability_vocabulary",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_capability_vocabulary"
     },
     {
       "relation": "contains",
@@ -91520,9 +92073,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L79",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_protocol_adapters_v1_0_0",
-      "target": "ohho_os_robots_composite_transport",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_composite_transport"
     },
     {
       "relation": "contains",
@@ -91530,9 +92083,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L100",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_add_a_robot",
-      "target": "ohho_os_robots_1_write_a_manifest_json_or_yaml",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_1_write_a_manifest_json_or_yaml"
     },
     {
       "relation": "contains",
@@ -91540,9 +92093,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L115",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_add_a_robot",
-      "target": "ohho_os_robots_2_write_an_adapter_subclass_basetransport",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_2_write_an_adapter_subclass_basetransport"
     },
     {
       "relation": "contains",
@@ -91550,9 +92103,9 @@
       "source_file": "website/docs/ohho-os/robots.md",
       "source_location": "L125",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_robots_add_a_robot",
-      "target": "ohho_os_robots_3_register_the_scheme_write_a_test",
-      "confidence_score": 1.0
+      "target": "ohho_os_robots_3_register_the_scheme_write_a_test"
     },
     {
       "relation": "contains",
@@ -91560,9 +92113,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes",
-      "target": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_runtimes_ros_vs_no_ros"
     },
     {
       "relation": "references",
@@ -91570,9 +92123,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L331",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_runtimes",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes"
     },
     {
       "relation": "contains",
@@ -91580,9 +92133,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_at_a_glance",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_at_a_glance"
     },
     {
       "relation": "contains",
@@ -91590,9 +92143,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_choose_no_ros_if",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_choose_no_ros_if"
     },
     {
       "relation": "contains",
@@ -91600,9 +92153,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L92",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_choose_ros_2_if",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_choose_ros_2_if"
     },
     {
       "relation": "contains",
@@ -91610,9 +92163,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L116",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_how_it_works",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_how_it_works"
     },
     {
       "relation": "contains",
@@ -91620,9 +92173,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L36",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_the_native_runtime",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_the_native_runtime"
     },
     {
       "relation": "contains",
@@ -91630,9 +92183,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_the_ros_2_runtime",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_the_ros_2_runtime"
     },
     {
       "relation": "contains",
@@ -91640,9 +92193,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_runtimes_ros_vs_no_ros",
-      "target": "ohho_os_runtimes_there_is_no_wrong_choice",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_there_is_no_wrong_choice"
     },
     {
       "relation": "contains",
@@ -91650,9 +92203,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L71",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_the_ros_2_runtime",
-      "target": "ohho_os_runtimes_auto_detect",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_auto_detect"
     },
     {
       "relation": "contains",
@@ -91660,9 +92213,9 @@
       "source_file": "website/docs/ohho-os/runtimes.md",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_runtimes_the_ros_2_runtime",
-      "target": "ohho_os_runtimes_ros_2_transport",
-      "confidence_score": 1.0
+      "target": "ohho_os_runtimes_ros_2_transport"
     },
     {
       "relation": "contains",
@@ -91670,9 +92223,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot"
     },
     {
       "relation": "references",
@@ -91680,9 +92233,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L334",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills"
     },
     {
       "relation": "references",
@@ -91690,9 +92243,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L333",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup",
-      "target": "ohho_os_training",
-      "confidence_score": 1.0
+      "target": "ohho_os_training"
     },
     {
       "relation": "contains",
@@ -91700,9 +92253,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L327",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_next_steps",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_next_steps"
     },
     {
       "relation": "contains",
@@ -91710,9 +92263,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_prerequisites",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_prerequisites"
     },
     {
       "relation": "contains",
@@ -91720,9 +92273,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L22",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_1_install_ohho_os",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_1_install_ohho_os"
     },
     {
       "relation": "contains",
@@ -91730,9 +92283,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L81",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_2_connect_your_first_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_2_connect_your_first_robot"
     },
     {
       "relation": "contains",
@@ -91740,9 +92293,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L153",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_3_drive_and_read_telemetry",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_3_drive_and_read_telemetry"
     },
     {
       "relation": "contains",
@@ -91750,9 +92303,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L186",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_4_hand_it_a_goal_agent",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_4_hand_it_a_goal_agent"
     },
     {
       "relation": "contains",
@@ -91760,9 +92313,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L217",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_5_record_data_train_and_serve_optional",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_5_record_data_train_and_serve_optional"
     },
     {
       "relation": "contains",
@@ -91770,9 +92323,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L270",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_6_run_skills_optional",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_6_run_skills_optional"
     },
     {
       "relation": "contains",
@@ -91780,9 +92333,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L300",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_step_7_check_your_hardware_profile_optional",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_step_7_check_your_hardware_profile_optional"
     },
     {
       "relation": "contains",
@@ -91790,9 +92343,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L312",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_setup_guide_from_zero_to_a_moving_robot",
-      "target": "ohho_os_setup_troubleshooting",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_troubleshooting"
     },
     {
       "relation": "contains",
@@ -91800,9 +92353,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L34",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_1_install_ohho_os",
-      "target": "ohho_os_setup_install_extras_for_your_robot",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_install_extras_for_your_robot"
     },
     {
       "relation": "contains",
@@ -91810,9 +92363,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L56",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_1_install_ohho_os",
-      "target": "ohho_os_setup_verify_your_installation",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_verify_your_installation"
     },
     {
       "relation": "contains",
@@ -91820,9 +92373,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L133",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_auto_detect_runtime",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_auto_detect_runtime"
     },
     {
       "relation": "contains",
@@ -91830,9 +92383,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L142",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_cli_shortcut",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_cli_shortcut"
     },
     {
       "relation": "contains",
@@ -91840,9 +92393,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_option_a_use_the_simulator_no_hardware",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_option_a_use_the_simulator_no_hardware"
     },
     {
       "relation": "contains",
@@ -91850,9 +92403,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L99",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_option_b_connect_to_a_real_omnibot_yahboom_serial_feetech_arm",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_option_b_connect_to_a_real_omnibot_yahboom_serial_feetech_arm"
     },
     {
       "relation": "contains",
@@ -91860,9 +92413,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L110",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_option_c_connect_to_a_unitree_go2_dds",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_option_c_connect_to_a_unitree_go2_dds"
     },
     {
       "relation": "contains",
@@ -91870,9 +92423,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L120",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_2_connect_your_first_robot",
-      "target": "ohho_os_setup_option_d_connect_via_ros_2",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_option_d_connect_via_ros_2"
     },
     {
       "relation": "contains",
@@ -91880,9 +92433,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L177",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_3_drive_and_read_telemetry",
-      "target": "ohho_os_setup_cli_shortcuts",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_cli_shortcuts"
     },
     {
       "relation": "contains",
@@ -91890,9 +92443,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L209",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_4_hand_it_a_goal_agent",
-      "target": "ohho_os_setup_cli_shortcut_209",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_cli_shortcut_209"
     },
     {
       "relation": "contains",
@@ -91900,9 +92453,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L224",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_5_record_data_train_and_serve_optional",
-      "target": "ohho_os_setup_record_an_episode",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_record_an_episode"
     },
     {
       "relation": "contains",
@@ -91910,9 +92463,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L252",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_5_record_data_train_and_serve_optional",
-      "target": "ohho_os_setup_serve_the_policy",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_serve_the_policy"
     },
     {
       "relation": "contains",
@@ -91920,9 +92473,9 @@
       "source_file": "website/docs/ohho-os/setup.md",
       "source_location": "L239",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_setup_step_5_record_data_train_and_serve_optional",
-      "target": "ohho_os_setup_train_a_policy",
-      "confidence_score": 1.0
+      "target": "ohho_os_setup_train_a_policy"
     },
     {
       "relation": "contains",
@@ -91930,9 +92483,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills",
-      "target": "ohho_os_skills_skills_market",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_skills_market"
     },
     {
       "relation": "contains",
@@ -91940,9 +92493,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L8",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_built_in_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_built_in_skills"
     },
     {
       "relation": "contains",
@@ -91950,9 +92503,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L86",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_capability_gating",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_capability_gating"
     },
     {
       "relation": "contains",
@@ -91960,9 +92513,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L17",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_list_and_run_skills",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_list_and_run_skills"
     },
     {
       "relation": "contains",
@@ -91970,9 +92523,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L119",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_next",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_next"
     },
     {
       "relation": "contains",
@@ -91980,9 +92533,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L102",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_the_skill_dataclass",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_the_skill_dataclass"
     },
     {
       "relation": "contains",
@@ -91990,9 +92543,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_use_skills_in_python",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_use_skills_in_python"
     },
     {
       "relation": "contains",
@@ -92000,9 +92553,9 @@
       "source_file": "website/docs/ohho-os/skills.md",
       "source_location": "L55",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_skills_skills_market",
-      "target": "ohho_os_skills_write_your_own_skill",
-      "confidence_score": 1.0
+      "target": "ohho_os_skills_write_your_own_skill"
     },
     {
       "relation": "contains",
@@ -92010,9 +92563,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L1",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training",
-      "target": "ohho_os_training_training_pipelines",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_training_pipelines"
     },
     {
       "relation": "contains",
@@ -92020,9 +92573,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_1_collect_data",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_1_collect_data"
     },
     {
       "relation": "contains",
@@ -92030,9 +92583,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L89",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_2_train",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_2_train"
     },
     {
       "relation": "contains",
@@ -92040,9 +92593,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L132",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_3_serve",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_3_serve"
     },
     {
       "relation": "contains",
@@ -92050,9 +92603,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L175",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_4_continual_learning",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_4_continual_learning"
     },
     {
       "relation": "contains",
@@ -92060,9 +92613,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L181",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_hardware_aware_everywhere",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_hardware_aware_everywhere"
     },
     {
       "relation": "contains",
@@ -92070,9 +92623,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_training_pipelines",
-      "target": "ohho_os_training_the_loop",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_the_loop"
     },
     {
       "relation": "contains",
@@ -92080,9 +92633,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L61",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_1_collect_data",
-      "target": "ohho_os_training_dataset_format",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_dataset_format"
     },
     {
       "relation": "contains",
@@ -92090,9 +92643,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L78",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_1_collect_data",
-      "target": "ohho_os_training_read_a_dataset_back",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_read_a_dataset_back"
     },
     {
       "relation": "contains",
@@ -92100,9 +92653,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L46",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_1_collect_data",
-      "target": "ohho_os_training_what_gets_recorded",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_what_gets_recorded"
     },
     {
       "relation": "contains",
@@ -92110,9 +92663,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L107",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_2_train",
-      "target": "ohho_os_training_mock_mode_no_gpu_needed",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_mock_mode_no_gpu_needed"
     },
     {
       "relation": "contains",
@@ -92120,9 +92673,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_2_train",
-      "target": "ohho_os_training_supported_policies",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_supported_policies"
     },
     {
       "relation": "contains",
@@ -92130,9 +92683,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L164",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_3_serve",
-      "target": "ohho_os_training_build_a_testable_app_no_server_launch",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_build_a_testable_app_no_server_launch"
     },
     {
       "relation": "contains",
@@ -92140,9 +92693,9 @@
       "source_file": "website/docs/ohho-os/training.md",
       "source_location": "L147",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "ohho_os_training_3_serve",
-      "target": "ohho_os_training_endpoints",
-      "confidence_score": 1.0
+      "target": "ohho_os_training_endpoints"
     },
     {
       "relation": "contains",
@@ -104833,17 +105386,6 @@
       "target": "lib_products"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L25",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "lib_products"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/lib/products.tsx",
@@ -105156,17 +105698,6 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "components_products",
-      "target": "lib_products_products"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L25",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
       "target": "lib_products_products"
     },
     {
@@ -207089,17 +207620,6 @@
       "target": "components_footer"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/about/page.tsx",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "about_page",
-      "target": "components_nav"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/app/account/page.tsx",
@@ -207227,17 +207747,6 @@
       "confidence_score": 1.0,
       "source": "account_page",
       "target": "components_glasscard_glasscard"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/account/page.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "account_page",
-      "target": "components_nav"
     },
     {
       "relation": "calls",
@@ -208481,265 +208990,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L23",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "auth_authprovider"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L23",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "auth_authprovider_useauth"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L19",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "auth_consolegate"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L24",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "auth_plans"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L24",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "auth_plans_hasconsoleaccess"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "components_glasscard"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "components_glasscard_glasscard"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L18",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "components_nav"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L195",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "console_page_capitalize"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L41",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "console_page_consolehub"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L31",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "console_page_consolepage"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L29",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "console_page_consoles"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L200",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "console_page_consoleshell"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_client"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_client_adduserrobot"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_client_deleteuserrobot"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_client_getuserrobots"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L21",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_garageview"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L22",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_robotselector"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_types"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L27",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page",
-      "target": "garage_types_userrobot"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L42",
-      "weight": 1.0,
-      "source": "console_page_consolehub",
-      "target": "auth_authprovider_useauth"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "console_page_consolehub",
-      "target": "auth_plans_hasconsoleaccess"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/console/page.tsx",
-      "source_location": "L101",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "console_page_consolehub",
-      "target": "console_page_capitalize"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "website/app/data/page.tsx",
       "source_location": "L2",
       "weight": 1.0,
@@ -208810,17 +209060,6 @@
       "confidence_score": 1.0,
       "source": "website_app_docs_slug_page_tsx_slug_page",
       "target": "components_footer"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/docs/[...slug]/page.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "website_app_docs_slug_page_tsx_slug_page",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -208928,17 +209167,6 @@
       "confidence_score": 1.0,
       "source": "docs_page",
       "target": "components_footer"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/docs/page.tsx",
-      "source_location": "L3",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "docs_page",
-      "target": "components_nav"
     },
     {
       "relation": "contains",
@@ -209164,17 +209392,6 @@
       "confidence_score": 1.0,
       "source": "garage_garagepageclient",
       "target": "auth_plans_hasconsoleaccess"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/garage/GaragePageClient.tsx",
-      "source_location": "L11",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "garage_garagepageclient",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -209621,17 +209838,6 @@
       "target": "components_glasscard_glasscard"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/login/page.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "login_page",
-      "target": "components_nav"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/app/login/page.tsx",
@@ -209792,17 +209998,6 @@
       "target": "components_footer"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/news/ohho-mind/page.tsx",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "ohho_mind_page",
-      "target": "components_nav"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/app/news/ohho-mind/page.tsx",
@@ -209832,17 +210027,6 @@
       "confidence_score": 1.0,
       "source": "omnivla_engine_page",
       "target": "components_footer"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/news/omnivla-engine/page.tsx",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "omnivla_engine_page",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -209972,17 +210156,6 @@
       "confidence_score": 1.0,
       "source": "app_page",
       "target": "components_howitworks"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/page.tsx",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "app_page",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -210135,17 +210308,6 @@
       "confidence_score": 1.0,
       "source": "website_app_products_slug_page_tsx_slug_page",
       "target": "components_glasscard_glasscard"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/products/[slug]/page.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "website_app_products_slug_page_tsx_slug_page",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -210510,17 +210672,6 @@
       "target": "components_footer"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/team/page.tsx",
-      "source_location": "L1",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "team_page",
-      "target": "components_nav"
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "website/app/team/page.tsx",
@@ -210798,17 +210949,6 @@
       "confidence_score": 1.0,
       "source": "upgrade_page",
       "target": "components_glasscard_glasscard"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/app/upgrade/page.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "upgrade_page",
-      "target": "components_nav"
     },
     {
       "relation": "imports_from",
@@ -211376,146 +211516,6 @@
       "weight": 1.0,
       "source": "components_howitworks_howitworks",
       "target": "hooks_usescrollreveal_usescrollreveal"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_authprovider"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_authprovider_useauth"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_consolenavbutton"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_consolenavbutton_consolenavbutton"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_plans"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_plans_hasconsoleaccess"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "auth_usermenu"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "components_nav_dev_links"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L11",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "components_nav_marketing_links"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "components_nav_nav"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "components_nav",
-      "target": "lib_site"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "components_nav_nav",
-      "target": "auth_authprovider_useauth"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "website/components/Nav.tsx",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "components_nav_nav",
-      "target": "auth_plans_hasconsoleaccess"
     },
     {
       "relation": "imports_from",
@@ -252933,5 +252933,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "bbe2ef2e63d80c13e6286ac4253fd286ae7f5cf5"
+  "built_at_commit": "af29af7f2665daa587dcb03bef196f3c9f4d583a"
 }

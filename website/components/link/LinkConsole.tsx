@@ -31,6 +31,7 @@ import {
 import { AGENTS, ENDPOINT_URL, type AgentConfig } from "@/lib/link/agents";
 import { getAllTools, TOOL_COUNT } from "@/lib/mcp/registry";
 import PaidFeatureGate from "@/components/auth/PaidFeatureGate";
+import ProductDashboard from "@/components/products/ProductDashboard";
 
 const CYAN = "#00D4FF";
 const CYAN_DIM = "rgba(0,212,255,0.10)";
@@ -130,6 +131,9 @@ export default function LinkConsole() {
             Any AI agent that speaks MCP — Claude Desktop, OpenCode, Cursor, Cline, Windsurf, or any other — can query and
             control your robot fleet, browse the skill marketplace, trigger OTA updates, run safety tests, and more.
           </p>
+          <div className="rounded-[14px] overflow-hidden mt-6 max-w-[800px]">
+            <ProductDashboard slug="link" accent="cyan" />
+          </div>
         </div>
 
         {/* Endpoint + API key bar */}

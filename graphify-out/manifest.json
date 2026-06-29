@@ -2085,9 +2085,9 @@
     "semantic_hash": "8a1f76bec175f9a615cf467c530f4809"
   },
   "website/app/team/page.tsx": {
-    "mtime": 1781466755.2360396,
-    "ast_hash": "45f139358ed1563a41dca6cdf41ca3cb",
-    "semantic_hash": "45f139358ed1563a41dca6cdf41ca3cb"
+    "mtime": 1782764174.1516776,
+    "ast_hash": "587fba21eb181d316cf9443bc7f22c22",
+    "semantic_hash": ""
   },
   ".claude/settings.json": {
     "mtime": 1781465556.622325,
@@ -2440,8 +2440,8 @@
     "semantic_hash": "53e510f9df3526b71903a51bb93f4946"
   },
   "website/app/products/[slug]/page.tsx": {
-    "mtime": 1781908457.4164112,
-    "ast_hash": "8c80f0b6e87b5b52a367013f44468e70",
+    "mtime": 1782693431.7633927,
+    "ast_hash": "f8998547281589b61d1c271b395e79fa",
     "semantic_hash": ""
   },
   "website/app/proof/page.tsx": {
@@ -2585,8 +2585,8 @@
     "semantic_hash": "ddf70572db793ae5d6124f051178a1de"
   },
   "website/components/products/ProductDashboard.tsx": {
-    "mtime": 1782237691.4240704,
-    "ast_hash": "57b205db03aa134200090775c45a8e1a",
+    "mtime": 1782693439.4261935,
+    "ast_hash": "1c0729f0144205a75c0310eccf776c0f",
     "semantic_hash": ""
   },
   "website/components/products/dashboardKit.tsx": {
@@ -4930,8 +4930,8 @@
     "semantic_hash": ""
   },
   "website/app/os/page.tsx": {
-    "mtime": 1782687051.5546014,
-    "ast_hash": "3772d06cfa87077bfaaa4911725e9945",
+    "mtime": 1782693585.6705215,
+    "ast_hash": "492ba5dda5ccd474e9786c5f44e1b3dd",
     "semantic_hash": ""
   },
   "website/components/OhhoOS.tsx": {
@@ -5122,6 +5122,21 @@
   "website/public/videos/products/view.png": {
     "mtime": 1782687536.4721684,
     "ast_hash": "cd0e71e3a9591b7e651e974e11351e71",
+    "semantic_hash": ""
+  },
+  "website/docs/video-prompts/link.md": {
+    "mtime": 1782691879.069631,
+    "ast_hash": "51a7d5a9da9a1f8336aeca3e44647574",
+    "semantic_hash": ""
+  },
+  "website/app/team/layout.tsx": {
+    "mtime": 1782764155.9944186,
+    "ast_hash": "9614712ddc394ff9ad25babd5a56bc36",
+    "semantic_hash": ""
+  },
+  "website/components/team/ContactModal.tsx": {
+    "mtime": 1782764136.9372447,
+    "ast_hash": "ad6550032b0edd0053f80169b644e590",
     "semantic_hash": ""
   }
 }
