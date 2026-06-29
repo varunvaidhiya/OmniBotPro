@@ -1,19 +1,18 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
-import { GITHUB_HREF, BUYMEACOFFEE_HREF, contactMailto } from "@/lib/site";
+import ContactModal from "@/components/team/ContactModal";
+import { GITHUB_HREF } from "@/lib/site";
 
-export const metadata = {
-  title: "Team | OhhO — Robotics, Operated.",
-  description: "Meet Varun Vaidhiya, the founder building the future of embodied AI.",
-};
-
-const SOCIALS = [
-  { label: "GitHub", href: GITHUB_HREF },
-  { label: "Buy me a coffee", href: BUYMEACOFFEE_HREF },
-];
+const EMAIL = "varun.vaidhiya@gmail.com";
+const PHONE = "+44 7587 815427";
 
 export default function Team() {
+  const [contactOpen, setContactOpen] = useState(false);
+
   return (
     <>
       <Nav />
@@ -70,19 +69,16 @@ export default function Team() {
               </div>
 
               <div className="flex flex-wrap gap-2.5 mt-7 justify-center md:justify-start">
-                {SOCIALS.map((s) => (
-                  <Link
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3.5 py-2 rounded-lg transition-all hover:-translate-y-px"
-                    style={{ border: "1px solid rgba(255,255,255,.12)", color: "var(--text)" }}
-                  >
-                    {s.label}
-                    <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
-                  </Link>
-                ))}
+                <Link
+                  href={GITHUB_HREF}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3.5 py-2 rounded-lg transition-all hover:-translate-y-px"
+                  style={{ border: "1px solid rgba(255,255,255,.12)", color: "var(--text)" }}
+                >
+                  GitHub
+                  <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                </Link>
               </div>
             </div>
           </section>
@@ -93,20 +89,22 @@ export default function Team() {
               <span className="text-violet text-xl">02 //</span> Join the mission
             </h2>
             <p className="text-[17px] text-white/70 leading-relaxed max-w-2xl mx-auto mb-8">
-              OhhO is a one-person company today, but not for long. If you care about embodied AI, robot tooling, and shipping real software for real hardware — this is ground floor. Reach out and tell us what you'd build.
+              OhhO is a one-person company today, but not for long. If you care about embodied AI, robot tooling, and shipping real software for real hardware — this is ground floor. Reach out and tell us what you&apos;d build.
             </p>
-            <Link
-              href={contactMailto("Joining OhhO")}
+            <button
+              onClick={() => setContactOpen(true)}
               className="inline-flex items-center gap-2 text-[14px] font-semibold px-5 py-3 rounded-xl transition-all hover:-translate-y-px"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
             >
               Get in touch
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
-            </Link>
+            </button>
           </section>
         </div>
       </main>
       <Footer />
+
+      {contactOpen && <ContactModal email={EMAIL} phone={PHONE} onClose={() => setContactOpen(false)} />}
     </>
   );
 }
