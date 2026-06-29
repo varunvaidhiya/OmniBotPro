@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import GlassCard from "@/components/GlassCard";
+import ProductDashboard from "@/components/products/ProductDashboard";
 import { DOCS_HREF, GITHUB_HREF } from "@/lib/site";
 
 export const metadata = {
@@ -167,6 +169,14 @@ export default function OhhoOsPage() {
               View on GitHub
             </a>
           </div>
+
+          <figure className="mb-24">
+            <GlassCard accent="violet" interactive={false} padding="16px" radius={22}>
+              <div className="rounded-[14px] overflow-hidden">
+                <ProductDashboard slug="ohho-os" accent="violet" />
+              </div>
+            </GlassCard>
+          </figure>
 
           {/* ── v1.0.0 Features ── */}
           <SectionHeading kicker="v1.0.0" title="What's in the box" />
