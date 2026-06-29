@@ -112,10 +112,10 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
           {/* ── DASHBOARD MOCKUP (the embedded "image") ──────────────────── */}
           <figure className="mt-16">
             {product.app ? (
-              <Link href={product.app.href} className="block group">
+              <div className="block group">
                 <GlassCard accent={accent} interactive={false} padding="16px" radius={22} className="relative">
                   <span
-                    className="absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold px-2.5 py-1 rounded-full"
+                    className="absolute top-5 right-5 z-10 inline-flex items-center gap-1.5 font-mono text-[10px] font-semibold px-2.5 py-1 rounded-full pointer-events-none"
                     style={{ background: aColor, color: "var(--bg)" }}
                   >
                     <span className="badge-dot" style={{ background: "var(--bg)" }} /> LIVE
@@ -124,7 +124,7 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
                     <ProductDashboard slug={product.slug} accent={accent} />
                   </div>
                 </GlassCard>
-              </Link>
+              </div>
             ) : (
               <GlassCard accent={accent} interactive={false} padding="16px" radius={22}>
                 <div className="rounded-[14px] overflow-hidden">
