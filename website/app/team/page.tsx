@@ -1,16 +1,16 @@
+import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { GITHUB_HREF, BUYMEACOFFEE_HREF, contactMailto } from "@/lib/site";
 
 export const metadata = {
   title: "Team | OhhO — Robotics, Operated.",
-  description: "Meet the people building the future of embodied AI.",
+  description: "Meet Varun Vaidhiya, the founder building the future of embodied AI.",
 };
 
-const members = [
-  { name: "Your Name", role: "Role", photo: null, bio: "Add your bio here." },
-  { name: "Team Member", role: "Role", photo: null, bio: "Add your bio here." },
-  { name: "Team Member", role: "Role", photo: null, bio: "Add your bio here." },
-  { name: "Team Member", role: "Role", photo: null, bio: "Add your bio here." },
+const SOCIALS = [
+  { label: "GitHub", href: GITHUB_HREF },
+  { label: "Buy me a coffee", href: BUYMEACOFFEE_HREF },
 ];
 
 export default function Team() {
@@ -22,41 +22,88 @@ export default function Team() {
         <div className="hero-orb-1" />
         <div className="hero-orb-2" />
 
-        <div className="max-w-5xl w-full px-6 relative z-10">
+        <div className="max-w-4xl w-full px-6 relative z-10">
           <div className="flex items-center gap-3 mb-8 justify-center">
             <span className="badge-dot" />
             <span className="text-[13px] font-mono tracking-widest uppercase text-cyan">Team</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-[64px] font-bold tracking-tight mb-6 text-center leading-[1.1]">
-            Meet the team
+            Meet the founder
           </h1>
 
           <p className="text-lg md:text-[21px] text-white/70 mb-20 text-center max-w-2xl mx-auto leading-relaxed">
-            We're a small team of builders obsessed with making robots easier to operate.
+            OhhO is built by a single founder — on purpose. Small, fast, and obsessed with making robots easier to operate.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {members.map((m, i) => (
-              <div
-                key={m.name + i}
-                className="bg-white/[0.03] border border-white/[0.07] rounded-2xl p-6 backdrop-blur-md flex flex-col items-center text-center group transition-all duration-300 hover:border-white/[0.14] hover:bg-white/[0.05]"
-              >
-                <div className="w-28 h-28 rounded-full bg-white/[0.04] border border-white/[0.08] mb-4 flex items-center justify-center overflow-hidden group-hover:border-white/[0.16] transition-colors">
-                  {m.photo ? (
-                    <img src={m.photo} alt={m.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <svg className="w-10 h-10 text-white/25" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  )}
-                </div>
-                <h3 className="text-[17px] font-semibold text-white mb-1">{m.name}</h3>
-                <p className="text-[13px] font-medium text-cyan mb-3">{m.role}</p>
-                <p className="text-[13px] text-white/55 leading-relaxed">{m.bio}</p>
+          {/* ── Founder card ─────────────────────────────────────────────── */}
+          <section className="bg-white/[0.03] border border-white/[0.07] rounded-3xl p-8 md:p-12 backdrop-blur-md flex flex-col md:flex-row items-center md:items-start gap-8 md:gap-10">
+            {/* monogram avatar (no portrait photo on file yet) */}
+            <div className="shrink-0 w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center"
+              style={{
+                background: "linear-gradient(135deg, rgba(0,212,255,.18), rgba(124,58,237,.18))",
+                border: "1px solid rgba(0,212,255,.28)",
+                boxShadow: "0 0 40px -12px rgba(0,212,255,.35)",
+              }}
+              aria-hidden
+            >
+              <span className="text-[44px] md:text-[56px] font-bold tracking-tight"
+                style={{ background: "linear-gradient(135deg, var(--cyan), var(--violet))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                VV
+              </span>
+            </div>
+
+            <div className="flex-1 text-center md:text-left">
+              <h2 className="text-[26px] md:text-[30px] font-bold text-white mb-1">Varun Vaidhiya</h2>
+              <p className="text-[14px] font-medium text-cyan mb-5">Founder &amp; CEO</p>
+
+              <div className="space-y-4 text-[16px] md:text-[17px] text-white/70 leading-relaxed">
+                <p>
+                  Varun is the solo founder behind OhhO. He designs the robots, writes the software, trains the policies, ships the product, and answers the support tickets — because the best way to build tools for builders is to be one.
+                </p>
+                <p>
+                  He started OhhO after years of rebuilding the same robot plumbing on every project: a ROS workspace, a Docker image, a simulator, a data pipeline, a model server. OhhO is that stack, productized — so the next person can skip the plumbing and start at the interesting part.
+                </p>
+                <p>
+                  The company stays small on purpose. One founder, one focus, no committee — which is exactly why it ships faster than teams ten times the size.
+                </p>
               </div>
-            ))}
-          </div>
+
+              <div className="flex flex-wrap gap-2.5 mt-7 justify-center md:justify-start">
+                {SOCIALS.map((s) => (
+                  <Link
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-[12.5px] font-medium px-3.5 py-2 rounded-lg transition-all hover:-translate-y-px"
+                    style={{ border: "1px solid rgba(255,255,255,.12)", color: "var(--text)" }}
+                  >
+                    {s.label}
+                    <svg className="w-3 h-3 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* ── Join the mission ─────────────────────────────────────────── */}
+          <section className="mt-8 bg-white/[0.03] border border-white/[0.07] rounded-3xl p-8 md:p-12 backdrop-blur-md text-center">
+            <h2 className="text-2xl font-bold mb-4 text-white flex items-center justify-center gap-3">
+              <span className="text-violet text-xl">02 //</span> Join the mission
+            </h2>
+            <p className="text-[17px] text-white/70 leading-relaxed max-w-2xl mx-auto mb-8">
+              OhhO is a one-person company today, but not for long. If you care about embodied AI, robot tooling, and shipping real software for real hardware — this is ground floor. Reach out and tell us what you'd build.
+            </p>
+            <Link
+              href={contactMailto("Joining OhhO")}
+              className="inline-flex items-center gap-2 text-[14px] font-semibold px-5 py-3 rounded-xl transition-all hover:-translate-y-px"
+              style={{ background: "var(--cyan)", color: "var(--bg)" }}
+            >
+              Get in touch
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
+            </Link>
+          </section>
         </div>
       </main>
       <Footer />
