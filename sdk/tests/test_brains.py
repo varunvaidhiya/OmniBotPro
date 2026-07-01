@@ -2,9 +2,15 @@ import unittest
 
 from ohho.adapters.sim import SimTransport
 from ohho.agent import Agent, ScriptedBrain
+from ohho.brains import harness_available
 from ohho.registry import get_spec
 from ohho.robot import Robot
 from ohho.runtime import NativeRuntime
+
+# agent_engine lives in the repo and needs numpy; without it these tests skip
+# (the SDK's base install must keep working — Agent falls back to ScriptedBrain).
+_HAS_AGENT_ENGINE = harness_available()
+_SKIP_REASON = "agent_engine (+ numpy) not importable — install 'ohho-os[agent]'"
 
 
 def _bot(robot_id="omnibot"):
@@ -14,6 +20,7 @@ def _bot(robot_id="omnibot"):
     return Robot(spec, tp, NativeRuntime())
 
 
+@unittest.skipUnless(_HAS_AGENT_ENGINE, _SKIP_REASON)
 class TestToolRegistry(unittest.TestCase):
     def test_omnibot_has_drive_and_arm_tools(self):
         from ohho.brains import build_tool_registry
@@ -72,6 +79,7 @@ class TestToolRegistry(unittest.TestCase):
         self.assertIn("vx", drive_schema["input_schema"]["properties"])
 
 
+@unittest.skipUnless(_HAS_AGENT_ENGINE, _SKIP_REASON)
 class TestRobotPerceptor(unittest.TestCase):
     def test_perceive_returns_world_state(self):
         from ohho.brains import RobotPerceptor
@@ -93,6 +101,7 @@ class TestRobotPerceptor(unittest.TestCase):
         self.assertAlmostEqual(ws.base_velocity[0], 0.1, places=3)
 
 
+@unittest.skipUnless(_HAS_AGENT_ENGINE, _SKIP_REASON)
 class TestHarnessBrain(unittest.TestCase):
     def test_harness_brain_runs_with_echo(self):
         from ohho.brains import HarnessBrain

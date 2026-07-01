@@ -16,6 +16,15 @@ OhhO OS is a Python package. Install the core, then add only the extras you need
 pip install 'ohho-os[base]'
 ```
 
+> **Not on PyPI yet?** Until the package is published, install straight from
+> the repository — same result, works today:
+>
+> ```bash
+> pip install "ohho-os[base] @ git+https://github.com/varunvaidhiya/OmniBotPro.git@main#subdirectory=sdk"
+> ```
+>
+> or clone and install editable (see [Install from source](#install-from-source-development) below).
+
 The base install is **dependency-free** — core runtime, capability model,
 simulator, agent brain (ScriptedBrain fallback), and CLI run on the standard
 library alone, on any OS.

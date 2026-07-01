@@ -22,15 +22,36 @@ def _cmd_version(args) -> int:
 
 
 def _cmd_doctor(args) -> int:
+    import importlib.util
+
+    from .brains import harness_available
+
+    def have(mod: str) -> bool:
+        return importlib.util.find_spec(mod) is not None
+
+    runtimes = available_runtimes()
     print(f"OhhO OS {__version__}")
     print(f"  python      : {sys.version.split()[0]}")
-    print(f"  runtimes    : {', '.join(available_runtimes())}")
+    print(f"  runtimes    : {', '.join(runtimes)}")
     print(f"  adapters    : {', '.join(available_adapters())}  (others via extras)")
     print(f"  device      : {resolve_device('auto')}")
     print(f"  robots      : {', '.join(s.id for s in list_specs())}")
-    print(
-        "  recommended : runtime=native  (ROS 2 backend arrives in a later milestone)"
+    brain = (
+        "harness — full perceive→reason→act→reflect"
+        if harness_available()
+        else "scripted fallback  (install 'ohho-os[agent]' + repo agent_engine)"
     )
+    print(f"  agent brain : {brain}")
+    print(
+        f"  serve       : {'ready (fastapi)' if have('fastapi') else 'needs [serve] extra'}"
+    )
+    print(
+        f"  data writer : {'parquet (pyarrow)' if have('pyarrow') else 'json fallback  (add [data] for parquet)'}"
+    )
+    print(
+        f"  train       : {'torch available' if have('torch') else 'mock only  (add [train] for real training)'}"
+    )
+    print(f"  recommended : runtime={'ros2' if 'ros2' in runtimes else 'native'}")
     return 0
 
 

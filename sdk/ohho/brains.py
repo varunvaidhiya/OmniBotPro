@@ -20,6 +20,22 @@ from . import capabilities as caps
 from .robot import Robot
 
 
+def harness_available() -> bool:
+    """True when the full agent stack can actually be imported.
+
+    ``agent_engine`` lives in this repo and needs numpy — merely *finding* the
+    package is not enough (its import explodes without numpy), so this probe
+    performs the real imports and treats any failure as "not available".
+    """
+    try:
+        import agent_engine.core.harness  # noqa: F401
+        import agent_engine.core.tools  # noqa: F401
+        import agent_engine.reasoners.claude_tool_caller  # noqa: F401
+    except Exception:
+        return False
+    return True
+
+
 def build_tool_registry(robot: Robot):
     """Build an ``agent_engine.ToolRegistry`` from the robot's capabilities.
 
@@ -203,7 +219,20 @@ class HarnessBrain:
         self.max_steps = max_steps
 
     def run(self, robot: Robot, goal: str, max_steps: int = 20) -> List[str]:
-        from agent_engine.core.harness import AgentHarness
+        try:
+            from agent_engine.core.harness import AgentHarness
+        except Exception as e:
+            # agent_engine (or its numpy dependency) is missing — degrade to
+            # the zero-dependency scripted brain instead of crashing the CLI.
+            from .agent import ScriptedBrain
+
+            log = [
+                f"harness brain unavailable ({e.__class__.__name__}: {e}) — "
+                "falling back to the scripted brain. Install numpy + the "
+                "repo's agent_engine (pip install 'ohho-os[agent]') for the "
+                "full perceive→reason→act→reflect loop."
+            ]
+            return log + ScriptedBrain().run(robot, goal, max_steps)
 
         tools = build_tool_registry(robot)
         perceptor = RobotPerceptor(robot)

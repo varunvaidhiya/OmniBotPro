@@ -51,11 +51,13 @@ def _default_brain() -> Brain:
     extra).
     """
     try:
-        from .brains import HarnessBrain
+        from . import brains
 
-        return HarnessBrain()
+        if brains.harness_available():
+            return brains.HarnessBrain()
     except Exception:
-        return ScriptedBrain()
+        pass
+    return ScriptedBrain()
 
 
 class Agent:

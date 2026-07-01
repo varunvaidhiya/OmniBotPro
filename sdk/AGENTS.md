@@ -9,11 +9,18 @@
 - **What it is:** the open-source, robot-agnostic engine that powers the OhhO
   platform. One API controls any robot, **with or without ROS**, and carries the
   whole stack from perception to training.
-- **Status:** **M0–M5 complete — v1.0.0.** All milestones shipped. Installable,
-  151 unittest cases passing (4 HIL tests skip unless `OHHO_HIL=1`), `ohho` CLI
-  works end-to-end with `doctor list version connect sim drive agent serve
-  market profile`.
-- **Current version:** `1.0.0` (see `ohho/__init__.py` `__version__`).
+- **Status:** **M0–M5 complete — v1.0.1 (verified).** All milestones shipped and
+  independently verified from a fresh install: 151 unittest cases green in a
+  fully-equipped env; in a **bare** env the optional-dep tests skip cleanly
+  (agent_engine/numpy → brains tests; fastapi → the record→train→serve e2e; 4 HIL
+  tests skip unless `OHHO_HIL=1`). `ohho` CLI works end-to-end with `doctor list
+  version connect sim drive agent serve market profile`.
+- **v1.0.1 hardening:** `Agent`/`ohho agent` no longer crash on a bare install —
+  `brains.harness_available()` probes the real import chain and `HarnessBrain.run`
+  falls back to `ScriptedBrain` with an explanatory log line; `ohho doctor` now
+  reports agent-brain/serve/data/train availability dynamically (the stale
+  "ROS 2 arrives later" line is gone — auto prefers ros2 when rclpy is present).
+- **Current version:** `1.0.1` (see `ohho/__init__.py` `__version__`).
 
 ---
 
