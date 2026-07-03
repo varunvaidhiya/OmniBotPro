@@ -27,6 +27,15 @@ Open a terminal and install the core package:
 pip install 'ohho-os[base]'
 ```
 
+> **Not on PyPI yet?** Until the package is published, install straight from
+> the repository — same result, works today:
+>
+> ```bash
+> pip install "ohho-os[base] @ git+https://github.com/varunvaidhiya/OmniBotPro.git@main#subdirectory=sdk"
+> ```
+>
+> or clone the repo and run `pip install -e sdk` from its root.
+
 This gives you the Robot Abstraction Layer, the native (no-ROS) runtime, the
 simulator, the CLI, and the agent brain — with zero heavy dependencies. It works
 on any OS.
@@ -62,13 +71,17 @@ ohho doctor
 You should see output like:
 
 ```
-OhhO OS 1.0.0
+OhhO OS 1.0.1
   python      : 3.12.4
   runtimes    : native
   adapters    : sim  (others via extras)
   device      : cpu
   robots      : omnibot, sim, unitree-go2
-  recommended : runtime=native  (ROS 2 backend arrives in a later milestone)
+  agent brain : scripted fallback  (install 'ohho-os[agent]' + repo agent_engine)
+  serve       : needs [serve] extra
+  data writer : json fallback  (add [data] for parquet)
+  train       : mock only  (add [train] for real training)
+  recommended : runtime=native
 ```
 
 `ohho doctor` reports your Python version, which runtimes are available (native
@@ -190,9 +203,14 @@ builds tools from the robot's capabilities and uses a Claude tool-calling
 reasoner (or an echo fallback when no LLM is available).
 
 ```bash
-pip install 'ohho-os[agent]'  # needs agent_engine + anthropic
+pip install 'ohho-os[agent]'   # numpy + anthropic
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
+
+> The full harness brain also needs `agent_engine`, which ships in the
+> [OmniBotPro repo](https://github.com/varunvaidhiya/OmniBotPro) (not on PyPI):
+> clone it and run `pip install -e agent_engine`. Run `ohho doctor` — the
+> `agent brain` line tells you which brain is active.
 
 ```python
 from ohho.agent import Agent

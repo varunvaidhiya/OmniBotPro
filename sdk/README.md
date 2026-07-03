@@ -9,7 +9,17 @@ carries the whole stack from perception to training.
 
 ## Status
 
-`v0.1.0` — **M0 scaffold**. What works today:
+`v1.1.0` — **M0–M5 complete + native nav & memory.** Highlights: 6 adapters
+(sim, Yahboom serial, Feetech arm, composite, Unitree DDS, ROS 2 topics), two
+runtimes (native + ROS 2, auto-detected), a real agent brain
+(perceive→reason→act→reflect with tools built from capabilities), the
+record→train→serve pipeline, the skill market, hardware profiles, **built-in
+navigation** (occupancy mapping, A*, frontier exploration — `ohho nav`), and
+**spatio-temporal memory + perception** (`ohho look` / `ohho memory`,
+Claude-vision optional). See `AGENTS.md` for the full state and
+`website/docs/ohho-os/` for user docs.
+
+The original M0 scaffold, for reference:
 
 - The Robot Abstraction Layer (`Robot`) with a capability model
 - A `native` runtime (no ROS) and a `ros2` runtime stub behind one `Runtime` port

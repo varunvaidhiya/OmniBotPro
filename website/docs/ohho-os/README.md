@@ -65,6 +65,10 @@ print(bot.telemetry().odom)             # unified telemetry schema
   switch later with one argument.
 - [Supported robots](robots.md) — categories, the capability model, and the
   6 protocol adapters shipped in v1.0.0.
+- [Native navigation](navigation.md) — occupancy-grid mapping, A* planning,
+  frontier exploration — no ROS required.
+- [Memory & perception](memory.md) — spatio-temporal memory (object permanence,
+  temporal queries) + sim and Claude-vision perceptors.
 - [Training pipelines](training.md) — data collection, fine-tuning and serving.
 - [Architecture](architecture.md) — the abstraction layer that makes one API
   work across every robot and runtime.

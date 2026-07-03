@@ -187,6 +187,13 @@ class TestWriterReader(unittest.TestCase):
             self.assertIn("action", stats)
 
 
+def _has_fastapi() -> bool:
+    import importlib.util
+
+    return importlib.util.find_spec("fastapi") is not None
+
+
+@unittest.skipUnless(_has_fastapi(), "fastapi not installed — [serve] extra")
 class TestEndToEndRecordTrainServe(unittest.TestCase):
     """The M3 acceptance test: record → mock train → mock serve on sim."""
 

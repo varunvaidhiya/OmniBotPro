@@ -8,12 +8,13 @@ Public surface:
 
 from __future__ import annotations
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 from .schema import (
     ConnectionState,
     JointReading,
     Odometry,
+    Scan,
     Telemetry,
     TransportStatus,
     Velocity,
@@ -32,6 +33,7 @@ __all__ = [
     "Velocity",
     "Odometry",
     "JointReading",
+    "Scan",
     "Telemetry",
     "TransportStatus",
     "ConnectionState",

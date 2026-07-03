@@ -19,6 +19,7 @@ MANIPULATION = "manipulation"
 # Perception
 PERCEPTION_RGB = "perception.rgb"
 PERCEPTION_DEPTH = "perception.depth"
+PERCEPTION_SCAN = "perception.scan"  # planar range scan (lidar / depth-derived)
 
 ALL: frozenset[str] = frozenset(
     {
@@ -28,6 +29,7 @@ ALL: frozenset[str] = frozenset(
         MANIPULATION,
         PERCEPTION_RGB,
         PERCEPTION_DEPTH,
+        PERCEPTION_SCAN,
     }
 )
 
