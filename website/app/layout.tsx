@@ -7,10 +7,47 @@ import { RobotConnectionProvider } from "@/lib/connect/RobotConnectionProvider";
 import ConnectionBar from "@/components/connect/ConnectionBar";
 import AssistantMount from "@/components/assistant/AssistantMount";
 
+const SITE_URL = "https://ohho-robotics.com";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "OhhO — Robotics, Operated.",
   description:
     "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
+  openGraph: {
+    title: "OhhO — Robotics, Operated.",
+    description:
+      "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+    url: SITE_URL,
+    siteName: "OhhO",
+    images: [{ url: "/ohho-logo.svg", width: 1200, height: 630, alt: "OhhO — Robotics, Operated." }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OhhO — Robotics, Operated.",
+    description:
+      "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+    images: ["/ohho-logo.svg"],
+  },
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "OhhO",
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.svg`,
+  description:
+    "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+  founder: { "@type": "Person", name: "Varun Vaidhiya" },
+  sameAs: ["https://github.com/varunvaidhiya/OmniBotPro"],
 };
 
 export default function RootLayout({
@@ -20,6 +57,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+      </head>
       <body>
         <AuthProvider>
           <RobotConnectionProvider>
