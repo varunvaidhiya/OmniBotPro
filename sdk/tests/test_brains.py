@@ -66,6 +66,40 @@ class TestToolRegistry(unittest.TestCase):
         self.assertTrue(result.ok)
         self.assertIn("odom", result.output)
 
+    def test_nav_and_memory_tools_registered(self):
+        from ohho.brains import build_tool_registry
+        from ohho.memory import SpatialMemory
+        from ohho.nav import Navigator
+        from ohho.perception import SimPerceptor
+
+        bot = _bot("sim")
+        reg = build_tool_registry(
+            bot,
+            navigator=Navigator(bot),
+            memory=SpatialMemory(),
+            perceptor=SimPerceptor(bot),
+        )
+        for tool in (
+            "navigate_to",
+            "explore",
+            "where_is",
+            "objects_near",
+            "look_around",
+        ):
+            self.assertIn(tool, reg)
+
+    def test_memory_tools_answer(self):
+        from agent_engine.core.types import ToolCall
+        from ohho.brains import build_tool_registry
+        from ohho.memory import SpatialMemory
+
+        memory = SpatialMemory()
+        memory.observe("cup", 1.0, 2.0)
+        reg = build_tool_registry(_bot("sim"), memory=memory)
+        result = reg.dispatch(ToolCall("where_is", {"label": "cup"}))
+        self.assertTrue(result.ok)
+        self.assertIn("cup", result.output)
+
     def test_tool_to_anthropic_schema(self):
         from ohho.brains import build_tool_registry
 

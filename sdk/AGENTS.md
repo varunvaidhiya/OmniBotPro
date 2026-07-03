@@ -20,7 +20,18 @@
   falls back to `ScriptedBrain` with an explanatory log line; `ohho doctor` now
   reports agent-brain/serve/data/train availability dynamically (the stale
   "ROS 2 arrives later" line is gone — auto prefers ros2 when rclpy is present).
-- **Current version:** `1.0.1` (see `ohho/__init__.py` `__version__`).
+- **v1.1.0 — native nav + spatio-temporal memory:** the two former DimOS-parity
+  gaps are closed. `ohho/nav.py` (occupancy-grid mapping from `Telemetry.scan`,
+  costmap inflation, A*, frontier exploration, closed-loop `Navigator` with
+  stuck detection + goal diversion; CLI `ohho nav goto|explore|map`) and
+  `ohho/memory.py` + `ohho/perception.py` (entity store with object permanence,
+  spatial/temporal queries, JSON persistence at `~/.ohho/memory/<robot>.json`;
+  `SimPerceptor` + optional Claude-vision `VlmPerceptor`; CLI `ohho look`,
+  `ohho memory show|where|near|clear`). The sim gained labeled obstacles,
+  ray-cast scans and **solid-object collision**; the agent's tool registry gained
+  `navigate_to, explore, look_around, where_is, objects_near, remember_note` and
+  injects the memory summary into every goal. All stdlib — base stays dep-free.
+- **Current version:** `1.1.0` (see `ohho/__init__.py` `__version__`).
 
 ---
 
@@ -36,7 +47,9 @@
 | **Hardware adapters** | ✅ M1 software complete — `serial://` (Yahboom base) + `feetech://` (SO-101 arm) + `composite` (base+arm merge for mobile-manipulators) + `dds://` (Unitree Go2 with real state polling) all built and mock-tested. **On-robot bring-up still pending** (hardware-gated). DJI/others not built. |
 | Agent loop | ✅ **real brain** — `HarnessBrain` wires `agent_engine.AgentHarness` (perceive→reason→act→reflect). `ToolRegistry` built from robot capabilities. `ClaudeToolCallingReasoner` over `ReasoningRouter` (cloud Claude when `ANTHROPIC_API_KEY` + `[agent]` extra, echo fallback otherwise). `ScriptedBrain` remains the no-dep fallback. |
 | Training / data / serve | ✅ **M3 complete** — `ohho.data.Recorder` (capture state+action from Robot → LeRobot v2.0), `ohho.train.finetune()` (delegates to lerobot_engine, mock mode for sim), `ohho.serve` (FastAPI server, `ohho serve` CLI). Record→train→serve loop works on sim. |
-| CLI (`ohho`) | ✅ `doctor list version connect sim drive agent serve market profile` |
+| **Navigation (native, no-ROS)** | ✅ **v1.1.0** — `ohho.nav`: grid mapping, costmap, A*, frontiers, `Navigator` (collision-aware). CLI `ohho nav goto/explore/map` |
+| **Memory + perception** | ✅ **v1.1.0** — `ohho.memory` (object permanence, temporal queries, JSON persistence) + `ohho.perception` (`SimPerceptor`, Claude-vision `VlmPerceptor`). CLI `ohho look`, `ohho memory` |
+| CLI (`ohho`) | ✅ `doctor list version connect sim drive agent serve market profile nav look memory` |
 | Tests | ✅ 151 `unittest` cases (`sdk/tests/`) + 4 HIL tests (`sdk/tests/hil/`, skip unless `OHHO_HIL=1`) |
 | CI | ✅ green (`Lint (ruff)` + repo build); see §7 |
 

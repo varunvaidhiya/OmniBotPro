@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ohho-os"
-version = "1.0.1"
+version = "1.1.0"
 description = "OhhO OS — the open-source, robot-agnostic engine for any robot, with or without ROS."
 readme = "README.md"
 requires-python = ">=3.10"

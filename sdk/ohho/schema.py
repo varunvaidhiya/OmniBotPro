@@ -53,12 +53,28 @@ class JointReading:
 
 
 @dataclass
+class Scan:
+    """A planar range scan in the robot frame (lidar-like, sim or synthesized).
+
+    Ray ``k`` points at ``angle_min + k * angle_increment`` radians relative to
+    the robot's heading; ``ranges[k]`` is the hit distance in metres, or
+    ``range_max`` when nothing was hit.
+    """
+
+    angle_min: float
+    angle_increment: float
+    ranges: list[float] = field(default_factory=list)
+    range_max: float = 4.0
+
+
+@dataclass
 class Telemetry:
     """One best-effort snapshot of a robot's state. All fields optional."""
 
     odom: Optional[Odometry] = None
     joints: list[JointReading] = field(default_factory=list)
     battery: Optional[float] = None  # 0..1 fraction when known
+    scan: Optional[Scan] = None  # planar range scan, when the robot has one
     custom: dict = field(default_factory=dict)
     timestamp: float = field(default_factory=time.time)
 

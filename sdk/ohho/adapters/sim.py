@@ -11,12 +11,14 @@ from __future__ import annotations
 import math
 import threading
 import time
+from dataclasses import dataclass
 
 from ..registry import RobotSpec
 from ..schema import (
     ConnectionState,
     JointReading,
     Odometry,
+    Scan,
     Telemetry,
     TransportStatus,
     Velocity,
@@ -24,12 +26,43 @@ from ..schema import (
 from ..transport import BaseTransport
 
 
+@dataclass
+class SimObject:
+    """A labeled circular object in the sim world (obstacle + perceivable)."""
+
+    x: float
+    y: float
+    radius: float
+    label: str = "obstacle"
+
+
+def demo_world() -> list[SimObject]:
+    """A small furnished room — obstacles for nav + labeled objects to perceive."""
+    return [
+        SimObject(1.5, 0.0, 0.30, "chair"),
+        SimObject(2.5, 1.2, 0.45, "table"),
+        SimObject(0.0, 2.0, 0.35, "plant"),
+        SimObject(-1.5, -1.0, 0.40, "box"),
+        SimObject(3.5, -1.5, 0.25, "cup"),
+    ]
+
+
 class SimTransport(BaseTransport):
     protocol = "simulated"
 
-    def __init__(self, spec: RobotSpec, joint_rate: float = 2.0) -> None:
+    def __init__(
+        self,
+        spec: RobotSpec,
+        joint_rate: float = 2.0,
+        objects: list[SimObject] | None = None,
+        scan_rays: int = 72,
+        scan_range: float = 4.0,
+    ) -> None:
         super().__init__()
         self.spec = spec
+        self._objects: list[SimObject] = list(objects or [])
+        self._scan_rays = scan_rays
+        self._scan_range = scan_range
         self._odom = Odometry()
         self._cmd = Velocity()
         self._joints: dict[str, float] = {n: 0.0 for n in spec.joint_names}
@@ -80,6 +113,46 @@ class SimTransport(BaseTransport):
     def release_stop(self) -> None:
         self._estopped = False
 
+    # ── world (obstacles / perceivable objects) ──────────────────────────────
+    def add_object(
+        self, x: float, y: float, radius: float, label: str = "obstacle"
+    ) -> None:
+        """Place a labeled circular object in the world (obstacle + perceivable)."""
+        self._objects.append(SimObject(x, y, radius, label))
+
+    def world_objects(self) -> list[SimObject]:
+        """The labeled objects in the sim world (used by the sim perceptor)."""
+        return list(self._objects)
+
+    def _ray_cast(self) -> Scan:
+        """Synthesize a planar range scan from the pose and the circle world."""
+        n = self._scan_rays
+        angle_min = -math.pi
+        inc = 2.0 * math.pi / n
+        px, py, th = self._odom.x, self._odom.y, self._odom.theta
+        ranges: list[float] = []
+        for k in range(n):
+            a = th + angle_min + k * inc
+            dx, dy = math.cos(a), math.sin(a)
+            best = self._scan_range
+            for ob in self._objects:
+                mx, my = px - ob.x, py - ob.y
+                b = dx * mx + dy * my
+                c0 = mx * mx + my * my - ob.radius * ob.radius
+                disc = b * b - c0
+                if disc < 0.0:
+                    continue
+                t = -b - math.sqrt(disc)
+                if 0.0 < t < best:
+                    best = t
+            ranges.append(best)
+        return Scan(
+            angle_min=angle_min,
+            angle_increment=inc,
+            ranges=ranges,
+            range_max=self._scan_range,
+        )
+
     # ── telemetry ─────────────────────────────────────────────────────────────
     def read(self) -> Telemetry:
         return self._snapshot()
@@ -94,7 +167,8 @@ class SimTransport(BaseTransport):
             self._odom.vy,
             self._odom.omega,
         )
-        return Telemetry(odom=odom, joints=joints, battery=self._battery)
+        scan = self._ray_cast() if self._objects else None
+        return Telemetry(odom=odom, joints=joints, battery=self._battery, scan=scan)
 
     # ── physics ───────────────────────────────────────────────────────────────
     def step(self, dt: float) -> Telemetry:
@@ -107,6 +181,18 @@ class SimTransport(BaseTransport):
         self._odom.y += (vx * s + vy * c) * dt
         self._odom.theta += w * dt
         self._odom.vx, self._odom.vy, self._odom.omega = vx, vy, w
+
+        # solid obstacles: project the pose back to the surface (slide along it)
+        for ob in self._objects:
+            dx = self._odom.x - ob.x
+            dy = self._odom.y - ob.y
+            d = math.hypot(dx, dy)
+            if d < ob.radius:
+                if d < 1e-9:
+                    dx, dy, d = 1e-9, 0.0, 1e-9
+                scale = ob.radius / d
+                self._odom.x = ob.x + dx * scale
+                self._odom.y = ob.y + dy * scale
 
         # joints servo toward targets at a bounded rate
         max_step = self._joint_rate * dt
