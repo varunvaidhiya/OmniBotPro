@@ -64,6 +64,48 @@ const INITIAL_STANDARDS: Standard[] = [
       { id: "r13", clause: "6.2", description: "Protection against direct contact with live parts.", status: "open", owner: "Sarah J.", evidence: false },
     ],
   },
+  {
+    id: "iso-3691-4",
+    title: "ISO 3691-4",
+    description: "Safety of industrial trucks — driverless (AGVs/AMRs).",
+    requirements: [
+      { id: "r14", clause: "4.2", description: "Speed control and speed reduction in restricted areas.", status: "done", owner: "David L.", evidence: true },
+      { id: "r15", clause: "4.3", description: "Safety zones and person detection (lidar / vision).", status: "review", owner: "Elena M.", evidence: true },
+      { id: "r16", clause: "4.4", description: "Emergency stop — accessible, priority over all commands.", status: "done", owner: "Alex K.", evidence: true },
+      { id: "r17", clause: "5.1", description: "Obstacle detection and collision avoidance system.", status: "review", owner: "Elena M.", evidence: false },
+      { id: "r18", clause: "6.2", description: "Acoustic and visual warning signals.", status: "open", owner: "Sarah J.", evidence: false },
+    ],
+  },
+  {
+    id: "iso-13482",
+    title: "ISO 13482",
+    description: "Safety requirements for personal care robots (service/household).",
+    requirements: [
+      { id: "r19", clause: "5.2", description: "Stability requirements for mobile servant robots.", status: "open", owner: "David L.", evidence: false },
+      { id: "r20", clause: "5.4", description: "Speed and force limiting near humans.", status: "review", owner: "Elena M.", evidence: false },
+      { id: "r21", clause: "5.7", description: "Emergency stop and protective stop for personal care.", status: "open", owner: "Alex K.", evidence: false },
+    ],
+  },
+  {
+    id: "ansi-ria-r1506",
+    title: "ANSI/RIA R15.06",
+    description: "US industrial robot and robot system safety requirements.",
+    requirements: [
+      { id: "r22", clause: "4.3", description: "Safeguarding of the restricted space (perimeter guarding).", status: "done", owner: "Alex K.", evidence: true },
+      { id: "r23", clause: "4.5", description: "Collaborative operation requirements (PFL, SSM, HRC).", status: "review", owner: "Elena M.", evidence: true },
+      { id: "r24", clause: "6.1", description: "Risk assessment per ANSI/RIA R15.06 (harmonized with ISO 10218).", status: "open", owner: "David L.", evidence: false },
+    ],
+  },
+  {
+    id: "iec-61508",
+    title: "IEC 61508",
+    description: "Functional safety of electrical/electronic/programmable systems (foundational).",
+    requirements: [
+      { id: "r25", clause: "Part 1 §8", description: "Safety lifecycle — hazard analysis to SIL determination.", status: "review", owner: "David L.", evidence: true },
+      { id: "r26", clause: "Part 2 §7", description: "Techniques for achieving SIL (systematic integrity).", status: "open", owner: "Alex K.", evidence: false },
+      { id: "r27", clause: "Part 3 §7", description: "Software safety requirements and verification.", status: "open", owner: "David L.", evidence: false },
+    ],
+  },
 ];
 
 export function useCompliance() {

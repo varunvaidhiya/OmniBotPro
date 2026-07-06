@@ -1231,7 +1231,7 @@ export const PRODUCTS: Product[] = [
     slug: "comply",
     name: "OhhO Comply",
     tag: "Ship robots the regulators will pass.",
-    desc: "Turn robot safety standards into a guided checklist — CE, ISO 10218, ISO 13849, UL — and auto-generate the technical file and audit trail to prove conformity.",
+    desc: "Turn robot safety standards into a guided checklist — CE, ISO 10218, ISO 3691-4, ISO 13482, ISO 13849, ANSI/RIA R15.06, UL — and auto-generate the technical file and audit trail to prove conformity.",
     accent: "violet",
     category: "Trust",
     icon: (
@@ -1241,9 +1241,12 @@ export const PRODUCTS: Product[] = [
         <path d="m9 14 2 2 4-4" />
       </svg>
     ),
-    hero: "Ship robots the regulators will pass. OhhO Comply turns robot safety standards into a guided checklist — CE, ISO 10218, ISO 13849, UL — and generates the technical file and audit trail to prove conformity.",
+    hero: "Ship robots the regulators will pass. OhhO Comply turns robot safety standards into a guided checklist — CE, ISO 10218, ISO 3691-4, ISO 13482, ISO 13849, ANSI/RIA R15.06, UL — and generates the technical file and audit trail to prove conformity.",
     highlights: [
       "Standards mapped to your robot",
+      "AGV/AMR safety (ISO 3691-4)",
+      "Service robot safety (ISO 13482)",
+      "US industrial robot safety (ANSI/RIA R15.06)",
       "Guided requirement checklists",
       "Auto-generated technical file & DoC",
       "Immutable audit trail",
@@ -1251,11 +1254,15 @@ export const PRODUCTS: Product[] = [
     ],
     overview: [
       "A robot that can't be certified can't be sold. Compliance is where most hardware projects stall — a maze of directives, harmonized standards and documentation that nobody on the team trained for. OhhO Comply makes it a workflow.",
-      "Comply maps your robot — pulled straight from its OhhO Build design and deployment profile — to the standards that actually apply: the EU Machinery Regulation and CE marking, ISO 10218 / ISO 15066 for industrial and collaborative robots, ISO 13849 functional safety, and regional electrical standards like UL and IEC 60204.",
+      "Comply maps your robot — pulled straight from its OhhO Build design and deployment profile — to the standards that actually apply. For industrial robots: the EU Machinery Regulation and CE marking, ISO 10218 / ISO 15066, ISO 13849 functional safety, and regional electrical standards like UL and IEC 60204. For AGVs and AMRs: ISO 3691-4, the warehouse robotics safety standard, plus ANSI/ITSDF B56.5 in the US. For service and personal care robots: ISO 13482. For the North American market: ANSI/RIA R15.06, the US equivalent of ISO 10218. And the foundational IEC 61508 functional safety standard underpins them all.",
       "For each requirement it tracks evidence, owners and status, generates the technical construction file and Declaration of Conformity, and keeps an immutable audit trail — so when an auditor or a customer asks, the proof is one click away.",
     ],
     features: [
-      { title: "Applicability engine", body: "Comply reads your robot's design and use case and tells you which directives and standards actually apply — no guessing." },
+      { title: "Applicability engine", body: "Comply reads your robot's design and use case and tells you which directives and standards actually apply — industrial, AGV/AMR, service, medical, agricultural — no guessing." },
+      { title: "AGV/AMR safety (ISO 3691-4)", body: "The warehouse robotics safety standard — covering driverless industrial trucks, speed control, safety zones, obstacle detection and emergency stops. Plus ANSI/ITSDF B56.5 for the US market." },
+      { title: "Service robot safety (ISO 13482)", body: "Safety requirements for personal care robots and mobile servant robots — directly relevant to household and service robots heading to market." },
+      { title: "US industrial safety (ANSI/RIA R15.06)", body: "The North American equivalent of ISO 10218 — industrial robot and robot system safety requirements for the US market, harmonized with the international standard." },
+      { title: "Foundational functional safety (IEC 61508)", body: "The root functional safety standard that ISO 13849 and other domain standards derive from — referenced throughout the compliance chain." },
       { title: "Guided checklists", body: "Each standard becomes a tracked list of requirements, each with evidence, an owner and a status." },
       { title: "Risk assessment", body: "Built-in templates for ISO 12100 hazard analysis and ISO 13849 performance-level determination." },
       { title: "Document generation", body: "Auto-assemble the technical construction file, risk assessment and Declaration of Conformity." },
@@ -1269,12 +1276,16 @@ export const PRODUCTS: Product[] = [
       { title: "Generate the file", body: "Export the technical file, Declaration of Conformity and audit trail for certification." },
     ],
     specs: [
-      { label: "Standards", value: "EU Machinery Reg, ISO 10218, ISO 15066, ISO 13849, ISO 12100, UL / IEC 60204" },
+      { label: "Industrial robot standards", value: "EU Machinery Reg (CE), ISO 10218, ISO 15066, ISO 13849, ISO 12100, UL / IEC 60204" },
+      { label: "AGV/AMR standards", value: "ISO 3691-4, ANSI/ITSDF B56.5" },
+      { label: "Service robot standards", value: "ISO 13482 (personal care robots)" },
+      { label: "US safety standards", value: "ANSI/RIA R15.06, ANSI/ITSDF B56.5" },
+      { label: "Functional safety", value: "IEC 61508 (foundational)" },
       { label: "Risk assessment", value: "ISO 12100 + ISO 13849 PL templates" },
       { label: "Outputs", value: "Technical file, risk assessment, Declaration of Conformity" },
       { label: "Audit trail", value: "Immutable, timestamped" },
       { label: "Sync", value: "Driven by OhhO Build design changes" },
-      { label: "Regions", value: "EU (CE), North America (UL), extensible" },
+      { label: "Regions", value: "EU (CE), North America (UL/ANSI), extensible" },
     ],
     plans: [
       { plan: "Spark", level: "Not included", included: false },
@@ -1287,7 +1298,9 @@ export const PRODUCTS: Product[] = [
       "If you're heading toward a real certification, choose Fleet for the full standards library and document generation. Enterprises pursuing formal certification with a notified body should choose Forge for custom standards and partner support.",
     faq: [
       { q: "Does Comply certify my robot?", a: "Comply prepares everything a certification needs — the technical file, risk assessment and evidence — and on Forge connects you with certification partners. The certificate itself is issued by an accredited body, not OhhO." },
-      { q: "Which standards are covered?", a: "The common machinery and robot-safety standards (CE / Machinery Regulation, ISO 10218, ISO 13849, UL), with custom standards available on Forge." },
+      { q: "Which standards are covered?", a: "Industrial robot safety (CE / Machinery Regulation, ISO 10218, ISO 15066, ISO 13849, UL/IEC 60204), AGV/AMR safety (ISO 3691-4, ANSI/ITSDF B56.5), service robot safety (ISO 13482), US industrial safety (ANSI/RIA R15.06), and foundational functional safety (IEC 61508) — with custom standards available on Forge." },
+      { q: "Does Comply cover warehouse AGV/AMR safety?", a: "Yes. ISO 3691-4 is the safety standard for driverless industrial trucks — covering speed control, safety zones, obstacle detection and emergency stops. Comply maps it to your AGV/AMR design automatically, plus ANSI/ITSDF B56.5 for the US market." },
+      { q: "What about service and household robots?", a: "ISO 13482 covers personal care robots — mobile servants, physical assistant robots and person carrier robots. If you're building a household or service robot, Comply maps the requirements that apply to your category." },
     ],
     related: ["shield", "proof", "build", "care"],
     app: { href: "/comply", label: "Open compliance center" },
