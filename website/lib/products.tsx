@@ -1025,7 +1025,7 @@ export const PRODUCTS: Product[] = [
     slug: "fleet",
     name: "OhhO Fleet",
     tag: "Update 50 robots like you update an app.",
-    desc: "Fleet management, signed over-the-air updates and a full observability stack — Prometheus, Grafana and alerting, pre-configured.",
+    desc: "Fleet management, signed over-the-air updates, VDA 5050 warehouse integration, Open-RMF multi-robot coordination, and a full observability stack — Prometheus, Grafana and alerting, pre-configured.",
     accent: "cyan",
     category: "Operations",
     icon: (
@@ -1037,23 +1037,27 @@ export const PRODUCTS: Product[] = [
         <path d="M12 12V8" />
       </svg>
     ),
-    hero: "Update 50 robots like you update an app. Fleet management, signed over-the-air updates and a full observability stack — Prometheus, Grafana and alerting, pre-configured.",
+    hero: "Update 50 robots like you update an app. Fleet management, signed over-the-air updates, VDA 5050 warehouse integration, Open-RMF multi-robot coordination, and a full observability stack — Prometheus, Grafana and alerting, pre-configured.",
     highlights: [
       "Fleet health dashboard",
       "Signed OTA updates (code + models)",
       "Staged / canary rollouts",
+      "VDA 5050 compatible (AGV/AMR fleet standard)",
+      "Open-RMF multi-robot coordination",
       "Prometheus + Grafana + alerts",
       "Per-robot telemetry",
     ],
     overview: [
       "One robot is a project; fifty is an operation. OhhO Fleet is mission control for a whole fleet — see every robot's health, push software and AI-model updates over the air, and get paged before a problem becomes an outage.",
       "Fleet ships the observability stack already wired: Prometheus scraping, Grafana dashboards, Loki, Tempo and AlertManager. Robot telemetry, GPU metrics and VLA latency all land in one place.",
-      "Over-the-air updates cover both the ROS 2 workspace and ONNX policy models, with staged rollouts so you can canary a release to a few robots before it reaches the rest.",
+      "Over-the-air updates cover both the ROS 2 workspace and ONNX policy models, with staged rollouts so you can canary a release to a few robots before it reaches the rest. And because Fleet speaks the VDA 5050 AGV/AMR standard over MQTT, your robots integrate with the warehouse management systems and master control software your facility already runs — while Open-RMF handles multi-robot traffic management, task allocation and conflict-free navigation across mixed fleets.",
     ],
     features: [
       { title: "Single pane of glass", body: "Every robot's status, version, battery and last-seen in one dashboard." },
       { title: "OTA for code and models", body: "Update the ROS 2 workspace and ONNX policies remotely — no field visits." },
       { title: "Staged rollouts", body: "Canary to a subset, watch the metrics, then roll forward or back." },
+      { title: "VDA 5050 warehouse integration", body: "Speaks the VDA 5050 AGV/AMR fleet standard over MQTT — so OhhO Fleet interoperates with warehouse management systems and master control software from Linde, Toyota, MiR, KION and the rest of the VDA 5050 ecosystem. Your robots join the fleet your warehouse already runs." },
+      { title: "Open-RMF multi-robot coordination", body: "Open Robotics Middleware Framework integration for multi-robot traffic management, task allocation and conflict-free navigation — so mixed fleets from different vendors share the same floor without collisions or deadlocks." },
       { title: "Observability included", body: "Prometheus, Grafana, Loki, Tempo and AlertManager, pre-provisioned with dashboards." },
       { title: "Alerting that pages", body: "Rules for offline robots, latency spikes and resource exhaustion route to email or Slack." },
     ],
@@ -1070,6 +1074,8 @@ export const PRODUCTS: Product[] = [
       { label: "Alerting", value: "AlertManager → email / Slack" },
       { label: "OTA", value: "Workspace + ONNX models, signed" },
       { label: "Rollouts", value: "Staged / canary" },
+      { label: "Fleet protocol", value: "VDA 5050 over MQTT" },
+      { label: "Coordination", value: "Open-RMF compatible (multi-robot)" },
     ],
     plans: [
       { plan: "Spark", level: "Not included", included: false },
@@ -1083,6 +1089,8 @@ export const PRODUCTS: Product[] = [
     faq: [
       { q: "Can I host the observability stack myself?", a: "Yes. It deploys via Docker Compose on your own infrastructure; Forge adds on-prem licensing and SSO." },
       { q: "Are OTA updates safe?", a: "Updates are signed and staged; pair with OhhO Shield for end-to-end supply-chain integrity." },
+      { q: "Does Fleet integrate with my warehouse management system?", a: "Yes. Fleet speaks the VDA 5050 AGV/AMR fleet standard over MQTT — the same standard used by Linde, Toyota, MiR, KION and other major warehouse robotics vendors. Your robots appear in your WMS as standard VDA 5050 vehicles, and master control software can dispatch them alongside any other compliant AGV." },
+      { q: "Can Fleet coordinate mixed fleets from different vendors?", a: "Yes. Open-RMF integration provides multi-robot traffic management, task allocation and conflict-free navigation across mixed fleets — so robots from different vendors share the same floor without collisions or deadlocks." },
     ],
     related: ["serve", "shield", "proof", "twin", "care"],
     app: { href: "/fleet", label: "Open mission control" },
