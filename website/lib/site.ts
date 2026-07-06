@@ -11,6 +11,10 @@ export const CONTACT_EMAIL = "varun.vaidhiya@gmail.com";
 
 export const PRICING_HREF = "/#pricing";
 export const PRODUCTS_HREF = "/#products";
+/** Homepage anchor for the "No vendor lock-in / brand-agnostic" moat section. */
+export const NO_LOCKIN_HREF = "/#no-lock-in";
+/** Homepage anchor for the "single umbrella / full lifecycle" moat section. */
+export const LIFECYCLE_HREF = "/#lifecycle";
 
 /** Free sign-up (no payment) — Spark plan / "Start free" CTAs. */
 export const SIGNUP_HREF = "/login?next=/garage";

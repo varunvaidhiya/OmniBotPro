@@ -37,7 +37,7 @@ export default function Hero() {
             }}
           >
             <span className="badge-dot" />
-            Open Source &nbsp;·&nbsp; ROS 2 Jazzy &nbsp;·&nbsp; Pay only for cloud
+            Brand-agnostic &nbsp;·&nbsp; No vendor lock-in &nbsp;·&nbsp; Pay only for cloud
           </motion.div>
 
           <motion.h1
@@ -65,6 +65,17 @@ export default function Hero() {
           >
             The Open Robotics Platform
           </motion.div>
+
+          {/* brand-agnostic sub-tagline — the moat in one line */}
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="font-mono text-[11px] tracking-[0.08em] mt-3"
+            style={{ color: "rgba(255,255,255,0.5)" }}
+          >
+            Any GPU &nbsp;·&nbsp; Any robot &nbsp;·&nbsp; Any model &nbsp;·&nbsp; Any cloud &nbsp;·&nbsp; Any brand
+          </motion.div>
         </div>
 
         {/* spacer keeps the robot centred between the two text blocks */}
@@ -85,6 +96,18 @@ export default function Hero() {
             Pay only for the cloud infrastructure you actually use.
           </motion.p>
 
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.38 }}
+            className="font-display text-[clamp(13px,1.8vw,16px)] font-normal leading-[1.6] max-w-[600px] mx-auto mb-4 legible"
+            style={{ color: "rgba(255,255,255,0.58)" }}
+          >
+            <strong className="text-white font-semibold">Brand-agnostic by design.</strong> One umbrella
+            covering the whole lifecycle — prototype, train, launch, deploy, manage and regulate — without
+            locking you into any single GPU, robot, model, cloud or supplier.
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -99,6 +122,10 @@ export default function Hero() {
             <span>Self-host or use OhhO Cloud</span>
             <span className="opacity-30">·</span>
             <span>GPU · AI · Sim · MCP — pay per use</span>
+            <span className="opacity-30">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <span style={{ color: "var(--cyan)" }}>●</span> No vendor lock-in
+            </span>
           </motion.div>
 
           <motion.div

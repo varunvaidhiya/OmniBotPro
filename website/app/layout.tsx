@@ -11,29 +11,29 @@ const SITE_URL = "https://ohho-robotics.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "OhhO — Robotics, Operated.",
+  title: "OhhO — The Brand-Agnostic Robotics Platform",
   description:
-    "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+    "The brand-agnostic, open-source robotics platform. Build, train, launch, deploy, manage and regulate any robot — any GPU, any robot brand, any model, any cloud. No vendor lock-in, ever.",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
   openGraph: {
-    title: "OhhO — Robotics, Operated.",
+    title: "OhhO — The Brand-Agnostic Robotics Platform",
     description:
-      "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+      "The brand-agnostic, open-source robotics platform. Build, train, launch, deploy, manage and regulate any robot — any GPU, any robot brand, any model, any cloud. No vendor lock-in, ever.",
     url: SITE_URL,
     siteName: "OhhO",
-    images: [{ url: "/ohho-logo.svg", width: 1200, height: 630, alt: "OhhO — Robotics, Operated." }],
+    images: [{ url: "/ohho-logo.svg", width: 1200, height: 630, alt: "OhhO — The Brand-Agnostic Robotics Platform" }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OhhO — Robotics, Operated.",
+    title: "OhhO — The Brand-Agnostic Robotics Platform",
     description:
-      "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+      "The brand-agnostic, open-source robotics platform. Build, train, launch, deploy, manage and regulate any robot — any GPU, any robot brand, any model, any cloud. No vendor lock-in, ever.",
     images: ["/ohho-logo.svg"],
   },
 };
@@ -45,7 +45,7 @@ const orgJsonLd = {
   url: SITE_URL,
   logo: `${SITE_URL}/icon.svg`,
   description:
-    "From VR teleoperation to AI inference — one platform to build, deploy and scale any robot.",
+    "The brand-agnostic, open-source robotics platform. Build, train, launch, deploy, manage and regulate any robot — any GPU, any robot brand, any model, any cloud. No vendor lock-in, ever.",
   founder: { "@type": "Person", name: "Varun Vaidhiya" },
   sameAs: ["https://github.com/varunvaidhiya/OmniBotPro"],
 };
