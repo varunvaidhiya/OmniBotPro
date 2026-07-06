@@ -23,6 +23,7 @@ setup.
 - Wi-Fi · ROSBridge WebSocket
 - USB · Web Serial (firmware-direct)
 - Bluetooth · BLE (Nordic UART)
+- MQTT · IoT & cloud fleet connectivity
 - Built-in simulator (no hardware)
 - Robot-agnostic — one console, any robot
 
@@ -43,9 +44,9 @@ setup.
 
 ## Features
 
-- **Four transports, one API** — ROSBridge WebSocket (Wi-Fi), Web Serial (USB),
-  Web Bluetooth (BLE), and a built-in simulator — all behind the same
-  RobotTransport interface, feature-detected at runtime.
+- **Five transports, one API** — ROSBridge WebSocket (Wi-Fi), Web Serial (USB),
+  Web Bluetooth (BLE), MQTT (IoT/cloud fleet), and a built-in simulator — all
+  behind the same RobotTransport interface, feature-detected at runtime.
 - **Robot-agnostic by design** — Connect speaks generic velocity and joint
   commands, not robot-specific SDK calls. A console built against Connect works
   on any robot with a transport implementation.
@@ -77,7 +78,7 @@ setup.
 
 | Spec | Value |
 |---|---|
-| Transports | ROSBridge (WS), Web Serial (USB), Web BLE, Simulator |
+| Transports | ROSBridge (WS), Web Serial (USB), Web BLE, MQTT, Simulator |
 | Interface | RobotTransport — connect, velocity, joints, e-stop, telemetry |
 | Browser | Chromium (Chrome / Edge) for Serial + BLE; any for WS |
 | Persistence | Per-robot config saved to garage (Supabase + localStorage) |

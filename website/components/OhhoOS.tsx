@@ -11,7 +11,7 @@
  */
 
 import Link from "next/link";
-import { ArrowRight, Network, GitBranch, Layers, Cpu } from "lucide-react";
+import { ArrowRight, Network, GitBranch, Layers, Cpu, Plug } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import GlassCard from "@/components/GlassCard";
 import { OS_HREF, DOCS_HREF } from "@/lib/site";
@@ -36,6 +36,12 @@ const DIFFERENTIATORS = [
     icon: Layers,
   },
   {
+    title: "Speaks every industry-standard protocol",
+    body:
+      "From CANopen to OPC UA to VDA 5050 — OhhO speaks the standards the factory floor, the warehouse and the cloud already run on. Bridge industrial Ethernet (PROFINET, EtherNet/IP), IoT (MQTT), AGV/AMR fleets (VDA 5050) and industrial arms (ROS-Industrial) without writing a single protocol parser.",
+    icon: Plug,
+  },
+  {
     title: "Open source, zero lock-in",
     body:
       "Apache-2.0 licensed. 151 tests passing. Self-host every line, bring your own models and data, and move to OhhO Cloud only when you want managed GPUs, training and fleet operations.",
@@ -44,7 +50,7 @@ const DIFFERENTIATORS = [
 ];
 
 const PRODUCT_CHIPS = ["Build", "Frame", "Serve", "Train", "Autonomy", "Mind", "Fleet", "+12 more"];
-const ROBOT_CHIPS = ["Wheeled", "Legged", "Humanoid", "Arm", "Drone", "+10 more"];
+const ROBOT_CHIPS = ["Wheeled", "Legged", "Humanoid", "Arm", "AGV/AMR", "Drone", "Service", "+8 more"];
 
 export default function OhhoOS() {
   const { ref: headRef, inView: headIn } = useScrollReveal();

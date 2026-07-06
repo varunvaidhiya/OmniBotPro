@@ -21,6 +21,8 @@ export const UPGRADE_HREF = "/upgrade";
 export const DOCS_HREF = "/docs";
 /** OhhO OS — the open robot engine that powers every product (marketing hub). */
 export const OS_HREF = "/os";
+/** Standards — every industry-standard protocol OhhO supports (marketing hub). */
+export const STANDARDS_HREF = "/standards";
 export const GITHUB_HREF = "https://github.com/varunvaidhiya/OmniBotPro";
 export const TWITTER_HREF = "https://x.com/ohho_ai";
 export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";

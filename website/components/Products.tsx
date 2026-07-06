@@ -28,7 +28,7 @@ export default function Products() {
             <p className="text-[16px] leading-[1.7] max-w-[560px] legible" style={{ color: "rgba(255,255,255,0.62)" }}>
               Nineteen purpose-built products spanning design, foundation, intelligence, operations,
               and trust — one unified platform covering the full robot lifecycle, from a blank canvas
-              to a certified fleet. Works with any robot, any brand, any transport — all powered by one open engine, OhhO OS.
+              to a certified fleet. Speaks every industry-standard protocol — from CANopen to OPC UA to VDA 5050 — so any robot plugs into any industry. All powered by one open engine, OhhO OS.
             </p>
           </div>
         </div>

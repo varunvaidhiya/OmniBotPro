@@ -96,7 +96,8 @@ const ROBOT_CATEGORIES = [
 
 const ADAPTERS = [
   "Simulator", "Serial base", "Bus-servo arm", "DDS-native", "ROS 2 topics", "Composite",
-  "MAVLink", "Modbus", "EtherCAT", "ROSBridge", "Web Serial", "+ more",
+  "MAVLink", "CANopen", "OPC UA", "PROFINET", "EtherNet/IP", "MQTT",
+  "VDA 5050", "Modbus", "EtherCAT", "ROSBridge", "Web Serial", "+ more",
 ];
 
 function cellColor(v: string): string {

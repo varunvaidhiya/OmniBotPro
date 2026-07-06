@@ -333,6 +333,7 @@ export const PRODUCTS: Product[] = [
       "Wi-Fi · ROSBridge WebSocket",
       "USB · Web Serial (firmware-direct)",
       "Bluetooth · BLE (Nordic UART)",
+      "MQTT · IoT & cloud fleet connectivity",
       "Built-in simulator (no hardware)",
       "Robot-agnostic — one console, any robot",
     ],
@@ -342,7 +343,7 @@ export const PRODUCTS: Product[] = [
       "Because Connect runs in the browser, there's nothing to install on the operator's machine. Web Serial and Web Bluetooth are feature-detected at runtime, and a deterministic simulator is always available — so you can explore every console before you ever wire up real hardware.",
     ],
     features: [
-      { title: "Four transports, one API", body: "ROSBridge WebSocket (Wi-Fi), Web Serial (USB), Web Bluetooth (BLE), and a built-in simulator — all behind the same RobotTransport interface, feature-detected at runtime." },
+      { title: "Five transports, one API", body: "ROSBridge WebSocket (Wi-Fi), Web Serial (USB), Web Bluetooth (BLE), MQTT (IoT/cloud fleet), and a built-in simulator — all behind the same RobotTransport interface, feature-detected at runtime." },
       { title: "Robot-agnostic by design", body: "Connect speaks generic velocity and joint commands, not robot-specific SDK calls. A console built against Connect works on any robot with a transport implementation." },
       { title: "Browser-native, no install", body: "Web Serial and Web Bluetooth run in Chromium browsers over a secure context — no driver install, no Python SDK, no desktop app. Open a URL and drive." },
       { title: "Mixed-content aware", body: "Connect detects the HTTPS-to-ws mismatch and guides the operator to a secure rosbridge or a LAN connection, so the link just works instead of failing silently." },
@@ -356,7 +357,7 @@ export const PRODUCTS: Product[] = [
       { title: "Operate", body: "Every OhhO console reads the live connection and never needs to know which protocol is underneath." },
     ],
     specs: [
-      { label: "Transports", value: "ROSBridge (WS), Web Serial (USB), Web BLE, Simulator" },
+      { label: "Transports", value: "ROSBridge (WS), Web Serial (USB), Web BLE, MQTT, Simulator" },
       { label: "Interface", value: "RobotTransport — connect, velocity, joints, e-stop, telemetry" },
       { label: "Browser", value: "Chromium (Chrome / Edge) for Serial + BLE; any for WS" },
       { label: "Persistence", value: "Per-robot config saved to garage (Supabase + localStorage)" },
