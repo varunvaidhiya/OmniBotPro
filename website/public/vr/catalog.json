@@ -196,6 +196,35 @@
           "desc": "Fully open-source PX4/ArduPilot quadcopter. Build your own frame, stack companion computer (RPi/Jetson), and run ROS 2 on board."
         },
         {
+          "id": "agilicious",
+          "specs": {
+            "flightTime": "~5 min agile",
+            "compute": "Jetson",
+            "sensors": "VIO camera",
+            "license": "Open source",
+            "paper": "Sci. Robot 2022"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 4l-6 6M16 4l6 6M10 11l-5 1 1 3 5-2zm12 0l5 1-1 3-5-2zM16 13l-5 7 3 2 2-4zm0 0l5 7-3 2-2-4zM9 22l-1 4 4 0 1-3zm14 0l1 4-4 0-1-3zM16 10l3-5M16 10l-3-5",
+          "price": "~$3,000–6,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadrotor",
+          "hasArm": false,
+          "payloadKg": 0.3,
+          "weightKg": 0.8,
+          "name": "Agilicious",
+          "manufacturer": "UZH / Open Source (Science Robotics)",
+          "desc": "Open-source and open-hardware agile quadrotor for vision-based flight. Published in Science Robotics. Designed for high-speed autonomous racing and agile flight research with full sim-to-real pipeline."
+        },
+        {
           "id": "skydio-x10",
           "specs": {
             "flightTime": "40 min",
@@ -434,6 +463,63 @@
           "name": "Clearpath Dingo",
           "manufacturer": "Clearpath Robotics",
           "desc": "Indoor research robot for manipulation. Modular payload mounts, 5/12 V power rails, ROS 2-native."
+        },
+        {
+          "id": "openscout",
+          "specs": {
+            "drive": "differential",
+            "compute": "RPi / Jetson",
+            "license": "Open source",
+            "journal": "JOH 2023"
+          },
+          "imageUrl": "",
+          "avatarPath": "M6 14h20v8H6zM8 15v6h16v-6zM10 22a3 3 0 01-3-3v-4M22 22a3 3 0 003-3v-4M9 11a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4zM12 16h8v2h-8z",
+          "price": "~$1,500–3,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 5,
+          "weightKg": 5,
+          "name": "OpenScout",
+          "manufacturer": "Open Source (Journal of Open Hardware)",
+          "desc": "Fully open-source mobile robot published in the Journal of Open Hardware. Differential drive, modular sensor mounts, complete CAD + BOM + assembly guide. Designed for reproducible research."
+        },
+        {
+          "id": "oomwoo-vacuum",
+          "specs": {
+            "drive": "differential",
+            "sensors": "LiDAR + bump",
+            "compute": "ESP32 + RPi",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M8 14h16v8H8zM9 15v6h14v-6zM10 22a2 2 0 01-2-2v-4M22 22a2 2 0 002-2v-4M9 11a2 2 0 100-3 2 2 0 000 3zm14 0a2 2 0 100-3 2 2 0 000 3zM12 17h8v2h-8z",
+          "price": "~$300–600 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "view",
+            "autonomy",
+            "data"
+          ],
+          "ros": "both",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 0,
+          "weightKg": 2,
+          "name": "OOMWOO Robot Vacuum",
+          "manufacturer": "Open Source / MakersPet",
+          "desc": "Open-source robot vacuum you build yourself. Differential drive, LIDAR-based SLAM, ROS-compatible. A low-cost entry into domestic robotics and mapping research."
         }
       ]
     },
@@ -604,6 +690,36 @@
           "name": "MIT Racecar/J",
           "manufacturer": "MIT / Open Source",
           "desc": "Open-source 1/10 scale autonomous vehicle platform. NVIDIA Jetson + VESC motor controller. Used in F1Tenth racing."
+        },
+        {
+          "id": "openpodcar",
+          "specs": {
+            "drive": "ackermann",
+            "compute": "RPi / Jetson",
+            "license": "Open source",
+            "journal": "JOH 2023"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 12h24v10H4zM5 14l3-1v7h16v-7l3 1M5 22h22v2H5zM7 10a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm18 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM11 17h10v2H11zM16 22v-3",
+          "price": "~$2,500–5,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "ackermann",
+          "hasArm": false,
+          "payloadKg": 10,
+          "weightKg": 15,
+          "name": "OpenPodcar",
+          "manufacturer": "Open Source (Journal of Open Hardware)",
+          "desc": "Open-source vehicle for self-driving car research. Published in JOH with full CAD, BOM, and a ROS 2 autonomy stack. A low-cost, reproducible platform for autonomous driving research."
         }
       ]
     },
@@ -727,6 +843,65 @@
           "name": "ANYmal D",
           "manufacturer": "ANYbotics",
           "desc": "Swiss-engineered quadruped for industrial inspection. Full autonomy with 360° perception, stair climbing, and ATEX certification option."
+        },
+        {
+          "id": "solo12",
+          "specs": {
+            "dof": "12",
+            "weight": "2.5 kg",
+            "drive": "BLDC + ODrive",
+            "license": "BSD-3",
+            "paper": "IEEE RA-L 2020"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 6l-3 2 1 4M16 6l3 2-1 4M11 11l-6 2 2 5 4-3zm10 0l6 2-2 5-4-3zM9 19l-1 5 3 2 2-4zm8 0l1 5-3 2-2-4zM13 13h6v4h-6zM14 7a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4zm4 0a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z",
+          "price": "~$5,000–10,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 1,
+          "weightKg": 2.5,
+          "name": "Solo12 (ODRI)",
+          "manufacturer": "Open Dynamic Robot Initiative / Open Source",
+          "desc": "Fully open-source 12-DOF quadruped from the Open Dynamic Robot Initiative. Torque-controlled, BLDC-driven, 2.5 kg, designed for legged locomotion research. Complete CAD + firmware + Python controller."
+        },
+        {
+          "id": "openquadruped",
+          "specs": {
+            "dof": "12",
+            "servos": "BLDC / smart servo",
+            "material": "3D-printed",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 5l-4 2 2 4M16 5l4 2-2 4M10 10l-7 3 2 5 5-3zm12 0l7 3-2 5-5-3zM8 18l-1 6 4 2 2-5zm12 0l1 6-4 2-2-5zM12 12h8v4h-8zM14 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
+          "price": "~$2,000–4,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "quadruped",
+          "hasArm": false,
+          "payloadKg": 1.5,
+          "weightKg": 4,
+          "name": "OpenQuadruped",
+          "manufacturer": "Open Source / Community",
+          "desc": "Community-driven open-source quadruped. 3D-printable frame, 12-DOF servo-driven, ROS 2-compatible. Designed as an affordable alternative to commercial quadrupeds for education and research."
         }
       ]
     },
@@ -875,6 +1050,216 @@
           "name": "Fourier GR-2",
           "manufacturer": "Fourier Intelligence",
           "desc": "Humanoid with 53-DOF, 12-DOF dexterous hands with tactile sensing. 1.75 m tall, 63 kg, designed for healthcare and service."
+        },
+        {
+          "id": "asimov-1",
+          "specs": {
+            "dof": "28+",
+            "height": "~150 cm",
+            "license": "Open source",
+            "stack": "ROS 2"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M8 7l-3 6 2 3 3-4zm16 0l3 6-2 3-3-4zM8 16l-4 8 3 4 4-6zm16 0l4 8-3 4-4-6zM10 10h12v3H10zM10 28v4h4v-4zm8 0v4h4v-4zM14 22h4",
+          "price": "~$15,000 (target DIY BOM)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 3,
+          "weightKg": 40,
+          "name": "Asimov 1",
+          "manufacturer": "Open Source / DIY",
+          "desc": "Fully open-source humanoid DIY kit with a ~$15K target bill of materials. Complete hardware designs, firmware, and ROS 2 stack. A community-driven full-size humanoid."
+        },
+        {
+          "id": "berkeley-humanoid-lite",
+          "specs": {
+            "dof": "16",
+            "height": "~80 cm",
+            "material": "3D-printed",
+            "license": "Open source",
+            "paper": "arXiv:2504.17249"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 8l-3 4 1 2 3-3zm12 0l3 4-1 2-3-3zM10 15l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 11h8v2H12zM12 24v3h3v-3zm5 0v3h3v-3z",
+          "price": "~$3,000–5,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "autonomy",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 1,
+          "weightKg": 5,
+          "name": "Berkeley Humanoid Lite",
+          "manufacturer": "UC Berkeley / Open Source",
+          "desc": "Sub-$5K fully open-source 3D-printed humanoid. Published as an arXiv paper with complete CAD, firmware, and a sim-to-real RL training pipeline. Designed for accessible humanoid research."
+        },
+        {
+          "id": "hopejr",
+          "specs": {
+            "dof": "20+",
+            "height": "~70 cm",
+            "servos": "Feetech STS3215",
+            "license": "Apache-2.0",
+            "ecosystem": "LeRobot"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 7l-3 5 1 2 3-3zm12 0l3 5-1 2-3-3zM10 14l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 10h8v2H12zM12 23v3h3v-3zm5 0v3h3v-3z",
+          "price": "~$3,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 4,
+          "name": "HopeJR",
+          "manufacturer": "Hugging Face / Open Source",
+          "desc": "Fully open-source ~$3K humanoid from Hugging Face's LeRobot team. 3D-printable, Feetech-servo driven, designed for community-driven imitation-learning research."
+        },
+        {
+          "id": "robotis-k0",
+          "specs": {
+            "dof": "—",
+            "height": "Full-size",
+            "servos": "Dynamixel",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M7 7l-4 7 2 3 4-5zm18 0l4 7-2 3-4-5zM7 17l-5 8 3 5 5-7zm18 0l5 8-3 5-5-7zM9 10h14v3H9zM9 30v2h5v-2zm9 0v2h5v-2zM14 24h4v6h-4z",
+          "price": "TBA",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 3,
+          "weightKg": 30,
+          "name": "ROBOTIS K0",
+          "manufacturer": "ROBOTIS / Open Source",
+          "desc": "Full-size open-source humanoid platform from ROBOTIS. Dynamixel-driven, designed as an open reference for full-scale humanoid research and education."
+        },
+        {
+          "id": "vibe-a1",
+          "specs": {
+            "dof": "16",
+            "height": "~40 cm",
+            "license": "Open source",
+            "price": "from $649"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 4a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4zm0 3v2M11 8l-2 3 1 2 2-2zm10 0l2 3-1 2-2-2zM11 13l-2 5 1 2 2-4zm10 0l2 5-1 2-2-4zM13 10h6v2H13zM13 20v2h2v-2zm4 0v2h2v-2z",
+          "price": "~$649+",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 0.3,
+          "weightKg": 1.5,
+          "name": "Vibe A1",
+          "manufacturer": "Vibe Robotics / Open Source",
+          "desc": "Mini open-source humanoid with a starting price of $649. Compact, affordable, community-driven — designed to make humanoid robotics accessible to makers and educators."
+        },
+        {
+          "id": "icub",
+          "specs": {
+            "dof": "53",
+            "height": "104 cm",
+            "weight": "22 kg",
+            "license": "GPL/CeCILL",
+            "middleware": "YARP + ROS 2"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 2a1.8 1.8 0 100 3.6 1.8 1.8 0 000-3.6zm0 4v3M9 8l-3 5 1 3 3-4zm14 0l3 5-1 3-3-4zM9 16l-3 7 2 4 4-6zm14 0l3 7-2 4-4-6zM11 11h10v2H11zM11 27v3h3v-3zm7 0v3h3v-3zM14 22h4v5h-4z",
+          "price": "Research collaboration",
+          "supportedProducts": [
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "both",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 1.5,
+          "weightKg": 22,
+          "name": "iCub",
+          "manufacturer": "IIT / Open Source",
+          "desc": "The classic open-source humanoid research platform from the Italian Institute of Technology. 104 cm tall, 22 kg, 53-DOF. Used in 50+ labs worldwide for cognitive robotics."
+        },
+        {
+          "id": "poppy-humanoid",
+          "specs": {
+            "dof": "25",
+            "height": "84 cm",
+            "material": "3D-printed",
+            "license": "GPL",
+            "middleware": "Pypot + ROS"
+          },
+          "imageUrl": "",
+          "avatarPath": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 8l-3 4 1 2 3-3zm12 0l3 4-1 2-3-3zM10 14l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 10h8v2H12zM12 22v3h3v-3zm5 0v3h3v-3zM14 19h4",
+          "price": "~$8,000–12,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "both",
+          "locomotion": "bipedal",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 3.5,
+          "name": "Poppy Humanoid",
+          "manufacturer": "Inria / Open Source",
+          "desc": "Open-source 3D-printed humanoid for science, education and art. 25-DOF, modular, designed for experimentation and reproducible research in embodied AI."
         }
       ]
     },
@@ -975,6 +1360,32 @@
           "name": "Clearpath Heron",
           "manufacturer": "Clearpath Robotics",
           "desc": "ASV for bathymetric and environmental survey. Differential thrust, 3-hr endurance, payload bay with plug-and-play sensors."
+        },
+        {
+          "id": "openfish",
+          "specs": {
+            "type": "biomimetic soft fish",
+            "drive": "servo + soft body",
+            "license": "Open source",
+            "journal": "HardwareX 2022"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 16c4-4 10-6 16-6l4 2-4 2c-6 0-12 2-16 6zM20 12l6-2-2 4 2 4-6-2M14 18l-4 4-2-2 2-4",
+          "price": "~$1,000–3,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "marine-fin",
+          "hasArm": false,
+          "payloadKg": 0.2,
+          "weightKg": 1.5,
+          "name": "OpenFish",
+          "manufacturer": "Open Source (HardwareX)",
+          "desc": "Open-source biomimetic soft robotic fish for high-speed underwater locomotion. Published in HardwareX with full CAD, modeling, and control. Designed for marine research and bio-inspired propulsion studies."
         }
       ]
     },
@@ -1158,6 +1569,150 @@
           "name": "SO-101 (LeRobot 6-DOF)",
           "manufacturer": "LeRobot / Open Source",
           "desc": "Open-source 3D-printed 6-DOF arm with Feetech STS3215 servos. 0.62 m reach, 0.5 kg payload. Designed for imitation-learning research."
+        },
+        {
+          "id": "so100-arm",
+          "specs": {
+            "dof": "6",
+            "payload": "0.5 kg",
+            "reach": "0.5 m",
+            "servos": "STS3215 ×6",
+            "license": "Apache-2.0"
+          },
+          "imageUrl": "",
+          "avatarPath": "M13 3h6v3h-6zM12 6v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM15 15v2h-4l-1 5 4 3 5-3-1-5h-3zm14-2l-1 5 4 3 5-3-1-5h-3zm-14-11v2M16 9v4M15 14l-2 4 4 3 5-3-2-4zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$300",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "bench",
+            "serve",
+            "view",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 0.9,
+          "name": "SO-100 (LeRobot)",
+          "manufacturer": "LeRobot / Open Source",
+          "desc": "The predecessor to SO-101 — a fully open-source 6-DOF 3D-printed arm with STS3215 servos. The arm that popularized low-cost imitation learning. Compatible with the LeRobot training pipeline."
+        },
+        {
+          "id": "para-arm",
+          "specs": {
+            "dof": "3",
+            "payload": "2 kg",
+            "reach": "1000 mm",
+            "license": "Open source",
+            "journal": "HardwareX"
+          },
+          "imageUrl": "",
+          "avatarPath": "M12 4h8v3h-8zM13 7v3h-4l-3 6 3 4 4-2zm11 0v3h4l3 6-3 4-4-2zM16 14v3h-3l-1 4 4 3 4-3-1-4h-3zM13 22l-2 4 4 2 5-2-2-4z",
+          "price": "~$1,500 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 2,
+          "weightKg": 6,
+          "name": "PARA Arm",
+          "manufacturer": "Open Source (HardwareX)",
+          "desc": "Open-source 3-DOF robotic arm with 1 m reach and 2 kg payload. Published in HardwareX with full CAD, BOM, and a customizable end effector. Designed for research and education."
+        },
+        {
+          "id": "thor-arm",
+          "specs": {
+            "dof": "6+",
+            "material": "3D-printed",
+            "license": "Open source",
+            "control": "Arduino + ROS"
+          },
+          "imageUrl": "",
+          "avatarPath": "M13 2h6v3h-6zM12 5v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM14 15v2h-4l-1 5 4 3 5-3-1-5h-3zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$800 (DIY)",
+          "supportedProducts": [
+            "build",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "both",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 3,
+          "name": "Thor Arm",
+          "manufacturer": "Open Source",
+          "desc": "Open-source multi-DOF articulated robotic arm for education and autonomous manipulation. Full STL files, control code, and a ROS-compatible driver. Community-maintained."
+        },
+        {
+          "id": "ar4-arm",
+          "specs": {
+            "dof": "6",
+            "payload": "0.5 kg",
+            "reach": "600 mm",
+            "drive": "NEMA17 steppers",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M12 4h8v3h-8zM13 7v3h-4l-3 6 3 4 4-2zm11 0v3h4l3 6-3 4-4-2zM16 14v3h-3l-1 4 4 3 4-3-1-4h-3zM13 22l-2 4 4 2 5-2-2-4z",
+          "price": "~$1,000–2,500 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "both",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 0.5,
+          "weightKg": 4,
+          "name": "Annin AR4",
+          "manufacturer": "Annin Robotics / Open Source",
+          "desc": "Open-source 6-DOF industrial-style robot arm. 600 mm reach, 0.5 kg payload, stepper-driven. One of the most popular open-source arm designs, with an active community."
+        },
+        {
+          "id": "kaede-arm",
+          "specs": {
+            "dof": "6",
+            "payload": "0.3 kg",
+            "drive": "BLDC",
+            "material": "3D-printed",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M13 3h6v3h-6zM12 6v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM15 15v2h-4l-1 5 4 3 5-3-1-5h-3zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+          "price": "~$1,200 (DIY)",
+          "supportedProducts": [
+            "build",
+            "serve",
+            "pilot",
+            "data",
+            "train"
+          ],
+          "ros": "ros2",
+          "locomotion": "fixed-base",
+          "hasArm": true,
+          "payloadKg": 0.3,
+          "weightKg": 1.5,
+          "name": "Kaede Arm",
+          "manufacturer": "Open Source",
+          "desc": "Open-source low-cost 6-DOF desktop arm for manipulation research. 3D-printable, BLDC-driven, designed for sim-to-real reinforcement learning experiments."
         }
       ]
     },
@@ -1387,6 +1942,33 @@
           "name": "E-Puck2",
           "manufacturer": "GCtronic",
           "desc": "Desktop swarm robot. Differential drive, 8 IR proximity, ToF sensor, microphone, speaker, WiFi. Huge open-source ecosystem."
+        },
+        {
+          "id": "heroswarm",
+          "specs": {
+            "sensors": "IR + IMU + ToF",
+            "compute": "ESP32",
+            "comm": "WiFi mesh",
+            "license": "Open source",
+            "paper": "IEEE SII 2023"
+          },
+          "imageUrl": "",
+          "avatarPath": "M10 10h12v12H10zM12 12v8h8V12zM10 10a1.2 1.2 0 111-2.4 1.2 1.2 0 01-1 2.4zM21 10a1.2 1.2 0 111 2.4 1.2 1.2 0 01-1-2.4zM10 22a1.2 1.2 0 111 2.4 1.2 1.2 0 01-1-2.4zM21 22a1.2 1.2 0 111-2.4 1.2 1.2 0 01-1 2.4zM14 14h4v4h-4zM16 7v3M16 22v3",
+          "price": "~$250–500/unit (DIY)",
+          "supportedProducts": [
+            "serve",
+            "pilot",
+            "data",
+            "fleet"
+          ],
+          "ros": "ros2",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 0.05,
+          "weightKg": 0.25,
+          "name": "HeRoSwarm",
+          "manufacturer": "Open Source (IEEE SII 2023)",
+          "desc": "Fully-capable miniature swarm robot with open-source ROS support. Published at IEEE/SICE SII. Designed for distributed multi-robot research with full hardware designs and firmware."
         }
       ]
     },
@@ -1446,6 +2028,34 @@
           "name": "ecoRobotix AVO",
           "manufacturer": "ecoRobotix / CNH",
           "desc": "Autonomous weeding robot. Solar-powered, vision-based precision spraying. Treats only weeds, reducing herbicide by 90%."
+        },
+        {
+          "id": "openmower",
+          "specs": {
+            "drive": "differential / ride-on",
+            "nav": "RTK GPS + IMU",
+            "license": "Open source",
+            "repo": "github.com/ClemensElflein/OpenMower"
+          },
+          "imageUrl": "",
+          "avatarPath": "M4 11h24v12H4zM5 13v9h22v-9zM6 23a3 3 0 01-2-4v-6M26 23a3 3 0 002-4v-6M6 8l3 1M26 8l-3 1M10 16h4v3h-4zm8 0h4v3h-4zM16 14v2M12 21l3-4M20 21l-3-4",
+          "price": "~$800–3,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "view",
+            "autonomy",
+            "data",
+            "fleet"
+          ],
+          "ros": "both",
+          "locomotion": "differential",
+          "hasArm": false,
+          "payloadKg": 0,
+          "weightKg": 25,
+          "name": "OpenMower",
+          "manufacturer": "Open Source / Community",
+          "desc": "Open-source robotic lawn mower. GPS-guided, ROS-compatible, 3D-printable parts. Turns any ride-on or push mower into an autonomous robot. A flagship open-source agricultural project."
         }
       ]
     },
@@ -1511,6 +2121,34 @@
           "name": "BlueROV2 Heavy",
           "manufacturer": "Blue Robotics",
           "desc": "Heavy-configuration ROV with 8 T200 thrusters, gripper, scanning sonar, and 300 m depth rating for inspection missions."
+        },
+        {
+          "id": "openrov",
+          "specs": {
+            "depth": "75–100 m",
+            "thrusters": "ESCs ×3-6",
+            "camera": "HD",
+            "material": "3D-printed + AL tube",
+            "license": "Open source"
+          },
+          "imageUrl": "",
+          "avatarPath": "M9 8h14v16H9zM7 12a2 2 0 116-4 2 2 0 01-6 4zM19 12a2 2 0 116 4 2 2 0 01-6-4zM9 22a2 2 0 10-6 4 2 2 0 006-4zM23 22a2 2 0 106 4 2 2 0 00-6-4zM11 12h2v8h-2zm5 0h2v8h-2zM11 20h7v2h-7zM13 14h3",
+          "price": "~$1,000–3,000 (DIY)",
+          "supportedProducts": [
+            "build",
+            "frame",
+            "view",
+            "pilot",
+            "data"
+          ],
+          "ros": "custom",
+          "locomotion": "underwater-6thruster",
+          "hasArm": false,
+          "payloadKg": 1,
+          "weightKg": 5,
+          "name": "OpenROV / Community ROV",
+          "manufacturer": "Open Source / Community",
+          "desc": "Open-source underwater ROV with a thriving community behind it. 3D-printable frame, ESC-driven thrusters, HD camera. The original low-cost underwater robotics platform for explorers and educators."
         }
       ]
     },

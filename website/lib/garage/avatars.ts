@@ -15,6 +15,8 @@ export const ROBOT_AVATARS: Record<string, string> = {
   "dji-matrice-300": "M16 4l-6 6-8 2 1-4 7-2zm0 0l6 6 8 2-1-4-7-2zM8 12l-2 8 4 2 4-6zm16 0l2 8-4 2-4-6zM16 16l4-6-4-6-4 6zM6 22l-2 4 4 2 3-4zm20 0l2 4-4 2-3-4z",
   "dji-mavic-3e": "M16 5L11 9l-7 1 1-3 6-2zm0 0l5 4 7 1-1-3-6-2zM6 11l-1 7 3 2 3-5zm14 0l1 7-3 2-3-5zM16 15l3-5-3-5-3 5zM17 6a2 2 0 100-4 2 2 0 000 4zM4 18v2h24v-2M13 20v5M19 20v5",
   "px4-quad": "M16 3l-7 7M16 3l7 7M9 12l-5 2 2 4 4-4zm14 0l5 2-2 4-4-4zM16 14L9 22l4 3 3-6zm0 0l7 8-4 3-3-6zM7 25l-2 5 7 0 1-3zm18 0l2 5-7 0-1-3zM16 11l4-7M16 11l-4-7",
+  // ── open-source drone (agile quadrotor) ──
+  "agilicious": "M16 4l-6 6M16 4l6 6M10 11l-5 1 1 3 5-2zm12 0l5 1-1 3-5-2zM16 13l-5 7 3 2 2-4zm0 0l5 7-3 2-2-4zM9 22l-1 4 4 0 1-3zm14 0l1 4-4 0-1-3zM16 10l3-5M16 10l-3-5",
   "skydio-x10": "M15 4l-6 7-7 1 2-3 6-3zm2 0l6 7 7 1-2-3-6-3zM4 12l-1 8 5 3 2-7zm18 0l1 8-5 3-2-7zM16 16l4-6-4-8-4 8zM19 5a3 3 0 100-5 3 3 0 000 5zM10 22l-2 6 7 2 1-5zm12 0l2 6-7 2-1-5z",
   // Hexacopter: 6-rotor layout
   "dji-agras-t40": "M16 3l-8 5M16 3l8 5M8 10l-6 3 3 5 4-4zm16 0l6 3-3 5-4-4zM16 6l-4 8M16 6l4 8M4 16l-2 6 6 3 2-6zm24 0l2 6-6 3-2-6zM16 14l-4 6 4 4 4-4zm0 0l-6 2M16 14l6 2M14 4h4M20 7h4M8 7h4",
@@ -28,6 +30,9 @@ export const ROBOT_AVATARS: Record<string, string> = {
   "turtlebot4": "M6 14h20v8H6zM8 15v6h16v-6zM10 22a3 3 0 01-3-3v-4M22 22a3 3 0 003-3v-4M10 10a2 2 0 100-4 2 2 0 000 4zm12 0a2 2 0 100-4 2 2 0 000 4zM12 16h2v2h-2zm4 0h4v2h-4z",
   "turtlebot3": "M7 15h18v7H7zM8 16v5h16v-5zM9 22a2 2 0 01-2-2v-5M23 22a2 2 0 002-2v-5M9 11a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4zM13 19h6M14 17h4",
   "clearpath-dingo": "M5 13h22v9H5zM6 14v7h20v-7zM7 22a3 3 0 01-2-5v-4M25 22a3 3 0 002-5v-4M6 9a3 3 0 100-5 3 3 0 000 5zm20 0a3 3 0 100-5 3 3 0 000 5zM11 16h10v3H11z",
+  // ── open-source wheeled (differential) ──
+  "openscout": "M6 14h20v8H6zM8 15v6h16v-6zM10 22a3 3 0 01-3-3v-4M22 22a3 3 0 003-3v-4M9 11a2 2 0 100-4 2 2 0 000 4zm14 0a2 2 0 100-4 2 2 0 000 4zM12 16h8v2h-8z",
+  "oomwoo-vacuum": "M8 14h16v8H8zM9 15v6h14v-6zM10 22a2 2 0 01-2-2v-4M22 22a2 2 0 002-2v-4M9 11a2 2 0 100-3 2 2 0 000 3zm14 0a2 2 0 100-3 2 2 0 000 3zM12 17h8v2h-8z",
 
   // ═══ WHEELED — MECANUM ════════════════════════════════════════════════════
 
@@ -39,6 +44,8 @@ export const ROBOT_AVATARS: Record<string, string> = {
 
   "clearpath-husky": "M3 12h26v11H3zM4 16l2-1v7h20v-7l2 1M5 23h22v2H5zM6 10a3 3 0 100-4 3 3 0 000 4zm20 0a3 3 0 100-4 3 3 0 000 4zM9 17h3v3H9zm11 0h3v3h-3zM16 18v2",
   "racecar-j": "M4 13h24v9H4zM5 14l3-1v7h16v-7l3 1M5 22h22v2H5zM7 10a2 2 0 100-3 2 2 0 000 3zm18 0a2 2 0 100-3 2 2 0 000 3zM16 22v-4h-2l2-4 2 4h-2zM11 18h2v3h-2zM19 18h2v3h-2z",
+  // ── open-source wheeled (ackermann) ──
+  "openpodcar": "M4 12h24v10H4zM5 14l3-1v7h16v-7l3 1M5 22h22v2H5zM7 10a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm18 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM11 17h10v2H11zM16 22v-3",
 
   // ═══ QUADRUPEDS ═══════════════════════════════════════════════════════════
 
@@ -46,6 +53,9 @@ export const ROBOT_AVATARS: Record<string, string> = {
   "unitree-b2": "M15 4l-4 3 2 5M17 4l4 3-2 5M8 10l-7 4 3 6 5-4zm16 0l7 4-3 6-5-4zM6 20L4 27l5 3 3-6zm14 0l2 7-5 3-3-6zM12 12h8v6h-8zM13 5a2 2 0 100-3 2 2 0 000 3zm6 0a2 2 0 100-3 2 2 0 000 3zM20 14h2M10 14h2",
   "boston-dynamics-spot": "M16 4l-4 2 2 5M16 4l4 2-2 5M8 9l-7 3 2 7 5-5zm16 0l7 3-2 7-5-5zM5 19L3 27l5 3 3-7zm15 0l2 8-5 3-3-7zM11 10h10v6H11zM13 3a2 2 0 100-3 2 2 0 000 3zm6 0a2 2 0 100-3 2 2 0 000 3zM16 14v2",
   "anymal-d": "M16 3l-5 3 2 6M16 3l5 3-2 6M7 9l-6 3 2 7 4-5zm18 0l6 3-2 7-4-5zM5 19L2 28l6 3 3-8zm17 0l3 9-6 3-3-8zM11 11h10v5H11zM12 4a2 2 0 100-3 2 2 0 000 3zm8 0a2 2 0 100-3 2 2 0 000 3zM20 12v3M12 12v3",
+  // ── open-source quadrupeds (reuse dog silhouette) ──
+  "solo12": "M16 6l-3 2 1 4M16 6l3 2-1 4M11 11l-6 2 2 5 4-3zm10 0l6 2-2 5-4-3zM9 19l-1 5 3 2 2-4zm8 0l1 5-3 2-2-4zM13 13h6v4h-6zM14 7a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4zm4 0a1.2 1.2 0 100-2.4 1.2 1.2 0 000 2.4z",
+  "openquadruped": "M16 5l-4 2 2 4M16 5l4 2-2 4M10 10l-7 3 2 5 5-3zm12 0l7 3-2 5-5-3zM8 18l-1 6 4 2 2-5zm12 0l1 6-4 2-2-5zM12 12h8v4h-8zM14 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm4 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3z",
   // Hexapod
   "phantomx-ax": "M16 6l-4 2 1 5M16 6l4 2-1 5M16 6v4M8 10l-7 3 2 6 6-4zm16 0l7 3-2 6-6-4zM4 18L2 26l5 3 3-7zm20 0l2 8-5 3-3-7zM11 11h10v5H11zM12 5a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm8 0a1.5 1.5 0 100-3 1.5 1.5 0 000 3zM5 11l-2 1M27 11l2 1",
 
@@ -55,6 +65,14 @@ export const ROBOT_AVATARS: Record<string, string> = {
   "unitree-g1": "M16 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M9 7l-3 5 1 3 3-4zm14 0l3 5-1 3-3-4zM9 15l-4 7 3 4 4-6zm14 0l4 7-3 4-4-6zM11 10h10v2H11zM11 26v3h3v-3zm7 0v3h3v-3zM13 28h6",
   "figure-02": "M16 1a2.5 2.5 0 100 4 2.5 2.5 0 000-4zm0 5v3M7 7l-4 7 2 3 4-5zm18 0l4 7-2 3-4-5zM7 17l-5 8 3 5 5-7zm18 0l5 8-3 5-5-7zM9 10h14v3H9zM9 30v2h5v-2zm9 0v2h5v-2zM14 24h4v6h-4z",
   "fourier-gr2": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M7 7l-3 6 2 3 3-4zm18 0l3 6-2 3-3-4zM8 16l-4 8 3 4 4-6zm16 0l4 8-3 4-4-6zM10 10h12v3H10zM10 28v4h3v-4zm9 0v4h3v-4zM16 24v4",
+  // ── open-source humanoids (reuse humanoid silhouette family) ──
+  "asimov-1": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M8 7l-3 6 2 3 3-4zm16 0l3 6-2 3-3-4zM8 16l-4 8 3 4 4-6zm16 0l4 8-3 4-4-6zM10 10h12v3H10zM10 28v4h4v-4zm8 0v4h4v-4zM14 22h4",
+  "berkeley-humanoid-lite": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 8l-3 4 1 2 3-3zm12 0l3 4-1 2-3-3zM10 15l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 11h8v2H12zM12 24v3h3v-3zm5 0v3h3v-3z",
+  "hopejr": "M16 2a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 7l-3 5 1 2 3-3zm12 0l3 5-1 2-3-3zM10 14l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 10h8v2H12zM12 23v3h3v-3zm5 0v3h3v-3z",
+  "robotis-k0": "M16 1a2 2 0 100 4 2 2 0 000-4zm0 5v3M7 7l-4 7 2 3 4-5zm18 0l4 7-2 3-4-5zM7 17l-5 8 3 5 5-7zm18 0l5 8-3 5-5-7zM9 10h14v3H9zM9 30v2h5v-2zm9 0v2h5v-2zM14 24h4v6h-4z",
+  "vibe-a1": "M16 4a1.2 1.2 0 100 2.4 1.2 1.2 0 000-2.4zm0 3v2M11 8l-2 3 1 2 2-2zm10 0l2 3-1 2-2-2zM11 13l-2 5 1 2 2-4zm10 0l2 5-1 2-2-4zM13 10h6v2H13zM13 20v2h2v-2zm4 0v2h2v-2z",
+  "icub": "M16 2a1.8 1.8 0 100 3.6 1.8 1.8 0 000-3.6zm0 4v3M9 8l-3 5 1 3 3-4zm14 0l3 5-1 3-3-4zM9 16l-3 7 2 4 4-6zm14 0l3 7-2 4-4-6zM11 11h10v2H11zM11 27v3h3v-3zm7 0v3h3v-3zM14 22h4v5h-4z",
+  "poppy-humanoid": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm0 4v2M10 8l-3 4 1 2 3-3zm12 0l3 4-1 2-3-3zM10 14l-3 6 2 3 4-5zm12 0l3 6-2 3-4-5zM12 10h8v2H12zM12 22v3h3v-3zm5 0v3h3v-3zM14 19h4",
 
   // ═══ TRACKED ══════════════════════════════════════════════════════════════
 
@@ -64,6 +82,8 @@ export const ROBOT_AVATARS: Record<string, string> = {
   // ═══ MARINE ═══════════════════════════════════════════════════════════════
 
   "heron-asv": "M6 12h20v10l-3 4H9l-3-4zM4 16l2-2 2 2v2zm20 0l-2-2-2 2v2zM12 14v-5l4-1 4 1v5M14 9h4M14 20h4v2h-4zM6 19h20",
+  // ── open-source marine (biomimetic fish) ──
+  "openfish": "M4 16c4-4 10-6 16-6l4 2-4 2c-6 0-12 2-16 6zM20 12l6-2-2 4 2 4-6-2M14 18l-4 4-2-2 2-4",
 
   // ═══ INDUSTRIAL ARMS ══════════════════════════════════════════════════════
 
@@ -73,6 +93,12 @@ export const ROBOT_AVATARS: Record<string, string> = {
   "kinova-gen3": "M12 4h8v3h-8zM11 7v3h-5l-3 7 4 3 5-3zm15 0v3h5l3 7-4 3-5-3zM15 15v2h-5l-1 4 5 3 4-3-1-4h-2zm14-2l-1 4 5 3 4-3-1-4h-2zm-14-9v2M15 15l-2 5 4 3 5-3-2-5zM13 22l-2 4 5 3 4-3-2-4zm4 8a1 1 0 100 2 1 1 0 000-2z",
   "dobot-cr10": "M10 3h12v4H10zM10 7v5h-7l-2 8 5 4 6-3zm19 0v5h7l2 8-5 4-6-3zM13 18v4h-6l-2 6 6 4 6-4-2-6h-6zM11 25l-3 6 6 3 7-3-3-6zm4 10a2 2 0 100 3 2 2 0 000-3z",
   "so101-arm": "M13 2h6v3h-6zM12 5v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM14 15v2h-4l-1 5 4 3 5-3-1-5h-3zm14-2l-1 5 4 3 5-3-1-5h-3zm-14-11v2M16 8v4M15 14l-2 4 4 3 5-3-2-4zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+  // ── open-source arms (reuse arm silhouette family) ──
+  "so100-arm": "M13 3h6v3h-6zM12 6v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM15 15v2h-4l-1 5 4 3 5-3-1-5h-3zm14-2l-1 5 4 3 5-3-1-5h-3zm-14-11v2M16 9v4M15 14l-2 4 4 3 5-3-2-4zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+  "para-arm": "M12 4h8v3h-8zM13 7v3h-4l-3 6 3 4 4-2zm11 0v3h4l3 6-3 4-4-2zM16 14v3h-3l-1 4 4 3 4-3-1-4h-3zM13 22l-2 4 4 2 5-2-2-4z",
+  "thor-arm": "M13 2h6v3h-6zM12 5v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM14 15v2h-4l-1 5 4 3 5-3-1-5h-3zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
+  "ar4-arm": "M12 4h8v3h-8zM13 7v3h-4l-3 6 3 4 4-2zm11 0v3h4l3 6-3 4-4-2zM16 14v3h-3l-1 4 4 3 4-3-1-4h-3zM13 22l-2 4 4 2 5-2-2-4z",
+  "kaede-arm": "M13 3h6v3h-6zM12 6v3h-5l-3 7 3 3 5-2zm14 0v3h5l3 7-3 3-5-2zM15 15v2h-4l-1 5 4 3 5-3-1-5h-3zM12 22l-2 5 5 3 5-3-2-5zm5 9a1 1 0 100 2 1 1 0 000-2z",
   // Delta robot
   "abb-irb360": "M16 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM8 6l8-3 8 3M6 10h20l-2 8H8zm8 0v4h4v-4zM12 18l-6 4 4 2 4-4zm8 0l6 4-4 2-4-4zM16 18v3M16 14v2M10 18h12",
 
@@ -87,16 +113,22 @@ export const ROBOT_AVATARS: Record<string, string> = {
 
   "khepera-iv": "M8 8h16v16H8zM10 10v12h12V10zM8 8a2 2 0 112-4 2 2 0 01-2 4zM22 8a2 2 0 112 4 2 2 0 01-2-4zM8 24a2 2 0 112 4 2 2 0 01-2-4zM22 24a2 2 0 112 4 2 2 0 01-2-4zM12 14h8v4h-8zM16 6v2M16 24v2",
   "e-puck2": "M10 10h12v12H10zM12 12v8h8V12zM10 10a1.5 1.5 0 111-3 1.5 1.5 0 01-1 3zM21 10a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM10 22a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM21 22a1.5 1.5 0 111 3 1.5 1.5 0 01-1-3zM14 14h4v4h-4zM16 8v2M16 22v2M12 16h8",
+  // ── open-source swarm (mini differential) ──
+  "heroswarm": "M10 10h12v12H10zM12 12v8h8V12zM10 10a1.2 1.2 0 111-2.4 1.2 1.2 0 01-1 2.4zM21 10a1.2 1.2 0 111 2.4 1.2 1.2 0 01-1-2.4zM10 22a1.2 1.2 0 111 2.4 1.2 1.2 0 01-1-2.4zM21 22a1.2 1.2 0 111-2.4 1.2 1.2 0 01-1 2.4zM14 14h4v4h-4zM16 7v3M16 22v3",
 
   // ═══ AGRICULTURAL ═════════════════════════════════════════════════════════
 
   "farmbot": "M4 2h24v3H4zM4 6h3v22H4zm25 0h-3v22h3zM9 10h14M9 14h14M9 18h14M9 22h14M9 6v2M23 6v2M18 8l-2 4 2 4M14 8l2 4-2 4",
   "ecorobotix-avo": "M3 10h26v14H3zM5 12v10h22V12zM5 24h22v2H5zM7 8a2.5 2.5 0 100-4 2.5 2.5 0 000 4zm18 0a2.5 2.5 0 100-4 2.5 2.5 0 000 4zM22 6l-1 4M10 6l1 4M12 14h8v5h-8zM10 15l-2 2M22 15l2 2",
+  // ── open-source agricultural (robotic mower) ──
+  "openmower": "M4 11h24v12H4zM5 13v9h22v-9zM6 23a3 3 0 01-2-4v-6M26 23a3 3 0 002-4v-6M6 8l3 1M26 8l-3 1M10 16h4v3h-4zm8 0h4v3h-4zM16 14v2M12 21l3-4M20 21l-3-4",
 
   // ═══ UNDERWATER ROVs ══════════════════════════════════════════════════════
 
   "bluerov2": "M8 8h16v16H8zM6 12a2 2 0 116-4 2 2 0 01-6 4zM20 12a2 2 0 116 4 2 2 0 01-6-4zM8 22a2 2 0 10-6 4 2 2 0 006-4zM22 22a2 2 0 106 4 2 2 0 00-6-4zM12 12h2v8h-2zm6 0h2v8h-2zM12 20h8v2h-8zM14 14h4",
   "bluerov2-heavy": "M8 7h16v18H8zM5 11a2.5 2.5 0 117-5 2.5 2.5 0 01-7 5zM20 11a2.5 2.5 0 117 5 2.5 2.5 0 01-7-5zM8 24a2 2 0 10-6 4 2 2 0 006-4zM24 24a2 2 0 106 4 2 2 0 00-6-4zM10 12h3v8h-3zm9 0h3v8h-3zM12 20h8v2h-8zM14 14h4M11 8l2-1M19 8l2 1M16 4v3M16 28v-4",
+  // ── open-source underwater (community ROV) ──
+  "openrov": "M9 8h14v16H9zM7 12a2 2 0 116-4 2 2 0 01-6 4zM19 12a2 2 0 116 4 2 2 0 01-6-4zM9 22a2 2 0 10-6 4 2 2 0 006-4zM23 22a2 2 0 106 4 2 2 0 00-6-4zM11 12h2v8h-2zm5 0h2v8h-2zM11 20h7v2h-7zM13 14h3",
 
   // ═══ SPACE ROVERS ═════════════════════════════════════════════════════════
 
