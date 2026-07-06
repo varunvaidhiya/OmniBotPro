@@ -39,7 +39,7 @@ export const tools: ToolDefinition[] = [
       totalEpochs: 50,
       loss: 0.17,
       successRate: 0.86,
-      gpu: { util: 0.81, vram: "14.2 / 16 GB", temp: "61°C" },
+      gpu: { util: 0.81, vram: "14.2 / 24 GB", temp: "61°C" },
       canExport: true,
       note: "Live training state is browser-side. This is a representative snapshot.",
     }),

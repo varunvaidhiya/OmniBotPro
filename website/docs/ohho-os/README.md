@@ -23,7 +23,7 @@ to training. It is yours to install, self-host and extend.
 - **The whole lifecycle, one engine.** Not just control — agent, data
   collection, training, serving, and skills, all from the same `pip install`.
 - **Agent-native by design.** A continuous perceive → reason → act → reflect
-  loop powered by `agent_engine` with a Claude tool-calling reasoner. Tools are
+  loop powered by `agent_engine` with an LLM tool-calling reasoner. Tools are
   built automatically from the robot's capabilities.
 - **Training built in.** Record demonstrations → fine-tune VLA policies
   (SmolVLA, ACT, diffusion, OpenVLA) → serve over REST → close the loop. All
@@ -45,7 +45,7 @@ print(bot.telemetry().odom)             # unified telemetry schema
 
 | Area | What ships |
 |---|---|
-| **Control** | Robot Abstraction Layer, 6 adapters (sim, Yahboom serial, Feetech arm, Unitree DDS, ROS 2, composite), 2 runtimes (native + ROS 2), capability-gated commands |
+| **Control** | Robot Abstraction Layer, 6 adapters (sim, serial base, bus-servo arm, DDS-native, ROS 2, composite), 2 runtimes (native + ROS 2), capability-gated commands |
 | **Agent** | HarnessBrain → agent_engine (perceive→reason→act→reflect), ClaudeToolCallingReasoner, ToolRegistry from capabilities, ScriptedBrain fallback |
 | **Data** | Recorder (intercepts drive/move_joints → 9-D state+action), LeRobot v2.0 writer (Parquet + meta JSON), DatasetReader |
 | **Training** | `finetune()` delegates to lerobot_engine (smolvla/act/diffusion/openvla), mock mode for sim loops, `device="auto"` |
@@ -68,7 +68,7 @@ print(bot.telemetry().odom)             # unified telemetry schema
 - [Native navigation](navigation.md) — occupancy-grid mapping, A* planning,
   frontier exploration — no ROS required.
 - [Memory & perception](memory.md) — spatio-temporal memory (object permanence,
-  temporal queries) + sim and Claude-vision perceptors.
+  temporal queries) + sim and vision perceptors.
 - [Training pipelines](training.md) — data collection, fine-tuning and serving.
 - [Architecture](architecture.md) — the abstraction layer that makes one API
   work across every robot and runtime.

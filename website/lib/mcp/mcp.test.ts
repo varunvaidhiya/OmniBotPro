@@ -99,7 +99,7 @@ describe("MCP server — tools/call", () => {
     // The text should be valid JSON (the bridge adapter list)
     const parsed = JSON.parse(result.content[0].text);
     expect(Array.isArray(parsed)).toBe(true);
-    expect(parsed.length).toBe(5); // 5 adapters
+    expect(parsed.length).toBe(12); // 12 protocol adapters (DDS, MAVLink, Modbus, EtherCAT, serial, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, ROS-Industrial)
   });
 
   it("calls a tool with parameters", async () => {

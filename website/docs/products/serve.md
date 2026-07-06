@@ -44,8 +44,9 @@ metrics built in.
   Your robot doesn't need to know which model is behind it.
 - **Hot loading & health** — /health, /load_model and /predict endpoints let you
   swap or reload models with zero downtime.
-- **Fits your VRAM** — Optional 4-bit loading runs 7B-class models on a single GPU
-  with 16 GB or more.
+- **Fits your hardware** — Optional 4-bit quantization runs large VLA models on
+  modest GPUs. Bring your own — we help you size it, or recommend hardware that
+  fits your budget.
 - **Observability first** — Latency, throughput and GPU metrics export to
   Prometheus and the OhhO Fleet dashboards.
 
@@ -66,7 +67,7 @@ metrics built in.
 | API | REST — /health, /load_model, /predict |
 | Backends | OpenVLA, SmolVLA, ACT, diffusion, custom |
 | Quantization | Optional 4-bit |
-| Hardware | NVIDIA GPU, 16 GB+ VRAM |
+| Hardware | Your GPU (desktop, server or cloud) — we help you size it |
 | Metrics | Prometheus /metrics endpoint |
 | Deploy | Docker, single command |
 

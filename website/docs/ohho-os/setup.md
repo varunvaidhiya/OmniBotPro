@@ -199,7 +199,7 @@ ohho drive omnibot --vx 0.15 --seconds 3  # drive forward for 3 seconds
 ## Step 4 — Hand It a Goal (Agent)
 
 The agent runs a continuous **perceive → reason → act → reflect** loop. It
-builds tools from the robot's capabilities and uses a Claude tool-calling
+builds tools from the robot's capabilities and uses an LLM tool-calling
 reasoner (or an echo fallback when no LLM is available).
 
 ```bash

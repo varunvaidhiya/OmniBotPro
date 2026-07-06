@@ -16,12 +16,12 @@ const FEATURE_PILLARS: { icon: string; title: string; body: string }[] = [
   {
     icon: "Control",
     title: "6 adapters · 2 runtimes",
-    body: "sim, Yahboom serial, Feetech arm, Unitree DDS, ROS 2 topics, and composite (base+arm merge). Native runtime or ROS 2 — auto-detects which is available.",
+    body: "sim, serial base, bus-servo arm, DDS-native, ROS 2 topics, and composite (base+arm merge). Native runtime or ROS 2 — auto-detects which is available.",
   },
   {
     icon: "Agent",
     title: "Real agent brain",
-    body: "HarnessBrain wires agent_engine — perceive→reason→act→reflect with Claude tool-calling. Tools built automatically from robot capabilities. ScriptedBrain fallback needs zero deps.",
+    body: "HarnessBrain wires agent_engine — perceive→reason→act→reflect with LLM tool-calling. Tools built automatically from robot capabilities. ScriptedBrain fallback needs zero deps.",
   },
   {
     icon: "Train",
@@ -61,7 +61,7 @@ const DIFFERENTIATORS: { title: string; body: string }[] = [
   },
   {
     title: "Agent-native by design",
-    body: "A continuous perceive → reason → act → reflect loop powered by agent_engine with a Claude tool-calling reasoner. Tools are built automatically from the robot's capabilities. ScriptedBrain fallback needs zero deps.",
+    body: "A continuous perceive → reason → act → reflect loop powered by agent_engine with an LLM tool-calling reasoner. Tools are built automatically from the robot's capabilities. ScriptedBrain fallback needs zero deps.",
   },
   {
     title: "Training built in",
@@ -78,7 +78,7 @@ const RUNTIME_ROWS: { feature: string; native: string; ros: string }[] = [
   { feature: "Install", native: "pip install — any OS", ros: "Ubuntu 24.04 + ROS 2 Jazzy" },
   { feature: "Drive · teleop · telemetry", native: "yes", ros: "yes" },
   { feature: "Agent (Mind) · Train · Data · Serve", native: "yes", ros: "yes" },
-  { feature: "Direct Unitree / DJI / firmware", native: "native", ros: "via bridge" },
+  { feature: "Direct DDS / MAVLink / firmware", native: "native", ros: "via bridge" },
   { feature: "Lightweight nav (built-in A*)", native: "yes", ros: "yes" },
   { feature: "Nav2 full navigation", native: "no", ros: "yes" },
   { feature: "SLAM (slam_toolbox / 3-D)", native: "basic", ros: "yes" },
@@ -95,8 +95,8 @@ const ROBOT_CATEGORIES = [
 ];
 
 const ADAPTERS = [
-  "Simulator", "Yahboom serial", "Feetech arm", "Unitree DDS", "ROS 2 topics", "Composite",
-  "DJI MAVLink", "Modbus", "EtherCAT", "ROSBridge", "Web Serial", "+ more",
+  "Simulator", "Serial base", "Bus-servo arm", "DDS-native", "ROS 2 topics", "Composite",
+  "MAVLink", "Modbus", "EtherCAT", "ROSBridge", "Web Serial", "+ more",
 ];
 
 function cellColor(v: string): string {
@@ -228,12 +228,12 @@ export default function OhhoOsPage() {
             <RuntimeCard
               accent="cyan"
               name="No-ROS (native)"
-              best="Getting started · single robot · non-ROS hardware · laptop / Jetson / edge · Windows or macOS"
+              best="Getting started · single robot · non-ROS hardware · laptop / edge compute · Windows or macOS"
               advantages={[
                 "Zero setup friction — pip install and go, no ROS distro",
                 "Lightweight, fast cold start, fewer moving parts",
                 "Pure Python — no workspaces, colcon or launch files",
-                "Talks Unitree DDS, DJI MAVLink and firmware directly",
+                "Talks DDS, MAVLink and firmware directly",
                 "Runs anywhere Python runs",
               ]}
               install="pip install 'ohho-os[base]'"
@@ -320,7 +320,7 @@ export default function OhhoOsPage() {
               ["Install", "pip install 'ohho-os[base]' — add [serial], [arm], [unitree], [agent], [train], [serve] or [ros2] as you need them."],
               ["Connect", "Robot.connect(\"omnibot\") auto-detects the runtime, or pass transport=\"sim://\" / \"serial://\" / \"dds://\" / \"ros2://\"."],
               ["Control", "bot.drive(vx=0.2), bot.move_joints([...]), bot.telemetry() — same API on any robot. Capability-gated, safe no-ops."],
-              ["Automate", "Agent(bot).run(\"explore the room\") — perceive→reason→act→reflect loop with Claude tool-calling."],
+              ["Automate", "Agent(bot).run(\"explore the room\") — perceive→reason→act→reflect loop with LLM tool-calling."],
               ["Train & Serve", "Recorder → finetune() → ohho serve — record→train→serve loop with mock mode for sim (no GPU needed)."],
               ["Skills", "ohho market list / ohho market run omnibot patrol — 4 built-in skills, or write your own with @skill."],
             ].map(([t, b], i) => (

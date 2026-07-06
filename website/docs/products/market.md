@@ -7,14 +7,14 @@
 - **Live app:** [Open the marketplace](/market)
 
 A cross-brand marketplace for trained robot skills and policies. Download a
-verified pick-and-place policy for your G1, or publish one you trained with OhhO
-Train — signed, safety-checked and robot-ready.
+verified pick-and-place policy for your humanoid, or publish one you trained with
+OhhO Train — signed, safety-checked and robot-ready.
 
 ## Overview (hero)
 
-Unitree has UniStore for per-robot apps. OhhO Market is the cross-brand equivalent
-for trained behaviors — a marketplace where you download a verified policy for
-your specific robot, or publish one you trained with OhhO Train. Every skill is
+OEM app stores are per-robot. OhhO Market is the cross-brand equivalent for
+trained behaviors — a marketplace where you download a verified policy for your
+specific robot, or publish one you trained with OhhO Train. Every skill is
 signed, safety-checked through OhhO Proof, and tagged by robot model, task and
 success rate.
 
@@ -29,10 +29,10 @@ success rate.
 ## What you get
 
 - A trained policy is the most valuable artifact in robotics — and today, every
-  team trains their own from scratch. OhhO Market changes that. It's a marketplace
-  where a verified pick-and-place policy for a Unitree G1, a patrol skill for a
-  Go2, or a welding trajectory for a UR5e can be downloaded, deployed and
-  monetized.
+  team trains their own from scratch. OhhO Market changes that. It's a
+  marketplace where a verified pick-and-place policy for a humanoid, a patrol
+  skill for a quadruped, or a welding trajectory for an industrial arm can be
+  downloaded, deployed and monetized.
 - Every skill on Market is produced through the OhhO pipeline: trained with OhhO
   Train, validated through OhhO Proof's scenario suites, signed with OhhO Shield's
   supply-chain keys, and tagged with the robot models it runs on, the task it
@@ -40,15 +40,15 @@ success rate.
   download it.
 - Market creates a network effect that compounds: more robots on the platform
   attract more skill authors, more skills attract more robot owners, and the
-  take-rate model rewards both. For a startup that just bought a G1, Market means
-  deploying a working skill on day one instead of spending three months collecting
-  data and training.
+  take-rate model rewards both. For a startup that just bought a humanoid,
+  Market means deploying a working skill on day one instead of spending three
+  months collecting data and training.
 
 ## Features
 
-- **Cross-brand, not per-robot** — Unlike OEM app stores, Market spans every robot
-  brand the platform supports. A skill tagged for 'any mecanum base' works on an
-  OmniBot, a TurtleBot and a custom AMR alike.
+- **Cross-brand, not per-robot** — Unlike OEM app stores, Market spans every
+  robot the platform supports. A skill tagged for 'any mecanum base' works on a
+  mecanum manipulator, a research robot and a custom AMR alike.
 - **Verified, not posted** — Every published skill passes through OhhO Proof's
   scenario suites before it's listed — so the success rate on the listing is the
   measured rate, not a marketing claim.
@@ -68,7 +68,7 @@ success rate.
 ## How it works
 
 1. **Browse skills** — Filter by robot model, task type, success rate and price —
-   or search 'pick and place' for your G1.
+   or search 'pick and place' for your humanoid.
 2. **Verify the claim** — Each listing shows the Proof scenario results, the
    training data size and the measured success rate.
 3. **Deploy** — Download the signed skill package and OhhO Serve loads it — or
@@ -103,10 +103,11 @@ Fleet; enterprises running a private marketplace choose Forge.
 
 ## FAQ
 
-**How is this different from Unitree's UniStore?**
-UniStore is per-robot apps for Unitree hardware only. Market is cross-brand — a
-skill tagged 'any mecanum base' works on any compatible robot, not just one OEM's.
-And every skill is verified through OhhO Proof, not just posted.
+**How is this different from an OEM app store?**
+OEM stores are per-robot apps for one brand's hardware only. Market is
+cross-brand — a skill tagged 'any mecanum base' works on any compatible robot,
+not just one OEM's. And every skill is verified through OhhO Proof, not just
+posted.
 
 **Can I sell a skill I trained?**
 Yes. Train with OhhO Train, pass OhhO Proof's scenario suites, sign with OhhO

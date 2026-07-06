@@ -186,7 +186,7 @@ export default function TrainConsole() {
               <Cpu size={13} /> GPU 0
             </h2>
             <Gauge label="Utilization" value={t.gpu.util} unit="%" max={100} color={CYAN} />
-            <Gauge label="VRAM" value={t.gpu.vram} unit=" / 16 GB" max={16} color={t.gpu.vram > 15 ? AMBER : CYAN} />
+            <Gauge label="VRAM" value={t.gpu.vram} unit=" GB" max={16} color={t.gpu.vram > 15 ? AMBER : CYAN} />
             <Gauge label="Temp" value={t.gpu.temp} unit="°C" max={100} color={t.gpu.temp > 80 ? "#F87171" : GREEN} />
           </div>
 

@@ -27,12 +27,12 @@
       "slug": "pilot",
       "name": "OhhO Pilot",
       "tag": "Operate any robot. From anywhere. In mixed reality.",
-      "desc": "Mixed-reality teleoperation on Meta Quest 3. Catalog-driven robot profiles, hand-tracking arm IK, WebRTC video, dual-arm humanoid control, and per-robot calibration — any robot in your garage, one tap to drive.",
+      "desc": "Mixed-reality teleoperation on any OpenXR headset. Catalog-driven robot profiles, hand-tracking arm IK, WebRTC video, dual-arm humanoid control, and per-robot calibration — any robot in your garage, one tap to drive.",
       "accent": "violet",
       "category": "Operations",
-      "hero": "Put on a Quest 3, see your real room through passthrough, pick any robot from your OhhO garage — a mecanum mobile manipulator, a quadrotor drone, an underwater ROV, a dual-arm humanoid — and teleoperate it with controls appropriate to that robot. Hand-tracking arm IK, WebRTC telepresence video, per-robot calibration, and a catalog-driven spatial add-robot flow that mirrors the website. One shared OhhO account across web, Android and VR.",
+      "hero": "Put on an OpenXR mixed-reality headset, see your real room through passthrough, pick any robot from your OhhO garage — a mecanum mobile manipulator, a quadrotor drone, an underwater ROV, a dual-arm humanoid — and teleoperate it with controls appropriate to that robot. Hand-tracking arm IK, WebRTC telepresence video, per-robot calibration, and a catalog-driven spatial add-robot flow that mirrors the website. One shared OhhO account across web, Android and VR.",
       "highlights": [
-        "Mixed-reality passthrough (Meta Quest 3)",
+        "Mixed-reality passthrough (OpenXR headset)",
         "Catalog-driven — any robot, one tap to drive",
         "Hand-tracking arm IK (analytic + FABRIK)",
         "WebRTC video with MJPEG fallback",
@@ -42,11 +42,11 @@
       "specs": [
         {
           "label": "Headset",
-          "value": "Meta Quest 3 / 3S (mixed reality, passthrough)"
+          "value": "Any OpenXR mixed-reality headset (passthrough)"
         },
         {
           "label": "Engine",
-          "value": "Unity 2023.3 LTS + Meta XR SDK 60"
+          "value": "Unity 2023.3 LTS + OpenXR"
         },
         {
           "label": "Transport",
@@ -62,7 +62,7 @@
         },
         {
           "label": "Arm IK",
-          "value": "Analytic (SO-101), FABRIK (generic), dual-arm, MoveIt Servo (robot-side)"
+          "value": "Analytic (reference 6-DOF), FABRIK (generic), dual-arm, MoveIt Servo (robot-side)"
         },
         {
           "label": "Safety",

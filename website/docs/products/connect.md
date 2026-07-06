@@ -28,14 +28,14 @@ setup.
 
 ## What you get
 
-- Every robot speaks a different language on a different wire. Unitree talks DDS
-  over Cyclone, a Yahboom base speaks a serial protocol over USB, a drone speaks
-  MAVLink, an industrial arm speaks Modbus. OhhO Connect is the layer that makes
-  all of them look the same to every OhhO product.
+- Every robot speaks a different language on a different wire. A DDS-native
+  humanoid talks DDS over Cyclone, a mecanum base speaks a serial protocol over
+  USB, a drone speaks MAVLink, an industrial arm speaks Modbus. OhhO Connect is
+  the layer that makes all of them look the same to every OhhO product.
 - Connect exposes a single transport interface — connect, send velocity, send
   joint commands, emergency stop, subscribe to telemetry — and implements it for
-  each protocol. A console built against Connect works on an OmniBot over Wi-Fi
-  today and a Unitree G1 over USB tomorrow, with zero code changes.
+  each protocol. A console built against Connect works on a mecanum manipulator
+  over Wi-Fi today and a humanoid over USB tomorrow, with zero code changes.
 - Because Connect runs in the browser, there's nothing to install on the
   operator's machine. Web Serial and Web Bluetooth are feature-detected at
   runtime, and a deterministic simulator is always available — so you can explore
@@ -105,8 +105,8 @@ into Chromium browsers (Chrome, Edge) — no driver, no SDK, no desktop app.
 
 **Does Connect work with non-ROS robots?**
 Yes. Web Serial talks the firmware protocol directly — no ROS needed. For
-DDS-native robots like Unitree, pair Connect with OhhO Bridge to translate
-between DDS and ROS topics.
+DDS-native robots, pair Connect with OhhO Bridge to translate between DDS and
+ROS topics.
 
 **What if my browser doesn't support Web Serial?**
 Connect feature-detects each protocol at runtime and shows only the ones your

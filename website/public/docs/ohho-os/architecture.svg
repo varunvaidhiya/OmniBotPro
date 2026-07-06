@@ -41,19 +41,19 @@
   <rect x="60" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
   <text x="105" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">sim</text>
   <rect x="160" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
-  <text x="205" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">yahboom</text>
+  <text x="205" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">serial</text>
   <rect x="260" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#00d4ff" stroke-width="0.8"/>
-  <text x="305" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">feetech</text>
+  <text x="305" y="425" text-anchor="middle" fill="#00d4ff" font-size="11">arm</text>
   <rect x="360" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#a78bfa" stroke-width="0.8"/>
-  <text x="405" y="425" text-anchor="middle" fill="#a78bfa" font-size="11">unitree-dds</text>
+  <text x="405" y="425" text-anchor="middle" fill="#a78bfa" font-size="11">dds</text>
   <rect x="460" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#a78bfa" stroke-width="0.8"/>
   <text x="505" y="425" text-anchor="middle" fill="#a78bfa" font-size="11">ros2</text>
   <rect x="560" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#1e2a44"/>
-  <text x="605" y="425" text-anchor="middle" fill="#8b9bb4" font-size="11">dji</text>
+  <text x="605" y="425" text-anchor="middle" fill="#8b9bb4" font-size="11">mavlink</text>
   <rect x="660" y="410" width="90" height="22" rx="11" fill="#0e1628" stroke="#1e2a44"/>
   <text x="705" y="425" text-anchor="middle" fill="#8b9bb4" font-size="11">composite</text>
   <!-- Hardware row -->
   <rect x="40" y="455" width="720" height="50" rx="10" fill="#0a0e1a" stroke="#1e2a44" stroke-dasharray="4 4"/>
   <text x="400" y="475" text-anchor="middle" fill="#8b9bb4" font-size="12" font-weight="600" letter-spacing="2">HARDWARE</text>
-  <text x="400" y="493" text-anchor="middle" fill="#6b7a99" font-size="11">OmniBot · Unitree Go2 · SO-101 Arm · DJI Drones · Any ROS 2 Robot · Sim</text>
+  <text x="400" y="493" text-anchor="middle" fill="#6b7a99" font-size="11">Mecanum manipulator · Quadruped · 6-DOF arm · Drone · Any ROS 2 Robot · Sim</text>
 </svg>

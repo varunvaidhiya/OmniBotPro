@@ -272,7 +272,7 @@ export const PRODUCTS: Product[] = [
     features: [
       { title: "Assembly from your design", body: "Bench expands your Build BOM into an ordered, illustrated assembly sequence — what bolts to what, in what order, with torque and orientation called out." },
       { title: "Wiring & port map", body: "A generated harness diagram: motor board, arm bus, cameras and compute, with the serial ports, baud rates and power budget each one needs." },
-      { title: "Firmware flashing", body: "Flash the motor-controller and microcontroller firmware from the browser, with the right protocol and car-type set for your base — no hand-edited config." },
+      { title: "Firmware flashing", body: "Flash the motor-controller and microcontroller firmware from the browser, with the right protocol and configuration for your base — no hand-edited config." },
       { title: "Hardware self-test", body: "Spin each wheel, read encoders and IMU, and sweep every arm joint to confirm wiring and direction before any autonomy runs." },
       { title: "Guided calibration", body: "Walk through odometry geometry, IMU bias, camera intrinsics, the surround-view rig and arm homing — and write them into the deployment profile." },
       { title: "Hands off to the stack", body: "A green Bench produces the deployment profile and calibration files that OhhO Frame, View and Autonomy pick up with zero re-entry." },
@@ -333,8 +333,8 @@ export const PRODUCTS: Product[] = [
       "Robot-agnostic — one console, any robot",
     ],
     overview: [
-      "Every robot speaks a different language on a different wire. Unitree talks DDS over Cyclone, a Yahboom base speaks a serial protocol over USB, a drone speaks MAVLink, an industrial arm speaks Modbus. OhhO Connect is the layer that makes all of them look the same to every OhhO product.",
-      "Connect exposes a single transport interface — connect, send velocity, send joint commands, emergency stop, subscribe to telemetry — and implements it for each protocol. A console built against Connect works on an OmniBot over Wi-Fi today and a Unitree G1 over USB tomorrow, with zero code changes.",
+      "Every robot speaks a different language on a different wire. A DDS-native humanoid talks Cyclone, a mecanum base speaks a serial protocol over USB, a drone speaks MAVLink, an industrial arm speaks Modbus. OhhO Connect is the layer that makes all of them look the same to every OhhO product.",
+      "Connect exposes a single transport interface — connect, send velocity, send joint commands, emergency stop, subscribe to telemetry — and implements it for each protocol. A console built against Connect works on a mecanum manipulator over Wi-Fi today and a humanoid over USB tomorrow, with zero code changes.",
       "Because Connect runs in the browser, there's nothing to install on the operator's machine. Web Serial and Web Bluetooth are feature-detected at runtime, and a deterministic simulator is always available — so you can explore every console before you ever wire up real hardware.",
     ],
     features: [
@@ -370,7 +370,7 @@ export const PRODUCTS: Product[] = [
       "Connect is foundational and included on every plan, including free. You only need a paid plan for the consoles that sit on top of Connect — Pilot, Autonomy, Fleet and Mind.",
     faq: [
       { q: "Do I need to install anything on my computer?", a: "No. Connect runs entirely in the browser. Web Serial and Web Bluetooth are built into Chromium browsers (Chrome, Edge) — no driver, no SDK, no desktop app." },
-      { q: "Does Connect work with non-ROS robots?", a: "Yes. Web Serial talks the firmware protocol directly — no ROS needed. For DDS-native robots like Unitree, pair Connect with OhhO Bridge to translate between DDS and ROS topics." },
+      { q: "Does Connect work with non-ROS robots?", a: "Yes. Web Serial talks the firmware protocol directly — no ROS needed. For DDS-native robots, pair Connect with OhhO Bridge to translate between DDS and ROS topics." },
       { q: "What if my browser doesn't support Web Serial?", a: "Connect feature-detects each protocol at runtime and shows only the ones your browser supports. Wi-Fi (ROSBridge) and the simulator work in any modern browser." },
     ],
     related: ["bridge", "frame", "pilot"],
@@ -382,7 +382,7 @@ export const PRODUCTS: Product[] = [
     slug: "bridge",
     name: "OhhO Bridge",
     tag: "Connect any robot. Even the ones that don't speak ROS.",
-    desc: "Per-brand protocol adapters that translate between native robot SDKs and the OhhO platform. Bridge a Unitree DDS humanoid, a DJI drone or a Modbus arm into standard ROS 2 topics — no fork, no rewrite.",
+    desc: "Protocol adapters that translate between any robot's native protocol and the OhhO platform. Bridge a DDS-native humanoid, a MAVLink drone, a CANopen mobile base, an OPC UA factory cell or a Modbus arm into standard ROS 2 topics — no fork, no rewrite.",
     accent: "violet",
     category: "Foundation",
     icon: (
@@ -396,39 +396,52 @@ export const PRODUCTS: Product[] = [
         <path d="M17 12v4" />
       </svg>
     ),
-    hero: "OhhO Connect handles the transport; OhhO Bridge handles the language. Bridge is a library of per-brand protocol adapters that translate between a robot's native SDK — Unitree's DDS LowCmd/LowState, DJI's MAVLink, a Modbus PLC arm — and the standard ROS 2 topics every OhhO product already speaks. One adapter per brand, and any robot joins the platform.",
+    hero: "OhhO Connect handles the transport; OhhO Bridge handles the language. Bridge is a library of protocol adapters that translate between a robot's native protocol — a DDS LowCmd/LowState interface, a MAVLink autopilot, a CANopen motor bus, an OPC UA factory cell, a Modbus PLC arm — and the standard ROS 2 topics every OhhO product already speaks. One adapter per protocol family, and any robot joins the platform.",
     highlights: [
-      "Unitree DDS ↔ ROS 2 topics",
-      "DJI MAVLink ↔ ROS 2 topics",
-      "Modbus / PLC arm adapters",
+      "DDS-native ↔ ROS 2 topics",
+      "MAVLink ↔ ROS 2 topics",
+      "CAN bus / CANopen (CiA 402) ↔ ROS 2",
+      "OPC UA ↔ ROS 2 (Industry 4.0)",
+      "PROFINET · EtherNet/IP ↔ ROS 2",
+      "MQTT · VDA 5050 (AGV/AMR fleets)",
+      "Modbus · EtherCAT (industrial arms)",
+      "ROS-Industrial arm driver compatibility",
       "Joint-index maps per robot model",
       "Impedance-gain defaults included",
     ],
     overview: [
-      "ROS 2 is the lingua franca of the OhhO platform — but most commercial robots don't speak it natively. Unitree humanoids talk Cyclone DDS through unitree_sdk2 with custom LowCmd/LowState IDL. DJI drones speak MAVLink. Industrial arms speak Modbus or EtherCAT. OhhO Bridge is the layer that translates each one into the standard ROS 2 topics the rest of the platform expects.",
-      "Each bridge is a thin ROS 2 node — or a browser-side codec for Web Serial — that subscribes to the robot's native protocol and republishes as standard topics: Twist on /cmd_vel, JointState on /joint_states, Imu on /imu/data, Odometry on /odom. In the other direction, it takes your ROS 2 commands and calls the robot's native SDK. For Unitree, that means mapping Twist to HighCmd velocity fields and JointState to LowCmd motor commands with sensible default impedance gains (kp/kd).",
-      "Bridge is what makes 'any robot' literally true. Without it, OhhO's intelligence and operations products work on any ROS 2-compatible robot — which is a lot, but not everything. With Bridge, a Unitree G1 humanoid, a DJI Matrice drone and a Modbus-controlled SCARA arm all appear to the platform as standard ROS 2 robots, and every console works unchanged.",
+      "ROS 2 is the lingua franca of the OhhO platform — but most commercial robots don't speak it natively. Humanoids talk Cyclone DDS through a native SDK with custom LowCmd/LowState IDL. Drones speak MAVLink. Mobile bases and AGVs speak CANopen over a CAN bus. Factory cells speak OPC UA. Industrial arms speak Modbus, EtherCAT, PROFINET or EtherNet/IP. Warehouse fleets speak VDA 5050 over MQTT. OhhO Bridge is the layer that translates each one into the standard ROS 2 topics the rest of the platform expects.",
+      "Each bridge is a thin ROS 2 node — or a browser-side codec for Web Serial — that subscribes to the robot's native protocol and republishes as standard topics: Twist on /cmd_vel, JointState on /joint_states, Imu on /imu/data, Odometry on /odom. In the other direction, it takes your ROS 2 commands and calls the robot's native protocol. For a DDS-native humanoid, that means mapping Twist to HighCmd velocity fields and JointState to LowCmd motor commands with sensible default impedance gains (kp/kd). For a CANopen base, it means SDO/PDO object dictionary translation. For an OPC UA cell, it means browsing the server's address space and mapping nodes to topics.",
+      "Bridge is what makes 'any robot' literally true. Without it, OhhO's intelligence and operations products work on any ROS 2-compatible robot — which is a lot, but not everything. With Bridge, a DDS-native humanoid, a MAVLink survey drone, a CANopen AGV, an OPC UA-integrated factory arm and a Modbus-controlled SCARA all appear to the platform as standard ROS 2 robots, and every console works unchanged. And because Bridge speaks the industry standards the factory floor already runs on — PROFINET for German automotive, EtherNet/IP for North American manufacturing, VDA 5050 for warehouse fleets — a robot on OhhO plugs into the systems your facility already has, not the other way around.",
     ],
     features: [
-      { title: "Unitree DDS adapter", body: "Translates unitree_sdk2 LowCmd/LowState and HighCmd/HighState to and from standard ROS 2 topics, with per-model joint-index maps for G1, H1, H2, Go2 and B2." },
-      { title: "DJI MAVLink adapter", body: "Bridges MAVLink heartbeat, attitude, global position and manual control to ROS 2 Imu, Odometry and Twist — so a drone appears in the platform like any other robot." },
-      { title: "Industrial arm adapters", body: "Modbus TCP/RTU and EtherCAT bridges for PLC-driven arms, exposing joint state and joint commands as standard ROS 2 topics." },
-      { title: "Impedance-gain defaults", body: "When translating ROS joint commands into Unitree LowCmd motor commands, Bridge applies sensible default kp/kd profiles per joint — so position control works out of the box without per-servo tuning." },
-      { title: "Browser-side codecs", body: "For Web Serial connections, Bridge ships browser-native protocol codecs — like the Yahboom packet encoder — so Connect can talk firmware-direct with no Pi in the loop." },
-      { title: "Community-extensible", body: "Each bridge is a standalone adapter module. New brands are added as a new adapter — no platform fork, no core rewrite." },
+      { title: "DDS-native humanoid adapter", body: "Translates a native DDS LowCmd/LowState and HighCmd/HighState interface to and from standard ROS 2 topics, with per-model joint-index maps for the humanoid family you're driving." },
+      { title: "MAVLink drone adapter", body: "Bridges MAVLink heartbeat, attitude, global position and manual control to ROS 2 Imu, Odometry and Twist — so a drone appears in the platform like any other robot." },
+      { title: "CAN bus / CANopen adapter", body: "Translates CANopen object dictionaries (CiA 402 motion profile, SDO/PDO) to ROS 2 JointState, Twist and Odometry — the standard protocol for mobile robot motor controllers, AGVs and embedded bases." },
+      { title: "OPC UA adapter", body: "Browses an OPC UA server's address space and maps nodes to ROS 2 topics — so a robot integrates with Industry 4.0 factory cells, MES/SCADA systems and digital twin platforms that already speak OPC UA." },
+      { title: "PROFINET & EtherNet/IP adapters", body: "Real-time industrial Ethernet bridges for the two dominant factory-network ecosystems — PROFINET for European/Siemens manufacturing, EtherNet/IP for North American/Rockwell manufacturing. A robot on OhhO speaks the network your plant already runs." },
+      { title: "MQTT & VDA 5050 adapter", body: "Bridges the VDA 5050 AGV/AMR fleet standard over MQTT — so OhhO Fleet interoperates with warehouse management systems and master control software from Linde, Toyota, MiR, KION and the rest of the VDA 5050 ecosystem." },
+      { title: "Industrial arm adapters", body: "Modbus TCP/RTU and EtherCAT bridges for PLC-driven arms, plus ROS-Industrial compatibility for the major industrial arm families — exposing joint state and joint commands as standard ROS 2 topics." },
+      { title: "PLC integration (IEC 61131-3)", body: "Bridge maps ROS 2 topics to PLC-readable signals, so a robot exchanges data with controllers programmed in ladder logic, structured text or function blocks — the languages every factory PLC already speaks." },
+      { title: "Impedance-gain defaults", body: "When translating ROS joint commands into a native DDS motor command, Bridge applies sensible default kp/kd profiles per joint — so position control works out of the box without per-servo tuning." },
+      { title: "Browser-side codecs", body: "For Web Serial connections, Bridge ships browser-native protocol codecs for common serial bases — so Connect can talk firmware-direct with no onboard PC in the loop." },
+      { title: "Community-extensible", body: "Each bridge is a standalone adapter module. New protocols are added as a new adapter — no platform fork, no core rewrite." },
     ],
     how: [
-      { title: "Install the bridge", body: "Select the bridge for your robot brand — Unitree, DJI, or a community adapter — and install it alongside OhhO Frame." },
-      { title: "Map the joints", body: "Bridge loads the joint-index map for your specific model and applies default impedance gains." },
-      { title: "Run the node", body: "The bridge node connects to the robot's native SDK and starts republishing standard ROS 2 topics." },
-      { title: "Use every console", body: "Pilot, Autonomy, Fleet, Mind and every other OhhO product now work on your robot unchanged." },
+      { title: "Install the bridge", body: "Select the bridge for your robot's protocol — DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus, serial, or a community adapter — and install it alongside OhhO Frame." },
+      { title: "Map the joints / signals", body: "Bridge loads the joint-index map for a humanoid, the object dictionary for a CANopen base, or the OPC UA address space for a factory cell — and applies sensible defaults." },
+      { title: "Run the node", body: "The bridge node connects to the robot's native protocol and starts republishing standard ROS 2 topics." },
+      { title: "Use every console", body: "Pilot, Autonomy, Fleet, Mind and every other OhhO product now work on your robot unchanged — and your plant's existing systems keep speaking their own protocols." },
     ],
     specs: [
-      { label: "Adapters", value: "Unitree DDS, DJI MAVLink, Modbus, EtherCAT, Yahboom serial" },
-      { label: "Unitree models", value: "G1, H1, H1-2, H2, R1, Go2, B2, A2" },
+      { label: "Robot protocols", value: "DDS, MAVLink, CANopen, Modbus, EtherCAT" },
+      { label: "Factory protocols", value: "OPC UA, PROFINET, EtherNet/IP, IEC 61131-3" },
+      { label: "Fleet protocols", value: "MQTT, VDA 5050" },
+      { label: "Industrial arms", value: "ROS-Industrial compatible, Modbus, EtherCAT" },
+      { label: "Humanoid models", value: "Per-model joint maps, configurable for your robot" },
       { label: "ROS 2 topics", value: "/cmd_vel, /joint_states, /imu/data, /odom" },
       { label: "Gain profiles", value: "Default kp/kd per joint per model" },
-      { label: "Runtime", value: "ROS 2 node (Pi / onboard PC) + browser codecs" },
+      { label: "Runtime", value: "ROS 2 node (onboard PC) + browser codecs" },
       { label: "Integrates", value: "OhhO Connect, Frame, all consoles" },
     ],
     plans: [
@@ -441,14 +454,16 @@ export const PRODUCTS: Product[] = [
     planRationale:
       "Most teams only need one bridge — the one for their robot. Builder includes a single brand adapter, which is enough to bring one robot family onto the platform. Teams running mixed fleets choose Fleet for all adapters; enterprises with proprietary protocols choose Forge for custom bridges.",
     faq: [
-      { q: "Do I need Bridge if my robot already speaks ROS 2?", a: "No. If your robot publishes standard ROS 2 topics natively, Connect + Frame are enough. Bridge is for robots that speak a native non-ROS protocol — Unitree DDS, DJI MAVLink, Modbus, and so on." },
-      { q: "Which Unitree models are supported?", a: "The Unitree DDS bridge covers G1, H1, H1-2, H2, R1, Go2, B2 and A2, using the joint-index maps from Unitree's published URDF and SDK headers." },
+      { q: "Do I need Bridge if my robot already speaks ROS 2?", a: "No. If your robot publishes standard ROS 2 topics natively, Connect + Frame are enough. Bridge is for robots that speak a native non-ROS protocol — DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus, and so on." },
+      { q: "Which humanoid models are supported?", a: "The DDS bridge covers any humanoid with a published URDF and SDK header — Bridge builds the joint-index map from those, so a new model is one config away." },
+      { q: "Can Bridge integrate with my factory's PLC and SCADA systems?", a: "Yes. The OPC UA adapter browses your server's address space and maps nodes to ROS 2 topics; the PROFINET and EtherNet/IP adapters speak the industrial Ethernet your plant already runs; and IEC 61131-3 mapping lets PLCs exchange signals with robots over standard topics." },
+      { q: "Does Bridge support warehouse AGV/AMR fleet standards?", a: "Yes. The VDA 5050 adapter over MQTT lets OhhO Fleet interoperate with warehouse management systems and master control software that speak the VDA 5050 standard — so your robots integrate with the fleet infrastructure your warehouse already has." },
       { q: "Can I write my own bridge?", a: "Yes. Each bridge is a standalone adapter module. On Forge, the OhhO team builds and maintains custom bridges for proprietary protocols." },
     ],
     related: ["connect", "frame", "pilot"],
     app: { href: "/bridge", label: "Open bridge console" },
     dashboardCaption:
-      "OhhO Bridge — the Unitree DDS to ROS 2 adapter with joint-index mapping, live topic bridge, and impedance-gain defaults.",
+      "OhhO Bridge — protocol adapters for DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050 and Modbus, all translating to standard ROS 2 topics.",
   },
 
   // ── INTELLIGENCE ────────────────────────────────────────────────────────────
@@ -481,7 +496,7 @@ export const PRODUCTS: Product[] = [
       { title: "Model-agnostic backend", body: "OpenVLA, SmolVLA, ACT, diffusion, or a custom class — selected by config, not code." },
       { title: "Clean predict API", body: "POST an image + instruction, get back an action vector. Your robot doesn't need to know which model is behind it." },
       { title: "Hot loading & health", body: "/health, /load_model and /predict endpoints let you swap or reload models with zero downtime." },
-      { title: "Fits your VRAM", body: "Optional 4-bit loading runs 7B-class models on a single GPU with 16 GB or more." },
+      { title: "Fits your hardware", body: "Optional 4-bit quantization runs large VLA models on modest GPUs. Bring your own — we help you size it, or recommend hardware that fits your budget." },
       { title: "Observability first", body: "Latency, throughput and GPU metrics export to Prometheus and the OhhO Fleet dashboards." },
     ],
     how: [
@@ -494,7 +509,7 @@ export const PRODUCTS: Product[] = [
       { label: "API", value: "REST — /health, /load_model, /predict" },
       { label: "Backends", value: "OpenVLA, SmolVLA, ACT, diffusion, custom" },
       { label: "Quantization", value: "Optional 4-bit" },
-      { label: "Hardware", value: "NVIDIA GPU, 16 GB+ VRAM" },
+      { label: "Hardware", value: "Your GPU (desktop, server or cloud) — we help you size it" },
       { label: "Metrics", value: "Prometheus /metrics endpoint" },
       { label: "Deploy", value: "Docker, single command" },
     ],
@@ -694,7 +709,7 @@ export const PRODUCTS: Product[] = [
       { label: "Data sources", value: "OhhO Data (LeRobot), Gazebo, Isaac Sim" },
       { label: "Foundation", value: "Open-source OmniVLA engine" },
       { label: "Tracking", value: "Weights & Biases + Bayesian sweeps" },
-      { label: "Hardware", value: "NVIDIA GPU; CUDA / TensorRT execution" },
+      { label: "Hardware", value: "Your GPU — we help you size it or recommend a rig" },
       { label: "Export", value: "Serve checkpoint + ONNX for Fleet OTA" },
     ],
     plans: [
@@ -735,20 +750,20 @@ export const PRODUCTS: Product[] = [
       "2-D & 3-D SLAM mapping",
       "Nav2 path planning + obstacle avoidance",
       "Mission planner (navigate → act sequences)",
-      "Natural-language agent (Claude-backed)",
+      "Natural-language agent (LLM-backed, your choice of model)",
       "Safe control-mode mux: nav / AI / teleop",
     ],
     overview: [
       "Perception tells a robot what's around it; Autonomy decides what to do about it. OhhO Autonomy is the behavior layer that turns a powered-on robot into one that moves through the world and completes tasks on its own.",
       "It builds and localizes against a map with SLAM (2-D and 3-D), plans collision-free paths with Nav2 over a fused costmap, and fuses wheel odometry and IMU through an EKF for reliable pose. A mission planner sequences higher-level jobs — navigate to a named location, then run a manipulation policy — and a control-mode mux arbitrates cleanly between navigation, AI policies and human teleop so they never fight over the wheels.",
-      "On top sits a natural-language agent, backed by Claude, that turns 'take the red cup from the kitchen to the bench' into a structured mission: it knows your named locations, can describe what it sees, and asks for clarification when an instruction is ambiguous — then hands the mission to the planner to execute.",
+      "On top sits a natural-language agent, backed by the LLM of your choice, that turns 'take the red cup from the kitchen to the bench' into a structured mission: it knows your named locations, can describe what it sees, and asks for clarification when an instruction is ambiguous — then hands the mission to the planner to execute.",
     ],
     features: [
       { title: "SLAM mapping", body: "Build and localize against 2-D and 3-D maps; switch between mapping and localization modes against a saved map." },
       { title: "Nav2 navigation", body: "Collision-free path planning and obstacle avoidance over a fused costmap, tuned to the robot's real velocity and acceleration limits." },
       { title: "Robust localization", body: "An EKF fuses wheel odometry and IMU so pose stays trustworthy even when mecanum wheels slip." },
       { title: "Mission planner", body: "Sequence navigation and manipulation into a mission — 'go to the kitchen, then pick up the cup' — as a tracked state machine." },
-      { title: "Natural-language agent", body: "A Claude-backed agent maps plain-language instructions to missions, with named locations, scene description and clarification when it's unsure." },
+      { title: "Natural-language agent", body: "An LLM-backed agent maps plain-language instructions to missions, with named locations, scene description and clarification when it's unsure." },
       { title: "Safe arbitration", body: "A control-mode mux switches between navigation, AI policies and teleop so commands never conflict — and a human can always take over." },
     ],
     how: [
@@ -762,7 +777,7 @@ export const PRODUCTS: Product[] = [
       { label: "Navigation", value: "Nav2 planner + costmap obstacle avoidance" },
       { label: "Localization", value: "EKF fusing wheel odometry + IMU" },
       { label: "Missions", value: "Navigate → manipulate state machine" },
-      { label: "Agent", value: "Natural language → mission (Claude-backed)" },
+      { label: "Agent", value: "Natural language → mission (LLM-backed)" },
       { label: "Arbitration", value: "Control-mode mux: nav / AI / teleop" },
     ],
     plans: [
@@ -776,7 +791,7 @@ export const PRODUCTS: Product[] = [
       "Builder gives you mapping, navigation and the mission planner on real hardware — the core of autonomy. Add Fleet when you want the natural-language agent and reusable named missions; Forge is for custom behaviors and running the agent on-prem.",
     faq: [
       { q: "How is this different from OhhO Pilot?", a: "Pilot is for a human operating the robot; Autonomy is for the robot operating itself. They share the same safe control-mode mux, so you can hand control back and forth instantly." },
-      { q: "Does the language agent need the cloud?", a: "By default it calls Claude, but the agent layer is optional — navigation and the mission planner run fully on-robot, and Forge can run the agent on-prem." },
+      { q: "Does the language agent need the cloud?", a: "By default it calls a cloud LLM, but the agent layer is optional and model-agnostic — navigation and the mission planner run fully on-robot, and Forge can run the agent on-prem with your own model." },
     ],
     related: ["serve", "view", "pilot"],
     dashboardCaption:
@@ -873,7 +888,7 @@ export const PRODUCTS: Product[] = [
         <path d="M9 21V13h6v8" />
       </svg>
     ),
-    hero: "Unitree has UniStore for per-robot apps. OhhO Market is the cross-brand equivalent for trained behaviors — a marketplace where you download a verified policy for your specific robot, or publish one you trained with OhhO Train. Every skill is signed, safety-checked through OhhO Proof, and tagged by robot model, task and success rate.",
+    hero: "OEM app stores are per-robot. OhhO Market is the cross-brand equivalent for trained behaviors — a marketplace where you download a verified policy for your specific robot, or publish one you trained with OhhO Train. Every skill is signed, safety-checked through OhhO Proof, and tagged by robot model, task and success rate.",
     highlights: [
       "Cross-brand skill marketplace",
       "Verified, signed policies",
@@ -882,12 +897,12 @@ export const PRODUCTS: Product[] = [
       "Sell skills, take-rate model",
     ],
     overview: [
-      "A trained policy is the most valuable artifact in robotics — and today, every team trains their own from scratch. OhhO Market changes that. It's a marketplace where a verified pick-and-place policy for a Unitree G1, a patrol skill for a Go2, or a welding trajectory for a UR5e can be downloaded, deployed and monetized.",
+      "A trained policy is the most valuable artifact in robotics — and today, every team trains their own from scratch. OhhO Market changes that. It's a marketplace where a verified pick-and-place policy for a humanoid, a patrol skill for a quadruped, or a welding trajectory for an industrial arm can be downloaded, deployed and monetized.",
       "Every skill on Market is produced through the OhhO pipeline: trained with OhhO Train, validated through OhhO Proof's scenario suites, signed with OhhO Shield's supply-chain keys, and tagged with the robot models it runs on, the task it performs, and its measured success rate. You know what you're buying before you download it.",
       "Market creates a network effect that compounds: more robots on the platform attract more skill authors, more skills attract more robot owners, and the take-rate model rewards both. For a startup that just bought a G1, Market means deploying a working skill on day one instead of spending three months collecting data and training.",
     ],
     features: [
-      { title: "Cross-brand, not per-robot", body: "Unlike OEM app stores, Market spans every robot brand the platform supports. A skill tagged for 'any mecanum base' works on an OmniBot, a TurtleBot and a custom AMR alike." },
+      { title: "Cross-brand, not per-robot", body: "Unlike OEM app stores, Market spans every robot the platform supports. A skill tagged for 'any mecanum base' works on a mecanum manipulator, a research robot and a custom AMR alike." },
       { title: "Verified, not posted", body: "Every published skill passes through OhhO Proof's scenario suites before it's listed — so the success rate on the listing is the measured rate, not a marketing claim." },
       { title: "Signed and tamper-proof", body: "Each skill package is signed with OhhO Shield's supply-chain keys, so a robot verifies the skill's integrity before loading it via OhhO Serve." },
       { title: "One-click deploy", body: "Download a skill and Serve loads it — no manual checkpoint conversion, no model-class mismatch. The skill package carries its model class and config." },
@@ -918,7 +933,7 @@ export const PRODUCTS: Product[] = [
     planRationale:
       "Anyone can browse and download free skills on Spark. Builder adds paid skills — most teams want at least one commercial policy to skip months of training. Teams selling skills or buying team licenses choose Fleet; enterprises running a private marketplace choose Forge.",
     faq: [
-      { q: "How is this different from Unitree's UniStore?", a: "UniStore is per-robot apps for Unitree hardware only. Market is cross-brand — a skill tagged 'any mecanum base' works on any compatible robot, not just one OEM's. And every skill is verified through OhhO Proof, not just posted." },
+      { q: "How is this different from an OEM app store?", a: "OEM stores are per-robot apps for one brand's hardware only. Market is cross-brand — a skill tagged 'any mecanum base' works on any compatible robot, not just one OEM's. And every skill is verified through OhhO Proof, not just posted." },
       { q: "Can I sell a skill I trained?", a: "Yes. Train with OhhO Train, pass OhhO Proof's scenario suites, sign with OhhO Shield, and list it on Market at any price. The platform take-rate funds verification and hosting." },
       { q: "What if a skill doesn't work on my robot?", a: "Every listing is tagged with compatible robot models. Market checks compatibility before download, and the Proof report shows the exact scenarios the skill was tested in." },
     ],
@@ -933,7 +948,7 @@ export const PRODUCTS: Product[] = [
     slug: "pilot",
     name: "OhhO Pilot",
     tag: "Operate any robot. From anywhere. In mixed reality.",
-    desc: "Mixed-reality teleoperation on Meta Quest 3. Catalog-driven robot profiles, hand-tracking arm IK, WebRTC video, dual-arm humanoid control, and per-robot calibration — any robot in your garage, one tap to drive.",
+    desc: "Mixed-reality teleoperation on any OpenXR headset. Catalog-driven robot profiles, hand-tracking arm IK, WebRTC video, dual-arm humanoid control, and per-robot calibration — any robot in your garage, one tap to drive.",
     accent: "violet",
     category: "Operations",
     icon: (
@@ -945,9 +960,9 @@ export const PRODUCTS: Product[] = [
         <circle cx="19.5" cy="10" r="1" fill="currentColor" stroke="none" />
       </svg>
     ),
-    hero: "Put on a Quest 3, see your real room through passthrough, pick any robot from your OhhO garage — a mecanum mobile manipulator, a quadrotor drone, an underwater ROV, a dual-arm humanoid — and teleoperate it with controls appropriate to that robot. Hand-tracking arm IK, WebRTC telepresence video, per-robot calibration, and a catalog-driven spatial add-robot flow that mirrors the website. One shared OhhO account across web, Android and VR.",
+    hero: "Put on an OpenXR mixed-reality headset, see your real room through passthrough, pick any robot from your OhhO garage — a mecanum mobile manipulator, a quadrotor drone, an underwater ROV, a dual-arm humanoid — and teleoperate it with controls appropriate to that robot. Hand-tracking arm IK, WebRTC telepresence video, per-robot calibration, and a catalog-driven spatial add-robot flow that mirrors the website. One shared OhhO account across web, Android and VR.",
     highlights: [
-      "Mixed-reality passthrough (Meta Quest 3)",
+      "Mixed-reality passthrough (OpenXR headset)",
       "Catalog-driven — any robot, one tap to drive",
       "Hand-tracking arm IK (analytic + FABRIK)",
       "WebRTC video with MJPEG fallback",
@@ -955,14 +970,14 @@ export const PRODUCTS: Product[] = [
       "Per-robot calibration + quick-resume",
     ],
     overview: [
-      "OhhO Pilot is the mixed-reality teleoperation cockpit. Put on a Meta Quest 3 and your real room is the background — passthrough MR means no vection and minimal sim-sickness, even during fast base driving. Floating glass panels show your robot's camera feed, telemetry and HUD, all themed to match the OhhO website.",
+      "OhhO Pilot is the mixed-reality teleoperation cockpit. Put on an OpenXR mixed-reality headset and your real room is the background — passthrough MR means no vection and minimal sim-sickness, even during fast base driving. Floating glass panels show your robot's camera feed, telemetry and HUD, all themed to match the OhhO website.",
       "Pilot is catalog-driven: the robot list, capability model and branding all mirror the OhhO website through one shared Supabase account. Pick a robot from your garage — or add a new one in-headset with the spatial categories → types → models → name flow — and Pilot builds a RobotProfile from the catalog entry (drive kind, arm DOF, joint limits, ROS topics, max velocities). A control-scheme factory picks the right drive scheme (mecanum, differential, Ackermann, aerial mode-2 RC, thruster vectoring) and manipulation scheme (6-DOF hand-IK, dual-arm FABRIK, gripper-only, or robot-side MoveIt Servo) for that robot automatically.",
-      "Every robot category gets a correct, distinct control mapping. A drone uses mode-2 RC sticks (left = throttle + yaw, right = translate). An underwater ROV gets surge/sway/heave/yaw. A humanoid drives two arms with two hands via independent FABRIK IK chains. The OmniBot reference robot gets analytic SO-101 IK + mecanum strafe. Safety is non-negotiable: deadman grip to drive, both-grips e-stop, velocity/joint clamping from the profile, and a connection-loss watchdog that auto-stops.",
+      "Every robot category gets a correct, distinct control mapping. A drone uses mode-2 RC sticks (left = throttle + yaw, right = translate). An underwater ROV gets surge/sway/heave/yaw. A humanoid drives two arms with two hands via independent FABRIK IK chains. A mecanum mobile manipulator gets analytic arm IK + mecanum strafe. Safety is non-negotiable: deadman grip to drive, both-grips e-stop, velocity/joint clamping from the profile, and a connection-loss watchdog that auto-stops.",
     ],
     features: [
-      { title: "Mixed-reality passthrough", body: "Always-on Quest 3 passthrough as the scene background. Frosted-glass panels float in your real room — see the robot and your surroundings simultaneously. MRUK spatial anchors pin the virtual arm workspace to a real surface so it stays put as you walk." },
-      { title: "Catalog-driven, any robot", body: "The robot list, capability model and branding mirror the OhhO website through one shared Supabase account. A drone, a UR5e arm, a quadruped and OmniBot each get a correct, distinct control scheme — automatically, from the catalog profile. Add robots in-headset or on the website; they appear everywhere." },
-      { title: "Hand-tracking arm IK", body: "The Quest reports a 6-DOF wrist pose; Pilot retargets it to the arm's end-effector and solves IK in real time. Analytic IK for SO-101, generic FABRIK for arbitrary chains, dual-arm FABRIK for humanoids. Pinch drives the gripper. Optionally stream the Cartesian target to MoveIt 2 Servo on the robot for collision-aware solving." },
+      { title: "Mixed-reality passthrough", body: "Always-on headset passthrough as the scene background. Frosted-glass panels float in your real room — see the robot and your surroundings simultaneously. Spatial anchors pin the virtual arm workspace to a real surface so it stays put as you walk." },
+      { title: "Catalog-driven, any robot", body: "The robot list, capability model and branding mirror the OhhO website through one shared Supabase account. A drone, an industrial arm, a quadruped and a mobile manipulator each get a correct, distinct control scheme — automatically, from the catalog profile. Add robots in-headset or on the website; they appear everywhere." },
+      { title: "Hand-tracking arm IK", body: "The headset reports a 6-DOF wrist pose; Pilot retargets it to the arm's end-effector and solves IK in real time. Analytic IK for the reference 6-DOF arm, generic FABRIK for arbitrary chains, dual-arm FABRIK for humanoids. Pinch drives the gripper. Optionally stream the Cartesian target to MoveIt 2 Servo on the robot for collision-aware solving." },
       { title: "WebRTC telepresence video", body: "Sub-100 ms live video via WebRTC when available, with automatic MJPEG fallback per-camera. The camera list comes from the robot's profile — a drone shows FPV + down cameras, a mobile manipulator shows front + wrist + BEV, all automatically." },
       { title: "Per-robot calibration + quick-resume", body: "Each robot gets its own calibration (arm base height, workspace scale, velocity caps, IK location) persisted in the headset. The last-driven robot is saved for one-tap quick-resume on the next session. First-run onboarding shows control hints for the selected robot." },
       { title: "Profile-driven demo recording", body: "Record imitation-learning demonstrations at 30 Hz in LeRobot-compatible JSONL. The recorder reads ROS topics and state/action dimensions from the robot's profile, so a drone records base-only obs/actions, a humanoid records dual-arm + base, and an industrial arm records arm-only — all correctly, automatically." },
@@ -974,12 +989,12 @@ export const PRODUCTS: Product[] = [
       { title: "Record + hand off", body: "Record teleop demonstrations for training, or switch control modes between teleop, navigation and AI policies. Export episodes to the robot for the OhhO Data pipeline." },
     ],
     specs: [
-      { label: "Headset", value: "Meta Quest 3 / 3S (mixed reality, passthrough)" },
-      { label: "Engine", value: "Unity 2023.3 LTS + Meta XR SDK 60" },
+      { label: "Headset", value: "Any OpenXR mixed-reality headset (passthrough)" },
+      { label: "Engine", value: "Unity 2023.3 LTS + OpenXR" },
       { label: "Transport", value: "ROSBridge WebSocket (port 9090)" },
       { label: "Video", value: "WebRTC (sub-100 ms) + MJPEG fallback" },
       { label: "Drive schemes", value: "Mecanum, differential, Ackermann, aerial, thruster, legged" },
-      { label: "Arm IK", value: "Analytic (SO-101), FABRIK (generic), dual-arm, MoveIt Servo (robot-side)" },
+      { label: "Arm IK", value: "Analytic (reference 6-DOF), FABRIK (generic), dual-arm, MoveIt Servo (robot-side)" },
       { label: "Safety", value: "Deadman grip, both-grips e-stop, velocity/joint clamps, connection-loss watchdog" },
       { label: "Recording", value: "30 Hz JSONL, profile-driven topics + dims (LeRobot-compatible)" },
       { label: "Account", value: "Shared Supabase identity across web, Android and VR" },
@@ -994,17 +1009,17 @@ export const PRODUCTS: Product[] = [
     planRationale:
       "Casual mobile teleop of a few robots fits Builder. For the full VR experience — mixed-reality passthrough, WebRTC video, unlimited robots, dual-arm humanoid control, and per-robot calibration — choose Fleet. White-label Pilot for your own operators with Forge.",
     faq: [
-      { q: "Do I need a VR headset?", a: "No. Pilot works fully on mobile; VR is the immersive option for mixed-reality arm control with hand tracking. The VR app targets Meta Quest 3 / 3S." },
+      { q: "Do I need a VR headset?", a: "No. Pilot works fully on mobile; VR is the immersive option for mixed-reality arm control with hand tracking. The VR app targets any OpenXR mixed-reality headset." },
       { q: "Which robots can I teleoperate in VR?", a: "Any robot in the OhhO catalog. The headset derives a control scheme from the robot's profile — a mecanum base gets strafe sticks, a drone gets mode-2 RC, an ROV gets thruster vectoring, a humanoid gets dual-arm hand IK. Add robots on the website, Android app, or in-headset." },
       { q: "What about video latency?", a: "Pilot supports WebRTC for sub-100 ms telepresence when the package and signaling server are available, with automatic MJPEG fallback per-camera. The camera list adapts to the robot — a drone shows FPV + down, a mobile manipulator shows front + wrist + BEV." },
-      { q: "Can I solve IK on the robot instead of the headset?", a: "Yes. Pilot supports robot-side IK via MoveIt 2 Servo — stream the Cartesian end-effector target and let the robot solve with collision awareness. This is the default for the UR5e flagship profile; OmniBot uses headset-side IK for lowest latency." },
+      { q: "Can I solve IK on the robot instead of the headset?", a: "Yes. Pilot supports robot-side IK via MoveIt 2 Servo — stream the Cartesian end-effector target and let the robot solve with collision awareness. This is the default for industrial-arm profiles; mobile manipulators use headset-side IK for lowest latency." },
       { q: "Is it safe over the internet?", a: "Pilot clamps velocities and joint angles from the robot's profile, offers a deadman grip and both-grips emergency stop, and auto-stops on connection loss. Pair it with OhhO Shield for authenticated, encrypted links." },
     ],
     related: ["autonomy", "view", "fleet", "connect"],
     app: { href: "/pilot", label: "Open the cockpit" },
     vr: true,
     dashboardCaption:
-      "OhhO Pilot — mixed-reality teleoperation on Meta Quest 3: passthrough room, floating glass HUD, hand-tracking arm IK, and WebRTC camera feed.",
+      "OhhO Pilot — mixed-reality teleoperation on an OpenXR headset: passthrough room, floating glass HUD, hand-tracking arm IK, and WebRTC camera feed.",
   },
   {
     slug: "fleet",
@@ -1049,7 +1064,7 @@ export const PRODUCTS: Product[] = [
       { title: "Get alerted", body: "AlertManager pages you before users notice." },
     ],
     specs: [
-      { label: "Metrics", value: "Prometheus (Pi, GPU, VLA, DCGM)" },
+      { label: "Metrics", value: "Prometheus (robot compute, GPU, VLA, DCGM)" },
       { label: "Dashboards", value: "Grafana (auto-provisioned)" },
       { label: "Logs / traces", value: "Loki + Tempo" },
       { label: "Alerting", value: "AlertManager → email / Slack" },

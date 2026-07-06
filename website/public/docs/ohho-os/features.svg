@@ -8,7 +8,7 @@
   <circle cx="150" cy="110" r="3" fill="#00d4ff"/>
   <text x="165" y="114" fill="#e2e8f0" font-size="12">Robot Abstraction Layer</text>
   <circle cx="150" cy="130" r="3" fill="#00d4ff"/>
-  <text x="165" y="134" fill="#e2e8f0" font-size="12">5 adapters: sim · serial · feetech</text>
+  <text x="165" y="134" fill="#e2e8f0" font-size="12">5 adapters: sim · serial · arm</text>
   <circle cx="150" cy="150" r="3" fill="#00d4ff"/>
   <text x="165" y="154" fill="#e2e8f0" font-size="12">CompositeTransport (base+arm)</text>
   <circle cx="150" cy="170" r="3" fill="#00d4ff"/>
@@ -29,7 +29,7 @@
   <circle cx="400" cy="110" r="3" fill="#a78bfa"/>
   <text x="415" y="114" fill="#e2e8f0" font-size="12">Agent: perceive→reason→act→reflect</text>
   <circle cx="400" cy="130" r="3" fill="#a78bfa"/>
-  <text x="415" y="134" fill="#e2e8f0" font-size="12">Claude tool-calling reasoner</text>
+  <text x="415" y="134" fill="#e2e8f0" font-size="12">LLM tool-calling reasoner</text>
   <circle cx="400" cy="150" r="3" fill="#a78bfa"/>
   <text x="415" y="154" fill="#e2e8f0" font-size="12">ToolRegistry from capabilities</text>
   <circle cx="400" cy="170" r="3" fill="#a78bfa"/>

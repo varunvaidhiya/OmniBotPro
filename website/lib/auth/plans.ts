@@ -41,7 +41,7 @@ export const PLANS: Plan[] = [
       "All 19 consoles free with sign-in",
       "OhhO Train — GPU cloud training (20 hrs/mo)",
       "OhhO Serve — AI inference API (500 calls/day)",
-      "OhhO Mind — Cloud AI agent, Claude-backed (1K calls/mo)",
+      "OhhO Mind — Cloud AI agent, LLM-backed (1K calls/mo)",
       "OhhO Link — MCP server + API key",
       "OhhO Twin — Cloud simulation & what-if scenarios",
       "OhhO Data — Cloud sync (1K episodes)",

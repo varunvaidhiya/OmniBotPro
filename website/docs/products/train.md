@@ -78,7 +78,7 @@ every run, and export a deployment-ready checkpoint.
 | Data sources | OhhO Data (LeRobot), Gazebo, Isaac Sim |
 | Foundation | Open-source OmniVLA engine |
 | Tracking | Weights & Biases + Bayesian sweeps |
-| Hardware | NVIDIA GPU; CUDA / TensorRT execution |
+| Hardware | Your GPU — we help you size it or recommend a rig |
 | Export | Serve checkpoint + ONNX for Fleet OTA |
 
 ## Plans

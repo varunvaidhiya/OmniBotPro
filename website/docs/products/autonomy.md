@@ -22,7 +22,7 @@ agent that turns an instruction into a plan.
 - 2-D & 3-D SLAM mapping
 - Nav2 path planning + obstacle avoidance
 - Mission planner (navigate → act sequences)
-- Natural-language agent (Claude-backed)
+- Natural-language agent (LLM-backed, your choice of model)
 - Safe control-mode mux: nav / AI / teleop
 
 ## What you get
@@ -36,7 +36,7 @@ agent that turns an instruction into a plan.
   higher-level jobs — navigate to a named location, then run a manipulation policy
   — and a control-mode mux arbitrates cleanly between navigation, AI policies and
   human teleop so they never fight over the wheels.
-- On top sits a natural-language agent, backed by Claude, that turns 'take the red
+- On top sits a natural-language agent, backed by the LLM of your choice, that turns 'take the red
   cup from the kitchen to the bench' into a structured mission: it knows your
   named locations, can describe what it sees, and asks for clarification when an
   instruction is ambiguous — then hands the mission to the planner to execute.
@@ -51,7 +51,7 @@ agent that turns an instruction into a plan.
   trustworthy even when mecanum wheels slip.
 - **Mission planner** — Sequence navigation and manipulation into a mission — 'go
   to the kitchen, then pick up the cup' — as a tracked state machine.
-- **Natural-language agent** — A Claude-backed agent maps plain-language
+- **Natural-language agent** — An LLM-backed agent maps plain-language
   instructions to missions, with named locations, scene description and
   clarification when it's unsure.
 - **Safe arbitration** — A control-mode mux switches between navigation, AI
@@ -77,7 +77,7 @@ agent that turns an instruction into a plan.
 | Navigation | Nav2 planner + costmap obstacle avoidance |
 | Localization | EKF fusing wheel odometry + IMU |
 | Missions | Navigate → manipulate state machine |
-| Agent | Natural language → mission (Claude-backed) |
+| Agent | Natural language → mission (LLM-backed) |
 | Arbitration | Control-mode mux: nav / AI / teleop |
 
 ## Plans
@@ -102,8 +102,9 @@ itself. They share the same safe control-mode mux, so you can hand control back
 and forth instantly.
 
 **Does the language agent need the cloud?**
-By default it calls Claude, but the agent layer is optional — navigation and the
-mission planner run fully on-robot, and Forge can run the agent on-prem.
+By default it calls a cloud LLM, but the agent layer is optional and
+model-agnostic — navigation and the mission planner run fully on-robot, and
+Forge can run the agent on-prem with your own model.
 
 ## Related products
 

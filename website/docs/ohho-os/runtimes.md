@@ -20,7 +20,7 @@ Robot.connect("omnibot")                        # auto-detect (prefers ros2)
 | Install | `pip install` — any OS | Ubuntu 24.04 + ROS 2 Jazzy |
 | Drive · teleop · telemetry | ✅ | ✅ |
 | Agent (Mind) · Train · Data · Serve | ✅ | ✅ |
-| Direct Unitree / DJI / firmware | ✅ native | via bridge |
+| Direct DDS / MAVLink / firmware | ✅ native | via bridge |
 | Lightweight nav (built-in A*) | ✅ | ✅ |
 | Nav2 full navigation | ❌ | ✅ |
 | SLAM (slam_toolbox / 3-D) | basic | ✅ |
@@ -81,8 +81,8 @@ bot = Robot.connect("omnibot")  # sim or direct driver
 ## Choose no-ROS if…
 
 - You are getting started, or running a single robot
-- Your hardware is non-ROS (Unitree, DJI, hobby bases) and you want to talk to
-  it directly
+- Your hardware is non-ROS (DDS-native, MAVLink, hobby bases) and you want to
+  talk to it directly
 - You are on a laptop, a Jetson, or the edge, and want a small footprint
 - You are on Windows or macOS
 

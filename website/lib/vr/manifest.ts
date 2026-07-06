@@ -1,6 +1,6 @@
 /*
  * OhhO VR manifest — the single static contract the VR app (vr_app/) reads to
- * mirror the website inside a Meta Quest 3 headset.
+ * mirror the website inside an OpenXR mixed-reality headset.
  *
  * Why a static manifest (and not a server API)?
  *   The website ships as a static export served on Vercel, and auth is

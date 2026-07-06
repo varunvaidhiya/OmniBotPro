@@ -28,7 +28,7 @@ const s = (props: Record<string, JsonSchemaProperty>, required: string[] = []): 
 export const tools: ToolDefinition[] = [
   {
     name: "bridge.listAdapters",
-    description: "List all protocol adapters (Unitree DDS, DJI MAVLink, Modbus, EtherCAT, Yahboom serial) with status, supported models, SDK, and transport info.",
+    description: "List all protocol adapters (DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus, EtherCAT, ROS-Industrial, serial) with status, supported models, SDK, and transport info.",
     inputSchema: s({}),
     handler: async () => jsonResult(ADAPTERS),
     product: "bridge",
@@ -38,7 +38,7 @@ export const tools: ToolDefinition[] = [
     name: "bridge.getAdapter",
     description: "Get full detail for a specific protocol adapter by ID.",
     inputSchema: s(
-      { adapterId: { type: "string", description: "Adapter ID: unitree-dds, dji-mavlink, modbus-arm, ethercat-arm, yahboom-serial", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial"] } },
+      { adapterId: { type: "string", description: "Adapter ID: unitree-dds, dji-mavlink, modbus-arm, ethercat-arm, yahboom-serial, canopen, opcua, profinet, ethernet-ip, mqtt, vda5050, ros-industrial", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial", "canopen", "opcua", "profinet", "ethernet-ip", "mqtt", "vda5050", "ros-industrial"] } },
       ["adapterId"],
     ),
     handler: async (params) => {
@@ -92,7 +92,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "bridge.connectAdapter",
     description: "Bring up the bridge for a protocol adapter, starting the native↔ROS 2 translation. Use bridge.listAdapters for valid ids.",
-    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial"] } }, ["adapterId"]),
+    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial", "canopen", "opcua", "profinet", "ethernet-ip", "mqtt", "vda5050", "ros-industrial"] } }, ["adapterId"]),
     handler: async (params) => {
       const a = getAdapter(params.adapterId as string);
       if (!a) return errorResult(`Adapter not found: ${params.adapterId}`);
@@ -105,7 +105,7 @@ export const tools: ToolDefinition[] = [
   {
     name: "bridge.disconnectAdapter",
     description: "Tear down the bridge for a protocol adapter, stopping translation and returning it to idle.",
-    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial"] } }, ["adapterId"]),
+    inputSchema: s({ adapterId: { type: "string", description: "Adapter id", enum: ["unitree-dds", "dji-mavlink", "modbus-arm", "ethercat-arm", "yahboom-serial", "canopen", "opcua", "profinet", "ethernet-ip", "mqtt", "vda5050", "ros-industrial"] } }, ["adapterId"]),
     handler: async (params) => {
       const a = getAdapter(params.adapterId as string);
       if (!a) return errorResult(`Adapter not found: ${params.adapterId}`);

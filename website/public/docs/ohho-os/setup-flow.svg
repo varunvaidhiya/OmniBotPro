@@ -25,8 +25,8 @@
   <text x="265" y="145" fill="#00d4ff" font-size="11" font-family="monospace">from ohho import</text>
   <text x="265" y="162" fill="#00d4ff" font-size="11" font-family="monospace">  Robot</text>
   <text x="320" y="210" text-anchor="middle" fill="#8b9bb4" font-size="11">sim:// — built-in sim</text>
-  <text x="320" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">serial:// — Yahboom</text>
-  <text x="320" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">dds:// — Unitree</text>
+  <text x="320" y="228" text-anchor="middle" fill="#8b9bb4" font-size="11">serial:// — base</text>
+  <text x="320" y="246" text-anchor="middle" fill="#8b9bb4" font-size="11">dds:// — humanoid</text>
   <rect x="260" y="270" width="120" height="28" rx="6" fill="#00d4ff" opacity="0.1" stroke="#00d4ff" stroke-width="0.8"/>
   <text x="320" y="288" text-anchor="middle" fill="#00d4ff" font-size="11" font-weight="600">ohho connect omnibot</text>
   <!-- Arrow -->

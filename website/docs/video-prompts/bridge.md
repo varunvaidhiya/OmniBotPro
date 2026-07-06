@@ -3,8 +3,9 @@
 - **Product:** OhhO Bridge — *Connect any robot. Even the ones that don't speak ROS.*
 - **Category:** Foundation · **Primary accent:** Violet `#7C3AED`
 - **Canonical:** 16:9 · 24 fps · ~8 s · one continuous shot · fixed seed
-- **What it does:** Per-brand protocol adapters that translate native robot SDKs
-  (Unitree DDS, DJI MAVLink, Modbus) into standard ROS 2 topics.
+- **What it does:** Protocol adapters that translate native robot protocols
+  (DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus)
+  into standard ROS 2 topics.
 
 ## Prompt — paste this whole block into any AI video tool
 

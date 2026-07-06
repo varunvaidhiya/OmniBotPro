@@ -96,7 +96,7 @@ export const MODELS: ModelSpec[] = [
     supports4bit: true,
     baseLatencyMs: 215,
     actionDim: 7,
-    desc: "Large generalist VLA. Needs a 16 GB+ GPU, or 4-bit to fit smaller cards.",
+    desc: "Large generalist VLA. Runs on a sizeable GPU, or use 4-bit to fit a smaller card — we help you size it.",
   },
   {
     id: "act",

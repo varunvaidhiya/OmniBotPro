@@ -127,7 +127,7 @@ JSON file with the dataset metadata.
 | `smolvla` | `lerobot/smolvla_base` | 9-DOF mobile manipulation |
 | `act` | `lerobot/act_omnibot` | Action Chunking Transformer |
 | `diffusion` | `lerobot/diffusion_omnibot` | Diffusion policy |
-| `openvla` | `openvla/openvla-7b` | 7B VLA (needs ≥16 GB VRAM) |
+| `openvla` | `openvla/openvla-7b` | 7B VLA (needs a sizeable GPU — we can recommend one) |
 
 ## 3. Serve
 

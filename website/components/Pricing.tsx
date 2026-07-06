@@ -38,7 +38,7 @@ const plans = [
       "Everything in Free",
       "OhhO Train — GPU cloud training (20 hrs/mo)",
       "OhhO Serve — AI inference API (500 calls/day)",
-      "OhhO Mind — Cloud AI agent, Claude-backed",
+      "OhhO Mind — Cloud AI agent (LLM-backed)",
       "OhhO Link — MCP server + API key",
       "OhhO Twin — Cloud simulation & what-if",
       "OhhO Data — Cloud sync (1K episodes)",
