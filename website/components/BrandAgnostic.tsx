@@ -1,21 +1,21 @@
 "use client";
 
 /*
- * BrandAgnostic — the homepage "no vendor lock-in" moat section.
+ * BrandAgnostic — the homepage "open-source robots first" moat section.
  *
- * This is the single most important marketing claim on the site: OhhO is a
- * brand-agnostic robotic platform. No dependency on a single supplier, GPU
- * vendor, robot brand, model lab, cloud, or transport. The customer keeps
- * pure value — the best open-source robotics, for the cheapest price, under
- * one umbrella — and is never locked into any one layer of the stack.
+ * This is the single most important marketing claim on the site. OhhO targets
+ * open-source robotics: open-source robots and open-source robot hardware are
+ * the primary focus. It also works with any commercial brand that keeps its
+ * software layer open source and welcomes third-party developers into its
+ * ecosystem. Either way, there's no vendor lock-in — the customer keeps pure
+ * value: the best open-source robotics, for the cheapest price, under one
+ * umbrella.
  *
  * Rendered between StatsBar and OhhoOS so the narrative reads:
- *   hero → proof → "no lock-in, ever" → "one open engine" → products.
+ *   hero → proof → "open-source first, open ecosystems welcome" → engine → products.
  *
- * Copy is deliberately brand-naming-agnostic in the negative sense: it lists
- * the categories (GPU, robot, model, cloud, transport, brand) and gives a few
- * representative names per category to make "any" concrete — without ever
- * implying a partnership or dependency on any of them.
+ * Per the website AGENTS.md rules, marketing copy stays brand-free: chips use
+ * robot-class / standards / capability language, never commercial brand names.
  */
 
 import { motion } from "framer-motion";
@@ -48,13 +48,13 @@ const LAYERS = [
       "Run inference on a desktop GPU, a workstation, a laptop, or a CPU-only board. OhhO Serve picks the execution provider that's present — no vendor-specific SDK is required to ship a policy.",
   },
   {
-    title: "Any robot",
+    title: "Any robot — open-source first",
     icon: Bot,
     accent: "violet" as const,
-    line: "One platform for every brand and every form factor.",
-    chips: ["Wheeled", "Legged", "Humanoid", "Arm", "Drone", "Marine"],
+    line: "Built for open-source robots. Open to any brand with an open software layer.",
+    chips: ["Open-source HW", "3D-printed", "ROS 2-native", "Open SDK brands", "Open firmware", "Any form factor"],
     body:
-      "Wheeled, legged, humanoid, arm, drone or marine — capability-typed commands mean swapping hardware never rewrites your application. Per-brand protocol adapters bridge non-ROS robots in unchanged.",
+      "OhhO targets open-source robots and open-source robot hardware first — wheeled, legged, humanoid, arm, drone or marine. It also embraces commercial brands that publish an open SDK and welcome third-party developers: capability-typed commands mean swapping hardware never rewrites your application, and per-brand adapters bridge non-ROS robots in unchanged.",
   },
   {
     title: "Any model",
@@ -84,23 +84,23 @@ const LAYERS = [
       "ROSBridge over Wi-Fi, Web Serial over USB, Web Bluetooth, DDS, MAVLink or Modbus — all behind one transport interface. A console built against OhhO works on any robot with an adapter.",
   },
   {
-    title: "Any brand — no lock-in",
+    title: "Open ecosystems welcome",
     icon: Unlock,
     accent: "violet" as const,
-    line: "No single supplier, ecosystem or walled garden. Ever.",
-    chips: ["MIT / Apache", "Open data formats", "Portable checkpoints", "No forced SDK"],
+    line: "Closed software? Not here. Open layers and third-party devs, welcome.",
+    chips: ["Open SDK", "Public APIs", "Third-party devs", "Open firmware", "No walled gardens", "MIT / Apache"],
     body:
-      "Apache-2.0 engine, MIT-licensed tools, standard LeRobot datasets and ONNX exports. Nothing in OhhO is built to trap you — it's built so you can leave anytime and still keep everything you made.",
+      "OhhO works with any brand that keeps its software layer open source and welcomes outside developers into its ecosystem. Closed, walled-garden platforms aren't the target — but if a vendor opens up, OhhO's adapters plug them straight in. Apache-2.0 engine, MIT tools, standard LeRobot datasets and ONNX exports mean you can leave anytime and keep everything you made.",
   },
 ];
 
 // The "what you're never locked into" strip — a compact, scannable restatement.
 const NEVER_LOCKED = [
   "A GPU vendor",
-  "A robot brand",
+  "A closed-software brand",
+  "A walled garden",
   "A model lab",
   "A cloud provider",
-  "A transport protocol",
   "A single supplier",
 ];
 
@@ -125,18 +125,44 @@ export default function BrandAgnostic() {
             }}
           >
             <Unlock size={11} strokeWidth={2.2} />
-            Brand-agnostic · No vendor lock-in
+            Open-source robots · Open ecosystems
           </div>
           <h2 className="font-display font-bold text-[clamp(28px,4vw,46px)] tracking-tight leading-[1.12] mb-4 legible">
-            No vendor lock-in.<br />
-            <span className="text-cyan">Bring your own everything.</span>
+            Open-source robots, first.<br />
+            <span className="text-cyan">Open ecosystems, welcome.</span>
           </h2>
           <p className="text-[16px] leading-[1.7] mx-auto legible" style={{ color: "rgba(255,255,255,0.62)" }}>
-            <span className="text-white font-semibold">OhhO is a brand-agnostic robotic platform.</span>{" "}
-            We reduce your dependency on any single brand, supplier, GPU vendor, robot maker, model lab,
-            cloud or transport. You get the best open-source robotics — for the cheapest price — under one
-            umbrella, and you keep the freedom to swap any layer at any time.
+            <span className="text-white font-semibold">OhhO targets open-source robotics.</span> Open-source
+            robots and open-source robot hardware are the primary focus — and the platform also works with any
+            commercial brand that keeps its software layer open source and welcomes third-party developers
+            into its ecosystem. The best open-source robotics, for the cheapest price, under one umbrella — no
+            vendor lock-in.
           </p>
+        </div>
+
+        {/* two-tier positioning callout — the core message, impossible to miss */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px] mb-[40px] max-w-[820px] mx-auto">
+          <GlassCard accent="cyan" featured padding="24px 22px" className="flex flex-col gap-2">
+            <div className="font-mono text-[9.5px] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--cyan)" }}>
+              Primary
+            </div>
+            <div className="font-display text-[17px] font-semibold legible">Open-source robots &amp; hardware</div>
+            <p className="text-[13px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.66)" }}>
+              Built first for open-source robots — 3D-printed humanoids, open quadrupeds, open arms, open
+              drones. If the hardware designs and firmware are open, OhhO is the native home.
+            </p>
+          </GlassCard>
+          <GlassCard accent="violet" padding="24px 22px" className="flex flex-col gap-2">
+            <div className="font-mono text-[9.5px] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--violet-lite)" }}>
+              Also
+            </div>
+            <div className="font-display text-[17px] font-semibold legible">Open-software brands welcome</div>
+            <p className="text-[13px] leading-[1.6]" style={{ color: "rgba(255,255,255,0.66)" }}>
+              Any commercial brand that keeps its software layer open source and welcomes third-party
+              developers into its ecosystem plugs in through OhhO&apos;s adapters. Closed, walled-garden
+              platforms aren&apos;t the target — open up, and you&apos;re in.
+            </p>
+          </GlassCard>
         </div>
 
         {/* "Bring your own ___" grid */}
@@ -231,8 +257,9 @@ export default function BrandAgnostic() {
         {/* closing line + CTA */}
         <div className="text-center mt-[40px]">
           <p className="text-[14px] leading-[1.7] max-w-[560px] mx-auto mb-6" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Open formats in. Open formats out. Standard LeRobot datasets, ONNX exports, ROS 2 topics and
-            Apache-2.0 source — so the work you do on OhhO is portable to anything, forever.
+            Open-source robots in. Open formats out. Standard LeRobot datasets, ONNX exports, ROS 2 topics
+            and Apache-2.0 source — so the work you do on OhhO is portable to anything, forever. Open
+            software and open ecosystems aren&apos;t a feature here; they&apos;re the whole point.
           </p>
           <a
             href={GITHUB_HREF}

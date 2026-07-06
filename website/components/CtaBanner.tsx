@@ -26,10 +26,10 @@ export default function CtaBanner() {
             className="font-display font-bold tracking-[-0.035em] leading-[1.08] mb-[18px] legible"
             style={{ fontSize: "clamp(36px, 6vw, 66px)" }}
           >
-            The brand-agnostic<br />robotics platform.
+            Open-source robots,<br />first.
           </h2>
           <p className="text-[16px] mb-3 leading-[1.65] max-w-[480px] mx-auto" style={{ color: "rgba(255,255,255,0.66)" }}>
-            One open umbrella to build, train, launch, deploy, manage and regulate any robot — any GPU, any brand, any model, any cloud.
+            One open umbrella to build, train, launch, deploy, manage and regulate any robot — open-source hardware first, any brand with an open software layer welcome.
           </p>
           <p className="text-[14px] mb-10 leading-[1.65] max-w-[440px] mx-auto" style={{ color: "rgba(255,255,255,0.42)" }}>
             No credit card. No vendor lock-in. Pay only when you run GPU training, AI inference, or cloud simulation on OhhO infrastructure.

@@ -37,7 +37,7 @@ export default function Hero() {
             }}
           >
             <span className="badge-dot" />
-            Brand-agnostic &nbsp;·&nbsp; No vendor lock-in &nbsp;·&nbsp; Pay only for cloud
+            Open-source robots first &nbsp;·&nbsp; Open ecosystems welcome &nbsp;·&nbsp; Pay only for cloud
           </motion.div>
 
           <motion.h1
@@ -66,7 +66,7 @@ export default function Hero() {
             The Open Robotics Platform
           </motion.div>
 
-          {/* brand-agnostic sub-tagline — the moat in one line */}
+          {/* open-source-first sub-tagline — the moat in one line */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -74,7 +74,7 @@ export default function Hero() {
             className="font-mono text-[11px] tracking-[0.08em] mt-3"
             style={{ color: "rgba(255,255,255,0.5)" }}
           >
-            Any GPU &nbsp;·&nbsp; Any robot &nbsp;·&nbsp; Any model &nbsp;·&nbsp; Any cloud &nbsp;·&nbsp; Any brand
+            Open-source hardware &nbsp;·&nbsp; Open software layers &nbsp;·&nbsp; Open ecosystems &nbsp;·&nbsp; No lock-in
           </motion.div>
         </div>
 
@@ -103,9 +103,10 @@ export default function Hero() {
             className="font-display text-[clamp(13px,1.8vw,16px)] font-normal leading-[1.6] max-w-[600px] mx-auto mb-4 legible"
             style={{ color: "rgba(255,255,255,0.58)" }}
           >
-            <strong className="text-white font-semibold">Brand-agnostic by design.</strong> One umbrella
-            covering the whole lifecycle — prototype, train, launch, deploy, manage and regulate — without
-            locking you into any single GPU, robot, model, cloud or supplier.
+            <strong className="text-white font-semibold">Built for open-source robots first.</strong> OhhO
+            also works with any commercial brand that keeps its software layer open source and welcomes
+            third-party developers into its ecosystem — one umbrella covering the whole lifecycle, no
+            vendor lock-in.
           </motion.p>
 
           <motion.div

@@ -5,7 +5,7 @@ import GlassCard from "@/components/GlassCard";
 const stats = [
   { n: "19", label: "Open-source product consoles — free with sign-in" },
   { n: "100%", label: "Open source — MIT / Apache licensed" },
-  { n: "Any", label: "GPU · robot · model · cloud · brand — no lock-in" },
+  { n: "Open", label: "Source robots first · open-software brands welcome" },
   { n: "$0", label: "Platform cost — pay only for cloud you use" },
 ];
 

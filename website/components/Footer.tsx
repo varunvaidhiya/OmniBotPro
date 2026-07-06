@@ -47,10 +47,10 @@ export default function Footer() {
               <span style={{ color: "var(--cyan)" }}>O</span>hh<span style={{ color: "var(--cyan)" }}>O</span>
             </div>
             <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.52)" }}>
-              The Brand-Agnostic Robotics Platform.
+              Open-Source Robots, First.
             </div>
             <div className="font-mono text-[11px] leading-[1.7] mt-[14px]" style={{ color: "rgba(255,255,255,0.22)" }}>
-              Any GPU · any robot · any model · any cloud.<br />No vendor lock-in, ever.
+              Open-source hardware · open software layers · open ecosystems.<br />No vendor lock-in, ever.
             </div>
           </div>
 
@@ -101,7 +101,7 @@ export default function Footer() {
           style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.22)" }}
         >
           <span>© 2026 OhhO. All rights reserved.</span>
-          <span>OhhO — Brand-agnostic robotics. No vendor lock-in, ever.</span>
+          <span>OhhO — Open-source robots, first. Open ecosystems, welcome.</span>
         </div>
       </div>
     </footer>
