@@ -24,7 +24,8 @@ what happens next.
 - Replay + scrub any moment
 - What-if with different policies
 - Prediction from observed state
-- Gazebo + Isaac Sim backed
+- Gazebo + Isaac Sim (USD) backed
+- OPC UA factory integration
 
 ## What you get
 
@@ -57,8 +58,12 @@ what happens next.
   temperature trends, battery depletion, trajectory completion — so you see
   problems before they happen.
 - **Shared sim world** — Twin runs on the same Gazebo and Isaac Sim worlds as OhhO
-  Frame, so what you learn in the twin transfers directly to the simulation you
-  develop and test in.
+  Frame (URDF, SDF and USD scene formats), so what you learn in the twin transfers
+  directly to the simulation you develop and test in.
+- **OPC UA factory integration** — Twin speaks OPC UA — the Industry 4.0 standard
+  — so your digital twin exchanges data with factory cells, MES/SCADA systems and
+  enterprise digital twin platforms that already speak OPC UA. A robot on OhhO
+  plugs into the digital twin infrastructure your plant already has.
 - **Fleet-scale** — Mirror one robot or a hundred. Each twin streams independently
   and is replayable from the Fleet dashboard.
 
@@ -78,6 +83,8 @@ what happens next.
 | Spec | Value |
 |---|---|
 | Simulators | Gazebo Harmonic + Isaac Sim |
+| Scene formats | USD, SDF, URDF |
+| Factory integration | OPC UA (Industry 4.0) |
 | Telemetry | Pose, joints, IMU, cameras (via OhhO Connect) |
 | Replay | Full timeline scrub, per-frame inspection |
 | What-if | Branch from any recorded state |

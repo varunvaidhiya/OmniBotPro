@@ -19,7 +19,8 @@ afternoon instead of assembling over months.
 
 - ROS 2 Jazzy workspace, pre-structured
 - Docker + DevContainer build
-- Gazebo & Isaac simulation included
+- Gazebo & Isaac simulation (USD + SDF)
+- MCAP recording format (ROS 2 bags)
 - CI/CD pipeline ready
 - Single or multi-machine deploy
 
@@ -43,7 +44,13 @@ afternoon instead of assembling over months.
 - **Containerized everything** — Docker images and a DevContainer so 'works on my
   machine' becomes 'works on every machine' — including CI.
 - **Simulate before you build** — Gazebo Harmonic and Isaac Sim worlds wired to
-  the same topics as the real robot, so you develop with no hardware.
+  the same topics as the real robot, so you develop with no hardware. Robot
+  description uses URDF and SDF; Isaac Sim scenes use USD (Universal Scene
+  Description) — the same 3D standard Pixar, Omniverse and the digital twin
+  industry settled on.
+- **MCAP recording** — Frame records ROS 2 data in MCAP — the open-source,
+  ROS 2-native bag format — so your logs interoperate with the wider ROS 2
+  ecosystem's tooling, not a proprietary format.
 - **CI/CD out of the box** — A GitHub Actions pipeline builds the workspace and
   runs the test suite on every push.
 - **Single or multi-machine** — One configurator switches between
@@ -68,6 +75,8 @@ afternoon instead of assembling over months.
 | ROS distro | ROS 2 Jazzy (Ubuntu 24.04) |
 | Containers | Docker + DevContainer |
 | Simulation | Gazebo Harmonic + Isaac Sim |
+| Scene formats | URDF, SDF, USD (Isaac Sim / Omniverse) |
+| Recording | MCAP (ROS 2-native bag format) |
 | CI | GitHub Actions (build + colcon test) |
 | Deploy modes | Single workstation / multi-machine |
 | Networking | DDS peer auto-config (ROS_DOMAIN_ID 30) |

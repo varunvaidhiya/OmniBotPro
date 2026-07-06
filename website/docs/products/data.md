@@ -19,6 +19,7 @@ LeRobot-compatible format, with teleop recording, an episode viewer and CLI tool
 
 - Teleop episode recording
 - LeRobot dataset format (Parquet + MP4)
+- MCAP recording (ROS 2 bags)
 - Multi-camera time sync
 - Episode viewer & curation
 - CLI tools, training-ready
@@ -41,7 +42,8 @@ LeRobot-compatible format, with teleop recording, an episode viewer and CLI tool
 - **Synchronized recording** — Leader arm, base velocity and multiple camera
   streams aligned to a tight sync tolerance, frame by frame.
 - **Standard format** — LeRobot-compatible Hugging Face datasets (Parquet + MP4)
-  — no bespoke converters.
+  for imitation learning, plus MCAP — the ROS 2-native bag format — for raw ROS 2
+  topic recording. No bespoke converters, no lock-in.
 - **Episode viewer** — Scrub, inspect and keep-or-discard episodes before they
   pollute a training run.
 - **One schema, end to end** — A 9-DOF mobile-manipulation state/action that
@@ -62,7 +64,8 @@ LeRobot-compatible format, with teleop recording, an episode viewer and CLI tool
 
 | Spec | Value |
 |---|---|
-| Format | LeRobot HF dataset (Parquet + MP4) |
+| Training format | LeRobot HF dataset (Parquet + MP4) |
+| ROS 2 recording | MCAP (ROS 2-native bag format) |
 | State / action | 9-DOF (arm ×6 + base ×3) |
 | Cameras | Front + wrist + BEV, time-synced |
 | Sync tolerance | ~50 ms |

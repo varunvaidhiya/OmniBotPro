@@ -195,7 +195,8 @@ export const PRODUCTS: Product[] = [
     highlights: [
       "ROS 2 Jazzy workspace, pre-structured",
       "Docker + DevContainer build",
-      "Gazebo & Isaac simulation included",
+      "Gazebo & Isaac simulation (USD + SDF)",
+      "MCAP recording format (ROS 2 bags)",
       "CI/CD pipeline ready",
       "Single or multi-machine deploy",
     ],
@@ -207,7 +208,8 @@ export const PRODUCTS: Product[] = [
     features: [
       { title: "Batteries-included workspace", body: "Driver, description (URDF), navigation, perception and bringup packages laid out the way a production robot needs them." },
       { title: "Containerized everything", body: "Docker images and a DevContainer so 'works on my machine' becomes 'works on every machine' — including CI." },
-      { title: "Simulate before you build", body: "Gazebo Harmonic and Isaac Sim worlds wired to the same topics as the real robot, so you develop with no hardware." },
+      { title: "Simulate before you build", body: "Gazebo Harmonic and Isaac Sim worlds wired to the same topics as the real robot, so you develop with no hardware. Robot description uses URDF and SDF; Isaac Sim scenes use USD (Universal Scene Description) — the same 3D standard Pixar, Omniverse and the digital twin industry settled on." },
+      { title: "MCAP recording", body: "Frame records ROS 2 data in MCAP — the open-source, ROS 2-native bag format — so your logs interoperate with the wider ROS 2 ecosystem's tooling, not a proprietary format." },
       { title: "CI/CD out of the box", body: "A GitHub Actions pipeline builds the workspace and runs the test suite on every push." },
       { title: "Single or multi-machine", body: "One configurator switches between all-on-one-workstation and Pi-robot + GPU-desktop topologies, wiring DDS peers for you." },
     ],
@@ -221,6 +223,8 @@ export const PRODUCTS: Product[] = [
       { label: "ROS distro", value: "ROS 2 Jazzy (Ubuntu 24.04)" },
       { label: "Containers", value: "Docker + DevContainer" },
       { label: "Simulation", value: "Gazebo Harmonic + Isaac Sim" },
+      { label: "Scene formats", value: "URDF, SDF, USD (Isaac Sim / Omniverse)" },
+      { label: "Recording", value: "MCAP (ROS 2-native bag format)" },
       { label: "CI", value: "GitHub Actions (build + colcon test)" },
       { label: "Deploy modes", value: "Single workstation / multi-machine" },
       { label: "Networking", value: "DDS peer auto-config (ROS_DOMAIN_ID 30)" },
@@ -614,6 +618,7 @@ export const PRODUCTS: Product[] = [
     highlights: [
       "Teleop episode recording",
       "LeRobot dataset format (Parquet + MP4)",
+      "MCAP recording (ROS 2 bags)",
       "Multi-camera time sync",
       "Episode viewer & curation",
       "CLI tools, training-ready",
@@ -625,7 +630,7 @@ export const PRODUCTS: Product[] = [
     ],
     features: [
       { title: "Synchronized recording", body: "Leader arm, base velocity and multiple camera streams aligned to a tight sync tolerance, frame by frame." },
-      { title: "Standard format", body: "LeRobot-compatible Hugging Face datasets (Parquet + MP4) — no bespoke converters." },
+      { title: "Standard format", body: "LeRobot-compatible Hugging Face datasets (Parquet + MP4) for imitation learning, plus MCAP — the ROS 2-native bag format — for raw ROS 2 topic recording. No bespoke converters, no lock-in." },
       { title: "Episode viewer", body: "Scrub, inspect and keep-or-discard episodes before they pollute a training run." },
       { title: "One schema, end to end", body: "A 9-DOF mobile-manipulation state/action that matches the recorder, the trainer and the policy." },
       { title: "CLI-first", body: "Scriptable record / inspect / push commands that fit into a data-ops workflow." },
@@ -637,7 +642,8 @@ export const PRODUCTS: Product[] = [
       { title: "Close the loop", body: "Fine-tune with the OmniVLA engine and deploy via OhhO Serve." },
     ],
     specs: [
-      { label: "Format", value: "LeRobot HF dataset (Parquet + MP4)" },
+      { label: "Training format", value: "LeRobot HF dataset (Parquet + MP4)" },
+      { label: "ROS 2 recording", value: "MCAP (ROS 2-native bag format)" },
       { label: "State / action", value: "9-DOF (arm ×6 + base ×3)" },
       { label: "Cameras", value: "Front + wrist + BEV, time-synced" },
       { label: "Sync tolerance", value: "~50 ms" },
@@ -1119,7 +1125,8 @@ export const PRODUCTS: Product[] = [
       "Replay + scrub any moment",
       "What-if with different policies",
       "Prediction from observed state",
-      "Gazebo + Isaac Sim backed",
+      "Gazebo + Isaac Sim (USD) backed",
+      "OPC UA factory integration",
     ],
     overview: [
       "A digital twin is the bridge between 'it worked in simulation' and 'it's working right now on the factory floor.' OhhO Twin streams a real robot's telemetry — pose, joints, sensors, camera frames — into a persistent simulation world that stays in sync, so the sim always reflects what the robot is actually doing.",
@@ -1131,7 +1138,8 @@ export const PRODUCTS: Product[] = [
       { title: "Replay + scrub", body: "Every telemetry frame is recorded. Replay the last hour, scrub to any instant, and inspect pose, joints, sensors and camera frames at that exact moment." },
       { title: "What-if simulation", body: "Branch from any recorded state and simulate a different outcome — a different policy, a different grasp, a different speed — without touching the real robot." },
       { title: "Prediction", body: "From the observed state, Twin can project forward — motor temperature trends, battery depletion, trajectory completion — so you see problems before they happen." },
-      { title: "Shared sim world", body: "Twin runs on the same Gazebo and Isaac Sim worlds as OhhO Frame, so what you learn in the twin transfers directly to the simulation you develop and test in." },
+      { title: "Shared sim world", body: "Twin runs on the same Gazebo and Isaac Sim worlds as OhhO Frame (URDF, SDF and USD scene formats), so what you learn in the twin transfers directly to the simulation you develop and test in." },
+      { title: "OPC UA factory integration", body: "Twin speaks OPC UA — the Industry 4.0 standard — so your digital twin exchanges data with factory cells, MES/SCADA systems and enterprise digital twin platforms that already speak OPC UA. A robot on OhhO plugs into the digital twin infrastructure your plant already has." },
       { title: "Fleet-scale", body: "Mirror one robot or a hundred. Each twin streams independently and is replayable from the Fleet dashboard." },
     ],
     how: [
@@ -1142,6 +1150,8 @@ export const PRODUCTS: Product[] = [
     ],
     specs: [
       { label: "Simulators", value: "Gazebo Harmonic + Isaac Sim" },
+      { label: "Scene formats", value: "USD, SDF, URDF" },
+      { label: "Factory integration", value: "OPC UA (Industry 4.0)" },
       { label: "Telemetry", value: "Pose, joints, IMU, cameras (via OhhO Connect)" },
       { label: "Replay", value: "Full timeline scrub, per-frame inspection" },
       { label: "What-if", value: "Branch from any recorded state" },
