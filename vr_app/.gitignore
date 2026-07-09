@@ -20,6 +20,7 @@
 *.userprefs
 
 # Unity Package Manager lock — intentionally not tracked (only manifest.json)
+# Re-enable if reproducible dep versions become important:
 Packages/packages-lock.json
 
 # Unity crashlytics / analytics
