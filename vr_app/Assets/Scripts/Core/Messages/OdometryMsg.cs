@@ -33,25 +33,11 @@ namespace OmniBot.VR.Core
     /// <summary>
     /// geometry_msgs/Point
     /// </summary>
-    public class PointMsg
+    public class PointMsg : Vector3Msg
     {
-        [JsonProperty("x")]
-        public float x;
+        public PointMsg() : base() { }
 
-        [JsonProperty("y")]
-        public float y;
-
-        [JsonProperty("z")]
-        public float z;
-
-        public PointMsg() { }
-
-        public PointMsg(float x, float y, float z)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-        }
+        public PointMsg(float x, float y, float z) : base(x, y, z) { }
     }
 
     /// <summary>
@@ -60,14 +46,14 @@ namespace OmniBot.VR.Core
     public class PoseMsg
     {
         [JsonProperty("position")]
-        public PointMsg position;
+        public Vector3Msg position;
 
         [JsonProperty("orientation")]
         public QuaternionMsg orientation;
 
         public PoseMsg()
         {
-            position = new PointMsg();
+            position = new Vector3Msg();
             orientation = new QuaternionMsg();
         }
     }

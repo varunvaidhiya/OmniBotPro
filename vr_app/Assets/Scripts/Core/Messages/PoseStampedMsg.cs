@@ -33,43 +33,4 @@ namespace OmniBot.VR.Core
             pose = new PoseMsg { position = position, orientation = orientation };
         }
     }
-
-    /// <summary>geometry_msgs/Pose — position + orientation.</summary>
-    public class PoseMsg
-    {
-        [JsonProperty("position")]
-        public Vector3Msg position;
-
-        [JsonProperty("orientation")]
-        public QuaternionMsg orientation;
-
-        public PoseMsg()
-        {
-            position = new Vector3Msg();
-            orientation = new QuaternionMsg();
-        }
-    }
-
-    /// <summary>geometry_msgs/Quaternion — x, y, z, w.</summary>
-    public class QuaternionMsg
-    {
-        [JsonProperty("x")]
-        public float x;
-        [JsonProperty("y")]
-        public float y;
-        [JsonProperty("z")]
-        public float z;
-        [JsonProperty("w")]
-        public float w = 1f;
-
-        public QuaternionMsg() { }
-
-        public QuaternionMsg(float x, float y, float z, float w)
-        {
-            this.x = x;
-            this.y = y;
-            this.z = z;
-            this.w = w;
-        }
-    }
 }

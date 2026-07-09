@@ -1,0 +1,30 @@
+# Unity build artifacts — never commit
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+[Aa]ssets/[Aa]ssetStoreTools*
+
+# Visual Studio / Rider cache
+.vs/
+.idea/
+*.csproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Unity Package Manager lock — intentionally not tracked (only manifest.json)
+Packages/packages-lock.json
+
+# Unity crashlytics / analytics
+crashlytics-build.log
+sysinfo.txt
+
+# Generated meta files are intentionally not tracked in this repo
+*.meta

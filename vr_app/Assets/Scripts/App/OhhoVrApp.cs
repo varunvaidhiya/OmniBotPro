@@ -1,6 +1,7 @@
 using UnityEngine;
 using OmniBot.VR.Core.Platform;
 using OmniBot.VR.Control;
+using OmniBot.VR.UI;
 using OmniBot.VR.UI.Garage;
 
 namespace OmniBot.VR.App
