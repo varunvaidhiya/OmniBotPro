@@ -47,8 +47,7 @@ namespace OmniBot.VR.Editor
                 
                 if (c.GetComponent<OVRRaycaster>() == null) 
                 {
-                    var ovrRay = c.gameObject.AddComponent<OVRRaycaster>();
-                    ovrRay.pointerEventData = es.gameObject; // Link to event system
+                    c.gameObject.AddComponent<OVRRaycaster>();
                 }
             }
             
