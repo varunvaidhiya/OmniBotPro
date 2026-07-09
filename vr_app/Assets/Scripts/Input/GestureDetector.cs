@@ -40,8 +40,8 @@ namespace OmniBot.VR.Input
                 OVRHand[] hands = FindObjectsOfType<OVRHand>();
                 foreach (var h in hands)
                 {
-                    if (h.HandType == OVRHand.Hand.HandRight) rightHand = h;
-                    if (h.HandType == OVRHand.Hand.HandLeft)  leftHand  = h;
+                    if (h.GetHand() == OVRPlugin.Hand.HandRight) rightHand = h;
+                    if (h.GetHand() == OVRPlugin.Hand.HandLeft)  leftHand  = h;
                 }
             }
         }
@@ -95,7 +95,7 @@ namespace OmniBot.VR.Input
         public Vector3 GetHandPosition(OVRHand hand)
         {
             if (hand == null) return Vector3.zero;
-            bool isRight = hand.HandType == OVRHand.Hand.HandRight;
+            bool isRight = hand.GetHand() == OVRPlugin.Hand.HandRight;
             return isRight ? _rightPosSmoothened : _leftPosSmoothened;
         }
 
@@ -105,7 +105,7 @@ namespace OmniBot.VR.Input
         public Quaternion GetHandRotation(OVRHand hand)
         {
             if (hand == null) return Quaternion.identity;
-            bool isRight = hand.HandType == OVRHand.Hand.HandRight;
+            bool isRight = hand.GetHand() == OVRPlugin.Hand.HandRight;
             return isRight ? _rightRotSmoothened : _leftRotSmoothened;
         }
 
@@ -138,7 +138,7 @@ namespace OmniBot.VR.Input
             float dt = Time.deltaTime;
             if (dt < 1e-6f) return Vector3.zero;
 
-            bool isRight = hand.HandType == OVRHand.Hand.HandRight;
+            bool isRight = hand.GetHand() == OVRPlugin.Hand.HandRight;
             if (isRight)
             {
                 Vector3 vel = (_rightPosSmoothened - _rightPosPrev) / dt;

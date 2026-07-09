@@ -1,0 +1,95 @@
+# (c) Meta Platforms, Inc. and affiliates. Confidential and proprietary.
+
+# Please contact [Matt Pare](https://www.internalfb.com/profile/view/1190816847)
+# with questions or support for this module.
+
+load("@fbsource//tools/build_defs:fb_native_wrapper.bzl", "fb_native")
+load("@fbsource//tools/build_defs:fb_python_library.bzl", "fb_python_library")
+load(
+    "//arvr/tools/build_defs:oxx_python.bzl",
+    "oxx_python_binary",
+    "oxx_python_library",
+)
+
+oncall("oculus_devtech_tools")
+
+oxx_python_library(
+    name = "app_lib",
+    srcs = [
+        "MetricAPI.py",
+    ],
+    resources = [
+    ],
+    visibility = [
+        "fbsource//arvr/apps/mqdhmcp:hzosmcp_lib",
+    ],
+    deps = [
+        "fbsource//third-party/pypi/perfetto:perfetto",
+        "//third-party/pypi/psutil:psutil",
+    ],
+)
+
+oxx_python_binary(
+    name = "app",
+    main_module = "arvr.projects.integrations.unity.uoiassets.assets.oculus.vr.editor.runtimeoptimizer.performanceinsight.metricapi",
+    deps = [
+        ":app_lib",
+    ],
+)
+
+oxx_python_library(
+    name = "exe_lib",
+    srcs = [
+        "pyinstaller.py",
+        "pyinstaller_hook.py",
+    ],
+    visibility = [
+    ],
+    deps = [
+        "//third-party/pypi/perfetto:perfetto",
+        "//third-party/pypi/pyinstaller:pyinstaller",
+    ],
+)
+
+oxx_python_binary(
+    name = "exe",
+    main_module = "arvr.projects.integrations.unity.uoiassets.assets.oculus.vr.editor.runtimeoptimizer.performanceinsight.pyinstaller",
+    deps = [
+        ":app_lib",
+        ":exe_lib",
+    ],
+)
+
+oxx_python_binary(
+    name = "pyinstaller",
+    main_module = "PyInstaller.__main__",
+    deps = [
+        ":app_lib",
+        ":exe_lib",
+    ],
+)
+
+fb_native.cxx_genrule(
+    name = "run_script",
+    srcs = ["pyinstaller.py"],
+    out = "output.txt",
+    cmd = "$(exe //tools/python:python) $SRCS > $OUT",
+)
+
+# oxx_python_unittest(
+#     name = "tests",
+#     srcs = [
+#         "tests.py",
+#     ],
+#     resources = {
+#     },
+#     deps = [
+#         ":app_lib",
+#     ],
+# )
+
+fb_python_library(
+    name = "PythonUtil",
+    srcs = ["PythonUtil.py"],
+    labels = ["autodeps2_generated"],
+)

@@ -75,7 +75,7 @@ namespace OmniBot.VR.Control
             int armDof = hasArm ? ParseDof(hw.Specs) ?? 6 : 0;
             var joints = hasArm ? GenericJoints(armDof) : System.Array.Empty<JointSpec>();
 
-            float speed = ParseSpeed(hw.Specs);
+            float speed = ParseSpeed(hw.Specs) ?? -1f;
             float maxLinVel = speed >= 0f ? speed : spec.MaxLinVel;
             float maxAngVel = spec.MaxAngVel;
 

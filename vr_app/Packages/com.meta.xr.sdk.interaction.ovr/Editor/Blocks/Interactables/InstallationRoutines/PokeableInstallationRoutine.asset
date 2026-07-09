@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c0ecaf92f8a89c41b94783dcd1f970f, type: 3}
+  m_Name: PokeableInstallationRoutine
+  m_EditorClassIdentifier: 
+  id: c88fc9f2-e9d1-41ea-b937-cdaf92a806d0
+  targetBlockDataId: 5838e892-31a4-4f65-a415-dc108aefa14c
+  prefab: {fileID: 0}
+  packageDependencies: []

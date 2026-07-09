@@ -1,0 +1,43 @@
+{
+    "name": "Oculus.Interaction.UnityXR",
+    "rootNamespace": "",
+    "references": [
+        "Oculus.Interaction",
+        "Unity.InputSystem",
+        "Unity.XR.Management",
+        "Unity.XR.CoreUtils",
+        "Unity.XR.Hands"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "USE_OPENXR"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.xr.hands",
+            "expression": "",
+            "define": "USE_XR_HANDS"
+        },
+        {
+            "name": "com.unity.xr.openxr",
+            "expression": "",
+            "define": "USE_OPENXR"
+        },
+        {
+            "name": "Unity",
+            "expression": "",
+            "define": "ISDK_OPENXR_HAND"
+        },
+        {
+            "define": "OVR_UNITY_PACKAGE_MANAGER",
+            "name": "com.meta.xr.sdk.interaction",
+            "expression": ""
+        }
+    ],
+    "noEngineReferences": false
+}

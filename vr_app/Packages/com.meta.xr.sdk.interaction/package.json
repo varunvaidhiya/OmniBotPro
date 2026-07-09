@@ -1,0 +1,41 @@
+{
+  "name": "com.meta.xr.sdk.interaction",
+  "displayName": "Meta XR Interaction SDK Essentials",
+  "version": "203.0.0",
+  "description": "Provides the core implementations of all the provided interaction models along with necessary shaders, materials, and prefabs.",
+  "samples": [
+    {
+      "displayName": "GitHub Samples",
+      "description": "Access Showcase and Integration Samples Here : <a href=\"https://github.com/oculus-samples/Unity-InteractionSDK-Samples\"><b>GitHub</b></a>",
+      "path": "Samples~/External"
+    },
+    {
+      "displayName": "UnityXR Integration",
+      "description": "Requires Unity OpenXR Plugin (com.unity.xr.openxr), along with Unity XR Hands (com.unity.xr.hands) for hand tracking.",
+      "path": "Samples~/UnityXR"
+    }
+  ],
+  "unity": "2022.3",
+  "unityRelease": "15f1",
+  "author": {
+    "name": "Meta Platforms, Inc.",
+    "url": "https://developer.oculus.com/"
+  },
+  "licensesUrl": "https://developers.meta.com/horizon/licenses/oculussdk/",
+  "licenseMessage": "By adding or using this package you agree to the terms and conditions of the Meta Platforms Technologies SDK License Agreement: https://developer.oculus.com/licenses/oculussdk",
+  "keywords": [
+    "Oculus",
+    "Quest",
+    "XR",
+    "Meta",
+    "SDK",
+    "Interaction"
+  ],
+  "dependencies": {
+    "com.unity.textmeshpro": "3.0.6",
+    "com.unity.ugui": "1.0.0"
+  },
+  "documentationUrl": "https://developer.oculus.com/documentation/unity/unity-isdk-interaction-sdk-overview/",
+  "changelogUrl": "https://developer.oculus.com/downloads/package/meta-xr-interaction-sdk/",
+  "_fingerprint": "187709ba3855c02f8ed25ede675295b0828ce1b2"
+}

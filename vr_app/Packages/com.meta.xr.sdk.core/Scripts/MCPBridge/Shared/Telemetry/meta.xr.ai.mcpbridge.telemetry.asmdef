@@ -1,0 +1,23 @@
+{
+    "name": "meta.xr.ai.mcpbridge.telemetry",
+    "rootNamespace": "Meta.XR.AI.MCPBridge.Telemetry",
+    "references": [
+        "Oculus.VR",
+        "Meta.XR.Editor.Id"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "define": "OVR_UNITY_PACKAGE_MANAGER",
+            "name": "com.meta.xr.sdk.core",
+            "expression": ""
+        }
+    ],
+    "noEngineReferences": false
+}

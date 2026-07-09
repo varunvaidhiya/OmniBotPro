@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d881f80b2082c34f880c6cd01f764b2, type: 3}
+  m_Name: RayInteractorInstallationRoutine
+  m_EditorClassIdentifier: 
+  id: d3eb34b6-514c-4781-8233-e8255583e445
+  targetBlockDataId: bc3f7b21-a55c-4cf7-b9c6-78d4341573a4
+  prefab: {fileID: 0}
+  packageDependencies: []
+  _devices: 7
+  _interactors: 4

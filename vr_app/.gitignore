@@ -29,3 +29,9 @@ sysinfo.txt
 
 # Generated meta files are intentionally not tracked in this repo
 *.meta
+# Android Build Outputs
+*.apk
+*.symbols.zip
+*_BackUpThisFolder_ButDontShipItWithYourGame/
+*_BurstDebugInformation_DoNotShip/
+.utmp/

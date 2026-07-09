@@ -1,0 +1,79 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &1167074328765108836
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1142647853294574375, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3351340196287281405, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: _rotation.w
+      value: 0.49999997
+      objectReference: {fileID: 0}
+    - target: {fileID: 3351340196287281405, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: _rotation.x
+      value: 0.49999997
+      objectReference: {fileID: 0}
+    - target: {fileID: 3351340196287281405, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: _rotation.y
+      value: 0.49999997
+      objectReference: {fileID: 0}
+    - target: {fileID: 3351340196287281405, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: _rotation.z
+      value: 0.49999997
+      objectReference: {fileID: 0}
+    - target: {fileID: 4264122251942287573, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}
+      propertyPath: m_Name
+      value: UnityXRComprehensiveInteractors
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5acb2e77a0806b447b84837d86cd984c, type: 3}

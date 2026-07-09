@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d324028d24dbd4fa1bc36ef8dfc4f0, type: 3}
+  m_Name: TouchHandGrabInstallationRoutine
+  m_EditorClassIdentifier: 
+  id: fb25cac7-8f37-455d-ac01-3fa41a1be37d
+  routineName: Touch Hand Grab
+  description: Use the Touch Hand Grab interaction
+  targetBlockDataId: 4e14e0ba-51f2-4a5c-a822-e304bf36d48c
+  prefab: {fileID: 0}
+  packageDependencies: []
+  type: 2
+  mode: 0

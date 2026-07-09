@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d881f80b2082c34f880c6cd01f764b2, type: 3}
+  m_Name: PokeInteractorInstallationRoutine
+  m_EditorClassIdentifier: 
+  id: 3c184d68-8a38-4ccd-bb69-79c137e9b946
+  targetBlockDataId: f61a01e5-61c7-4589-bd2d-107bccae8f02
+  prefab: {fileID: 0}
+  packageDependencies: []
+  _devices: 7
+  _interactors: 1
