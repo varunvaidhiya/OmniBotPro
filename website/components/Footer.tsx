@@ -1,12 +1,12 @@
 "use client";
 
-import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF, OS_HREF, STANDARDS_HREF, WHY_HREF, START_HREF } from "@/lib/site";
+import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF, OS_HREF, STANDARDS_HREF, WHY_HREF, START_HREF, SERVICES_HREF, BUILDERS_HREF } from "@/lib/site";
 import { TRADEMARK_LINE } from "@/lib/copy";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
 // Full marketing footer links (visitors / free users).
-const ALL_LINKS = ["OhhO OS", "Why OhhO", "Start", "Standards", "Products", "Pricing", "Docs", "GitHub", "License", "Team", "Contact"];
+const ALL_LINKS = ["OhhO OS", "Why OhhO", "Start", "Standards", "Products", "Services", "For Builders", "Pricing", "Docs", "GitHub", "License", "Team", "Contact"];
 // Dev-focused footer links for subscribed users — no product/pricing/team marketing.
 const DEV_LINKS = ["OhhO OS", "Start", "Docs", "GitHub", "License", "Contact"];
 
@@ -22,6 +22,8 @@ export default function Footer() {
       case "OhhO OS": return OS_HREF;
       case "Why OhhO": return WHY_HREF;
       case "Start": return START_HREF;
+      case "Services": return SERVICES_HREF;
+      case "For Builders": return BUILDERS_HREF;
       case "Standards": return STANDARDS_HREF;
       case "Products": return "/#products";
       case "Pricing": return "/#pricing";
