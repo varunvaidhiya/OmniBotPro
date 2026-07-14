@@ -1,9 +1,22 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronDown } from "lucide-react";
 
+import { HERO_BADGE, HERO_TRUST, HERO_COPY } from "@/lib/copy";
+import { useExperiment, HERO_HEADLINE_EXPERIMENT } from "@/lib/experiments";
+import { track } from "@/lib/analytics";
+import { SIGNUP_HREF, GITHUB_HREF } from "@/lib/site";
+
 export default function Hero() {
+  const variant = useExperiment(HERO_HEADLINE_EXPERIMENT);
+  const copy = HERO_COPY[variant];
+
+  useEffect(() => {
+    track("hero_view", { variant });
+  }, [variant]);
+
   return (
     <section
       id="home"
@@ -37,7 +50,7 @@ export default function Hero() {
             }}
           >
             <span className="badge-dot" />
-            Open-source robots first &nbsp;·&nbsp; Open ecosystems welcome &nbsp;·&nbsp; Pay only for cloud
+            {HERO_BADGE}
           </motion.div>
 
           <motion.h1
@@ -63,18 +76,7 @@ export default function Hero() {
             className="font-mono text-[12px] font-medium tracking-[0.14em] uppercase"
             style={{ color: "var(--cyan)" }}
           >
-            The Open Robotics Platform
-          </motion.div>
-
-          {/* open-source-first sub-tagline — the moat in one line */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.32 }}
-            className="font-mono text-[11px] tracking-[0.08em] mt-3"
-            style={{ color: "rgba(255,255,255,0.5)" }}
-          >
-            Open-source hardware &nbsp;·&nbsp; Open software layers &nbsp;·&nbsp; Open ecosystems &nbsp;·&nbsp; No lock-in
+            {copy.subtag}
           </motion.div>
         </div>
 
@@ -90,43 +92,25 @@ export default function Hero() {
             className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[640px] mx-auto mb-4 legible"
             style={{ color: "rgba(255,255,255,0.72)" }}
           >
-            The <strong className="text-white font-semibold">complete open-source stack</strong> for
-            any robot — design, train, simulate and operate.{" "}
-            <strong className="text-white font-semibold">Free forever.</strong>{" "}
-            Pay only for the cloud infrastructure you actually use.
-          </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.38 }}
-            className="font-display text-[clamp(13px,1.8vw,16px)] font-normal leading-[1.6] max-w-[600px] mx-auto mb-4 legible"
-            style={{ color: "rgba(255,255,255,0.58)" }}
-          >
-            <strong className="text-white font-semibold">Built for open-source robots first.</strong> OhhO
-            also works with any commercial brand that keeps its software layer open source and welcomes
-            third-party developers into its ecosystem — one umbrella covering the whole lifecycle, no
-            vendor lock-in.
+            {copy.valueProp}
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.42 }}
-            className="flex items-center justify-center gap-4 flex-wrap mb-6 font-mono text-[11px] tracking-[0.04em]"
+            className="flex items-center justify-center gap-x-4 gap-y-1.5 flex-wrap mb-6 font-mono text-[11px] tracking-[0.04em]"
             style={{ color: "rgba(255,255,255,0.45)" }}
           >
-            <span className="inline-flex items-center gap-1.5">
-              <span style={{ color: "var(--cyan)" }}>●</span> MIT / Apache licensed
-            </span>
-            <span className="opacity-30">·</span>
-            <span>Self-host or use OhhO Cloud</span>
-            <span className="opacity-30">·</span>
-            <span>GPU · AI · Sim · MCP — pay per use</span>
-            <span className="opacity-30">·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <span style={{ color: "var(--cyan)" }}>●</span> No vendor lock-in
-            </span>
+            {HERO_TRUST.map((item, i) => (
+              <span key={item} className="inline-flex items-center gap-x-4">
+                {i > 0 && <span className="opacity-30">·</span>}
+                <span className="inline-flex items-center gap-1.5">
+                  {i === 0 && <span style={{ color: "var(--cyan)" }}>●</span>}
+                  {item}
+                </span>
+              </span>
+            ))}
           </motion.div>
 
           <motion.div
@@ -136,7 +120,8 @@ export default function Hero() {
             className="flex items-center justify-center gap-[14px] flex-wrap mb-7 pointer-events-auto"
           >
             <a
-              href="#products"
+              href={SIGNUP_HREF}
+              onClick={() => track("hero_cta_click", { cta: "start_free", variant })}
               className="inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
               onMouseEnter={(e) => {
@@ -150,9 +135,10 @@ export default function Hero() {
               Start Free — No Card Needed <ArrowRight size={15} strokeWidth={2.5} />
             </a>
             <a
-              href="https://github.com/varunvaidhiya/OmniBotPro"
+              href={GITHUB_HREF}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => track("github_click", { from: "hero" })}
               className="inline-flex items-center gap-2 text-sm font-medium px-[26px] py-[12px] rounded-lg transition-all duration-200"
               style={{
                 background: "rgba(10,14,26,.4)",

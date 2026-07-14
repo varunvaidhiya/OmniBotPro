@@ -1,21 +1,15 @@
 "use client";
 
 import GlassCard from "@/components/GlassCard";
-
-const stats = [
-  { n: "19", label: "Open-source product consoles — free with sign-in" },
-  { n: "100%", label: "Open source — MIT / Apache licensed" },
-  { n: "Open", label: "Source robots first · open-software brands welcome" },
-  { n: "$0", label: "Platform cost — pay only for cloud you use" },
-];
+import { STATS } from "@/lib/copy";
 
 export default function StatsBar() {
   return (
     <div className="max-w-content mx-auto px-6" style={{ paddingTop: "64px", paddingBottom: "8px" }}>
       <GlassCard interactive={false} padding="0" radius={22} className="overflow-hidden">
         <div className="grid grid-cols-2 md:grid-cols-4">
-          {stats.map((s, i) => (
-            <StatItem key={s.n} stat={s} last={i === stats.length - 1} />
+          {STATS.map((s, i) => (
+            <StatItem key={s.n} stat={s} last={i === STATS.length - 1} />
           ))}
         </div>
       </GlassCard>
