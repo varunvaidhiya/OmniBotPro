@@ -18,6 +18,7 @@ like one campaign when embedded on the product pages.
 |---|---|
 | `README.md` (this file) | The brand style bible, the shared shot template, per-platform setup, the post-production text overlays, and how to embed. **Read this first.** |
 | `<slug>.md` × 19 | One ready-to-paste prompt per product (`build.md`, `frame.md`, … `proof.md`). Each is self-contained — copy the whole **Prompt** block into any tool. |
+| `demo.md` | The **master hero / demo film** — the one-behavior-any-robot proof + the record→train→serve loop. Not a product spot; it tells the whole platform story and embeds on the homepage hero, `/start` and `/why`. Uses the same locked BRAND STYLE block, so it stays in the family. |
 
 The 19 product prompt files:
 `build` · `frame` · `bench` · `connect` · `bridge` · `serve` · `view` · `data` ·

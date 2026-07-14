@@ -1,6 +1,6 @@
 "use client";
 
-import { Sparkles } from "lucide-react";
+import { Sparkles, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DOCS_HREF, GITHUB_HREF, NO_LOCKIN_HREF, PRODUCTS_HREF, PRICING_HREF, STANDARDS_HREF, UPGRADE_HREF, OS_HREF, WHY_HREF, START_HREF, SERVICES_HREF } from "@/lib/site";
 import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
@@ -8,11 +8,12 @@ import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
-// Marketing links shown to visitors (not signed in). "No Lock-In" leads — it's
-// the brand-agnostic moat that defines the platform. "OhhO OS" is the open
-// engine that sits on top of (and powers) every product. "Standards" lists the
-// industry standards every console speaks.
-const MARKETING_LINKS = ["No Lock-In", "Why OhhO", "OhhO OS", "Standards", "Products", "Services", "Pricing", "How it Works", "Docs", "Start", "GitHub", "About", "Team", "News"];
+// Marketing nav for visitors. Kept to a tight primary row — "No Lock-In" leads
+// (the brand-agnostic moat), "Why OhhO" is the positioning, "OhhO OS" is the open
+// engine — with the secondary/company links tucked under a "More" dropdown so the
+// bar stays uncrowded.
+const PRIMARY_LINKS = ["No Lock-In", "Why OhhO", "OhhO OS", "Products", "Services", "Pricing", "Docs", "Start"];
+const MORE_LINKS = ["Standards", "How it Works", "GitHub", "About", "Team", "News"];
 // Lean links for any signed-in user — no product/pricing/team marketing clutter.
 // OhhO OS + Docs stay available after sign-in (the engine + public reference).
 const DEV_LINKS = ["OhhO OS", "Docs", "Link"];
@@ -50,7 +51,10 @@ export default function Nav() {
     }
   };
 
-  const links = signedIn ? DEV_LINKS : MARKETING_LINKS;
+  const linkColor = (link: string): string =>
+    link === "OhhO OS" || link === "No Lock-In" ? "var(--cyan)" : "rgba(255,255,255,0.52)";
+
+  const links = signedIn ? DEV_LINKS : PRIMARY_LINKS;
 
   return (
     <nav
@@ -75,8 +79,7 @@ export default function Nav() {
 
       <div className="hidden md:flex items-center gap-1">
         {links.map((link) => {
-          const isAccent = link === "OhhO OS" || link === "No Lock-In";
-          const base = isAccent ? "var(--cyan)" : "rgba(255,255,255,0.52)";
+          const base = linkColor(link);
           return (
             <a
               key={link}
@@ -92,6 +95,56 @@ export default function Nav() {
             </a>
           );
         })}
+
+        {/* "More" dropdown — secondary + company links, marketing nav only.
+            CSS-only: opens on hover and on keyboard focus-within (no state). */}
+        {!signedIn && (
+          <div className="relative group">
+            <button
+              type="button"
+              aria-haspopup="true"
+              className="inline-flex items-center gap-1 text-sm font-medium px-[13px] py-[7px] rounded-md transition-all duration-200 hover:bg-white/5 whitespace-nowrap group-focus-within:text-white"
+              style={{ color: "rgba(255,255,255,0.52)" }}
+            >
+              More <ChevronDown size={13} strokeWidth={2} className="opacity-70 transition-transform duration-200 group-hover:rotate-180 group-focus-within:rotate-180" />
+            </button>
+            {/* pt-2 keeps a hover-bridge so the menu doesn't close in the gap */}
+            <div className="absolute right-0 top-full pt-2 min-w-[190px] opacity-0 invisible translate-y-1 transition-all duration-200 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:visible group-focus-within:translate-y-0">
+              <div
+                className="flex flex-col rounded-xl p-1.5"
+                style={{
+                  background: "rgba(10,14,26,.96)",
+                  border: "1px solid rgba(255,255,255,0.09)",
+                  backdropFilter: "blur(20px)",
+                  WebkitBackdropFilter: "blur(20px)",
+                  boxShadow: "0 14px 44px rgba(0,0,0,0.45)",
+                }}
+              >
+                {MORE_LINKS.map((link) => (
+                  <a
+                    key={link}
+                    href={navHref(link)}
+                    target={link === "GitHub" ? "_blank" : undefined}
+                    rel={link === "GitHub" ? "noopener noreferrer" : undefined}
+                    className="text-[13px] font-medium px-3 py-2 rounded-lg transition-colors duration-150 whitespace-nowrap"
+                    style={{ color: "rgba(255,255,255,0.6)" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = "#fff";
+                      e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = "rgba(255,255,255,0.6)";
+                      e.currentTarget.style.background = "transparent";
+                    }}
+                  >
+                    {link}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {user && (
           <a
             href="/garage"
