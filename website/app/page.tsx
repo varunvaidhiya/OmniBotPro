@@ -26,11 +26,16 @@ import CtaBanner from "@/components/CtaBanner";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
+import { pageview } from "@/lib/analytics";
 
 export default function Home() {
   const { loading, user, subscription } = useAuth();
   const router = useRouter();
   const subscribed = Boolean(user && hasConsoleAccess(subscription));
+
+  useEffect(() => {
+    pageview("home");
+  }, []);
 
   useEffect(() => {
     if (!loading && subscribed) router.replace("/console");

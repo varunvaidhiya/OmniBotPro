@@ -20,6 +20,9 @@ export type Category =
   | "Operations"
   | "Trust";
 
+/** Honest launch status, so the grid stops presenting all 19 as production-ready. */
+export type ProductStatus = "available" | "beta" | "planned";
+
 export interface Feature {
   title: string;
   body: string;
@@ -95,6 +98,48 @@ const stroke = {
   strokeWidth: 1.6,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
+};
+
+/*
+ * Launch status per product slug — a single, honest source of truth for what is
+ * actually shippable today vs. on the roadmap. The core wedge loop (Connect →
+ * Data → Train → Serve) is "available"; broadly-built consoles are "beta"; the
+ * ones that are still ahead of the code are "planned". Tune these as things ship.
+ */
+export const PRODUCT_STATUS: Record<string, ProductStatus> = {
+  connect: "available",
+  data: "available",
+  train: "available",
+  serve: "available",
+  build: "beta",
+  frame: "beta",
+  bench: "beta",
+  bridge: "beta",
+  view: "beta",
+  autonomy: "beta",
+  mind: "beta",
+  fleet: "beta",
+  market: "beta",
+  pilot: "beta",
+  twin: "beta",
+  care: "planned",
+  comply: "planned",
+  shield: "planned",
+  proof: "planned",
+};
+
+export function productStatus(slug: string): ProductStatus {
+  return PRODUCT_STATUS[slug] ?? "planned";
+}
+
+/** Presentation + ordering metadata for each status. */
+export const STATUS_META: Record<
+  ProductStatus,
+  { label: string; order: number; color: string; bg: string; border: string }
+> = {
+  available: { label: "Available", order: 0, color: "var(--cyan)", bg: "rgba(0,212,255,.14)", border: "rgba(0,212,255,.30)" },
+  beta: { label: "Beta", order: 1, color: "#f0b34a", bg: "rgba(240,179,74,.13)", border: "rgba(240,179,74,.30)" },
+  planned: { label: "Roadmap", order: 2, color: "rgba(255,255,255,.55)", bg: "rgba(255,255,255,.06)", border: "rgba(255,255,255,.14)" },
 };
 
 export const PRODUCTS: Product[] = [

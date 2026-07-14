@@ -1,13 +1,16 @@
 "use client";
 
 import { CONTACT_EMAIL, DOCS_HREF, GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF, OS_HREF, STANDARDS_HREF } from "@/lib/site";
+import { TRADEMARK_LINE } from "@/lib/copy";
 import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
 // Full marketing footer links (visitors / free users).
-const ALL_LINKS = ["OhhO OS", "Standards", "Products", "Pricing", "Docs", "GitHub", "Team", "Contact"];
+const ALL_LINKS = ["OhhO OS", "Standards", "Products", "Pricing", "Docs", "GitHub", "License", "Team", "Contact"];
 // Dev-focused footer links for subscribed users — no product/pricing/team marketing.
-const DEV_LINKS = ["OhhO OS", "Docs", "GitHub", "Contact"];
+const DEV_LINKS = ["OhhO OS", "Docs", "GitHub", "License", "Contact"];
+
+const LICENSE_HREF = `${GITHUB_HREF}/blob/main/sdk/LICENSE`;
 
 export default function Footer() {
   const { user, subscription } = useAuth();
@@ -22,11 +25,14 @@ export default function Footer() {
       case "Pricing": return "/#pricing";
       case "Docs": return DOCS_HREF;
       case "GitHub": return GITHUB_HREF;
+      case "License": return LICENSE_HREF;
       case "Team": return "/team";
       case "Contact": return `mailto:${CONTACT_EMAIL}`;
       default: return "#";
     }
   };
+
+  const isExternal = (link: string): boolean => link === "GitHub" || link === "License";
 
   return (
     <footer
@@ -45,6 +51,7 @@ export default function Footer() {
           <div>
             <div className="font-display font-bold text-[19px] tracking-tight mb-[6px]">
               <span style={{ color: "var(--cyan)" }}>O</span>hh<span style={{ color: "var(--cyan)" }}>O</span>
+              <span className="align-super text-[9px] font-normal ml-[1px]" style={{ color: "rgba(255,255,255,0.4)" }}>™</span>
             </div>
             <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.52)" }}>
               Open-Source Robots, First.
@@ -56,13 +63,13 @@ export default function Footer() {
 
           {/* Right */}
           <div className="flex flex-col items-end gap-[22px]">
-            <nav className="flex gap-[22px] flex-wrap">
+            <nav className="flex gap-[22px] flex-wrap justify-end">
               {links.map((link) => (
                 <a
                   key={link}
                   href={footerHref(link)}
-                  target={link === "GitHub" ? "_blank" : undefined}
-                  rel={link === "GitHub" ? "noopener noreferrer" : undefined}
+                  target={isExternal(link) ? "_blank" : undefined}
+                  rel={isExternal(link) ? "noopener noreferrer" : undefined}
                   className="text-[13px] transition-colors duration-200"
                   style={{ color: "rgba(255,255,255,0.52)" }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
@@ -97,11 +104,11 @@ export default function Footer() {
         </div>
 
         <div
-          className="flex justify-between items-center pt-7 text-[11px]"
+          className="flex justify-between items-center gap-3 flex-wrap pt-7 text-[11px]"
           style={{ borderTop: "1px solid rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.22)" }}
         >
-          <span>© 2026 OhhO. All rights reserved.</span>
-          <span>OhhO — Open-source robots, first. Open ecosystems, welcome.</span>
+          <span>© 2026 OhhO Robotics. All rights reserved. &nbsp;·&nbsp; {TRADEMARK_LINE}</span>
+          <span>The engine is Apache-2.0 &amp; open source.</span>
         </div>
       </div>
     </footer>
