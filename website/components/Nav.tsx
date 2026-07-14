@@ -2,7 +2,7 @@
 
 import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
-import { DOCS_HREF, GITHUB_HREF, NO_LOCKIN_HREF, PRODUCTS_HREF, PRICING_HREF, STANDARDS_HREF, UPGRADE_HREF, OS_HREF } from "@/lib/site";
+import { DOCS_HREF, GITHUB_HREF, NO_LOCKIN_HREF, PRODUCTS_HREF, PRICING_HREF, STANDARDS_HREF, UPGRADE_HREF, OS_HREF, WHY_HREF, START_HREF } from "@/lib/site";
 import ConsoleNavButton from "@/components/auth/ConsoleNavButton";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthProvider";
@@ -12,7 +12,7 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 // the brand-agnostic moat that defines the platform. "OhhO OS" is the open
 // engine that sits on top of (and powers) every product. "Standards" lists the
 // industry standards every console speaks.
-const MARKETING_LINKS = ["No Lock-In", "OhhO OS", "Standards", "Products", "Pricing", "How it Works", "Docs", "GitHub", "About", "Team", "News"];
+const MARKETING_LINKS = ["No Lock-In", "Why OhhO", "OhhO OS", "Standards", "Products", "Pricing", "How it Works", "Docs", "Start", "GitHub", "About", "Team", "News"];
 // Lean links for any signed-in user — no product/pricing/team marketing clutter.
 // OhhO OS + Docs stay available after sign-in (the engine + public reference).
 const DEV_LINKS = ["OhhO OS", "Docs", "Link"];
@@ -32,6 +32,8 @@ export default function Nav() {
   const navHref = (link: string): string => {
     switch (link) {
       case "No Lock-In": return NO_LOCKIN_HREF;
+      case "Why OhhO": return WHY_HREF;
+      case "Start": return START_HREF;
       case "OhhO OS": return OS_HREF;
       case "Standards": return STANDARDS_HREF;
       case "Products": return PRODUCTS_HREF;
