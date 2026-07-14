@@ -31,6 +31,10 @@ export const STANDARDS_HREF = "/standards";
 export const WHY_HREF = "/why";
 /** Quickstart — install the open engine and drive a robot in 5 minutes. */
 export const START_HREF = "/start";
+/** Data services — done-for-you demonstrations, labeling, eval and fine-tuning. */
+export const SERVICES_HREF = "/services";
+/** For Builders — the affordable-robots / Global-South segment landing page. */
+export const BUILDERS_HREF = "/for-builders";
 export const GITHUB_HREF = "https://github.com/varunvaidhiya/OmniBotPro";
 export const TWITTER_HREF = "https://x.com/ohho_ai";
 export const LINKEDIN_HREF = "https://linkedin.com/company/ohho-ai";
