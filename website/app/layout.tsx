@@ -62,6 +62,17 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
         />
+        {/* Privacy-friendly analytics — inert until NEXT_PUBLIC_PLAUSIBLE_DOMAIN is
+            set. Once set, it powers the funnel + hero A/B events emitted through
+            lib/analytics.ts (window.plausible). Override the src with
+            NEXT_PUBLIC_PLAUSIBLE_SRC to point at a self-hosted instance. */}
+        {process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN && (
+          <script
+            defer
+            data-domain={process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN}
+            src={process.env.NEXT_PUBLIC_PLAUSIBLE_SRC || "https://plausible.io/js/script.js"}
+          />
+        )}
       </head>
       <body>
         <AuthProvider>
