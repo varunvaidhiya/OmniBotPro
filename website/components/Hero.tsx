@@ -157,24 +157,6 @@ export default function Hero() {
             </a>
           </motion.div>
 
-          {/* live-control hint */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="flex items-center gap-x-5 gap-y-2 flex-wrap justify-center font-mono text-[11px] tracking-[0.04em]"
-            style={{ color: "rgba(255,255,255,0.45)" }}
-          >
-            <span>move your mouse — the robot follows you on every section</span>
-            <span className="hidden sm:inline opacity-40">·</span>
-            <span className="inline-flex items-center gap-1.5">
-              <kbd className="hero-kbd">↑</kbd>
-              <kbd className="hero-kbd">↓</kbd>
-              <kbd className="hero-kbd">←</kbd>
-              <kbd className="hero-kbd">→</kbd>
-              manual drive
-            </span>
-          </motion.div>
         </div>
       </div>
 

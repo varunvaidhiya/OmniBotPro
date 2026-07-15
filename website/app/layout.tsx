@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import RobotBackground from "@/components/robot/RobotBackground";
 import AuthRedirectHandler from "@/components/auth/AuthRedirectHandler";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { RobotConnectionProvider } from "@/lib/connect/RobotConnectionProvider";
@@ -78,8 +77,6 @@ export default function RootLayout({
         <AuthProvider>
           <RobotConnectionProvider>
             <AuthRedirectHandler />
-            {/* live 3-D OmniBot — fixed behind every section, follows the cursor */}
-            <RobotBackground />
             {/* global "connected robot" HUD — shows on every operational console */}
             <ConnectionBar />
             <div className="content-layer">{children}</div>
