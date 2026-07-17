@@ -6,9 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/omnibotVR.unity
-    guid: 73b11268b6f2d447594eec4a4b18be61
+    path: Assets/OmniBotVR_Main.unity
+    guid: bbb17240c51294881a1ae41edd16b4fc
   m_configObjects:
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
-    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 7d9027a5cfc1b47688716ab3a2136d15, type: 2}
-    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: 85452c73bd19b449f8ab6c7eda30b1c6, type: 2}
+    com.unity.xr.management.loader_settings: {fileID: 11400000, guid: 65d8202699fa1484d93169a5fa3e1b73, type: 2}
+    com.unity.xr.openxr.settings4: {fileID: 11400000, guid: c2291d94c7cf248dfa8a336ddff810cb, type: 2}
