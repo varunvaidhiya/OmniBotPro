@@ -155,12 +155,16 @@ namespace OmniBot.VR.Video
         private void OnVideoFrame(Texture2D frame)
         {
             if (displayImage != null)
+            {
+                displayImage.color = Color.white; // full brightness once streaming
                 displayImage.texture = frame;
+            }
         }
 
         private void ShowNoSignal()
         {
             if (displayImage == null) return;
+            displayImage.color = new Color(0.02f, 0.03f, 0.06f, 1f); // dark idle state
             if (noSignalTexture != null)
                 displayImage.texture = noSignalTexture;
             else

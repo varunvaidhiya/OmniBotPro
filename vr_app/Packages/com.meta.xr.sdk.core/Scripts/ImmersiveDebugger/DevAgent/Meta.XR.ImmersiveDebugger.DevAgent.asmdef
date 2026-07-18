@@ -1,0 +1,43 @@
+{
+    "name": "Meta.XR.ImmersiveDebugger.DevAgent",
+    "rootNamespace": "Meta.XR.ImmersiveDebugger.DevAgent",
+    "references": [
+        "Meta.XR.ImmersiveDebugger",
+        "Oculus.VR",
+        "meta.xr.ai.agentbridge",
+        "Oculus.Voice",
+        "VoiceSDK.Dictation.Runtime",
+        "Meta.Wit.Dictation",
+        "Meta.WitAi",
+        "Meta.WitAi.Lib",
+        "Meta.XR.ImmersiveDebugger.Interface",
+        "meta.xr.ai.mcpbridge"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "HAS_NEWTONSOFT_JSON"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.nuget.newtonsoft-json",
+            "expression": "",
+            "define": "HAS_NEWTONSOFT_JSON"
+        },
+        {
+            "name": "com.meta.xr.sdk.voice",
+            "expression": "",
+            "define": "HAS_META_VOICE_SDK"
+        },
+        {
+            "define": "OVR_UNITY_PACKAGE_MANAGER",
+            "name": "com.meta.xr.sdk.core",
+            "expression": ""
+        }
+    ],
+    "noEngineReferences": false
+}

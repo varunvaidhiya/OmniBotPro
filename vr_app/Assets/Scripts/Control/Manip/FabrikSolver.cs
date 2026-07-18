@@ -47,7 +47,7 @@ namespace OmniBot.VR.Control.Manip
         public void Configure(JointSpec[] joints, float[] linkLengths)
         {
             _numJoints = joints.Length;
-            _positionJoints = _numJoints - 1; // last joint = gripper (not in position chain)
+            _positionJoints = Mathf.Max(0, _numJoints - 1); // last joint = gripper (not in position chain)
 
             // Link lengths: use provided, or fall back to equal segments.
             int numLinks = _positionJoints;

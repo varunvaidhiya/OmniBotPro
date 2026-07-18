@@ -1,0 +1,51 @@
+{
+    "name": "Meta.XR.ImmersiveDebugger.DevAgent.Editor",
+    "rootNamespace": "Meta.XR.ImmersiveDebugger.DevAgent.Editor",
+    "references": [
+        "Meta.XR.ImmersiveDebugger.DevAgent",
+        "Meta.XR.ImmersiveDebugger",
+        "Meta.XR.ImmersiveDebugger.Editor",
+        "Meta.XR.Editor.UserInterface",
+        "Meta.XR.Editor.Settings",
+        "Meta.XR.Editor.Id",
+        "Meta.XR.Editor.Tags",
+        "Meta.XR.Editor.ToolingSupport",
+        "meta.xr.ai.agentbridge",
+        "meta.xr.ai.agentbridge.editor",
+        "meta.xr.ai.mcpbridge",
+        "meta.xr.ai.mcpbridge.editor",
+        "Oculus.VR",
+        "Oculus.VR.Editor",
+        "Meta.XR.Editor.Callbacks",
+        "Meta.WitAi"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "HAS_NEWTONSOFT_JSON"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.nuget.newtonsoft-json",
+            "expression": "",
+            "define": "HAS_NEWTONSOFT_JSON"
+        },
+        {
+            "name": "com.meta.xr.sdk.voice",
+            "expression": "",
+            "define": "HAS_META_VOICE_SDK"
+        },
+        {
+            "define": "OVR_UNITY_PACKAGE_MANAGER",
+            "name": "com.meta.xr.sdk.core",
+            "expression": ""
+        }
+    ],
+    "noEngineReferences": false
+}

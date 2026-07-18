@@ -1,0 +1,1 @@
+This folder contains assets and scripts that depend on the Unity OpenXR Plugin (com.unity.xr.openxr), and hand tracking features that are only enabled when the Unity XR Hands package (com.unity.xr.hands) is present.

@@ -1,13 +1,31 @@
 # OhhO VR — Scene Assembly Guide
 
-How to wire the Phase 0a–0c scripts into a working Quest 3 mixed-reality scene.
-Scenes, prefabs, materials and TMP font assets are binary Unity assets created in
-the editor; this guide is the spec for building them from the committed C# +
-shader. Once assembled, the app runs the flow **sign in → console → garage**, all
-in passthrough, themed like the website.
+> **Current state:** the scene is **fully generated** by an editor script.
+> `Assets/scene1.unity` already contains everything — you never assemble the
+> UI by hand. To regenerate after pulling changes (or if the scene breaks):
+> **OmniBot → Rebuild Unified OhhO Screen**. The builder is idempotent,
+> re-fixes the hand prefabs, rebuilds the card prefabs, wires every
+> controller, and saves the scene.
 
-> Prerequisite: open `vr_app/` in Unity 2023.3 LTS and let packages resolve
-> (`Packages/manifest.json`: Meta XR SDK 60, OpenXR, TMP, Newtonsoft, NativeWebSocket).
+The app runs **one unified world-space screen** ("OhhO Screen", 1600×1000 at
+0.001 scale ≈ 1.6 m wide) floating 1.6 m in front of the user over
+passthrough. A `WorldSpaceUiPlacer` keeps it facing the user; the header bar
+(OhhO logo + ohho-robotics.com + Open Website button) is always visible, and
+the four pages route inside it:
+
+```
+┌──────────────── OhhO Screen (one canvas, faces the user) ───────────────┐
+│ Header: OHHO · ohho-robotics.com ··················· [Open Website]     │
+├──────────────────────────────────────────────────────────────────────────┤
+│ Login page      → email OTP sign-in (Supabase, same account as the site) │
+│ Console page    → VR products from the manifest (today: OhhO Pilot)      │
+│ Garage page     → the user's robots (Supabase user_robots, shared w/web) │
+│ Teleop page     → connection + telemetry │ camera feed │ recording/export│
+└──────────────────────────────────────────────────────────────────────────┘
+```
+
+`OhhoVrApp` routes the pages (`SetActive` one at a time); `ScreenToggle`
+hides/shows the whole screen with the **left-controller B** button.
 
 ---
 
@@ -23,146 +41,87 @@ in passthrough, themed like the website.
 
 ## 2. Fonts (branding parity)
 
-1. Import **Space Grotesk**, **Inter**, **JetBrains Mono** (TTFs) and make a
-   **TMP Font Asset** for each (Window → TextMeshPro → Font Asset Creator).
-2. **Create → OhhO → Font Set** → assign display = Space Grotesk, body = Inter,
-   mono = JetBrains Mono. This is the `OhhoFontSet` the `ThemeApplier` publishes.
+The TMP default font reference (`TextMesh Pro/Resources/TMP Settings.asset`)
+must point at **LiberationSans SDF**, and the font materials must use the
+**`TextMeshPro/Distance Field`** shader — both were repaired in this branch
+(magenta text = broken shader reference; empty text = missing default font).
+If you import Space Grotesk / Inter / JetBrains Mono later, create TMP font
+assets for them and an **OhhO Font Set** so the `ThemeApplier` can restyle.
 
-## 3. Bootstrap GameObject ("OhhoApp")
+## 3. Bootstrap GameObject ("[OhhO VR App]")
 
 One persistent GameObject holding the platform services (each is a singleton):
 
-| Component | Inspector wiring |
+| Component | Purpose |
 |---|---|
-| `OhhoPlatform` | `platformBaseUrl = https://ohho-robotics.com`; offline resource `vr_manifest` |
-| `OhhoCatalog` | offline resource `vr_catalog` |
-| `SupabaseAuthService` | (configured at runtime from the manifest) |
-| `GarageClient` | (configured at runtime from the manifest) |
-| `OhhoVrApp` | assign `loginPanel`, `consolePanel`, `garagePanel` (§5) + the services above |
+| `OhhoPlatform` | fetches `https://ohho-robotics.com/vr/manifest.json`; offline fallback `vr_manifest` |
+| `OhhoCatalog` | catalog; offline fallback `vr_catalog` |
+| `SupabaseAuthService` | email-OTP sign-in (configured from the manifest) |
+| `GarageClient` | pulls `user_robots` via PostgREST |
+| `ConnectionManager` | ROSBridge lifecycle |
+| `TeleopController` | pumps VR input → drive + hand-IK schemes → ROS |
+| `GestureDetector` | hand poses (auto-finds the scene `OVRHand`s) |
+| `ProfileDrivenRecorder` | 30 Hz JSONL recorder for the active profile |
+| `VRGraphicsBoost` | 1.5× eye texture, MSAA 4×, FFR off, 90 Hz |
+| `OhhoVrApp` | routes the four pages; wired to the panels + `TeleopController` |
 
-`OhhoVrApp` configures `SupabaseAuthService`/`GarageClient` from the manifest on
-load and restores a saved session, so returning users skip login.
+## 4. Camera rig + passthrough + hands
 
-## 4. Camera rig + passthrough
+1. **OVRCameraRig** (Meta prefab) with `OVRPassthroughLayer` (Underlay) +
+   `PassthroughManager` — `passthroughLayer` and `hmdCamera` are both assigned
+   on the `PassthroughManager` component.
+2. **Tracking origin: Stage** (`OVRManager._trackingOriginType = 2`) — required
+   for correct mixed-reality alignment.
+3. **Hands** — `OVRCustomHandPrefab_L/R` under the hand anchors with:
+   - `_updateRootPose = true`, `_updateRootScale = true`,
+     `_applyBoneTranslations = true` → the hand mesh exactly follows the
+     tracked wrist (fixes the hand-mesh offset).
+   - `updateWhenOffscreen = true` on `l_handMeshNode` / `r_handMeshNode` →
+     prevents per-eye frustum culling (fixes hands visible in only one eye).
+   - Android manifest: `com.oculus.permission.HAND_TRACKING` +
+     `com.oculus.handtracking.frequency = HIGH`.
+4. **EventSystem** — `OVRInputModule` + `VRDynamicLaserPointer` (sets
+   `rayTransform` from the active hand/controller and draws the cyan laser).
+   Without it, nothing on the screen is clickable.
+5. **HandWorkspaceOrigin** — transform at the virtual arm base (0, 1.0, 0.5);
+   the IK scheme anchors hand retargeting to it.
 
-1. Add the Meta **OVRCameraRig** (or XR Origin) — this provides the HMD camera and
-   hands.
-2. Add a child with the Meta **OVRPassthroughLayer** component (Underlay).
-3. Add **`PassthroughManager`**: assign `hmdCamera` = CenterEye camera and
-   `passthroughLayer` = the OVRPassthroughLayer (a Behaviour). On start it makes
-   the camera transparent and enables passthrough.
+## 5. The unified screen (generated)
 
-## 5. UI panels (world-space, glass, themed)
+`OhhoUnifiedAppBuilder.Build()` creates:
 
-Make three **world-space Canvas** panels: **Login**, **Console**, **Garage**.
-On each panel root:
+- **OhhO Screen** — world-space `Canvas` (1600×1000, scale 0.001),
+  `CanvasScaler` (`dynamicPixelsPerUnit = 2` for crisp text), `OVRRaycaster`,
+  `WorldSpaceUiPlacer` (distance 1.6, billboard on), `ScreenToggle`.
+- **Header** — logo, URL, Open Website button → `OhhoVrApp.OpenWebsite()`.
+- **Login / Console / Garage / Teleop pages** — each with its controller
+  (`LoginPanelController`, `ConsolePanelController`, `GaragePanelController`,
+  `TeleopHudController`) and every serialized field wired.
+- **Card prefabs** — `RobotCardPrefab` / `ProductCardPrefab` contents +
+  `RobotCardView` / `ProductCardView` wiring.
+- **TeleopController wiring** — `gestureDetector`, `handWorkspaceOrigin`,
+  `cameraFeed` (the teleop page's `CameraFeedController`), `recorder`.
 
-- **`WorldSpaceUiPlacer`** (`hmdCamera` = CenterEye) — floats it in front of the user.
-- A background **Image** + **`GlassPanel`** (accent Cyan) — the frosted card.
-- **`ThemeApplier`** at the UI root (assign the `OhhoFontSet`) — restyles all
-  themed widgets and re-applies when the manifest theme loads.
+### 5a. Teleop page layout
 
-Label/text elements use **`ThemedText`** with a role:
-`Heading` (Space Grotesk), `Body`/`Muted` (Inter), `Label` (cyan JetBrains Mono
-micro-labels). Primary buttons use **`AccentButton`** (PrimaryCyan).
+| Column | Contents |
+|---|---|
+| Left | Robot name, connection (IP/port/Connect/Disconnect/status dot), telemetry (pose, velocity, arm, mode), control hints, **< Garage** |
+| Center | Camera feed (`CameraFeedController` → MJPEG/WebRTC), camera name, **Next Camera** |
+| Right | Dataset recording (Start / Stop & Save / Discard, live status), **Export to Robot** (POSTs JSONL to the VR bridge at `:8765`) |
 
-### 5a. Login panel
-- Email `TMP_InputField`, "Send code" `Button`, code `TMP_InputField` (+ its
-  parent `codeStep` GameObject, hidden initially), "Verify" `Button`, status `TMP_Text`.
-- Add **`LoginPanelController`** and wire those fields.
-
-### 5b. Console panel
-- A grid (`GridLayoutGroup`/`HorizontalLayoutGroup`) as `gridParent`, a header `TMP_Text`.
-- **Product card prefab**: a `GlassPanel` card with name/tag/desc `ThemedText` +
-  an accent `Image` + a `Button`; add **`ProductCardView`** and wire them.
-- Add **`ConsolePanelController`**; assign `app` (OhhoVrApp), `gridParent`,
-  `cardPrefab`, `headerText`.
-
-### 5c. Garage panel
-- A list container `listParent`, status `TMP_Text`, optional "Refresh" `Button`.
-- **Robot card prefab**: name + model `ThemedText`, a category `Image` dot, a
-  `Button`; add **`RobotCardView`**.
-- Add **`GaragePanelController`** (or **`FleetPanelController`** for the enhanced
-  fleet view with quick-resume + status badges); assign `listParent`, `cardPrefab`,
-  `statusText`, `refreshButton`.
-- An **"Add Robot"** `Button` — assign `addRobotButton`. Opens the selection flow.
-
-### 5c-bis. Add-robot selection flow (Phase 1)
-A five-step spatial wizard mirroring the website's `RobotSelector`:
-**categories → types → models → name → confirm**. One world-space panel with five
-child step panels, three card prefabs, and a `RobotSelectionController`.
-
-1. Create a world-space Canvas **"SelectionPanel"** (hidden by default) with five
-   child GameObjects: `CategoryStep`, `TypeStep`, `ModelStep`, `NameStep`,
-   `ConfirmStep`. Each has a list container (`Transform`) for its cards.
-2. Add **`RobotSelectionController`** and assign:
-   - The five step panels + their list containers (`categoryListParent`,
-     `typeListParent`, `modelListParent`).
-   - Three card prefabs: **`CategoryCardView`** (label + blurb + color dot),
-     **`TypeCardView`** (name + tagline), **`ModelCardView`** (name +
-     manufacturer + specs summary).
-   - `backButton`, `cancelButton`, `stepHeader` (TMP_Text).
-   - Name step: `nameInput` (TMP_InputField) + `nameNextButton`.
-   - Confirm step: `confirmSummary` (TMP_Text) + `confirmButton`.
-   - `statusText` for errors/success.
-3. On the **garage/fleet panel**, assign `selectionController` → this controller
-   and `selectionPanel` → the SelectionPanel. The Add-Robot button opens it;
-   `OnRobotAdded` closes it and reloads the garage.
-
-On confirm, `RobotSelectionController` calls `GarageClient.AddUserRobot`, which
-writes a row to Supabase `user_robots` — the same table the website/app use — so
-the new robot immediately appears in the garage ready to teleoperate.
-
-### 5d. Teleop controller (Phase 2)
-The teleop control layer — receives the selected robot's profile and pumps VR
-input → drive + hand-IK → ROS every frame.
-
-1. Create a persistent GameObject **"TeleopController"** (child of the OhhoApp
-   bootstrap, or its own DontDestroyOnLoad object).
-2. Add **`TeleopController`** and wire:
-   - `gestureDetector` → the scene `GestureDetector` (auto-found if omitted).
-   - `handWorkspaceOrigin` → a Transform at the robot arm's base position
-     (0.35 m above the robot base by default). The IK scheme anchors hand
-     retargeting to this point.
-   - `linkProvider` → optional; leave null to use the `RosBridgeLink` singleton
-     (wraps `ROSBridgeClient`).
- 3. On the **`OhhoVrApp`** bootstrap component, assign the new fields:
-   - `garagePanelController` → the scene `GaragePanelController` (or `fleetPanelController` for the enhanced fleet view with quick-resume).
-   - `teleopController` → the `TeleopController` above.
-   - `onboarding` → the scene `OnboardingController` (optional; shows first-run hints).
-4. **Camera feed** — add a `CameraFeedController` to a world-space panel with a
-   `RawImage` + `TMP_Text` overlay. Assign `displayImage` + `cameraNameOverlay`.
-   On `TeleopController`, assign the `cameraFeed` field so it gets configured
-   with the robot's camera topics on `StartTeleop`.
-5. **Recording** — add a `ProfileDrivenRecorder` MonoBehaviour. Assign it on
-   `TeleopController.recorder` so it subscribes to the profile's topics.
-6. **Onboarding panel** — a world-space Canvas with drive/manip/safety `TMP_Text`
-   fields + the `OnboardingController` component. Dismissed by B button or a
-   dismiss button; only shows once (reset via `OnboardingController.Reset()`).
-
-`OhhoVrApp` subscribes to `GaragePanelController.RobotPicked`: when the user
-selects a robot it builds a `RobotProfile` (`RobotProfileFactory.FromGarageRobot`
-— drive kind + arm DOF + joint limits + ROS topics from the catalog), applies
-per-robot calibration (`CalibrationManager.Load` + `ApplyTo`), saves it as the
-last robot (`LastRobotStore.Save` for quick-resume), calls
-`TeleopController.StartTeleop(profile)`, routes to the teleop view, and shows
-the onboarding hints on the first session.
-
-The legacy `Input/BaseController.cs` + `Input/HandTrackingArmController.cs`
-MonoBehaviours are superseded by `TeleopController` — remove them from the scene
-(or disable them) to avoid double-publishing `/cmd_vel/teleop` and
-`/arm/joint_commands`.
+---
 
 ## 6. Run
 
 1. Build & Run to the Quest (or Meta XR Simulator).
-2. You see your room (passthrough) with the OhhO glass login panel floating ahead.
+2. You see your room (passthrough) with the OhhO glass screen floating ahead.
 3. Sign in (email → 6-digit code). On success you land on the **console** showing
    VR products (today **OhhO Pilot**).
 4. Open Pilot → the **garage** lists the robots from your OhhO account (pulled from
    Supabase `user_robots`). Empty? Add one on the website/app — it appears here.
 5. **Select a robot** → `OhhoVrApp` builds its `RobotProfile` from the catalog and
-   hands it to `TeleopController`. The app-shell panels hide; the HUD takes over.
+   hands it to `TeleopController`. The teleop page opens.
    - **Base:** left stick strafe (vx/vy), right stick X yaw, right grip turbo,
      both grips e-stop.
    - **Arm:** right-hand pose → IK → `/arm/joint_commands` @ 20 Hz; pinch →

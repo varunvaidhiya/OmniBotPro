@@ -1,0 +1,30 @@
+{
+    "name": "Meta.XR.ImmersiveDebugger.DevAgent.Tools",
+    "rootNamespace": "Meta.XR.ImmersiveDebugger.DevAgent",
+    "references": [
+        "Meta.XR.ImmersiveDebugger",
+        "meta.xr.ai.mcpbridge"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [
+        "HAS_NEWTONSOFT_JSON"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.nuget.newtonsoft-json",
+            "expression": "",
+            "define": "HAS_NEWTONSOFT_JSON"
+        },
+        {
+            "define": "OVR_UNITY_PACKAGE_MANAGER",
+            "name": "com.meta.xr.sdk.core",
+            "expression": ""
+        }
+    ],
+    "noEngineReferences": false
+}

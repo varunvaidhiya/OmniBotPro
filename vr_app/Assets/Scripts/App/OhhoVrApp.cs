@@ -25,6 +25,8 @@ namespace OmniBot.VR.App
         [SerializeField] private GameObject loginPanel;
         [SerializeField] private GameObject consolePanel;
         [SerializeField] private GameObject garagePanel;
+        [Tooltip("The teleop page shown after a robot is picked (camera feed, telemetry, recording).")]
+        [SerializeField] private GameObject teleopPanel;
 
         [Header("Services")]
         [SerializeField] private OhhoPlatform platform;
@@ -109,9 +111,14 @@ namespace OmniBot.VR.App
             if (loginPanel != null) loginPanel.SetActive(login);
             if (consolePanel != null) consolePanel.SetActive(console);
             if (garagePanel != null) garagePanel.SetActive(garage);
-            // "teleop" = all app-shell panels off; the floating HUD + camera feed
-            // (separate GameObjects) take over. No panel to activate here yet.
-            _ = teleop;
+            if (teleopPanel != null) teleopPanel.SetActive(teleop);
+        }
+
+        /// <summary>Open ohho-robotics.com in the headset's system browser.</summary>
+        public void OpenWebsite()
+        {
+            string url = platform != null ? platform.PlatformBaseUrl : "https://ohho-robotics.com";
+            Application.OpenURL(url);
         }
 
         // ── Phase 2: robot selection → teleop ──────────────────────────────────

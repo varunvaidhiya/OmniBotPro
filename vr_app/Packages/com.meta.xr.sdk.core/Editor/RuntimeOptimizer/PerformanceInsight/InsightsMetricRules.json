@@ -1,0 +1,88 @@
+{
+ "version": "0.0.1",
+ "items": [
+  {
+   "Title": "% Anisotropic Filtered",
+   "Min": 50,
+   "Max": 80,
+   "Description": "Percent of texels filtered using the 'Anisotropic' sampling method.",
+   "Category": [
+    "TEXTURE"
+   ]
+  },
+  {
+   "Title": "% Texture Fetch Stall",
+   "Min": 15,
+   "Max": 30,
+   "Description": "Percentage of clock cycles of a drawcall where the shader processors cannot make any more requests for texture data. A high value for this metric implies the shaders cannot get texture data from the texture pipe (L1, L2 cache or memory) fast enough, and rendering performance may be negatively affected.",
+   "Category": [
+    "TEXTURE"
+   ]
+  },
+  {
+   "Title": "Textures / Fragment",
+   "Min": 8,
+   "Max": 10,
+   "Description": "Average number of textures referenced per fragment.",
+   "Category": [
+    "TEXTURE"
+   ]
+  },
+  {
+   "Title": "Fragment Instructions / Fragments Shaded",
+   "Min": 200,
+   "Max": 400,
+   "Description": "Fragment Instructions / Second divided by Fragments Shaded / Second",
+   "Category": [
+    "FRAGMENT"
+   ]
+  },
+  {
+   "Title": "Vertex Instructions / Vertex Shaded",
+   "Min": 100,
+   "Max": 200,
+   "Description": "Vertex Instructions / Second divided by Vertex Shaded / Second",
+   "Category": [
+    "VERTEX"
+   ]
+  },
+  {
+   "Title": "DrawCall Count",
+   "Min": 300,
+   "Max": 500,
+   "Description": "Number of drawcall per frame",
+   "Category": [
+    "SETUP",
+    "VERTEX"
+   ]
+  },
+  {
+   "Title": "% Vertex Fetch Stall",
+   "Min": 15,
+   "Max": 30,
+   "Description": "Percentage of clock cycles of a drawcall where the GPU cannot make any more requests for vertex data. A high value for this metric implies the GPU cannot get vertex data from memory fast enough, and rendering performance may be negatively affected.",
+   "Category": [
+    "VERTEX FETCH",
+    "VERTEX"
+   ]
+  },
+  {
+   "Title": "Avg Bytes / Vertex",
+   "Min": 30,
+   "Max": 50,
+   "Description": "Average number of bytes transferred from main memory for each vertex.",
+   "Category": [
+    "VERTEX FETCH"
+   ]
+  },
+  {
+    "Title": "MSAA",
+    "Min": 2,
+    "Max": 8,
+    "Description": "MSAA Level, affects bin number doubling every level",
+    "Category": [
+     "VERTEX"
+    ]
+   }
+ ]
+}

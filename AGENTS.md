@@ -21,6 +21,7 @@ parameters, or conventions.
 | `rl_engine/` | Isaac Lab RL training + ONNX export for sim-to-real |
 | `digital_twin/` | Contributor simulation environment (Gazebo, Isaac Sim, Foxglove) |
 | `android_app/` | Kotlin MVVM Android controller (ROSBridge WebSocket) |
+| `vr_app/` | Unity Quest 3 mixed-reality teleop app (ohho-robotics.com client) |
 | `infra/` | Docker, DevContainers, CI/CD scripts, observability stack |
 
 Hardware platform:
@@ -720,6 +721,43 @@ ROSBridge reconnect policy: max 5 attempts, 1 s base delay (exponential back-off
 
 **MJPEG camera view** (`MjpegView.kt`): connects to `web_video_server`, uses
 `Content-Length`-based multipart parsing with a JPEG-marker fallback.
+
+---
+
+## VR App (`vr_app/`)
+
+Unity (6000.5) mixed-reality teleop client for **Meta Quest 3 / 3S** — the
+headset-native front end of ohho-robotics.com (same Supabase account, same
+`user_robots` garage, same branding). ROS 2 link via ROSBridge WebSocket.
+
+**The app is ONE unified world-space screen** ("OhhO Screen", generated, never
+hand-assembled): header (logo + ohho-robotics.com + Open Website button) with
+four pages routed by `OhhoVrApp` — **Login → Console → Garage → Teleop**.
+A `WorldSpaceUiPlacer` keeps it in front of the user; `ScreenToggle` hides it
+with left-controller **B**.
+
+- **Scene**: `Assets/scene1.unity` (the only build scene). Regenerate with
+  **OmniBot → Rebuild Unified OhhO Screen** (`Assets/Editor/OhhoUnifiedAppBuilder.cs`)
+  — idempotent; fixes hands, rebuilds card prefabs, wires every controller, saves.
+- **Teleop page**: connection (IP/port), telemetry, camera feed
+  (`CameraFeedController` → MJPEG/WebRTC), dataset recording + **Export to Robot**
+  (POST to `http://<ip>:8765/upload_episode`), back to garage.
+- **Hand tracking correctness** (do not regress): both `OVRCustomSkeleton`s use
+  `_updateRootPose/_updateRootScale/_applyBoneTranslations = true` (mesh follows
+  the tracked wrist), hand meshes use `updateWhenOffscreen = true` (prevents
+  per-eye culling / single-eye hands), `OVRManager` tracking origin = **Stage**,
+  Android manifest requests `HAND_TRACKING` at **HIGH** frequency.
+- **Display quality**: `VRGraphicsBoost` on the bootstrap sets
+  `eyeTextureResolutionScale = 1.5`, MSAA 4×, FFR off, 90 Hz at startup.
+- **EventSystem**: `OVRInputModule` + `VRDynamicLaserPointer` (sets
+  `rayTransform`; without it no UI is clickable).
+- Key scripts: `App/OhhoVrApp.cs` (routing), `UI/TeleopHudController.cs`,
+  `MR/{WorldSpaceUiPlacer,PassthroughManager,ScreenToggle}.cs`,
+  `Core/VRGraphicsBoost.cs`, `Control/TeleopController.cs` (drive + manip schemes).
+- Robot-side bridge: `ros2 launch omnibot_vr vr_bridge.launch.py`
+  (episode upload + `/vr/record_start|stop` → `teleop_recorder_node`).
+- Details: `vr_app/README.md`, `vr_app/SCENE_SETUP.md`,
+  `vr_app/MULTI_ROBOT_TELEOP_ARCHITECTURE.md`.
 
 ---
 

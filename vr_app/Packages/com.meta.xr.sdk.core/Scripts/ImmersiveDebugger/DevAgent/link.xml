@@ -1,0 +1,11 @@
+<linker>
+    <!--
+        Preserve the DevAgent assembly to prevent IL2CPP code stripping.
+        This is necessary because:
+        - LLMDialogPanelRegistrar is discovered via reflection (IPanelRegistrar)
+        - AgentBridgeIntegration, PushToTalkController, VoiceSetupController are spawned via AddComponent<>()
+        - RuntimeSettings is loaded from Resources via OVRRuntimeAssetsBase
+        Without this, IL2CPP may strip these types as "unused" during builds.
+    -->
+    <assembly fullname="Meta.XR.ImmersiveDebugger.DevAgent" preserve="all"/>
+</linker>

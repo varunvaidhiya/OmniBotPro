@@ -1,0 +1,44 @@
+{
+    "items": [
+        {
+            "Category": "TEXTURE",
+            "Description": "Texture Cost is High",
+            "Insight": "Consider combining textures, use Texture Atlas, ensuring Mipmaps are generated and/or reducing textures size. Use texture compression",
+            "Links": [
+                "https://docs.unity3d.com/Manual/class-TextureImporter.html"
+            ]
+        },
+        {
+            "Category": "FRAGMENT",
+            "Description": "Pixel Process Cost is High",
+            "Insight": "Consider switching to simpler material / shader to reduce fragment shading cost. Reduce overdraw, translucent objects",
+            "Links": [
+                "https://docs.unity3d.com/Manual/SL-ShaderPerformance.html"
+            ]
+        },
+        {
+            "Category": "SETUP",
+            "Description": "Drawcall Count is High",
+            "Insight": "Consider reducing drawcall count.",
+            "Links": [
+                "https://docs.unity3d.com/Documentation/Manual/reduce-draw-calls-landing.html"
+            ]
+        },
+        {
+            "Category": "VERTEX",
+            "Description": "Vertex Process Cost is High",
+            "Insight": "Consider reducing vertex count or vertex shader cost. Reduce MSAA Level (smaller is faster but more aliasing).",
+            "Links": [
+                "https://docs.unity3d.com/Manual/SL-ShaderPerformance.html"
+            ]
+        },
+        {
+            "Category": "VERTEX FETCH",
+            "Description": "Vertex Data Cost is High",
+            "Insight": "Consider reducing vertex data size, vertex count, or drawcall count.",
+            "Links": [
+                "https://docs.unity3d.com/Documentation/Manual/reduce-draw-calls-landing.html"
+            ]
+        }
+    ]
+}
