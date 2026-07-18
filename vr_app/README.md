@@ -90,11 +90,16 @@ visionOS support is planned but not yet implemented. Architecture notes:
    (default `192.168.1.101`) and port (default `9090`) → **Connect**.
    The status dot turns green when connected.
 
-The robot must have ROSBridge running:
+The robot-side stack needs ROSBridge (port 9090), the VR bridge (port 8765)
+and web_video_server (port 8080). Start all of it with **one command** from
+the repo root:
+
 ```bash
-./launch_rosbridge.sh   # or:
-ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090
+./launch_vr_teleop.sh   # mobile manipulation + ROSBridge + VR bridge + web_video_server
 ```
+
+(or individually: `./launch_rosbridge.sh`, or
+`ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090`)
 
 ---
 
@@ -203,7 +208,10 @@ After recording, export episodes to the robot for training:
 
 ## 9. Launching the ROS VR Bridge
 
-On the robot PC (or VLA desktop):
+> Easiest: `./launch_vr_teleop.sh` from the repo root starts the bridge
+> along with everything else (mobile manipulation, ROSBridge, web_video_server).
+
+On the robot PC (or VLA desktop), standalone:
 
 ```bash
 # Install dependency (if not already present)

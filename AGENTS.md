@@ -162,6 +162,10 @@ ros2 launch omnibot_bringup simulation.launch.py \
 ./launch_mobile_manipulation.sh
 ros2 launch omnibot_bringup mobile_manipulation.launch.py
 
+# ── VR teleop stack (Quest 3 mixed reality — one command) ─────────────────
+./launch_vr_teleop.sh      # mobile manipulation + ROSBridge :9090 +
+                           # VR bridge :8765 + web_video_server :8080
+
 # ── ROSBridge (required for Android app, port 9090) ───────────────────────
 ./launch_rosbridge.sh
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml port:=9090
@@ -754,8 +758,10 @@ with left-controller **B**.
 - Key scripts: `App/OhhoVrApp.cs` (routing), `UI/TeleopHudController.cs`,
   `MR/{WorldSpaceUiPlacer,PassthroughManager,ScreenToggle}.cs`,
   `Core/VRGraphicsBoost.cs`, `Control/TeleopController.cs` (drive + manip schemes).
-- Robot-side bridge: `ros2 launch omnibot_vr vr_bridge.launch.py`
-  (episode upload + `/vr/record_start|stop` → `teleop_recorder_node`).
+- Robot-side stack: `./launch_vr_teleop.sh` — one command starts mobile
+  manipulation bringup + ROSBridge :9090 + `omnibot_vr` VR bridge :8765 +
+  web_video_server :8080 (episode upload + `/vr/record_start|stop` →
+  `teleop_recorder_node` + MJPEG camera feed).
 - Details: `vr_app/README.md`, `vr_app/SCENE_SETUP.md`,
   `vr_app/MULTI_ROBOT_TELEOP_ARCHITECTURE.md`.
 
