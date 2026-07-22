@@ -27,6 +27,7 @@ namespace OmniBot.VR.App
         [SerializeField] private GameObject garagePanel;
         [Tooltip("The teleop page shown after a robot is picked (camera feed, telemetry, recording).")]
         [SerializeField] private GameObject teleopPanel;
+        [SerializeField] private GameObject cameraPanel;
 
         [Header("Services")]
         [SerializeField] private OhhoPlatform platform;
@@ -104,14 +105,15 @@ namespace OmniBot.VR.App
         public void ShowLogin() => Activate(login: true, console: false, garage: false, teleop: false);
         public void ShowConsole() => Activate(login: false, console: true, garage: false, teleop: false);
         public void ShowGarage() => Activate(login: false, console: false, garage: true, teleop: false);
-        public void ShowTeleop() => Activate(login: false, console: false, garage: false, teleop: true);
+        public void ShowTeleop() => Activate(login: false, console: false, garage: false, teleop: true, camera: true);
 
-        private void Activate(bool login, bool console, bool garage, bool teleop)
+        private void Activate(bool login, bool console, bool garage, bool teleop, bool camera = false)
         {
             if (loginPanel != null) loginPanel.SetActive(login);
             if (consolePanel != null) consolePanel.SetActive(console);
             if (garagePanel != null) garagePanel.SetActive(garage);
             if (teleopPanel != null) teleopPanel.SetActive(teleop);
+            if (cameraPanel != null) cameraPanel.SetActive(camera);
         }
 
         /// <summary>Open ohho-robotics.com in the headset's system browser.</summary>

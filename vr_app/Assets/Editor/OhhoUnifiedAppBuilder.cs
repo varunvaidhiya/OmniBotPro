@@ -56,8 +56,8 @@ namespace OmniBot.VR.Editor
             FixEventSystem();
             DeleteOldUi();
             BuildCardPrefabs();
-            var screen = BuildScreen();
-            WireApp(screen);
+            var screens = BuildScreens();
+            WireApp(screens.Item1, screens.Item2, screens.Item3);
 
             EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
             EditorSceneManager.SaveOpenScenes();
@@ -78,7 +78,14 @@ namespace OmniBot.VR.Editor
                 if (abt != null) abt.boolValue = true;
                 so.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(sk);
+            
+            var config = OVRProjectConfig.CachedProjectConfig;
+            if (config != null && config.handTrackingSupport == OVRProjectConfig.HandTrackingSupport.ControllersOnly)
+            {
+                config.handTrackingSupport = OVRProjectConfig.HandTrackingSupport.ControllersAndHands;
+                EditorUtility.SetDirty(config);
             }
+}
             foreach (var smr in Object.FindObjectsOfType<SkinnedMeshRenderer>())
             {
                 if (smr.name == "l_handMeshNode" || smr.name == "r_handMeshNode")
@@ -105,7 +112,10 @@ namespace OmniBot.VR.Editor
             if (es.GetComponent<VRDynamicLaserPointer>() == null)
                 es.AddComponent<VRDynamicLaserPointer>();
 
+            var stdModule = es.GetComponent<UnityEngine.EventSystems.StandaloneInputModule>();
+            if (stdModule != null) Object.DestroyImmediate(stdModule);
             var module = es.GetComponent<UnityEngine.EventSystems.OVRInputModule>();
+            if (module == null) module = es.AddComponent<UnityEngine.EventSystems.OVRInputModule>();
             var rightAnchor = GameObject.Find("RightControllerAnchor");
             if (module != null && rightAnchor != null && module.rayTransform == null)
                 module.rayTransform = rightAnchor.transform;
@@ -121,8 +131,11 @@ namespace OmniBot.VR.Editor
             var mrRoot = GameObject.Find("MR_UI_Root");
             if (mrRoot != null) Object.DestroyImmediate(mrRoot);
             // Idempotent rebuilds: remove the previous unified screen too.
-            var screen = GameObject.Find("OhhO Screen");
-            if (screen != null) Object.DestroyImmediate(screen);
+            foreach (var n in new[] { "OhhO Screen", "OhhO Auth Garage Screen", "OhhO Teleop Screen", "OhhO Camera Screen" })
+            {
+                var s = GameObject.Find(n);
+                if (s != null) Object.DestroyImmediate(s);
+            }
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -213,53 +226,80 @@ namespace OmniBot.VR.Editor
         // ════════════════════════════════════════════════════════════════════
         // 5. The unified screen
         // ════════════════════════════════════════════════════════════════════
-        private static GameObject BuildScreen()
+        
+        private static GameObject BuildCanvas(string name, float width, float height, Vector3 position)
         {
-            var screen = new GameObject("OhhO Screen", typeof(RectTransform));
-            screen.transform.position = new Vector3(0f, 1.4f, 1.6f);
+            var screen = new GameObject(name, typeof(RectTransform));
+            screen.transform.position = position;
             screen.transform.localScale = Vector3.one * 0.001f;
 
             var canvas = screen.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.WorldSpace;
             var scaler = screen.AddComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ConstantPixelSize;
-            scaler.dynamicPixelsPerUnit = 2f; // crisper text in world space
+            scaler.dynamicPixelsPerUnit = 2f;
             screen.AddComponent<OVRRaycaster>();
+            screen.AddComponent<DraggableScreen>();
 
             var rootRt = (RectTransform)screen.transform;
-            rootRt.sizeDelta = new Vector2(CanvasW, CanvasH);
-
-            var placer = screen.AddComponent<WorldSpaceUiPlacer>();
-            var cam = GameObject.Find("CenterEyeAnchor")?.GetComponent<Camera>();
-            var pso = new SerializedObject(placer);
-            pso.FindProperty("hmdCamera").objectReferenceValue = cam;
-            pso.FindProperty("distance").floatValue = 1.6f;
-            pso.FindProperty("verticalOffset").floatValue = -0.1f;
-            pso.FindProperty("placeOnEnable").boolValue = true;
-            pso.FindProperty("billboard").boolValue = true;
-            pso.ApplyModifiedPropertiesWithoutUndo();
-
-            // B button (left controller) toggles screen visibility — readme controls.
-            screen.AddComponent<ScreenToggle>();
-
-            // Background card
+            rootRt.sizeDelta = new Vector2(width, height);
+            
             var bg = screen.AddComponent<Image>();
             bg.color = Bg;
-
-            BuildHeader(screen.transform);
-            var login = BuildLoginPage(screen.transform);
-            var console = BuildConsolePage(screen.transform);
-            var garage = BuildGaragePage(screen.transform);
-            var teleop = BuildTeleopPage(screen.transform);
-
-            console.SetActive(false);
-            garage.SetActive(false);
-            teleop.SetActive(false);
-
+            
             screen.tag = "Untagged";
-            screen.SetActive(true);
             return screen;
         }
+
+        private static (GameObject, GameObject, GameObject) BuildScreens()
+        {
+            var authScreen = BuildCanvas("OhhO Auth Garage Screen", 1600f, 1000f, new Vector3(0f, 1.4f, 1.6f));
+            BuildHeader(authScreen.transform);
+            var login = BuildLoginPage(authScreen.transform);
+            var console = BuildConsolePage(authScreen.transform);
+            var garage = BuildGaragePage(authScreen.transform);
+            console.SetActive(false);
+            garage.SetActive(false);
+
+            var teleopScreen = BuildCanvas("OhhO Teleop Screen", 920f, 920f, new Vector3(1.2f, 1.4f, 1.2f));
+            teleopScreen.transform.rotation = Quaternion.LookRotation(teleopScreen.transform.position - new Vector3(0, teleopScreen.transform.position.y, 0));
+            var teleop = BuildTeleopPage(teleopScreen.transform);
+            teleop.SetActive(false);
+
+            var cameraScreen = BuildCanvas("OhhO Camera Screen", 640f, 500f, new Vector3(-1.0f, 1.4f, 1.4f));
+            cameraScreen.transform.rotation = Quaternion.LookRotation(cameraScreen.transform.position - new Vector3(0, cameraScreen.transform.position.y, 0));
+            var cameraPage = BuildCameraPage(cameraScreen.transform);
+            cameraPage.SetActive(false);
+
+            return (authScreen, teleopScreen, cameraScreen);
+        }
+
+        private static GameObject BuildCameraPage(Transform parent)
+        {
+            var page = MakePage("Camera Page", parent);
+            
+            var camPanel = MakePanel("Camera Panel", page.transform, Color.black);
+            Place(camPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(600, 420), new Vector2(0, 40));
+            var feed = new GameObject("Camera Feed", typeof(RectTransform));
+            feed.transform.SetParent(camPanel.transform, false);
+            var feedRt = (RectTransform)feed.transform;
+            Stretch(feedRt, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
+            var raw = feed.AddComponent<RawImage>();
+            raw.color = new Color(0.02f, 0.03f, 0.06f, 1f); 
+
+            var camName = MakeText("Camera Name", page.transform, "camera", 20, TextMut, TextAlignmentOptions.Center);
+            Place(camName.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(600, 30), new Vector2(0, 270));
+            var cycle = MakeButton("Cycle Camera Button", page.transform, "Next Camera", 22, Surface2, TextMain);
+            Place(cycle.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(240, 52), new Vector2(0, -230));
+
+            var feedCtl = page.AddComponent<CameraFeedController>();
+            var fso = new SerializedObject(feedCtl);
+            fso.FindProperty("displayImage").objectReferenceValue = raw;
+            fso.FindProperty("cameraNameOverlay").objectReferenceValue = camName;
+            fso.ApplyModifiedPropertiesWithoutUndo();
+            return page;
+        }
+
 
         private static void BuildHeader(Transform parent)
         {
@@ -290,26 +330,31 @@ namespace OmniBot.VR.Editor
             var sub = MakeText("Subtitle", page.transform, "One account across web, Android and VR — your garage is already here.", 24, TextMut, TextAlignmentOptions.Center);
             Place(sub.rectTransform, new Vector2(0.5f, 1f), new Vector2(1100, 40), new Vector2(0, -140));
 
+            
+            var googleBtn = MakeButton("Google Button", page.transform, "Sign in with Google", 26, Color.white, Color.black);
+            Place(googleBtn.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(400, 64), new Vector2(0, -240));
+
             var email = MakeInputField("Email Input", page.transform, "you@example.com", 640, 64);
-            Place(email.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(640, 64), new Vector2(0, -260));
+            Place(email.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(640, 64), new Vector2(0, -380));
 
             var send = MakeButton("Send Code Button", page.transform, "Send Code", 26, Cyan, Color.black);
-            Place(send.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(320, 64), new Vector2(0, -360));
+            Place(send.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(320, 64), new Vector2(0, -600));
 
             var codeStep = new GameObject("Code Step", typeof(RectTransform));
             codeStep.transform.SetParent(page.transform, false);
             Stretch((RectTransform)codeStep.transform, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
 
             var code = MakeInputField("Code Input", codeStep.transform, "6-digit code", 640, 64);
-            Place(code.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(640, 64), new Vector2(0, -480));
+            Place(code.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(640, 64), new Vector2(0, -600));
             var verify = MakeButton("Verify Button", codeStep.transform, "Verify", 26, Cyan, Color.black);
-            Place(verify.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(320, 64), new Vector2(0, -580));
+            Place(verify.GetComponent<RectTransform>(), new Vector2(0.5f, 1f), new Vector2(320, 64), new Vector2(0, -700));
 
             var status = MakeText("Status Text", page.transform, "Sign in to OhhO", 24, TextMut, TextAlignmentOptions.Center);
             Place(status.rectTransform, new Vector2(0.5f, 0f), new Vector2(1200, 44), new Vector2(0, 60));
 
             var ctl = page.AddComponent<LoginPanelController>();
             var so = new SerializedObject(ctl);
+            so.FindProperty("googleSignInButton").objectReferenceValue = googleBtn;
             so.FindProperty("emailField").objectReferenceValue = email;
             so.FindProperty("sendCodeButton").objectReferenceValue = send;
             so.FindProperty("codeStep").objectReferenceValue = codeStep;
@@ -441,30 +486,6 @@ namespace OmniBot.VR.Editor
             var back = MakeButton("Back Button", left.transform, "< Garage", 24, Violet, TextMain);
             Place(back.GetComponent<RectTransform>(), new Vector2(0, 0), new Vector2(220, 56), new Vector2(20, 20));
 
-            // ── Center column: camera feed ──
-            var center = MakePanel("Center Column", page.transform, new Color(0, 0, 0, 0));
-            Place(center.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(600, 880), Vector2.zero);
-
-            var camPanel = MakePanel("Camera Panel", center.transform, Color.black);
-            Place(camPanel.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(600, 420), new Vector2(0, 40));
-            var feed = new GameObject("Camera Feed", typeof(RectTransform));
-            feed.transform.SetParent(camPanel.transform, false);
-            var feedRt = (RectTransform)feed.transform;
-            Stretch(feedRt, Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero);
-            var raw = feed.AddComponent<RawImage>();
-            raw.color = new Color(0.02f, 0.03f, 0.06f, 1f); // dark until the stream starts
-
-            var camName = MakeText("Camera Name", center.transform, "camera", 20, TextMut, TextAlignmentOptions.Center);
-            Place(camName.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(600, 30), new Vector2(0, 270));
-            var cycle = MakeButton("Cycle Camera Button", center.transform, "Next Camera", 22, Surface2, TextMain);
-            Place(cycle.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(240, 52), new Vector2(0, -230));
-
-            var feedCtl = center.AddComponent<CameraFeedController>();
-            var fso = new SerializedObject(feedCtl);
-            fso.FindProperty("displayImage").objectReferenceValue = raw;
-            fso.FindProperty("cameraNameOverlay").objectReferenceValue = camName;
-            fso.ApplyModifiedPropertiesWithoutUndo();
-
             // ── Right column: recording ──
             var right = MakePanel("Right Column", page.transform, new Color(0, 0, 0, 0));
             Place(right.GetComponent<RectTransform>(), new Vector2(1, 0.5f), new Vector2(400, 880), new Vector2(-20, 0));
@@ -508,8 +529,7 @@ namespace OmniBot.VR.Editor
             hso.FindProperty("velocityText").objectReferenceValue = vel;
             hso.FindProperty("armText").objectReferenceValue = arm;
             hso.FindProperty("modeText").objectReferenceValue = mode;
-            hso.FindProperty("cycleCameraButton").objectReferenceValue = cycle;
-            hso.FindProperty("cameraFeed").objectReferenceValue = feedCtl;
+
             hso.FindProperty("startRecordingButton").objectReferenceValue = startRec;
             hso.FindProperty("stopSaveButton").objectReferenceValue = stopSave;
             hso.FindProperty("discardButton").objectReferenceValue = discard;
@@ -527,21 +547,15 @@ namespace OmniBot.VR.Editor
         // ════════════════════════════════════════════════════════════════════
         // 6. Wire the app bootstrap
         // ════════════════════════════════════════════════════════════════════
-        private static void WireApp(GameObject screen)
+        private static void WireApp(GameObject authScreen, GameObject teleopScreen, GameObject cameraScreen)
         {
             var bootstrap = GameObject.Find("[OhhO VR App]");
-            if (bootstrap == null)
-            {
-                Debug.LogError("[OhhO] '[OhhO VR App]' bootstrap not found — cannot wire.");
-                return;
-            }
+            if (bootstrap == null) return;
 
-            // Services that must exist
             if (bootstrap.GetComponent<GestureDetector>() == null) bootstrap.AddComponent<GestureDetector>();
             if (bootstrap.GetComponent<ProfileDrivenRecorder>() == null) bootstrap.AddComponent<ProfileDrivenRecorder>();
             if (bootstrap.GetComponent<VRGraphicsBoost>() == null) bootstrap.AddComponent<VRGraphicsBoost>();
 
-            // Hand workspace origin (arm IK anchor — readme §6: 0.35 m above robot base)
             var workspace = GameObject.Find("HandWorkspaceOrigin");
             if (workspace == null)
             {
@@ -549,22 +563,35 @@ namespace OmniBot.VR.Editor
                 workspace.transform.position = new Vector3(0f, 1.0f, 0.5f);
             }
 
-            var login = screen.transform.Find("Login Page")?.gameObject;
-            var console = screen.transform.Find("Console Page")?.gameObject;
-            var garage = screen.transform.Find("Garage Page")?.gameObject;
-            var teleop = screen.transform.Find("Teleop Page")?.gameObject;
+            var login = authScreen.transform.Find("Login Page")?.gameObject;
+            var console = authScreen.transform.Find("Console Page")?.gameObject;
+            var garage = authScreen.transform.Find("Garage Page")?.gameObject;
+            
+            var teleop = teleopScreen.transform.Find("Teleop Page")?.gameObject;
+            var cameraPage = cameraScreen.transform.Find("Camera Page")?.gameObject;
 
             var app = bootstrap.GetComponent<OhhoVrApp>();
             var appSo = new SerializedObject(app);
+            
+            var loginCtl = login != null ? login.GetComponent<LoginPanelController>() : null;
+            if (loginCtl != null)
+            {
+                var lso = new SerializedObject(loginCtl);
+                lso.FindProperty("app").objectReferenceValue = app;
+                lso.ApplyModifiedPropertiesWithoutUndo();
+            }
+            
             appSo.FindProperty("loginPanel").objectReferenceValue = login;
             appSo.FindProperty("consolePanel").objectReferenceValue = console;
             appSo.FindProperty("garagePanel").objectReferenceValue = garage;
             appSo.FindProperty("teleopPanel").objectReferenceValue = teleop;
-            appSo.FindProperty("garagePanelController").objectReferenceValue =
-                garage != null ? garage.GetComponent<GaragePanelController>() : null;
+            
+            var camProp = appSo.FindProperty("cameraPanel");
+            if (camProp != null) camProp.objectReferenceValue = cameraPage;
+            
+            appSo.FindProperty("garagePanelController").objectReferenceValue = garage != null ? garage.GetComponent<GaragePanelController>() : null;
             appSo.ApplyModifiedPropertiesWithoutUndo();
 
-            // Console controller needs the app reference
             var consoleCtl = console != null ? console.GetComponent<ConsolePanelController>() : null;
             if (consoleCtl != null)
             {
@@ -573,22 +600,29 @@ namespace OmniBot.VR.Editor
                 cso.ApplyModifiedPropertiesWithoutUndo();
             }
 
-            // Website button in the header → ohho-robotics.com
-            var websiteBtn = screen.transform.Find("Header/WebsiteButton")?.GetComponent<Button>();
+            var websiteBtn = authScreen.transform.Find("Header/WebsiteButton")?.GetComponent<Button>();
             if (websiteBtn != null)
             {
                 websiteBtn.onClick.RemoveAllListeners();
                 websiteBtn.onClick.AddListener(app.OpenWebsite);
                 EditorUtility.SetDirty(websiteBtn);
             }
+            
+            var hud = teleop != null ? teleop.GetComponent<TeleopHudController>() : null;
+            if (hud != null && cameraPage != null)
+            {
+                var hso = new SerializedObject(hud);
+                hso.FindProperty("cameraFeed").objectReferenceValue = cameraPage.GetComponent<CameraFeedController>();
+                var cycleBtn = cameraPage.transform.Find("Cycle Camera Button")?.GetComponent<Button>();
+                if (cycleBtn != null) hso.FindProperty("cycleCameraButton").objectReferenceValue = cycleBtn;
+                hso.ApplyModifiedPropertiesWithoutUndo();
+            }
 
-            // TeleopController wiring
             var teleopCtl = bootstrap.GetComponent<TeleopController>();
             var tso = new SerializedObject(teleopCtl);
             tso.FindProperty("gestureDetector").objectReferenceValue = bootstrap.GetComponent<GestureDetector>();
             tso.FindProperty("handWorkspaceOrigin").objectReferenceValue = workspace.transform;
-            tso.FindProperty("cameraFeed").objectReferenceValue =
-                teleop != null ? teleop.GetComponentInChildren<CameraFeedController>(true) : null;
+            tso.FindProperty("cameraFeed").objectReferenceValue = cameraPage != null ? cameraPage.GetComponent<CameraFeedController>() : null;
             tso.FindProperty("recorder").objectReferenceValue = bootstrap.GetComponent<ProfileDrivenRecorder>();
             tso.ApplyModifiedPropertiesWithoutUndo();
 

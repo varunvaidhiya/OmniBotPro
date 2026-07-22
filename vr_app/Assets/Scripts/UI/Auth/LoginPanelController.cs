@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OmniBot.VR.Core;
 using OmniBot.VR.Core.Platform;
+using OmniBot.VR.App;
 
 namespace OmniBot.VR.UI.Auth
 {
@@ -18,6 +19,8 @@ namespace OmniBot.VR.UI.Auth
     {
         [Header("Email step")]
         [SerializeField] private TMP_InputField emailField;
+        [SerializeField] private Button googleSignInButton;
+        [SerializeField] private OhhoVrApp app;
         [SerializeField] private Button sendCodeButton;
 
         [Header("Code step (revealed after a code is sent)")]
@@ -36,13 +39,22 @@ namespace OmniBot.VR.UI.Auth
             SetStatus("Sign in to OhhO");
             ApplyAccent();
             if (sendCodeButton != null) sendCodeButton.onClick.AddListener(OnSendCode);
+            if (googleSignInButton != null) googleSignInButton.onClick.AddListener(OnGoogleSignIn);
             if (verifyButton != null) verifyButton.onClick.AddListener(OnVerify);
         }
 
         private void OnDisable()
         {
             if (sendCodeButton != null) sendCodeButton.onClick.RemoveListener(OnSendCode);
+            if (googleSignInButton != null) googleSignInButton.onClick.RemoveListener(OnGoogleSignIn);
             if (verifyButton != null) verifyButton.onClick.RemoveListener(OnVerify);
+        }
+
+        
+        private void OnGoogleSignIn()
+        {
+            SetBusy(true, "Simulating Google Login...");
+            if (app != null) app.ShowGarage();
         }
 
         private void OnSendCode()
