@@ -1,36 +1,68 @@
-# OhhO Bridge — Product Video Prompt
+# OhhO Bridge — Higgsfield Video Prompt
 
 - **Product:** OhhO Bridge — *Connect any robot. Even the ones that don't speak ROS.*
 - **Category:** Foundation · **Primary accent:** Violet `#7C3AED`
-- **Canonical:** 16:9 · 24 fps · ~8 s · one continuous shot · fixed seed
-- **What it does:** Protocol adapters that translate native robot protocols
-  (DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus)
-  into standard ROS 2 topics.
+- **Platform:** [Higgsfield.ai](https://higgsfield.ai) · storyboard / long-video mode · **6 shots × 15 s ≈ 90 s** · 16:9 · 1080p+
+- **Model pick:** Seedance 2.0 (default — 15 s shots, multi-shot continuity, native audio, unlimited-friendly) · Kling 3.0 (per-shot camera control) · Veo 3.1 (scene-extension chains)
+- **What it does:** Protocol adapters that translate native robot protocols (DDS, MAVLink, CANopen, OPC UA, PROFINET, EtherNet/IP, MQTT, VDA 5050, Modbus) into one unified stack.
 
-## Prompt — paste this whole block into any AI video tool
+## Full film — paste into Higgsfield storyboard mode (6 shots × 15 s ≈ 90 s)
+
+Each `SHOT` below is one 15-second generation. Keep the STYLE and ACCENT paragraphs
+at the top of **every** shot's prompt. In storyboard / long-video mode, let
+Higgsfield carry continuity between shots; when generating shots one at a time,
+feed each shot's **last frame** as the next shot's **first frame**.
 
 ```
-BRAND STYLE — OhhO (identical for every product, do not change):
-Cinematic 3-D motion-graphics product spot, premium dark-tech keynote aesthetic in the style of Apple, Vercel and Linear launch films. Environment: an infinite deep navy-black void (hex #0A0E1A) with a faint glowing cyan perspective grid receding into soft fog, fine floating dust particles, and gentle volumetric haze. Two large soft light orbs breathe slowly: a cyan orb (hex #00D4FF) in the upper left and a violet orb (hex #7C3AED) in the lower right. The centerpiece is a single floating frosted-glass console panel — rounded corners, a thin bright white top rim, a subtle accent-colored inner glow, true glassmorphism with backdrop blur — showing a clean, minimal, high-tech UI. Lighting is dark and moody with an accent-colored rim light, gentle bloom on every emissive element, and a shallow depth of field. Camera: one single continuous, slow, smooth, weighted move — a gentle push-in or a 15-degree orbit — with subtle parallax, no cuts and no shake. Mood: calm, confident, premium, futuristic, uncluttered. Color grade: cool, high-contrast neon accents on near-black, never oversaturated. Render quality: ultra-detailed photoreal 3-D (Octane / Redshift grade), 4K, 24 fps, 16:9. Leave clean empty negative space above the panel for a title.
-NEGATIVE: no people or faces (translucent stylized hands only where the prompt explicitly asks), no real-world office or stock footage, no company logos or watermarks, no garbled or gibberish text, no clutter, no fast cuts, no shaky handheld camera, no excessive lens flare, no cartoon or anime style, no warm or sunny tones, no oversaturation.
+STYLE — OhhO (identical for every film, do not change):
+Photorealistic live-action cinematography — a premium robotics brand film shot like an Apple product documentary. Real physical robots and real hardware in a modern robotics lab / light-industrial space: polished concrete floor, dark matte walls, aluminum-extrusion workbenches, neat cable runs, tool walls, server racks and large monitors. All light comes from practical sources inside the space: one cool white key light, cyan LED strip accents (hex #00D4FF) and deep violet ambient fill (hex #7C3AED), with thin atmospheric haze catching the beams. Cinema-camera look: full-frame sensor, 35mm and 50mm prime lenses, shallow depth of field, filmic highlight roll-off, subtle natural film grain. The camera moves only on a motorized slider, gimbal or jib — one slow deliberate move per shot, no shake. Materials must read as physically real: brushed aluminum, anodized black metal, rubber wheels, braided cables, glass screens with true reflections and fingerprint-level detail. Every monitor or tablet in frame shows only a soft, out-of-focus dark dashboard — never readable text. Mood: calm, confident, precise, quietly futuristic. Color grade: cool and high-contrast, near-black shadows with neon cyan and violet practicals, never oversaturated.
+NEGATIVE: no CGI look, no 3-D render or motion-graphics aesthetic, no floating holograms, no wireframes, no cartoon or anime, no recognizable human faces (hands, silhouettes and out-of-focus figures are allowed), no readable on-screen or printed text, no company logos or watermarks, no warm sunny tones, no oversaturation, no cuts inside a shot, no shaky handheld camera, no heavy lens flares.
 
-PRIMARY ACCENT for this film: violet (#7C3AED) — the console UI, rim light, product icon and dominant glow all use violet; cyan (#00D4FF) appears only as the smaller secondary orb in the upper left.
+PRIMARY ACCENT for this film: violet (hex #7C3AED) — the dominant practical lighting in every shot is violet (bench strips, status rings, screen spill); cyan (hex #00D4FF) appears only as a faint ambient fill deep in the background.
 
-SCENE — OhhO Bridge: Inside the glass console, three different robot silhouettes feed in from the left — a humanoid, a quadruped, a small drone — each emitting its own tangled, mismatched stream of protocol packets in different colors. The streams converge into a glowing violet "bridge" module at the panel center, pass through it, and emerge on the right side as clean, parallel, uniform ROS 2 topic lines labeled by simple icons. A small joint-index map grid lights up inside the bridge as it locks the mapping. A glowing violet line-art icon of a bridge with support pins hovers at the panel corner. The camera performs a gentle 15-degree orbit as the bridge locks and the unified output stabilizes.
+SHOT 1/6 — 15 s — Babel: A light-industrial floor in violet practicals: an industrial arm cell, an AMR, a drone on a shelf — visibly different makes and eras, all dark and disconnected. A slow slider move passes each machine in turn, haze in the beams.
 
-END FRAME: messy multi-protocol input on the left resolving into clean unified ROS 2 topic lines on the right through the glowing violet bridge, the violet accent glow pulses once, clean empty negative space held in the upper third for a title. 16:9, 24 fps, ~8 seconds, one continuous camera move, fixed seed.
+SHOT 2/6 — 15 s — The gateway: Macro. Hands mount a small black gateway box onto a DIN rail and plug in field cables one by one. Each port LED wakes in a different color — a mismatched scatter of blinking protocols.
+
+SHOT 3/6 — 15 s — Translation: Slow push-in on the gateway. The mismatched port LEDs drift into step and settle into one synchronized violet pulse — every protocol now speaking the same rhythm.
+
+SHOT 4/6 — 15 s — They answer: A tracking dolly down the line: the industrial arm's status beacon turns violet, then the AMR's ring, then the drone's — one machine after another joining the same pulse.
+
+SHOT 5/6 — 15 s — One rhythm: Wide. The arm places a tote precisely onto the AMR's deck; the AMR carries it away in a clean arc — two machines from different makers moving as one coordinated system, violet lights breathing in sync.
+
+SHOT 6/6 — 15 s — Hero: The mixed fleet idles in formation, every status light pulsing the same violet, the little gateway glowing at the center of the frame. A slow fifteen-degree orbit. Upper third clean dark negative space for a title. Hold.
 ```
 
-## Extended 16 s variant
-Add a beat that zooms slightly into the bridge to show one joint command mapping
-into LowCmd motor fields with default impedance gains. Same grade, same end frame.
+## Single-clip fallback — one 15 s generation
+
+For a quick single-clip version (or models capped below 15 s), paste the STYLE and
+ACCENT paragraphs above, then this condensed scene:
+
+```
+SCENE — OhhO Bridge (one continuous 15 s shot): On an industrial floor, hands mount a small gateway box whose scattered multi-colored port LEDs settle into one synchronized violet pulse — and one by one an industrial arm, an AMR and a drone from different makers join the same rhythm, the arm handing a tote to the AMR as a slow orbit ends on the synced fleet with clean negative space up top.
+```
+
+## Going longer (unlimited plan)
+
+- **15 s is the per-shot ceiling** on Higgsfield's top video models — length comes
+  from *sequencing shots*, not from one long generation. The 6-shot film above
+  is the baseline ≈90 s cut.
+- Every shot ends on a deliberate hold, so Higgsfield's **AI Video Extender** can
+  stretch any shot past 15 s (or loop the hero shot indefinitely) without a visible seam.
+- To add beats, duplicate a mid-film shot, change only the action sentence, and
+  chain it via last-frame → first-frame. The STYLE block keeps it in the family.
+- On Veo 3.1, use **scene extension** from the hero shot for arbitrarily long
+  ambient loops of the end frame.
 
 ## Text to add in post (don't let the model render it)
-- **Wordmark:** `OhhO` (first & last O cyan, middle `hh` white)
+
+- **Wordmark:** `OhhO` (first & last O cyan `#00D4FF`, middle `hh` white)
 - **Product name:** OhhO Bridge · **Tagline:** Connect any robot. Even the ones that don't speak ROS.
 - **CTA:** `Open bridge console →` · end on `The Open Robotics Platform`
 
 ## Platform cheat
-Attach the brand keyframe as first frame; 16:9; 8 s; seed `420024`. The
-"messy-in, clean-out" left-to-right flow is the hero — keep camera motion gentle.
-</content>
+
+Higgsfield → Create → Video → storyboard / long-video mode. Model: Seedance 2.0
+(or your plan's unlimited model). 16:9 · 1080p · 15 s per shot. Reuse the OhhO
+photoreal keyframe still as the first frame of SHOT 1; keep one fixed seed across
+all films where the model exposes it.
