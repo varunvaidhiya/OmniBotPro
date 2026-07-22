@@ -1,35 +1,68 @@
-# OhhO Train — Product Video Prompt
+# OhhO Train — Higgsfield Video Prompt
 
 - **Product:** OhhO Train — *Turn demonstrations into policies.*
 - **Category:** Intelligence · **Primary accent:** Cyan `#00D4FF`
-- **Canonical:** 16:9 · 24 fps · ~8 s · one continuous shot · fixed seed
-- **What it does:** The training engine — fine-tune VLA / imitation / RL policies
-  from OhhO Data or in sim, track every run, export to Serve + ONNX for Fleet.
+- **Platform:** [Higgsfield.ai](https://higgsfield.ai) · storyboard / long-video mode · **6 shots × 15 s ≈ 90 s** · 16:9 · 1080p+
+- **Model pick:** Seedance 2.0 (default — 15 s shots, multi-shot continuity, native audio, unlimited-friendly) · Kling 3.0 (per-shot camera control) · Veo 3.1 (scene-extension chains)
+- **What it does:** The training engine — fine-tune VLA / imitation / RL policies from OhhO Data or in sim, track every run, export to Serve + ONNX for Fleet.
 
-## Prompt — paste this whole block into any AI video tool
+## Full film — paste into Higgsfield storyboard mode (6 shots × 15 s ≈ 90 s)
+
+Each `SHOT` below is one 15-second generation. Keep the STYLE and ACCENT paragraphs
+at the top of **every** shot's prompt. In storyboard / long-video mode, let
+Higgsfield carry continuity between shots; when generating shots one at a time,
+feed each shot's **last frame** as the next shot's **first frame**.
 
 ```
-BRAND STYLE — OhhO (identical for every product, do not change):
-Cinematic 3-D motion-graphics product spot, premium dark-tech keynote aesthetic in the style of Apple, Vercel and Linear launch films. Environment: an infinite deep navy-black void (hex #0A0E1A) with a faint glowing cyan perspective grid receding into soft fog, fine floating dust particles, and gentle volumetric haze. Two large soft light orbs breathe slowly: a cyan orb (hex #00D4FF) in the upper left and a violet orb (hex #7C3AED) in the lower right. The centerpiece is a single floating frosted-glass console panel — rounded corners, a thin bright white top rim, a subtle accent-colored inner glow, true glassmorphism with backdrop blur — showing a clean, minimal, high-tech UI. Lighting is dark and moody with an accent-colored rim light, gentle bloom on every emissive element, and a shallow depth of field. Camera: one single continuous, slow, smooth, weighted move — a gentle push-in or a 15-degree orbit — with subtle parallax, no cuts and no shake. Mood: calm, confident, premium, futuristic, uncluttered. Color grade: cool, high-contrast neon accents on near-black, never oversaturated. Render quality: ultra-detailed photoreal 3-D (Octane / Redshift grade), 4K, 24 fps, 16:9. Leave clean empty negative space above the panel for a title.
-NEGATIVE: no people or faces (translucent stylized hands only where the prompt explicitly asks), no real-world office or stock footage, no company logos or watermarks, no garbled or gibberish text, no clutter, no fast cuts, no shaky handheld camera, no excessive lens flare, no cartoon or anime style, no warm or sunny tones, no oversaturation.
+STYLE — OhhO (identical for every film, do not change):
+Photorealistic live-action cinematography — a premium robotics brand film shot like an Apple product documentary. Real physical robots and real hardware in a modern robotics lab / light-industrial space: polished concrete floor, dark matte walls, aluminum-extrusion workbenches, neat cable runs, tool walls, server racks and large monitors. All light comes from practical sources inside the space: one cool white key light, cyan LED strip accents (hex #00D4FF) and deep violet ambient fill (hex #7C3AED), with thin atmospheric haze catching the beams. Cinema-camera look: full-frame sensor, 35mm and 50mm prime lenses, shallow depth of field, filmic highlight roll-off, subtle natural film grain. The camera moves only on a motorized slider, gimbal or jib — one slow deliberate move per shot, no shake. Materials must read as physically real: brushed aluminum, anodized black metal, rubber wheels, braided cables, glass screens with true reflections and fingerprint-level detail. Every monitor or tablet in frame shows only a soft, out-of-focus dark dashboard — never readable text. Mood: calm, confident, precise, quietly futuristic. Color grade: cool and high-contrast, near-black shadows with neon cyan and violet practicals, never oversaturated.
+NEGATIVE: no CGI look, no 3-D render or motion-graphics aesthetic, no floating holograms, no wireframes, no cartoon or anime, no recognizable human faces (hands, silhouettes and out-of-focus figures are allowed), no readable on-screen or printed text, no company logos or watermarks, no warm sunny tones, no oversaturation, no cuts inside a shot, no shaky handheld camera, no heavy lens flares.
 
-PRIMARY ACCENT for this film: cyan (#00D4FF) — the console UI, rim light, product icon and dominant glow all use cyan; violet (#7C3AED) appears only as the smaller secondary orb in the lower right.
+PRIMARY ACCENT for this film: cyan (hex #00D4FF) — the dominant practical lighting in every shot is cyan (bench strips, status rings, screen spill); violet (hex #7C3AED) appears only as a faint ambient fill deep in the background.
 
-SCENE — OhhO Train: Inside the glass console, a dark chart animates live — a cyan loss curve descends smoothly toward zero while a second success-rate curve climbs toward 100%, small data points plotting as they go. To the side, a stack of demonstration episodes feeds into a pulsing training core. When the curves converge, a glowing checkpoint node passes through a "VERIFIED" safety gate, and a bright "export → Serve" arrow lights, with a small "ONNX → Fleet" branch beside it. A glowing cyan line-art rising-trend-arrow icon hovers at the panel corner. The camera pushes slowly in as the curves settle and the checkpoint exports.
+SHOT 1/6 — 15 s — Ignition: A GPU workstation corner at night: fans spin up, intake glow brightens, cyan practicals rim the tower. A slow push-in as the machine leans into load, haze curling through the light.
 
-END FRAME: the converged loss-down / success-up curves and a verified checkpoint exporting along the glowing cyan arrow inside the glass console, the cyan accent glow pulses once, clean empty negative space held in the upper third for a title. 16:9, 24 fps, ~8 seconds, one continuous camera move, fixed seed.
+SHOT 2/6 — 15 s — Before: In the lab, static frame: the robot attempts a pick and fumbles it — misses the grasp, nudges the object, tries again clumsily. Honest, unglamorous, real.
+
+SHOT 3/6 — 15 s — The run: A defocused monitor traces a slowly descending curve; GPU LEDs pulse underneath. In the bokeh behind, a wall clock's hands sweep visibly fast — hours compressing inside one slow slider move.
+
+SHOT 4/6 — 15 s — After: Same table, same object, identical framing to the earlier attempt: the robot now executes the pick smoothly, first try — reach, grasp, lift, place. The difference is the whole story.
+
+SHOT 5/6 — 15 s — Export: Macro. Hands pull a small storage module from the workstation and click it into the robot's port. The robot's LED ripples cyan head-to-tail as the policy lands.
+
+SHOT 6/6 — 15 s — Hero: The robot repeats the perfected pick in a calm loop, the workstation glowing soft behind. A slow fifteen-degree orbit. Upper third clean dark negative space for a title. Hold.
 ```
 
-## Extended 16 s variant
-Add a beat where several faint W&B sweep runs fan out in parallel and the best
-run is highlighted in bright cyan before it converges. Same grade, same end frame.
+## Single-clip fallback — one 15 s generation
+
+For a quick single-clip version (or models capped below 15 s), paste the STYLE and
+ACCENT paragraphs above, then this condensed scene:
+
+```
+SCENE — OhhO Train (one continuous 15 s shot): A robot fumbles a pick; a GPU tower spins up through the night, a defocused loss curve falling as a clock's hands sweep fast in the bokeh; then — same table, same framing — the robot nails the pick first try, a hand clicks the trained module into its port, and a slow orbit holds on the perfected loop with clean space up top.
+```
+
+## Going longer (unlimited plan)
+
+- **15 s is the per-shot ceiling** on Higgsfield's top video models — length comes
+  from *sequencing shots*, not from one long generation. The 6-shot film above
+  is the baseline ≈90 s cut.
+- Every shot ends on a deliberate hold, so Higgsfield's **AI Video Extender** can
+  stretch any shot past 15 s (or loop the hero shot indefinitely) without a visible seam.
+- To add beats, duplicate a mid-film shot, change only the action sentence, and
+  chain it via last-frame → first-frame. The STYLE block keeps it in the family.
+- On Veo 3.1, use **scene extension** from the hero shot for arbitrarily long
+  ambient loops of the end frame.
 
 ## Text to add in post (don't let the model render it)
-- **Wordmark:** `OhhO` (first & last O cyan, middle `hh` white)
+
+- **Wordmark:** `OhhO` (first & last O cyan `#00D4FF`, middle `hh` white)
 - **Product name:** OhhO Train · **Tagline:** Turn demonstrations into policies.
 - **CTA:** `Open training console →` · end on `The Open Robotics Platform`
 
 ## Platform cheat
-Attach the brand keyframe as first frame; 16:9; 8 s; seed `420024`. Animated
-curves read well on Veo/Sora; on 5 s tools keep just the converge + export beat.
-</content>
+
+Higgsfield → Create → Video → storyboard / long-video mode. Model: Seedance 2.0
+(or your plan's unlimited model). 16:9 · 1080p · 15 s per shot. Reuse the OhhO
+photoreal keyframe still as the first frame of SHOT 1; keep one fixed seed across
+all films where the model exposes it.

@@ -1,36 +1,68 @@
-# OhhO Bench — Product Video Prompt
+# OhhO Bench — Higgsfield Video Prompt
 
 - **Product:** OhhO Bench — *From a box of parts to a robot that powers on.*
 - **Category:** Foundation · **Primary accent:** Cyan `#00D4FF`
-- **Canonical:** 16:9 · 24 fps · ~8 s · one continuous shot · fixed seed
-- **What it does:** Guided assembly, wiring, firmware flashing and hardware
-  self-tests that prove every motor, sensor and servo works.
+- **Platform:** [Higgsfield.ai](https://higgsfield.ai) · storyboard / long-video mode · **6 shots × 15 s ≈ 90 s** · 16:9 · 1080p+
+- **Model pick:** Seedance 2.0 (default — 15 s shots, multi-shot continuity, native audio, unlimited-friendly) · Kling 3.0 (per-shot camera control) · Veo 3.1 (scene-extension chains)
+- **What it does:** Guided assembly, wiring, firmware flashing and hardware self-tests that prove every motor, sensor and servo works.
 
-## Prompt — paste this whole block into any AI video tool
+## Full film — paste into Higgsfield storyboard mode (6 shots × 15 s ≈ 90 s)
+
+Each `SHOT` below is one 15-second generation. Keep the STYLE and ACCENT paragraphs
+at the top of **every** shot's prompt. In storyboard / long-video mode, let
+Higgsfield carry continuity between shots; when generating shots one at a time,
+feed each shot's **last frame** as the next shot's **first frame**.
 
 ```
-BRAND STYLE — OhhO (identical for every product, do not change):
-Cinematic 3-D motion-graphics product spot, premium dark-tech keynote aesthetic in the style of Apple, Vercel and Linear launch films. Environment: an infinite deep navy-black void (hex #0A0E1A) with a faint glowing cyan perspective grid receding into soft fog, fine floating dust particles, and gentle volumetric haze. Two large soft light orbs breathe slowly: a cyan orb (hex #00D4FF) in the upper left and a violet orb (hex #7C3AED) in the lower right. The centerpiece is a single floating frosted-glass console panel — rounded corners, a thin bright white top rim, a subtle accent-colored inner glow, true glassmorphism with backdrop blur — showing a clean, minimal, high-tech UI. Lighting is dark and moody with an accent-colored rim light, gentle bloom on every emissive element, and a shallow depth of field. Camera: one single continuous, slow, smooth, weighted move — a gentle push-in or a 15-degree orbit — with subtle parallax, no cuts and no shake. Mood: calm, confident, premium, futuristic, uncluttered. Color grade: cool, high-contrast neon accents on near-black, never oversaturated. Render quality: ultra-detailed photoreal 3-D (Octane / Redshift grade), 4K, 24 fps, 16:9. Leave clean empty negative space above the panel for a title.
-NEGATIVE: no people or faces (translucent stylized hands only where the prompt explicitly asks), no real-world office or stock footage, no company logos or watermarks, no garbled or gibberish text, no clutter, no fast cuts, no shaky handheld camera, no excessive lens flare, no cartoon or anime style, no warm or sunny tones, no oversaturation.
+STYLE — OhhO (identical for every film, do not change):
+Photorealistic live-action cinematography — a premium robotics brand film shot like an Apple product documentary. Real physical robots and real hardware in a modern robotics lab / light-industrial space: polished concrete floor, dark matte walls, aluminum-extrusion workbenches, neat cable runs, tool walls, server racks and large monitors. All light comes from practical sources inside the space: one cool white key light, cyan LED strip accents (hex #00D4FF) and deep violet ambient fill (hex #7C3AED), with thin atmospheric haze catching the beams. Cinema-camera look: full-frame sensor, 35mm and 50mm prime lenses, shallow depth of field, filmic highlight roll-off, subtle natural film grain. The camera moves only on a motorized slider, gimbal or jib — one slow deliberate move per shot, no shake. Materials must read as physically real: brushed aluminum, anodized black metal, rubber wheels, braided cables, glass screens with true reflections and fingerprint-level detail. Every monitor or tablet in frame shows only a soft, out-of-focus dark dashboard — never readable text. Mood: calm, confident, precise, quietly futuristic. Color grade: cool and high-contrast, near-black shadows with neon cyan and violet practicals, never oversaturated.
+NEGATIVE: no CGI look, no 3-D render or motion-graphics aesthetic, no floating holograms, no wireframes, no cartoon or anime, no recognizable human faces (hands, silhouettes and out-of-focus figures are allowed), no readable on-screen or printed text, no company logos or watermarks, no warm sunny tones, no oversaturation, no cuts inside a shot, no shaky handheld camera, no heavy lens flares.
 
-PRIMARY ACCENT for this film: cyan (#00D4FF) — the console UI, rim light, product icon and dominant glow all use cyan; violet (#7C3AED) appears only as the smaller secondary orb in the lower right.
+PRIMARY ACCENT for this film: cyan (hex #00D4FF) — the dominant practical lighting in every shot is cyan (bench strips, status rings, screen spill); violet (hex #7C3AED) appears only as a faint ambient fill deep in the background.
 
-SCENE — OhhO Bench: Inside the glass console, a clean wiring / harness diagram of a robot lights up trace by trace — motor board, arm bus, cameras and compute connecting in glowing cyan lines. Below it, a row of subsystem status tiles labeled by icon (motors, encoders, IMU, arm servos, cameras) flips one by one from dim grey to a bright cyan "OK", each flip emitting a soft pulse. A slim firmware-flash progress bar fills left to right and clicks to 100%. A glowing cyan line-art wrench icon hovers at the panel corner. The camera pushes slowly in as the final subsystem tile turns green and the whole board reads healthy.
+SHOT 1/6 — 15 s — The box: A workbench under cyan strip light: an opened cardboard box, wiring harnesses laid flat and labeled, a motor board on an antistatic mat, tools racked in order. A slow slider move surveys the spread, haze in the key light.
 
-END FRAME: every subsystem tile glowing cyan "OK" and the wiring diagram fully lit inside the glass console, the cyan accent glow pulses once, clean empty negative space held in the upper third for a title. 16:9, 24 fps, ~8 seconds, one continuous camera move, fixed seed.
+SHOT 2/6 — 15 s — Wiring: Top-down crane shot, macro. Hands route a harness across the chassis; connectors click into the motor board one by one, zip ties are cinched and trimmed flush. Each seated connector catches a glint of cyan.
+
+SHOT 3/6 — 15 s — Flash and first power: A USB cable clicks in; a laptop beside shows a soft defocused progress bar crawling. The board's LED flickers, then goes solid. A tiny status light double-blinks — first sign of life. Slow push-in on the board.
+
+SHOT 4/6 — 15 s — Self-test, motion: The robot sits on a bench jig, wheels off the ground. Each mecanum wheel spins up in turn with a clean whir; then the six-axis arm sweeps slowly through every joint, one after another. A gimbal arcs around the jig.
+
+SHOT 5/6 — 15 s — Self-test, senses: Macro. The bench jig is tilted gently by hand and the robot's status light holds steady — the IMU tracking true. A row of physical status LEDs along the board flips from amber to cyan one by one, each flip a soft pulse.
+
+SHOT 6/6 — 15 s — Hero: The robot rests on its jig, every status LED steady cyan, a defocused all-green dashboard glowing behind it. A slow fifteen-degree orbit; the LEDs breathe once. Upper third clean dark negative space for a title. Hold.
 ```
 
-## Extended 16 s variant
-Add a calibration beat: a small wheel spins and an odometry dial centers, an IMU
-bubble levels, an arm sweeps through its joints — each writing a green check.
-Same grade, same end frame.
+## Single-clip fallback — one 15 s generation
+
+For a quick single-clip version (or models capped below 15 s), paste the STYLE and
+ACCENT paragraphs above, then this condensed scene:
+
+```
+SCENE — OhhO Bench (one continuous 15 s shot): Hands wire a real robot on a bench — connectors clicking into the motor board, firmware flashing on a defocused laptop, wheels spin-testing on a jig, the arm sweeping its joints — until a row of physical status LEDs flips amber-to-cyan one by one and a slow orbit holds on the healthy machine with clean negative space up top.
+```
+
+## Going longer (unlimited plan)
+
+- **15 s is the per-shot ceiling** on Higgsfield's top video models — length comes
+  from *sequencing shots*, not from one long generation. The 6-shot film above
+  is the baseline ≈90 s cut.
+- Every shot ends on a deliberate hold, so Higgsfield's **AI Video Extender** can
+  stretch any shot past 15 s (or loop the hero shot indefinitely) without a visible seam.
+- To add beats, duplicate a mid-film shot, change only the action sentence, and
+  chain it via last-frame → first-frame. The STYLE block keeps it in the family.
+- On Veo 3.1, use **scene extension** from the hero shot for arbitrarily long
+  ambient loops of the end frame.
 
 ## Text to add in post (don't let the model render it)
-- **Wordmark:** `OhhO` (first & last O cyan, middle `hh` white)
+
+- **Wordmark:** `OhhO` (first & last O cyan `#00D4FF`, middle `hh` white)
 - **Product name:** OhhO Bench · **Tagline:** From a box of parts to a robot that powers on.
 - **CTA:** `Open bring-up console →` · end on `The Open Robotics Platform`
 
 ## Platform cheat
-Attach the brand keyframe as first frame; 16:9; 8 s; seed `420024`. Push-in suits
-the "tiles turning green" reveal better than the orbit.
-</content>
+
+Higgsfield → Create → Video → storyboard / long-video mode. Model: Seedance 2.0
+(or your plan's unlimited model). 16:9 · 1080p · 15 s per shot. Reuse the OhhO
+photoreal keyframe still as the first frame of SHOT 1; keep one fixed seed across
+all films where the model exposes it.

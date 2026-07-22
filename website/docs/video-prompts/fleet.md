@@ -1,35 +1,68 @@
-# OhhO Fleet — Product Video Prompt
+# OhhO Fleet — Higgsfield Video Prompt
 
 - **Product:** OhhO Fleet — *Update 50 robots like you update an app.*
 - **Category:** Operations · **Primary accent:** Cyan `#00D4FF`
-- **Canonical:** 16:9 · 24 fps · ~8 s · one continuous shot · fixed seed
-- **What it does:** Fleet management, signed over-the-air updates and a full
-  observability stack — Prometheus, Grafana, alerting, staged/canary rollouts.
+- **Platform:** [Higgsfield.ai](https://higgsfield.ai) · storyboard / long-video mode · **6 shots × 15 s ≈ 90 s** · 16:9 · 1080p+
+- **Model pick:** Seedance 2.0 (default — 15 s shots, multi-shot continuity, native audio, unlimited-friendly) · Kling 3.0 (per-shot camera control) · Veo 3.1 (scene-extension chains)
+- **What it does:** Fleet management, signed over-the-air updates and a full observability stack — Prometheus, Grafana, alerting, staged/canary rollouts.
 
-## Prompt — paste this whole block into any AI video tool
+## Full film — paste into Higgsfield storyboard mode (6 shots × 15 s ≈ 90 s)
+
+Each `SHOT` below is one 15-second generation. Keep the STYLE and ACCENT paragraphs
+at the top of **every** shot's prompt. In storyboard / long-video mode, let
+Higgsfield carry continuity between shots; when generating shots one at a time,
+feed each shot's **last frame** as the next shot's **first frame**.
 
 ```
-BRAND STYLE — OhhO (identical for every product, do not change):
-Cinematic 3-D motion-graphics product spot, premium dark-tech keynote aesthetic in the style of Apple, Vercel and Linear launch films. Environment: an infinite deep navy-black void (hex #0A0E1A) with a faint glowing cyan perspective grid receding into soft fog, fine floating dust particles, and gentle volumetric haze. Two large soft light orbs breathe slowly: a cyan orb (hex #00D4FF) in the upper left and a violet orb (hex #7C3AED) in the lower right. The centerpiece is a single floating frosted-glass console panel — rounded corners, a thin bright white top rim, a subtle accent-colored inner glow, true glassmorphism with backdrop blur — showing a clean, minimal, high-tech UI. Lighting is dark and moody with an accent-colored rim light, gentle bloom on every emissive element, and a shallow depth of field. Camera: one single continuous, slow, smooth, weighted move — a gentle push-in or a 15-degree orbit — with subtle parallax, no cuts and no shake. Mood: calm, confident, premium, futuristic, uncluttered. Color grade: cool, high-contrast neon accents on near-black, never oversaturated. Render quality: ultra-detailed photoreal 3-D (Octane / Redshift grade), 4K, 24 fps, 16:9. Leave clean empty negative space above the panel for a title.
-NEGATIVE: no people or faces (translucent stylized hands only where the prompt explicitly asks), no real-world office or stock footage, no company logos or watermarks, no garbled or gibberish text, no clutter, no fast cuts, no shaky handheld camera, no excessive lens flare, no cartoon or anime style, no warm or sunny tones, no oversaturation.
+STYLE — OhhO (identical for every film, do not change):
+Photorealistic live-action cinematography — a premium robotics brand film shot like an Apple product documentary. Real physical robots and real hardware in a modern robotics lab / light-industrial space: polished concrete floor, dark matte walls, aluminum-extrusion workbenches, neat cable runs, tool walls, server racks and large monitors. All light comes from practical sources inside the space: one cool white key light, cyan LED strip accents (hex #00D4FF) and deep violet ambient fill (hex #7C3AED), with thin atmospheric haze catching the beams. Cinema-camera look: full-frame sensor, 35mm and 50mm prime lenses, shallow depth of field, filmic highlight roll-off, subtle natural film grain. The camera moves only on a motorized slider, gimbal or jib — one slow deliberate move per shot, no shake. Materials must read as physically real: brushed aluminum, anodized black metal, rubber wheels, braided cables, glass screens with true reflections and fingerprint-level detail. Every monitor or tablet in frame shows only a soft, out-of-focus dark dashboard — never readable text. Mood: calm, confident, precise, quietly futuristic. Color grade: cool and high-contrast, near-black shadows with neon cyan and violet practicals, never oversaturated.
+NEGATIVE: no CGI look, no 3-D render or motion-graphics aesthetic, no floating holograms, no wireframes, no cartoon or anime, no recognizable human faces (hands, silhouettes and out-of-focus figures are allowed), no readable on-screen or printed text, no company logos or watermarks, no warm sunny tones, no oversaturation, no cuts inside a shot, no shaky handheld camera, no heavy lens flares.
 
-PRIMARY ACCENT for this film: cyan (#00D4FF) — the console UI, rim light, product icon and dominant glow all use cyan; violet (#7C3AED) appears only as the smaller secondary orb in the lower right.
+PRIMARY ACCENT for this film: cyan (hex #00D4FF) — the dominant practical lighting in every shot is cyan (bench strips, status rings, screen spill); violet (hex #7C3AED) appears only as a faint ambient fill deep in the background.
 
-SCENE — OhhO Fleet: Inside the glass console, a dark map / grid is dotted with dozens of small robot markers, most glowing a healthy cyan, a couple amber. A signed "OTA v2" update bundle appears and a bright cyan rollout wave ripples outward across a canary subset first, version numbers ticking up marker by marker as the wave spreads to the whole fleet. Along the panel edge, compact Grafana-style metric tiles (uptime, latency, battery) pulse, and one alert chip resolves from amber back to cyan. A glowing cyan line-art grid-of-units icon hovers at the panel corner. The camera pushes slowly in as the rollout wave completes and the whole fleet reads healthy.
+SHOT 1/6 — 15 s — The fleet: A high wide shot of a warehouse floor: dozens of identical mobile robots parked in perfect rows, dim, rings dark. A slow jib descends toward the grid, haze layering the depth.
 
-END FRAME: the full map of robot markers glowing healthy cyan after the rollout wave, metric tiles steady inside the glass console, the cyan accent glow pulses once, clean empty negative space held in the upper third for a title. 16:9, 24 fps, ~8 seconds, one continuous camera move, fixed seed.
+SHOT 2/6 — 15 s — Canary: Elevated static. Exactly three robots' rings ripple awake in cyan — the canary group — then a held beat of stillness while the rest of the fleet waits in the dark.
+
+SHOT 3/6 — 15 s — The wave: The update wave releases: row by row, ring after ring ripples from dark through amber to steady cyan, a light-wave sweeping the floor. The camera pans slowly with the wavefront.
+
+SHOT 4/6 — 15 s — The straggler: Tracking down one row: a single unit blinks amber, out of step. The wave re-touches it; its ring settles into cyan with the others. No drama — just recovery.
+
+SHOT 5/6 — 15 s — In motion: Overhead top-down: the fleet flows — lanes of robots weaving around each other in clean interleaved arcs, every ring cyan, a choreography of dozens.
+
+SHOT 6/6 — 15 s — Hero: The full fleet parked back in formation, every ring glowing steady cyan in the haze. A slow rising jib pulls up and away. Upper third clean dark negative space for a title. Hold.
 ```
 
-## Extended 16 s variant
-Add a beat where one marker goes offline (red), an alert pages, and a canary
-rollback ripples to recover it to cyan — "staged / canary." Same grade, same end.
+## Single-clip fallback — one 15 s generation
+
+For a quick single-clip version (or models capped below 15 s), paste the STYLE and
+ACCENT paragraphs above, then this condensed scene:
+
+```
+SCENE — OhhO Fleet (one continuous 15 s shot): Over a warehouse grid of dozens of parked robots, three canary rings ripple cyan first — then the update wave sweeps row by row through amber to cyan, one straggler blinking before it settles — the fleet flows in interleaved lanes and a rising jib ends on the full formation glowing steady with clean space up top.
+```
+
+## Going longer (unlimited plan)
+
+- **15 s is the per-shot ceiling** on Higgsfield's top video models — length comes
+  from *sequencing shots*, not from one long generation. The 6-shot film above
+  is the baseline ≈90 s cut.
+- Every shot ends on a deliberate hold, so Higgsfield's **AI Video Extender** can
+  stretch any shot past 15 s (or loop the hero shot indefinitely) without a visible seam.
+- To add beats, duplicate a mid-film shot, change only the action sentence, and
+  chain it via last-frame → first-frame. The STYLE block keeps it in the family.
+- On Veo 3.1, use **scene extension** from the hero shot for arbitrarily long
+  ambient loops of the end frame.
 
 ## Text to add in post (don't let the model render it)
-- **Wordmark:** `OhhO` (first & last O cyan, middle `hh` white)
+
+- **Wordmark:** `OhhO` (first & last O cyan `#00D4FF`, middle `hh` white)
 - **Product name:** OhhO Fleet · **Tagline:** Update 50 robots like you update an app.
 - **CTA:** `Open mission control →` · end on `The Open Robotics Platform`
 
 ## Platform cheat
-Attach the brand keyframe as first frame; 16:9; 8 s; seed `420024`. The cyan
-rollout wave sweeping across markers is the hero motion.
-</content>
+
+Higgsfield → Create → Video → storyboard / long-video mode. Model: Seedance 2.0
+(or your plan's unlimited model). 16:9 · 1080p · 15 s per shot. Reuse the OhhO
+photoreal keyframe still as the first frame of SHOT 1; keep one fixed seed across
+all films where the model exposes it.
