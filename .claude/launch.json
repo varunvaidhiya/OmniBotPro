@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "website",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "website", "run", "dev"],
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd website && npm run dev"],
       "port": 3000,
       "autoPort": true
     },
