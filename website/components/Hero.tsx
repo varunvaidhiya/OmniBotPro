@@ -90,7 +90,9 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.35 }}
             className="font-display text-[clamp(15px,2.2vw,20px)] font-normal leading-[1.55] max-w-[640px] mx-auto mb-4 legible"
-            style={{ color: "rgba(255,255,255,0.72)" }}
+            // 0.84 rather than 0.72: measured against every plate in the
+            // background reel, this is what holds the value prop above WCAG AA.
+            style={{ color: "rgba(255,255,255,0.84)" }}
           >
             {copy.valueProp}
           </motion.p>
@@ -99,8 +101,11 @@ export default function Hero() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.42 }}
-            className="flex items-center justify-center gap-x-4 gap-y-1.5 flex-wrap mb-6 font-mono text-[11px] tracking-[0.04em]"
-            style={{ color: "rgba(255,255,255,0.45)" }}
+            className="flex items-center justify-center gap-x-4 gap-y-1.5 flex-wrap mb-6 font-mono text-[11px] tracking-[0.04em] legible"
+            // 0.64 rather than 0.45 — at 11px this line was the least legible
+            // thing over the reel; this clears AA without flattening the
+            // hierarchy against the value prop above it.
+            style={{ color: "rgba(255,255,255,0.64)" }}
           >
             {HERO_TRUST.map((item, i) => (
               <span key={item} className="inline-flex items-center gap-x-4">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AuthRedirectHandler from "@/components/auth/AuthRedirectHandler";
+import SiteBackground from "@/components/background/SiteBackground";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { RobotConnectionProvider } from "@/lib/connect/RobotConnectionProvider";
 import ConnectionBar from "@/components/connect/ConnectionBar";
@@ -74,6 +75,8 @@ export default function RootLayout({
         )}
       </head>
       <body>
+        {/* fixed cinematic reel behind every page — sits below .content-layer */}
+        <SiteBackground />
         <AuthProvider>
           <RobotConnectionProvider>
             <AuthRedirectHandler />

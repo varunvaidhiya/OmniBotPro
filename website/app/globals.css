@@ -34,6 +34,186 @@ body {
 a { text-decoration: none; color: inherit; }
 ul { list-style: none; }
 
+/* ══ SITE VIDEO BACKGROUND ══════════════════════════════════════════════
+   A fixed, full-viewport cinematic reel behind every page, driven by
+   components/background/SiteBackground.
+
+   The stack, bottom to top:
+     .site-bg          base colour, so there is never a flash of nothing
+     .site-bg-reel     the footage — graded, dimmed, softened, cross-fading
+     .site-bg-grade    brand wash that makes seven different plates one palette
+     .site-bg-scrim    darkening exactly where copy sits (nav band, bottom)
+     .site-bg-vignette edge falloff, keeps attention centre-frame
+     .site-bg-grain    dither — kills gradient banding on a near-black page
+     .site-bg-grid     the site's existing cyan grid motif, tying it together
+
+   Intensity is four custom properties, set per route by SiteBackground.
+   ───────────────────────────────────────────────────────────────────────── */
+.site-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg);
+  /* fallbacks — SiteBackground overrides these per route */
+  --bg-video-opacity: 0.92;
+  --bg-brightness: 0.5;
+  --bg-scrim: 0.6;
+  --bg-blur: 1.5px;
+  --bg-crossfade: 2.2s;
+}
+
+.site-bg-reel {
+  position: absolute;
+  inset: 0;
+  opacity: var(--bg-video-opacity);
+  /* brightness() caps the highlights while leaving the blacks black; blur()
+     pushes the plate into the background plane so text reads as a layer above
+     it rather than sitting in it. */
+  filter: saturate(1.25) contrast(1.04) brightness(var(--bg-brightness))
+    blur(var(--bg-blur));
+  /* Short, because the scroll effect rewrites these every frame — the
+     transition acts as smoothing there, and as a real fade on route changes. */
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.site-bg-still,
+.site-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+  /* the blur softens the frame edge; scaling up hides it */
+  transform: scale(1.08);
+  will-change: opacity;
+}
+.site-bg-video {
+  transition: opacity var(--bg-crossfade) ease-in-out;
+}
+.site-bg-still {
+  transition: opacity 1.1s ease;
+}
+
+/* One grade over every plate: cyan from the top-left, violet from the
+   bottom-right. soft-light keeps luminance intact and only nudges the hue, so
+   clips shot under different lighting still read as one continuous film. */
+.site-bg-grade {
+  position: absolute;
+  inset: 0;
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+  background:
+    radial-gradient(ellipse 72% 62% at 10% 6%, rgba(0, 212, 255, 0.55), transparent 62%),
+    radial-gradient(ellipse 68% 62% at 90% 94%, rgba(124, 58, 237, 0.55), transparent 62%);
+}
+
+/* The legibility scrim. Heaviest at the very top — the nav is transparent until
+   scrolled — and along the bottom, with a light wash through the middle so
+   long-form sections stay comfortable to read. */
+.site-bg-scrim {
+  position: absolute;
+  inset: 0;
+  opacity: var(--bg-scrim);
+  /* Stops tuned against measured contrast over all seven plates: the mid-band
+     values are what hold body copy above WCAG AA while the footage stays
+     visible. Don't lighten them without re-measuring. */
+  background: linear-gradient(
+    180deg,
+    rgba(10, 14, 26, 0.97) 0%,
+    rgba(10, 14, 26, 0.78) 8%,
+    rgba(10, 14, 26, 0.46) 24%,
+    rgba(10, 14, 26, 0.42) 60%,
+    rgba(10, 14, 26, 0.72) 86%,
+    rgba(10, 14, 26, 0.92) 100%
+  );
+}
+
+.site-bg-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 68% at 50% 42%,
+    transparent 30%,
+    rgba(4, 7, 14, 0.5) 76%,
+    rgba(4, 7, 14, 0.84) 100%
+  );
+}
+
+/* Static film grain. Dark flat colour fields band badly on 8-bit displays;
+   a little noise dithers that away and reads as texture rather than artefact. */
+.site-bg-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* The site's existing grid motif, drifting a full order of magnitude slower
+   than the hero's so it registers as depth rather than movement. */
+.site-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.035) 1px, transparent 1px);
+  background-size: 68px 68px;
+  animation: grid-drift 90s linear infinite;
+  -webkit-mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
+  mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
+}
+
+/* ── BACKGROUND MOTION TOGGLE ───────────────────────────────────
+   Bottom-left; the assistant launcher owns bottom-right. Rests quiet, comes
+   forward on hover or keyboard focus. */
+.bg-motion-toggle {
+  position: fixed;
+  left: 16px;
+  bottom: 18px;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 11px 6px 9px;
+  border-radius: 999px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(10, 14, 26, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0.34;
+  cursor: pointer;
+  transition: opacity 0.25s ease, color 0.25s ease, border-color 0.25s ease,
+    background 0.25s ease;
+}
+.bg-motion-toggle:hover,
+.bg-motion-toggle:focus-visible {
+  opacity: 1;
+  color: var(--cyan);
+  border-color: rgba(0, 212, 255, 0.34);
+  background: rgba(10, 14, 26, 0.85);
+}
+.bg-motion-toggle:focus-visible {
+  outline: 2px solid rgba(0, 212, 255, 0.5);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  /* icon only — the label would crowd the viewport on a phone */
+  .bg-motion-toggle span { display: none; }
+  .bg-motion-toggle { padding: 7px; gap: 0; left: 12px; bottom: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-bg-grid { animation: none; }
+  .site-bg-video, .site-bg-still, .site-bg-reel { transition: none; }
+}
+
 /* ── HERO GRID ─────────────────────────────────────────────────── */
 .hero-grid {
   position: absolute; inset: 0;
@@ -105,19 +285,23 @@ ul { list-style: none; }
   50%      { transform: translateX(-50%) translateY(7px); opacity: 1; }
 }
 
-/* ── HERO 3D LEGIBILITY GRADIENTS ──────────────────────────────── */
+/* ── HERO LEGIBILITY GRADIENTS ─────────────────────────────────────
+   These sit between the background reel and the hero copy. The bottom band is
+   the important one: the value prop, the trust line and the CTAs all live
+   there, and measured against the reel it is where contrast is tightest.
+   Strengthening it locally keeps the footage vivid mid-frame — where there is
+   no text — instead of flattening the whole reel to protect one band. */
 .hero-fade-top {
-  position: absolute; top: 0; left: 0; right: 0; height: 34%;
+  position: absolute; top: 0; left: 0; right: 0; height: 36%;
   z-index: 6; pointer-events: none;
   background: linear-gradient(to bottom,
-    rgba(10,14,26,.80) 0%, rgba(10,14,26,.30) 48%, transparent 100%);
+    rgba(10,14,26,.88) 0%, rgba(10,14,26,.38) 48%, transparent 100%);
 }
-/* kept gentle so the robot flows continuously into the sections below */
 .hero-fade-bottom {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 30%;
+  position: absolute; bottom: 0; left: 0; right: 0; height: 44%;
   z-index: 6; pointer-events: none;
   background: linear-gradient(to top,
-    rgba(10,14,26,.50) 0%, rgba(10,14,26,.16) 45%, transparent 100%);
+    rgba(10,14,26,.86) 0%, rgba(10,14,26,.42) 45%, transparent 100%);
 }
 
 /* ── HERO CONTROL-HINT KEYCAPS ─────────────────────────────────── */
