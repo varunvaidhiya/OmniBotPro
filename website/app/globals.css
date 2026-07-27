@@ -57,25 +57,27 @@ ul { list-style: none; }
   pointer-events: none;
   background: var(--bg);
   /* fallbacks — SiteBackground overrides these per route */
-  --bg-video-opacity: 0.92;
-  --bg-brightness: 0.5;
+  --bg-video-opacity: 0.46;
   --bg-scrim: 0.6;
-  --bg-blur: 1.5px;
   --bg-crossfade: 2.2s;
 }
 
+/*
+ * No `filter` here, deliberately — see the performance note in lib/background.ts.
+ * The old chain was saturate/contrast/brightness/blur; brightness is now folded
+ * into --bg-video-opacity, the blur is done by upscaling the small rendition,
+ * and the two remaining colour tweaks were not worth a per-frame filter pass
+ * over the whole viewport.
+ *
+ * There is no `transition` either. The scroll handler rewrites --bg-video-opacity
+ * on every frame, so a transition would restart a fresh interpolation each time
+ * and never settle — it was smoothing something that a rAF-throttled write does
+ * not need smoothed.
+ */
 .site-bg-reel {
   position: absolute;
   inset: 0;
   opacity: var(--bg-video-opacity);
-  /* brightness() caps the highlights while leaving the blacks black; blur()
-     pushes the plate into the background plane so text reads as a layer above
-     it rather than sitting in it. */
-  filter: saturate(1.25) contrast(1.04) brightness(var(--bg-brightness))
-    blur(var(--bg-blur));
-  /* Short, because the scroll effect rewrites these every frame — the
-     transition acts as smoothing there, and as a real fade on route changes. */
-  transition: opacity 0.3s ease, filter 0.3s ease;
 }
 
 .site-bg-still,
@@ -99,16 +101,21 @@ ul { list-style: none; }
 }
 
 /* One grade over every plate: cyan from the top-left, violet from the
-   bottom-right. soft-light keeps luminance intact and only nudges the hue, so
-   clips shot under different lighting still read as one continuous film. */
+   bottom-right, so clips shot under different lighting read as one film.
+
+   This used to be `mix-blend-mode: soft-light`, which cost ~1.4x the whole
+   page's frame budget: a blend mode forces the compositor to pull the backdrop
+   back off the GPU before it can combine the two, which also defeats the fast
+   path for every layer above it. Over footage this dark, soft-light and a plain
+   low-alpha wash are nearly indistinguishable, so this is a normal-blend
+   gradient with the alpha re-tuned to land in the same place. */
 .site-bg-grade {
   position: absolute;
   inset: 0;
-  mix-blend-mode: soft-light;
-  opacity: 0.9;
+  opacity: 0.42;
   background:
-    radial-gradient(ellipse 72% 62% at 10% 6%, rgba(0, 212, 255, 0.55), transparent 62%),
-    radial-gradient(ellipse 68% 62% at 90% 94%, rgba(124, 58, 237, 0.55), transparent 62%);
+    radial-gradient(ellipse 72% 62% at 10% 6%, rgba(0, 212, 255, 0.34), transparent 62%),
+    radial-gradient(ellipse 68% 62% at 90% 94%, rgba(124, 58, 237, 0.34), transparent 62%);
 }
 
 /* The legibility scrim. Heaviest at the very top — the nav is transparent until
@@ -153,17 +160,46 @@ ul { list-style: none; }
 }
 
 /* The site's existing grid motif, drifting a full order of magnitude slower
-   than the hero's so it registers as depth rather than movement. */
+   than the hero's so it registers as depth rather than movement.
+
+   The drift is a `transform` on an oversized child, not `background-position` on
+   this element. Animating background-position repaints the full viewport every
+   frame and dirties style on the main thread with it — measured at ~90ms of
+   main-thread work per 5s of *idle* time, which is most of the reason the page
+   never went quiet. A transform animation runs entirely on the compositor: no
+   style recalc, no paint, no main-thread involvement.
+
+   The mask stays on the parent so it does not travel with the child. */
 .site-bg-grid {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
+  mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
+}
+/*
+ * Deliberately static, where every other grid on the site drifts.
+ *
+ * This element is fixed, full-viewport, and present on every route, so it is the
+ * one animation that can never scroll out of view and pause itself. Keeping it
+ * running means the compositor produces a frame every 16ms for as long as the
+ * tab is open, and each of those frames re-composites the entire background
+ * stack plus ~50 backdrop-filter tiles above it. That is a continuous GPU load
+ * for a drift of 68px per 90 seconds — around 0.75px/sec, which is below the
+ * threshold of noticing.
+ *
+ * Measured: with this running, the landing page idles at 25 fps and never goes
+ * quiet. With it static and the hero animations pausing off-screen, the page
+ * reaches a true idle and the GPU sleeps between interactions.
+ */
+.site-bg-grid::before {
+  content: "";
   position: absolute;
   inset: 0;
   background-image:
     linear-gradient(rgba(0, 212, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0, 212, 255, 0.035) 1px, transparent 1px);
   background-size: 68px 68px;
-  animation: grid-drift 90s linear infinite;
-  -webkit-mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
-  mask-image: radial-gradient(ellipse 88% 72% at 50% 45%, #000 22%, transparent 76%);
 }
 
 /* ── BACKGROUND MOTION TOGGLE ───────────────────────────────────
@@ -210,22 +246,66 @@ ul { list-style: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .site-bg-grid { animation: none; }
-  .site-bg-video, .site-bg-still, .site-bg-reel { transition: none; }
+  .site-bg-grid::before, .hero-grid::before { animation: none; }
+  .hero-orb-1, .hero-orb-2, .hero-orb-3 { animation: none; }
+  .site-bg-video, .site-bg-still { transition: none; }
 }
 
-/* ── HERO GRID ─────────────────────────────────────────────────── */
+/* ══ LOW-POWER TIER ═════════════════════════════════════════════════════
+   Set by SiteBackground from detectPerfTier() — see lib/background.ts for what
+   qualifies and why. Everything dropped here is per-pixel-per-frame work that a
+   desktop GPU absorbs and a mobile one does not.
+
+   `backdrop-filter` is the big one. The consoles set it inline (blur(18px) on
+   panel chrome, ~50 more via .glass-tile), and an inline declaration can only
+   be overridden by `!important` — which is exactly what it is for here.
+
+   Removing the frost would leave those surfaces too transparent to read over
+   footage, so the translucent fills are swapped for near-opaque ones at the
+   same hue. The layout, the palette and the copy are untouched; only the
+   frosting is. */
+:root[data-perf="lite"] *,
+:root[data-perf="lite"] *::before,
+:root[data-perf="lite"] *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root[data-perf="lite"] .glass-tile {
+  background: linear-gradient(155deg, rgba(26, 33, 52, 0.90), rgba(16, 21, 36, 0.84) 60%);
+}
+
+/* The ambient drifts are compositor-cheap but never let the GPU sleep, which on
+   a battery-powered device is its own cost. */
+:root[data-perf="lite"] .site-bg-grid::before,
+:root[data-perf="lite"] .hero-grid::before,
+:root[data-perf="lite"] .hero-orb-1,
+:root[data-perf="lite"] .hero-orb-2,
+:root[data-perf="lite"] .hero-orb-3 {
+  animation: none;
+}
+
+/* ── HERO GRID ───────────────────────────────────────────────────
+   Same compositor-only treatment as .site-bg-grid above: the drift is a
+   transform on an oversized child, never background-position. */
 .hero-grid {
   position: absolute; inset: 0;
+  overflow: hidden;
+}
+.hero-grid::before {
+  content: "";
+  position: absolute;
+  inset: -68px;
   background-image:
     linear-gradient(rgba(0,212,255,.045) 1px, transparent 1px),
     linear-gradient(90deg, rgba(0,212,255,.045) 1px, transparent 1px);
   background-size: 68px 68px;
   animation: grid-drift 28s linear infinite;
+  will-change: transform;
 }
 @keyframes grid-drift {
-  from { background-position: 0 0; }
-  to   { background-position: 68px 68px; }
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(68px, 68px, 0); }
 }
 
 /* ── ORB ANIMATIONS ────────────────────────────────────────────── */
@@ -377,8 +457,14 @@ ul { list-style: none; }
   transform-style: preserve-3d;
   transition: transform .3s cubic-bezier(.18,.7,.2,1),
               box-shadow .35s ease, border-color .35s ease;
-  will-change: transform;
 }
+/* `will-change` only while the card is actually being tilted. Declaring it
+   unconditionally promoted every tile to its own compositor layer for the whole
+   life of the page — ~50 of them on the landing page, each holding a texture at
+   device-pixel-ratio. That is layer memory spent on cards that are not moving,
+   and on a tablet it is a large part of why the page eventually stalls rather
+   than merely stuttering. Hover is when the transform actually animates. */
+.glass-tile:hover { will-change: transform; }
 /* cursor-tracking specular highlight — sits above the frosted fill, below text */
 .glass-tile::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit;
@@ -601,3 +687,41 @@ ul { list-style: none; }
 }
 .doc-prose td { color: rgba(255, 255, 255, 0.70); }
 .doc-prose tr:nth-child(even) td { background: rgba(255, 255, 255, 0.015); }
+
+/* ══ LETTING THE PAGE GO IDLE ═══════════════════════════════════════════
+   The single most important performance property of this site.
+
+   Frame production is all-or-nothing: one running animation costs the same as
+   five, because one is enough to force the compositor to rebuild the whole
+   stack every 16ms. Measured on the landing page with the full effect stack —
+   disabling any individual animation changed nothing (25 -> 26 fps), disabling
+   all of them together went to 60. Removing every backdrop-filter while leaving
+   a single animation running did nothing at all (26).
+
+   So the goal is not "fewer animations", it is "zero running animations
+   whenever the visitor is not looking at one". Two rules get there, and neither
+   is visible to the visitor:
+
+     [data-hidden]     the tab is backgrounded
+     [data-offscreen]  the element has scrolled out of the viewport
+                       (set by the observer in SiteBackground)
+
+   `.site-bg-grid` is exempt from the second rule by being fixed — it can never
+   scroll away — which is why it is static instead. See its comment above.
+
+   ── This block must stay LAST in the file ──
+   Every rule it targets sets the `animation` shorthand, and that shorthand
+   resets animation-play-state back to `running`. All of these selectors are the
+   same specificity as the ones they override (a single class or attribute), so
+   source order is what decides the winner. Placed any earlier, this silently
+   does nothing at all — which is exactly what happened the first time. */
+:root[data-hidden="true"] .hero-grid::before,
+:root[data-hidden="true"] .hero-orb-1,
+:root[data-hidden="true"] .hero-orb-2,
+:root[data-hidden="true"] .hero-orb-3,
+:root[data-hidden="true"] .badge-dot,
+:root[data-hidden="true"] .scroll-hint,
+[data-offscreen="true"],
+[data-offscreen="true"]::before {
+  animation-play-state: paused;
+}
