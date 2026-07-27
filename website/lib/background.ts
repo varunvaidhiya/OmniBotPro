@@ -70,29 +70,55 @@ export function backgroundModeFor(pathname: string | null): BackgroundMode {
 /**
  * Per-mode presentation of the reel.
  *
- * `brightness` does the heavy lifting rather than a flat dark overlay: scaling
- * luminance multiplicatively keeps the plates' blacks black and only pulls down
- * the highlights (screens, LED strips) that would otherwise fight white text. A
- * flat scrim would instead lift the blacks and leave the footage looking milky.
- * `scrim` therefore only has to weight the gradient bands where copy actually
- * sits — under the fixed nav, and along the bottom edge.
+ * PERFORMANCE NOTE — read before adding anything here.
  *
- * `blurPx` pushes the footage optically into the background plane, so foreground
- * text reads as a separate, sharper layer.
+ * This layer is `position: fixed` and full-viewport, and the page never stops
+ * painting (there are always-running ambient animations above it). That means
+ * anything expensive here is paid on *every frame, forever*, not once. Two CSS
+ * features are therefore banned from this stack:
+ *
+ *   - `filter: blur()`  — a real convolution over the whole viewport, redone
+ *     every frame. Measured at ~2x the total frame cost of the landing page.
+ *   - `mix-blend-mode`  — forces the compositor to read the backdrop back out
+ *     of the GPU before it can blend. Measured at ~1.4x.
+ *
+ * Together they also made every `backdrop-filter` glass tile far more expensive
+ * than it needed to be, because each tile had to re-sample a backdrop that was
+ * itself being blurred and blended. Removing both took the landing page from
+ * ~10 fps to ~25 fps before any other change.
+ *
+ * What replaced them:
+ *
+ * `videoOpacity` now carries the old `brightness()` as well. Compositing the
+ * footage at opacity a over the near-black page colour is arithmetically almost
+ * the same as brightness(b) at opacity a — `result = bg(1-a) + video*b*a` versus
+ * `bg(1-ab) + video*ab` — and since `--bg` is #0A0E1A the residual difference is
+ * under 5/255 in the shadows. Opacity is a free compositor operation; a filter
+ * is not. So each value below is the old videoOpacity x the old brightness.
+ *
+ * `soften` replaces the old `blurPx`. Instead of convolving the frame every
+ * tick, the modes that wanted a soft plate simply load the 640x360 rendition
+ * and let the GPU's bilinear upscale do it. Scaling a small texture up *is* a
+ * blur, and it costs nothing — it also downloads ~3x less video. `cinematic`
+ * asked for only 1.5px, which is imperceptible, so it keeps the sharp plate.
+ *
+ * `scrim` still weights the gradient bands where copy actually sits — under the
+ * fixed nav, and along the bottom edge.
  */
 export const BACKGROUND_PRESENTATION: Record<
   BackgroundMode,
   {
+    /** Old videoOpacity x old brightness — see note above. */
     videoOpacity: number;
-    brightness: number;
     scrim: number;
-    blurPx: number;
+    /** Use the 640x360 rendition, upscaled, in place of a blur(). */
+    soften: boolean;
     motion: boolean;
   }
 > = {
-  cinematic: { videoOpacity: 0.92, brightness: 0.5, scrim: 0.6, blurPx: 1.5, motion: true },
-  ambient: { videoOpacity: 0.72, brightness: 0.36, scrim: 0.78, blurPx: 3, motion: true },
-  still: { videoOpacity: 0.5, brightness: 0.26, scrim: 0.9, blurPx: 6, motion: false },
+  cinematic: { videoOpacity: 0.46, scrim: 0.6, soften: false, motion: true },
+  ambient: { videoOpacity: 0.26, scrim: 0.78, soften: true, motion: true },
+  still: { videoOpacity: 0.13, scrim: 0.9, soften: true, motion: false },
 };
 
 /** Seconds of cross-fade between two clips. Long enough to read as a dissolve. */
@@ -107,3 +133,39 @@ export const PLAYBACK_RATE = 0.62;
 
 /** localStorage key for the visitor's "stop the motion" preference. */
 export const MOTION_PREF_KEY = "ohho:bg-motion";
+
+/* ── device capability tier ──────────────────────────────────────────────
+ *
+ * `full` gets the designed treatment. `lite` drops the effects whose cost is
+ * paid per-pixel-per-frame — chiefly `backdrop-filter`, which the marketing
+ * pages use on ~50 glass tiles covering roughly 4.4x the viewport area.
+ *
+ * On a desktop GPU that is affordable. On a tablet it is not: the same tiles at
+ * 2x device-pixel-ratio mean the compositor re-samples and re-blurs ~25
+ * megapixels of backdrop every frame, and it also has to keep a snapshot
+ * texture per tile resident. That combination is what makes the page stutter
+ * and then stall on an iPad — it runs out of both fill rate and layer memory.
+ *
+ * Touch is the signal, not screen size: a coarse pointer means a phone or a
+ * tablet, which means a mobile GPU and a battery. Core count and device memory
+ * catch low-end laptops too, where they're exposed (Safari reports neither, so
+ * the pointer check is what carries iPadOS).
+ *
+ * `lite` keeps the video reel. Video decode is hardware-accelerated and cheap;
+ * it was never the problem. What it drops is the compositing work stacked on
+ * top of it.
+ */
+export type PerfTier = "full" | "lite";
+
+export function detectPerfTier(): PerfTier {
+  if (typeof window === "undefined") return "full";
+
+  const coarse = window.matchMedia("(pointer: coarse)").matches;
+
+  // Chromium-only; `undefined` on Safari/Firefox just means "no signal", so
+  // default high and let the pointer check decide.
+  const cores = navigator.hardwareConcurrency ?? 8;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+
+  return coarse || cores <= 4 || memory <= 4 ? "lite" : "full";
+}

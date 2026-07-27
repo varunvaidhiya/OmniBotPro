@@ -10,6 +10,8 @@ import {
   MOTION_PREF_KEY,
   PLAYBACK_RATE,
   backgroundModeFor,
+  detectPerfTier,
+  type PerfTier,
 } from "@/lib/background";
 import BackgroundMotionToggle from "./BackgroundMotionToggle";
 
@@ -102,6 +104,83 @@ export default function SiteBackground() {
   // so the gesture retry below has something to start.
   const motionOn = preset.motion && capability.allowed && prefersMotion && !loadFailed;
 
+  /* ── device tier → data-perf on <html> ───────────────────────────────────
+   * Written to the root element rather than held in state, because the rules it
+   * gates (globals.css, ":root[data-perf=lite]") apply to the whole document,
+   * not just this subtree — the console panels that set backdrop-filter inline
+   * live nowhere near here.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    const setTier = () => {
+      const tier: PerfTier = detectPerfTier();
+      root.dataset.perf = tier;
+    };
+    setTier();
+
+    // A coarse pointer can appear or disappear (tablet keyboard, hybrid laptop).
+    const pointerQuery = window.matchMedia("(pointer: coarse)");
+    pointerQuery.addEventListener("change", setTier);
+    return () => pointerQuery.removeEventListener("change", setTier);
+  }, []);
+
+  /*
+   * Pause decorative animation once it scrolls out of view.
+   *
+   * Done centrally with one observer rather than by touching each component,
+   * because these classes are plain decorative divs scattered across the hero
+   * and ten console pages — there is no shared component to hook into, and
+   * spreading this logic over eleven files would guarantee the next one forgets.
+   *
+   * Purely an optimisation: an element that is off-screen is not being looked
+   * at, so stopping its animation changes nothing the visitor can see. It only
+   * lets the compositor stop producing frames. Re-scanned per route.
+   */
+  useEffect(() => {
+    const SELECTOR =
+      ".hero-grid, .hero-orb-1, .hero-orb-2, .hero-orb-3, .scroll-hint, .badge-dot";
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          (entry.target as HTMLElement).dataset.offscreen = entry.isIntersecting
+            ? "false"
+            : "true";
+        }
+      },
+      // A little margin so nothing is caught mid-resume at the edge.
+      { rootMargin: "120px" },
+    );
+
+    const scan = () => {
+      document.querySelectorAll(SELECTOR).forEach((el) => observer.observe(el));
+    };
+    scan();
+
+    // Client-side navigation swaps the subtree under us after this effect runs.
+    const mutations = new MutationObserver(scan);
+    mutations.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+    };
+  }, [pathname]);
+
+  /* ── pause ambient animation while the tab is hidden ─────────────────── */
+  useEffect(() => {
+    const root = document.documentElement;
+    const sync = () => {
+      root.dataset.hidden = document.hidden ? "true" : "false";
+    };
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      delete root.dataset.hidden;
+    };
+  }, []);
+
   /* ── capability + stored preference ──────────────────────────────────── */
   useEffect(() => {
     setCapability(readCapability());
@@ -128,10 +207,18 @@ export default function SiteBackground() {
     };
   }, []);
 
+  /*
+   * The small rendition is used for two different reasons that happen to want
+   * the same file: a narrow viewport does not need 1280x720, and the modes that
+   * used to ask for a blur() get their softening from upscaling a 640x360 plate
+   * instead of from a per-frame convolution. See lib/background.ts.
+   */
   const srcFor = useCallback(
-    (index: number) =>
-      `/videos/background/${BACKGROUND_REEL[index].id}${capability.small ? "-sm" : ""}.mp4`,
-    [capability.small],
+    (index: number) => {
+      const light = capability.small || preset.soften;
+      return `/videos/background/${BACKGROUND_REEL[index].id}${light ? "-sm" : ""}.mp4`;
+    },
+    [capability.small, preset.soften],
   );
 
   /* ── keep each <video> pointed at its slot's clip ────────────────────── */
@@ -286,14 +373,20 @@ export default function SiteBackground() {
     const root = rootRef.current;
     if (!root) return;
 
+    /*
+     * Only two properties are written now, and both are free: layer opacity is
+     * a compositor operation, not a repaint. The old version also interpolated
+     * --bg-brightness and --bg-blur, which fed a `filter` chain that had a
+     * 0.3s transition on it — so every scroll frame kicked off a brand-new blur
+     * interpolation that the next frame immediately replaced. The filter was
+     * being recomputed continuously and never once reached its target value.
+     */
     const apply = (p: number) => {
       const from = BACKGROUND_PRESENTATION[mode];
       const to = BACKGROUND_PRESENTATION.ambient;
       const mix = (a: number, b: number) => a + (b - a) * p;
       root.style.setProperty("--bg-video-opacity", `${mix(from.videoOpacity, to.videoOpacity)}`);
-      root.style.setProperty("--bg-brightness", `${mix(from.brightness, to.brightness)}`);
       root.style.setProperty("--bg-scrim", `${mix(from.scrim, to.scrim)}`);
-      root.style.setProperty("--bg-blur", `${mix(from.blurPx, to.blurPx)}px`);
     };
 
     // Only the landing page recedes; everywhere else the preset is fixed.
