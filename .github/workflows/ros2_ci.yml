@@ -37,7 +37,15 @@ jobs:
           python-version: "3.12"
 
       - name: Install lint tools
-        run: pip install ruff mypy
+        # ruff is pinned deliberately. Unpinned, a new release can turn this
+        # job red with no repo change behind it: 0.16.0 promoted Markdown
+        # formatting out of preview, so `ruff format` started reformatting
+        # Python code blocks inside .md files and flagged 22 docs at once
+        # (0.15.x skips them: "Markdown formatting is experimental").
+        # Because `build_and_test` declares `needs: lint`, that also silently
+        # skipped the ROS build on every PR. Bump this pin deliberately, and
+        # reformat (or add `--exclude '*.md'` below) in the same commit.
+        run: pip install ruff==0.15.8 mypy
 
       - name: Check formatting
         run: ruff format --check --exclude robot_ws/src/omnibot_firmware .
