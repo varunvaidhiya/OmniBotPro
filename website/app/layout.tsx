@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { RobotConnectionProvider } from "@/lib/connect/RobotConnectionProvider";
 import ConnectionBar from "@/components/connect/ConnectionBar";
 import AssistantMount from "@/components/assistant/AssistantMount";
+import FirebaseAnalytics from "@/components/analytics/FirebaseAnalytics";
 
 const SITE_URL = "https://ohho-robotics.com";
 
@@ -75,6 +76,10 @@ export default function RootLayout({
         )}
       </head>
       <body>
+        {/* Firebase Analytics (GA4) — inert until NEXT_PUBLIC_FIREBASE_* is set.
+            Warms the SDK and emits a page_view on every route, including
+            client-side navigations. See FIREBASE_ANALYTICS_SETUP.md. */}
+        <FirebaseAnalytics />
         {/* fixed cinematic reel behind every page — sits below .content-layer */}
         <SiteBackground />
         <AuthProvider>
