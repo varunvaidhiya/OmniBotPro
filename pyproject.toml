@@ -8,6 +8,18 @@ exclude = [
     "dist",
 ]
 
+# `extend-exclude`, not `exclude`: the CI lint job passes `--exclude
+# robot_ws/src/omnibot_firmware` on the command line, and a CLI `--exclude`
+# *replaces* the `exclude` setting above rather than adding to it. Only
+# `extend-exclude` survives that override.
+extend-exclude = [
+    # Vendored Meta XR SDK shipped inside the Unity project — third-party code
+    # we don't author or patch, so linting it only produces noise we can't act
+    # on (F401/F541 in the SDK's own pyinstaller helper). Every .py under
+    # vr_app/ lives in this vendored tree; there is no first-party Python here.
+    "vr_app/Packages",
+]
+
 [tool.ruff.lint.per-file-ignores]
 # Benchmark files must do sys.path.insert() before project imports — E402 is intentional.
 # F841: timing benchmarks intentionally assign tensors without using them (measuring alloc cost).
