@@ -36,6 +36,7 @@ Most files include all three tags; the dominant one is listed first.
 | 8 | [08-12-month-plan.md](./08-12-month-plan.md) | 🛠📊 | 7 prioritized gates with kill-criteria. |
 | 9 | [09-retention-and-churn.md](./09-retention-and-churn.md) | 📊💰 | Earned vs imposed stickiness — today, in 2 years, at scale. |
 | 10 | [10-competitor-teardowns.md](./10-competitor-teardowns.md) | 📊💰 | Per-competitor one-pagers (9 named players). |
+| 11 | [11-partners.md](./11-partners.md) | 📊💰 | What "partner" means; the screening profile; the full partner list (130+ candidates across 13 categories); the top 10 outreach targets for the next 30 days. |
 | -- | [SOURCES.md](./SOURCES.md) | -- | Citations: every claim links to a `website/` path or external URL. |
 
 ---
