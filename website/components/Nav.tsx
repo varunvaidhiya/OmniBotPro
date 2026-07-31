@@ -25,9 +25,21 @@ export default function Nav() {
   const subscribed = Boolean(user && hasConsoleAccess(subscription));
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 50);
+    // On mobile (< 768px) the only visible nav element is the "OhhO" wordmark
+    // — every link is `hidden md:flex`. A transparent nav over bright hero
+    // footage at the top of the page makes that wordmark unreadable, so we
+    // force `scrolled = true` whenever the viewport is below the md break,
+    // regardless of scroll position. Also re-evaluate on resize so device
+    // rotation / window resizing keeps the bar persistent on phones.
+    const handler = () =>
+      setScrolled(window.scrollY > 50 || window.innerWidth < 768);
+    handler(); // set the correct state before first paint
     window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+    window.addEventListener("resize", handler, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handler);
+      window.removeEventListener("resize", handler);
+    };
   }, []);
 
   const navHref = (link: string): string => {

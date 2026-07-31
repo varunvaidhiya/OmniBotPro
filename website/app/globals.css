@@ -365,7 +365,10 @@ ul { list-style: none; }
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
-:root[data-perf="lite"] .marquee-track { animation: none; }
+/* Note: the marquee is a single transform on one compositor layer — cheap on
+   any device, unlike the backdrop-filter / orb / grid-drift effects the lite
+   tier is designed to mute. So we do NOT gate .marquee-track on
+   [data-perf="lite"]; only prefers-reduced-motion (handled above) gates it. */
 
 /* ── HERO LOGO MIRROR ──────────────────────────────────────────── */
 .hero-logo-mirror {
