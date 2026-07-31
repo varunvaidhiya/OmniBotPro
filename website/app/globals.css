@@ -249,6 +249,7 @@ ul { list-style: none; }
   .site-bg-grid::before, .hero-grid::before { animation: none; }
   .hero-orb-1, .hero-orb-2, .hero-orb-3 { animation: none; }
   .site-bg-video, .site-bg-still { transition: none; }
+  .marquee-track { animation: none !important; transform: translateX(0) !important; }
 }
 
 /* ══ LOW-POWER TIER ═════════════════════════════════════════════════════
@@ -339,6 +340,32 @@ ul { list-style: none; }
   0%,100% { opacity: 1; transform: scale(1); }
   50%      { opacity: .4; transform: scale(.65); }
 }
+
+/* ── LOGO MARQUEE ──────────────────────────────────────────────
+   Infinite horizontal scroller for the "built on the open stack" logo wall.
+   Two rows: top scrolls left (default direction), bottom scrolls right
+   (animation-direction: reverse). Content is duplicated 2× per row so
+   translateX(-50%) lands exactly one copy width — seamless loop.
+   Pauses on hover (marquee-pause:hover). Honors prefers-reduced-motion
+   (gated in the global reduced-motion block above). */
+.marquee-viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+          mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll 44s linear infinite;
+  will-change: transform;
+}
+.marquee-track.reverse { animation-direction: reverse; }
+.marquee-pause:hover .marquee-track { animation-play-state: paused; }
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+:root[data-perf="lite"] .marquee-track { animation: none; }
 
 /* ── HERO LOGO MIRROR ──────────────────────────────────────────── */
 .hero-logo-mirror {

@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import StatsBar from "@/components/StatsBar";
+import LogoMarquee from "@/components/LogoMarquee";
 import BrandAgnostic from "@/components/BrandAgnostic";
 import OhhoOS from "@/components/OhhoOS";
 import Lifecycle from "@/components/Lifecycle";
@@ -57,6 +58,7 @@ export default function Home() {
       <main>
         <Hero />
         <StatsBar />
+        <LogoMarquee />
         <BrandAgnostic />
         <OhhoOS />
         <Lifecycle />
