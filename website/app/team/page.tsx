@@ -8,7 +8,7 @@ import ContactModal from "@/components/team/ContactModal";
 import { GITHUB_HREF } from "@/lib/site";
 
 const EMAIL = "varun.vaidhiya@gmail.com";
-const PHONE = "+44 7587 815427";
+const PHONE = "+44 7587 815477";
 
 export default function Team() {
   const [contactOpen, setContactOpen] = useState(false);
