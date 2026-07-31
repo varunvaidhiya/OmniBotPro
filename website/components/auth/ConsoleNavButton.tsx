@@ -22,9 +22,13 @@ import { hasConsoleAccess } from "@/lib/auth/plans";
 export default function ConsoleNavButton() {
   const { loading, user, subscription } = useAuth();
 
-  if (loading) return null;
-
-  const signedIn = Boolean(user);
+  // During the initial auth-loading window (Supabase auth.getSession() hasn't
+  // resolved yet) `user` is null and `loading` is true. We used to `return
+  // null` here, which made the Console button disappear on slow networks —
+  // a "sometimes the nav is missing sign-in options" bug on mobile. Instead,
+  // render the signed-out state during loading so the button is always
+  // visible; it just points to /login until the session resolves.
+  const signedIn = Boolean(user) && !loading;
   const subscribed = signedIn && hasConsoleAccess(subscription);
 
   const href = signedIn ? "/console" : "/login?next=/console";

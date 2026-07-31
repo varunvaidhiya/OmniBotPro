@@ -15,7 +15,7 @@ import { useAuth } from "@/lib/auth/AuthProvider";
 import { hasConsoleAccess } from "@/lib/auth/plans";
 
 export default function UserMenu() {
-  const { loading, user, subscription, signOut } = useAuth();
+  const { user, subscription, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -27,7 +27,13 @@ export default function UserMenu() {
     return () => document.removeEventListener("mousedown", onClick);
   }, []);
 
-  if (loading) return null;
+  // During the initial auth-loading window (Supabase auth.getSession() hasn't
+  // resolved yet) `user` is null and `loading` is true. We used to `return
+  // null`, which made the Sign-in button disappear on slow networks — a
+  // "sometimes the nav is missing sign-in options" bug on mobile. Now we
+  // fall through to the signed-out branch below, showing "Sign in" so the
+  // control is always visible; if the session resolves mid-page-life, the
+  // user flips to the avatar dropdown as expected.
 
   if (!user) {
     return (

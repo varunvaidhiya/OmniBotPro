@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import AuthRedirectHandler from "@/components/auth/AuthRedirectHandler";
 import SiteBackground from "@/components/background/SiteBackground";
@@ -9,6 +9,16 @@ import AssistantMount from "@/components/assistant/AssistantMount";
 import FirebaseAnalytics from "@/components/analytics/FirebaseAnalytics";
 
 const SITE_URL = "https://ohho-robotics.com";
+
+// Without the viewport export, mobile browsers default to a 980px virtual
+// viewport and Tailwind's `md:flex` breakpoint fires unreliably — that was
+// the root cause of "sometimes the nav bar is visible, sometimes not."
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0a0e1a",
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
