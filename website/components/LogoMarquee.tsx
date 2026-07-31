@@ -54,59 +54,81 @@ const ROW_TOP: Brand[] = [
   { name: "Open-RMF", accent: "#f59e0b", category: "Fleet coordination" },
 ];
 
-// Row 2 — Web platform, cloud, robot hardware, VR, observability (scrolls right)
+// Row 2 — Web platform, cloud, robot hardware (OEMs), VR, observability.
+// International robot OEMs + open-software cobot arms joined below: OhhO's
+// "any robot" claim covers any robot that publishes ROS 2 topics, speaks
+// MAVLink, CANopen, Modbus, ROS-Industrial, or a serial protocol.
 const ROW_BOTTOM: Brand[] = [
   { name: "Next.js + Vercel", accent: "#ffffff", category: "Web platform" },
   { name: "Supabase", accent: "#3ecf8e", category: "Auth + database" },
   { name: "Firebase", accent: "#ffca28", category: "Analytics" },
   { name: "Stripe", accent: "#635bff", category: "Billing" },
   { name: "Three.js", accent: "#e2e8f0", category: "3-D hero scene" },
-  { name: "Unitree", accent: "#f87171", category: "G1 · H1 · Go2" },
-  { name: "Trossen / SO-101", accent: "#60a5fa", category: "Reference arm" },
+  { name: "Unitree", accent: "#f87171", category: "G1 · H1 · Go2 · China" },
+  { name: "Trossen / SO-101", accent: "#60a5fa", category: "Reference arm · US" },
   { name: "Unity", accent: "#cbd5e1", category: "VR engine" },
   { name: "OpenXR", accent: "#00a4e4", category: "XR standard" },
-  { name: "Meta Quest", accent: "#1b69de", category: "MR headset" },
+  { name: "Meta Quest", accent: "#1b69de", category: "MR headset · US" },
   { name: "Grafana", accent: "#f46800", category: "Observability" },
   { name: "Docker", accent: "#2496ed", category: "Containerization" },
+  { name: "DJI", accent: "#3b82f6", category: "Drones · MAVLink · China" },
+  { name: "Franka Emika", accent: "#8b5cf6", category: "7-DOF cobot · ROS-Industrial · Germany" },
+  { name: "Universal Robots", accent: "#22c55e", category: "UR cobots · Denmark" },
+  { name: "KUKA", accent: "#f97316", category: "Industrial arms · Germany" },
+  { name: "UBTECH", accent: "#06b6d4", category: "Walker humanoid · China" },
+  { name: "PAL Robotics", accent: "#e11d48", category: "TIAGo · Spain" },
 ];
 
 // Row 3 — Compute hardware, microcontrollers, AI accelerators (scrolls left).
 // Drawn from the built-in hardware profiles in sdk/ohho/profiles.py and the
-// learning_engine/ARCHITECTURE.md edge-AI matrix. Framing shifts from "built
-// on" → "runs on / works with" — these are hardware OhhO's robot-agnostic
-// runtime deploys to, not software dependencies.
+// learning_engine/ARCHITECTURE.md edge-AI matrix. International compute added
+// below — OhhO's `device="auto"` resolution picks the execution provider
+// present, so any GPU/NPU/CPU runs the exported ONNX policy.
 const ROW_HARDWARE: Brand[] = [
-  { name: "Raspberry Pi", accent: "#c51c4c", category: "Pi 5 · robot brain" },
-  { name: "NVIDIA Jetson", accent: "#76b900", category: "Orin · edge AI" },
-  { name: "DeepX NPU", accent: "#a855f7", category: "On-device AI accelerator" },
-  { name: "Google Coral", accent: "#4285f4", category: "Edge TPU" },
-  { name: "Hailo", accent: "#ff6b35", category: "AI accelerator" },
-  { name: "Intel", accent: "#0071c5", category: "OpenVINO · x86" },
+  { name: "Raspberry Pi", accent: "#c51c4c", category: "Pi 5 · robot brain · UK" },
+  { name: "NVIDIA Jetson", accent: "#76b900", category: "Orin · edge AI · US" },
+  { name: "DeepX NPU", accent: "#a855f7", category: "On-device AI accelerator · Korea" },
+  { name: "Google Coral", accent: "#4285f4", category: "Edge TPU · US" },
+  { name: "Hailo", accent: "#ff6b35", category: "AI accelerator · Israel" },
+  { name: "Intel", accent: "#0071c5", category: "OpenVINO · x86 · US" },
   { name: "Apple Silicon", accent: "#a2aaad", category: "M-series · dev" },
-  { name: "STM32", accent: "#03234b", category: "Microcontroller" },
-  { name: "Arduino", accent: "#00979d", category: "Microcontroller" },
-  { name: "ESP32", accent: "#e7352c", category: "Microcontroller" },
-  { name: "Feetech", accent: "#f59e0b", category: "STS3215 arm servos" },
-  { name: "Yahboom", accent: "#10b981", category: "Motor board" },
+  { name: "STM32", accent: "#03234b", category: "Microcontroller · France" },
+  { name: "Arduino", accent: "#00979d", category: "Microcontroller · Italy" },
+  { name: "ESP32", accent: "#e7352c", category: "Microcontroller · Espressif · China" },
+  { name: "Feetech", accent: "#f59e0b", category: "STS3215 arm servos · China" },
+  { name: "Yahboom", accent: "#10b981", category: "Motor board · China" },
+  { name: "Rockchip RK3588", accent: "#ef4444", category: "ARM SoC · China" },
+  { name: "Huawei Ascend", accent: "#dc2626", category: "Atlas NPU · China" },
+  { name: "Orange Pi", accent: "#f97316", category: "ARM SBC · China" },
+  { name: "Seeed Studio", accent: "#16a34a", category: "reComputer · China" },
+  { name: "Renesas", accent: "#1e40af", category: "Robotics MCUs · Japan" },
+  { name: "Qualcomm RB", accent: "#3253dc", category: "Snapdragon robotics · US-global" },
 ];
 
 // Row 4 — Sensors, cameras, depth, LiDAR, IMU (scrolls right). OhhO's ROS 2
 // perception stack consumes standard sensor_msgs topics, so any
-// ROS-2-compatible sensor works. Listed here are the brands robotics teams
-// actually deploy.
+// ROS-2-compatible sensor works. International sensor brands joined below —
+// the robotics community buys LiDAR from China (Livox/RoboSense/Hesai),
+// Japan (Hokuyo/Murata), Germany (ifm/Pepperl+Fuchs), and the US alike.
 const ROW_SENSORS: Brand[] = [
-  { name: "Intel RealSense", accent: "#0071c5", category: "Depth cameras" },
-  { name: "Stereolabs ZED", accent: "#3b82f6", category: "3-D cameras" },
-  { name: "Luxonis OAK-D", accent: "#10b981", category: "AI cameras" },
-  { name: "Arducam", accent: "#ef4444", category: "Camera modules" },
-  { name: "SICK", accent: "#ffcc00", category: "LiDAR · industrial sensors" },
-  { name: "Velodyne LiDAR", accent: "#fb923c", category: "LiDAR" },
-  { name: "Ouster", accent: "#22d3ee", category: "LiDAR" },
-  { name: "RPLIDAR", accent: "#84cc16", category: "Slamtec · 2-D LiDAR" },
-  { name: "Bosch Sensortec", accent: "#ed1c24", category: "IMU · sensors" },
-  { name: "InvenSense", accent: "#f97316", category: "IMU" },
-  { name: "Garmin", accent: "#0071c5", category: "Lidar Lite" },
-  { name: "FLIR", accent: "#facc15", category: "Thermal cameras" },
+  { name: "Intel RealSense", accent: "#0071c5", category: "Depth cameras · US" },
+  { name: "Stereolabs ZED", accent: "#3b82f6", category: "3-D cameras · Italy" },
+  { name: "Luxonis OAK-D", accent: "#10b981", category: "AI cameras · US" },
+  { name: "Arducam", accent: "#ef4444", category: "Camera modules · China" },
+  { name: "SICK", accent: "#ffcc00", category: "LiDAR · industrial · Germany" },
+  { name: "Velodyne LiDAR", accent: "#fb923c", category: "LiDAR · US" },
+  { name: "Ouster", accent: "#22d3ee", category: "LiDAR · US" },
+  { name: "RPLIDAR", accent: "#84cc16", category: "Slamtec · 2-D LiDAR · China" },
+  { name: "Bosch Sensortec", accent: "#ed1c24", category: "IMU · sensors · Germany" },
+  { name: "InvenSense", accent: "#f97316", category: "IMU · Japan" },
+  { name: "Garmin Lidar Lite", accent: "#0071c5", category: "Range · Taiwan" },
+  { name: "FLIR", accent: "#facc15", category: "Thermal cameras · US" },
+  { name: "Livox", accent: "#3b82f6", category: "Mid/Tele LiDAR · DJI · China" },
+  { name: "RoboSense", accent: "#06b6d4", category: "Solid-state LiDAR · China" },
+  { name: "Hesai", accent: "#a855f7", category: "Hybrid LiDAR · China" },
+  { name: "Orbbec", accent: "#f59e0b", category: "Depth cameras · China" },
+  { name: "Hokuyo", accent: "#dc2626", category: "2-D LiDAR · Japan" },
+  { name: "ifm electronic", accent: "#1e40af", category: "Proximity + 3-D · Germany" },
 ];
 
 export default function LogoMarquee() {
@@ -157,10 +179,10 @@ export default function LogoMarquee() {
           >
             Runs on any compute · sees with any sensor
           </div>
-          <p className="text-[14px] leading-[1.6] max-w-[480px] mx-auto legible" style={{ color: "rgba(255,255,255,0.56)" }}>
+          <p className="text-[14px] leading-[1.6] max-w-[520px] mx-auto legible" style={{ color: "rgba(255,255,255,0.56)" }}>
             The same robot-agnostic runtime deploys to a Raspberry Pi, a Jetson,
-            an NPU, or a workstation GPU — and perceives through any
-            ROS&nbsp;2-compatible sensor or camera.
+            a Rockchip SoC, a DeepX NPU, or a workstation GPU — and perceives
+            through any ROS&nbsp;2-compatible sensor, anywhere in the world.
           </p>
         </div>
       </div>

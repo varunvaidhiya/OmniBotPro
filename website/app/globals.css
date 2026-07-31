@@ -356,7 +356,7 @@ ul { list-style: none; }
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee-scroll 44s linear infinite;
+  animation: marquee-scroll 64s linear infinite;
   will-change: transform;
 }
 .marquee-track.reverse { animation-direction: reverse; }
