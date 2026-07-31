@@ -70,6 +70,45 @@ const ROW_BOTTOM: Brand[] = [
   { name: "Docker", accent: "#2496ed", category: "Containerization" },
 ];
 
+// Row 3 — Compute hardware, microcontrollers, AI accelerators (scrolls left).
+// Drawn from the built-in hardware profiles in sdk/ohho/profiles.py and the
+// learning_engine/ARCHITECTURE.md edge-AI matrix. Framing shifts from "built
+// on" → "runs on / works with" — these are hardware OhhO's robot-agnostic
+// runtime deploys to, not software dependencies.
+const ROW_HARDWARE: Brand[] = [
+  { name: "Raspberry Pi", accent: "#c51c4c", category: "Pi 5 · robot brain" },
+  { name: "NVIDIA Jetson", accent: "#76b900", category: "Orin · edge AI" },
+  { name: "DeepX NPU", accent: "#a855f7", category: "On-device AI accelerator" },
+  { name: "Google Coral", accent: "#4285f4", category: "Edge TPU" },
+  { name: "Hailo", accent: "#ff6b35", category: "AI accelerator" },
+  { name: "Intel", accent: "#0071c5", category: "OpenVINO · x86" },
+  { name: "Apple Silicon", accent: "#a2aaad", category: "M-series · dev" },
+  { name: "STM32", accent: "#03234b", category: "Microcontroller" },
+  { name: "Arduino", accent: "#00979d", category: "Microcontroller" },
+  { name: "ESP32", accent: "#e7352c", category: "Microcontroller" },
+  { name: "Feetech", accent: "#f59e0b", category: "STS3215 arm servos" },
+  { name: "Yahboom", accent: "#10b981", category: "Motor board" },
+];
+
+// Row 4 — Sensors, cameras, depth, LiDAR, IMU (scrolls right). OhhO's ROS 2
+// perception stack consumes standard sensor_msgs topics, so any
+// ROS-2-compatible sensor works. Listed here are the brands robotics teams
+// actually deploy.
+const ROW_SENSORS: Brand[] = [
+  { name: "Intel RealSense", accent: "#0071c5", category: "Depth cameras" },
+  { name: "Stereolabs ZED", accent: "#3b82f6", category: "3-D cameras" },
+  { name: "Luxonis OAK-D", accent: "#10b981", category: "AI cameras" },
+  { name: "Arducam", accent: "#ef4444", category: "Camera modules" },
+  { name: "SICK", accent: "#ffcc00", category: "LiDAR · industrial sensors" },
+  { name: "Velodyne LiDAR", accent: "#fb923c", category: "LiDAR" },
+  { name: "Ouster", accent: "#22d3ee", category: "LiDAR" },
+  { name: "RPLIDAR", accent: "#84cc16", category: "Slamtec · 2-D LiDAR" },
+  { name: "Bosch Sensortec", accent: "#ed1c24", category: "IMU · sensors" },
+  { name: "InvenSense", accent: "#f97316", category: "IMU" },
+  { name: "Garmin", accent: "#0071c5", category: "Lidar Lite" },
+  { name: "FLIR", accent: "#facc15", category: "Thermal cameras" },
+];
+
 export default function LogoMarquee() {
   const { ref, inView } = useScrollReveal();
 
@@ -105,6 +144,33 @@ export default function LogoMarquee() {
       >
         <MarqueeRow brands={ROW_TOP} reverse={false} />
         <MarqueeRow brands={ROW_BOTTOM} reverse={true} />
+      </div>
+
+      <div className="max-w-content mx-auto px-6" style={{ marginTop: "40px" }}>
+        <div
+          className="text-center mb-[24px]"
+          style={{ opacity: inView ? 1 : 0 }}
+        >
+          <div
+            className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase mb-[6px]"
+            style={{ color: "var(--violet-lite)" }}
+          >
+            Runs on any compute · sees with any sensor
+          </div>
+          <p className="text-[14px] leading-[1.6] max-w-[480px] mx-auto legible" style={{ color: "rgba(255,255,255,0.56)" }}>
+            The same robot-agnostic runtime deploys to a Raspberry Pi, a Jetson,
+            an NPU, or a workstation GPU — and perceives through any
+            ROS&nbsp;2-compatible sensor or camera.
+          </p>
+        </div>
+      </div>
+
+      <div
+        className="marquee-pause"
+        style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+      >
+        <MarqueeRow brands={ROW_HARDWARE} reverse={false} />
+        <MarqueeRow brands={ROW_SENSORS} reverse={true} />
       </div>
     </section>
   );
