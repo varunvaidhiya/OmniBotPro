@@ -1,11 +1,13 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "Industry Standards | OhhO — Robotics, Operated.",
+export const metadata = pageSeo({
+  path: "/standards",
+  title: "Industry standards OhhO supports",
   description:
     "Every industry-standard protocol OhhO supports — from CANopen to OPC UA to VDA 5050. The open robotics platform that speaks the standards your facility already runs on.",
-};
+});
 
 interface StandardEntry {
   name: string;

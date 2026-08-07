@@ -1,12 +1,14 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { contactMailto, START_HREF, productHref } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "Robot Data Services | Done-for-you demonstrations, labeling & eval — OhhO",
+export const metadata = pageSeo({
+  path: "/services",
+  title: "Robot data services — demonstrations, labeling & eval",
   description:
     "Data is the bottleneck in embodied AI. OhhO collects teleoperation demonstrations, labels and curates episodes, runs evaluation suites, and fine-tunes policies — delivered in open LeRobot format, so the data is always yours.",
-};
+});
 
 interface Offer {
   n: string;

@@ -4,12 +4,14 @@ import Footer from "@/components/Footer";
 import GlassCard from "@/components/GlassCard";
 import ProductDashboard from "@/components/products/ProductDashboard";
 import { DOCS_HREF, GITHUB_HREF } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "OhhO OS v1.0.0 — The Open Robot Engine | OhhO",
+export const metadata = pageSeo({
+  path: "/os",
+  title: "OhhO OS v1.0.0 — the open robot engine",
   description:
     "OhhO OS v1.0.0 is the open-source, robot-agnostic engine that powers every OhhO product. Control any robot with or without ROS, agent brain, data collection, training, serving, skills — all from one pip install.",
-};
+});
 
 // ── v1.0.0 Feature pillars ────────────────────────────────────────────────────
 const FEATURE_PILLARS: { icon: string; title: string; body: string }[] = [

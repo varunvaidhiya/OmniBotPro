@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import FleetConsole from "@/components/fleet/FleetConsole";
 import { RobotProvider } from "@/lib/garage/RobotContext";
+import { NO_INDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "OhhO Fleet — Mission Control.",
   description:
     "Update 50 robots like you update an app. Fleet management, signed over-the-air updates and a full observability stack.",
+  robots: NO_INDEX,
 };
 
 export default function FleetPage() {

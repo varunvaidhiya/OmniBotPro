@@ -3,14 +3,16 @@ import Link from "next/link";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getDocGroups } from "@/lib/docs";
+import { pageSeo } from "@/lib/seo";
 
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  title: "Docs — OhhO",
+export const metadata = pageSeo({
+  path: "/docs",
+  title: "Documentation",
   description:
     "Documentation for the OhhO robotics platform — a reference for every product, feature and integration.",
-};
+});
 
 export default function DocsIndexPage() {
   const groups = getDocGroups();

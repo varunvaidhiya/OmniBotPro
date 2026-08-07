@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { getAllDocs, getDocBySlug } from "@/lib/docs";
+import { pageSeo } from "@/lib/seo";
 
 export const dynamic = "force-static";
 // Only docs that exist at build time are served; a new file appears on redeploy.
@@ -15,11 +16,14 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string[] } }): Metadata {
   const doc = getDocBySlug(params.slug);
-  if (!doc) return { title: "Docs — OhhO" };
-  return {
-    title: `${doc.title} — OhhO Docs`,
-    description: doc.description || undefined,
-  };
+  if (!doc) return { title: "Docs" };
+  return pageSeo({
+    path: `/docs/${doc.slug.join("/")}`,
+    title: `${doc.title} — Docs`,
+    description:
+      doc.description ||
+      `${doc.title} — documentation for the OhhO Robotics open-source robotics platform.`,
+  });
 }
 
 export default function DocPage({ params }: { params: { slug: string[] } }) {

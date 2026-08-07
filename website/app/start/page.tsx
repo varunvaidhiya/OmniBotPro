@@ -1,12 +1,14 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { WHY_HREF, DOCS_HREF, GITHUB_HREF } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "Quickstart | Drive a robot in 5 minutes — OhhO",
+export const metadata = pageSeo({
+  path: "/start",
+  title: "Quickstart — drive a robot in 5 minutes",
   description:
     "Install the open OhhO engine, drive a robot in simulation, then point the same code at real hardware with one argument. Works with or without ROS 2.",
-};
+});
 
 // A static, server-rendered code block (no client JS needed).
 function Code({ children, label }: { children: string; label?: string }) {

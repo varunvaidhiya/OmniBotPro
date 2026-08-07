@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import ComplyConsole from "@/components/comply/ComplyConsole";
 import { RobotProvider } from "@/lib/garage/RobotContext";
+import { NO_INDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "OhhO Comply — Ship robots the regulators will pass.",
   description:
     "Turn robot safety standards into a guided checklist and auto-generate the technical file and audit trail.",
+  robots: NO_INDEX,
 };
 
 export default function ComplyPage() {

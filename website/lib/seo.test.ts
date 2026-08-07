@@ -3,7 +3,15 @@ import type { Metadata } from "next";
 
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
-import { NO_INDEX, PRIVATE_ROUTES } from "@/lib/seo";
+import { PRODUCTS } from "@/lib/products";
+import {
+  NO_INDEX,
+  PRIVATE_ROUTES,
+  CONSOLE_ROUTES,
+  SITE_URL as SEO_SITE_URL,
+  absoluteUrl,
+  pageSeo,
+} from "@/lib/seo";
 
 const SITE_URL = "https://ohho-robotics.com";
 
@@ -88,5 +96,66 @@ describe("private routes are noindex", () => {
 
   it.each(PRIVATE_ROUTES)("%s stays crawlable so the tag can be read", (route) => {
     expect(isBlocked(route)).toBe(false);
+  });
+});
+
+describe("signed-in consoles are noindex but crawlable", () => {
+  // Every console renders the same ConsoleGate/AuthGate shell to a logged-out
+  // crawler, so indexing them created ~20 byte-identical URLs that Google
+  // grouped as duplicates — and which competed with /products/{slug}.
+  it.each(CONSOLE_ROUTES)("%s stays crawlable so the tag can be read", (route) => {
+    expect(isBlocked(route)).toBe(false);
+  });
+
+  it("never lists a console in the sitemap", () => {
+    const paths = sitemap().map((entry) => new URL(entry.url).pathname);
+    const leaked = CONSOLE_ROUTES.filter((route) => paths.includes(route));
+    expect(leaked).toEqual([]);
+  });
+
+  it("gives every product an indexable marketing page and a noindex console", () => {
+    // The pairing that matters: /products/build is what should rank, /build is
+    // the console it was competing with. The console route is taken from the
+    // product's own `app.href` rather than its slug — they differ (the
+    // "connect" product's console is /garage), and assuming otherwise is
+    // exactly the mistake that let a console slip back into the index.
+    const paths = sitemap().map((entry) => new URL(entry.url).pathname);
+    for (const product of PRODUCTS) {
+      expect(paths).toContain(`/products/${product.slug}`);
+      // Not every product ships a console; those that do must have it excluded.
+      if (!product.app) continue;
+      expect(CONSOLE_ROUTES).toContain(product.app.href);
+      expect(paths).not.toContain(product.app.href);
+    }
+  });
+});
+
+describe("canonical URLs", () => {
+  it("keeps lib/seo's SITE_URL in step with the one this suite asserts against", () => {
+    expect(SEO_SITE_URL).toBe(SITE_URL);
+  });
+
+  it("makes every sitemap URL absolute and apex-hosted", () => {
+    // A canonical pointing at a host the sitemap disagrees with re-creates the
+    // duplicate problem, so both must agree on the bare apex (no www).
+    for (const entry of sitemap()) {
+      expect(entry.url.startsWith(`${SITE_URL}`)).toBe(true);
+      expect(entry.url).not.toContain("//www.");
+    }
+  });
+
+  it("builds a self-referential canonical for a page", () => {
+    const meta = pageSeo({ path: "/why", title: "Why", description: "d" });
+    expect(meta.alternates?.canonical).toBe(`${SITE_URL}/why`);
+    expect(meta.openGraph?.url).toBe(`${SITE_URL}/why`);
+  });
+
+  it("uses the bare apex for the homepage rather than a trailing slash", () => {
+    expect(absoluteUrl("/")).toBe(SITE_URL);
+  });
+
+  it("contains no duplicate URLs", () => {
+    const urls = sitemap().map((e) => e.url);
+    expect(urls.length).toBe(new Set(urls).size);
   });
 });

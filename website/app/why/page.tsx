@@ -1,12 +1,14 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { SIGNUP_HREF, START_HREF, GITHUB_HREF } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "Why OhhO | Open is the wedge. Data is the moat.",
+export const metadata = pageSeo({
+  path: "/why",
+  title: "Why OhhO — open is the wedge, data is the moat",
   description:
     "No vendor lock-in is why it's safe to adopt OhhO — not, by itself, a moat. Openness wins adoption; compounding data, operational excellence and open-standard interop are what keep you and block rivals.",
-};
+});
 
 interface Pillar {
   n: string;
