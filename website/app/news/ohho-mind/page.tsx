@@ -1,12 +1,15 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "OhhO Mind: Give Your Robot a Mind of Its Own | OhhO News",
+export const metadata = pageSeo({
+  path: "/news/ohho-mind",
+  title: "OhhO Mind: give your robot a mind of its own",
   description:
     "Introducing OhhO Mind — the continuous agent brain that turns a command-taking robot into a goal-driven one, delivered to your fleet over the air.",
-};
+  type: "article",
+});
 
 export default function OhhOMindNewsArticle() {
   return (

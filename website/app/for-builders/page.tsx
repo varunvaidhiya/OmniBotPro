@@ -1,12 +1,14 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { SIGNUP_HREF, START_HREF, SERVICES_HREF, contactMailto } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "For Builders | Robotics for the real world's budget — OhhO",
+export const metadata = pageSeo({
+  path: "/for-builders",
+  title: "For Builders — robotics for the real world's budget",
   description:
     "Where labor is cheap, robots don't replace workers — they add quality, consistency, safety and 24/7 scale. OhhO is the open, vendor-neutral stack that runs on low-cost hardware and is priced for local budgets.",
-};
+});
 
 interface Fit {
   n: string;

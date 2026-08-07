@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import ConsoleGate from "@/components/auth/ConsoleGate";
 import BridgeConsole from "@/components/bridge/BridgeConsole";
 import { RobotProvider } from "@/lib/garage/RobotContext";
+import { NO_INDEX } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "OhhO Bridge — Connect any robot, even the ones that don't speak ROS.",
   description:
     "Protocol adapters that translate between any robot's native protocol and the OhhO platform. Bridge a DDS-native humanoid, a MAVLink drone, a CANopen mobile base, an OPC UA factory cell or a Modbus arm into standard ROS 2 topics.",
+  robots: NO_INDEX,
 };
 
 export default function BridgePage() {

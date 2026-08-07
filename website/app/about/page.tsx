@@ -1,10 +1,13 @@
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "About Us | OhhO — Robotics, Operated.",
-  description: "We're building the Multimodal Data Stack for embodied AI.",
-};
+export const metadata = pageSeo({
+  path: "/about",
+  title: "About OhhO Robotics",
+  description:
+    "We're building the Multimodal Data Stack for embodied AI.",
+});
 
 export default function About() {
   return (

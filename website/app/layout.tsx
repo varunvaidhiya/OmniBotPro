@@ -8,7 +8,16 @@ import ConnectionBar from "@/components/connect/ConnectionBar";
 import AssistantMount from "@/components/assistant/AssistantMount";
 import FirebaseAnalytics from "@/components/analytics/FirebaseAnalytics";
 
-const SITE_URL = "https://ohho-robotics.com";
+import {
+  SITE_URL,
+  SITE_NAME,
+  SITE_SHORT_NAME,
+  DEFAULT_DESCRIPTION,
+  OG_IMAGE,
+} from "@/lib/seo";
+import { GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF } from "@/lib/site";
+
+const HOME_TITLE = "OhhO Robotics — Open-Source Robots, First. Open Ecosystems, Welcome.";
 
 // Without the viewport export, mobile browsers default to a 980px virtual
 // viewport and Tailwind's `md:flex` breakpoint fires unreliably — that was
@@ -22,43 +31,71 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "OhhO — Open-Source Robots, First. Open Ecosystems, Welcome.",
-  description:
-    "The open-source robotics platform. Built for open-source robots and hardware first — and works with any brand that keeps its software layer open and welcomes developers. Build, train, launch, deploy, manage and regulate any robot. No vendor lock-in, ever.",
+  // Child pages supply a short title; the template appends the brand so every
+  // tab and every search result carries the name people actually search for.
+  title: { default: HOME_TITLE, template: `%s | ${SITE_NAME}` },
+  description: DEFAULT_DESCRIPTION,
+  applicationName: SITE_NAME,
+  // Homepage canonical. Every other route overrides this via lib/seo#pageSeo —
+  // if you add a page, add its canonical too or it inherits this one.
+  alternates: { canonical: SITE_URL },
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
     apple: "/icon.svg",
   },
   openGraph: {
-    title: "OhhO — Open-Source Robots, First. Open Ecosystems, Welcome.",
-    description:
-      "The open-source robotics platform. Built for open-source robots and hardware first — and works with any brand that keeps its software layer open and welcomes developers. No vendor lock-in, ever.",
+    title: HOME_TITLE,
+    description: DEFAULT_DESCRIPTION,
     url: SITE_URL,
-    siteName: "OhhO",
-    images: [{ url: "/ohho-logo.svg", width: 1200, height: 630, alt: "OhhO — Open-Source Robots, First." }],
+    siteName: SITE_NAME,
+    images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OhhO — Open-Source Robots, First. Open Ecosystems, Welcome.",
-    description:
-      "The open-source robotics platform. Built for open-source robots and hardware first — and works with any brand that keeps its software layer open and welcomes developers. No vendor lock-in, ever.",
-    images: ["/ohho-logo.svg"],
+    title: HOME_TITLE,
+    description: DEFAULT_DESCRIPTION,
+    images: [OG_IMAGE],
   },
 };
+
+/*
+ * Structured data. `alternateName` is the part that matters for the brand
+ * query: the company is written "OhhO" in the product copy but people search
+ * "OhhO Robotics" (the domain), so both spellings are declared as names of the
+ * same entity. `sameAs` corroborates that entity against its public profiles.
+ */
+const SOCIAL_PROFILES = [GITHUB_HREF, TWITTER_HREF, LINKEDIN_HREF];
 
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "OhhO",
+  "@id": `${SITE_URL}/#organization`,
+  name: SITE_NAME,
+  alternateName: [SITE_SHORT_NAME, "OhhO AI", "OhhO Robotics Platform"],
   url: SITE_URL,
-  logo: `${SITE_URL}/icon.svg`,
-  description:
-    "The open-source robotics platform. Built for open-source robots and hardware first — and works with any brand that keeps its software layer open and welcomes developers. No vendor lock-in, ever.",
+  logo: {
+    "@type": "ImageObject",
+    url: `${SITE_URL}/icon.svg`,
+    caption: SITE_NAME,
+  },
+  description: DEFAULT_DESCRIPTION,
   founder: { "@type": "Person", name: "Varun Vaidhiya" },
-  sameAs: ["https://github.com/varunvaidhiya/OmniBotPro"],
+  sameAs: SOCIAL_PROFILES,
+};
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
+  name: SITE_NAME,
+  alternateName: [SITE_SHORT_NAME, "OhhO Robotics Platform"],
+  url: SITE_URL,
+  description: DEFAULT_DESCRIPTION,
+  inLanguage: "en-US",
+  publisher: { "@id": `${SITE_URL}/#organization` },
 };
 
 export default function RootLayout({
@@ -72,6 +109,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
         {/* Privacy-friendly analytics — inert until NEXT_PUBLIC_PLAUSIBLE_DOMAIN is
             set. Once set, it powers the funnel + hero A/B events emitted through

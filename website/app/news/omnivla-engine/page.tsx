@@ -2,11 +2,15 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { GITHUB_HREF } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
-export const metadata = {
-  title: "OhhO Open-Sources OmniVLA Engine | OhhO News",
-  description: "A Standardized VLA Engineering Foundation Built for Embodied AI.",
-};
+export const metadata = pageSeo({
+  path: "/news/omnivla-engine",
+  title: "OhhO open-sources the OmniVLA Engine",
+  description:
+    "A Standardized VLA Engineering Foundation Built for Embodied AI.",
+  type: "article",
+});
 
 export default function OmniVLANewsArticle() {
   return (

@@ -16,6 +16,7 @@ import {
   type Product,
 } from "@/lib/products";
 import { PRODUCTS_HREF, productHref } from "@/lib/site";
+import { pageSeo } from "@/lib/seo";
 
 // Static export: pre-render one page per product, nothing else.
 export const dynamicParams = false;
@@ -25,11 +26,15 @@ export function generateStaticParams() {
 
 export function generateMetadata({ params }: { params: { slug: string } }): Metadata {
   const p = getProduct(params.slug);
-  if (!p) return { title: "Product | OhhO" };
-  return {
-    title: `${p.name} — ${p.tag} | OhhO`,
+  if (!p) return { title: "Product" };
+  // Canonical matters more here than anywhere else on the site: most products
+  // also have a signed-in console at /{slug}, and without an explicit canonical
+  // Google was grouping the two and picking the console.
+  return pageSeo({
+    path: `/products/${p.slug}`,
+    title: `${p.name} — ${p.tag}`,
     description: p.hero,
-  };
+  });
 }
 
 export default function ProductPage({ params }: { params: { slug: string } }) {
