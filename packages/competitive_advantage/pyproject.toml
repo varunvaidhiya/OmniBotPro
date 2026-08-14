@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "competitive-advantage"
+version = "1.0.0"
+description = "AI-powered competitive advantage identifier and positioning audit for solopreneurs"
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+
+dependencies = [
+    "anthropic>=0.30",
+    "pydantic>=2.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+
+[project.scripts]
+competitive-advantage = "competitive_advantage.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/varunvaidhiya/OmniBotPro"
+Repository = "https://github.com/varunvaidhiya/OmniBotPro"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["competitive_advantage*"]
