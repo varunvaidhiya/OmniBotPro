@@ -100,6 +100,36 @@ export default function Team() {
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 17L17 7M17 7H7M17 7v10" /></svg>
             </button>
           </section>
+
+          {/* ── Volunteer with OhhO ───────────────────────────────────────── */}
+          <section className="mt-8 bg-white/[0.03] border border-white/[0.07] rounded-3xl p-8 md:p-12 backdrop-blur-md">
+            <h2 className="text-2xl font-bold mb-5 text-white flex items-center gap-3">
+              <span className="text-violet text-xl">03 //</span> Volunteer with OhhO
+            </h2>
+
+            <div className="space-y-4 text-[16px] md:text-[17px] text-white/70 leading-relaxed max-w-2xl mx-auto">
+              <p>
+                OhhO is a bootstrapped, pre-revenue company built by a single founder. We&apos;re a passionate, dedicated volunteer workforce, united by a vision to make robots easier to operate — and we&apos;re looking for talented tech specialists with at least <span className="text-white font-medium">6 hours of free time each week</span> to contribute and drive real impact.
+              </p>
+              <p>
+                Your contributions will be instrumental in advancing a platform with enormous global potential, and in shaping our future as a team. Once we secure the necessary investment and runway, our intent is to reward our volunteers and bring them on as full-time, foundational team members.
+              </p>
+              <p>
+                If you&apos;re an innovative thinker with a commitment to seeing OhhO lead the next frontier in embodied AI and robot tooling, we encourage you to reach out. Your effort could build the future.
+              </p>
+              <p className="pt-1">
+                Please forward your CV to{" "}
+                <a
+                  href={`mailto:${EMAIL}?subject=${encodeURIComponent("Volunteer with OhhO")}`}
+                  className="text-cyan font-medium underline decoration-cyan/40 underline-offset-4 hover:decoration-cyan transition-colors"
+                  style={{ color: "var(--cyan)" }}
+                >
+                  {EMAIL}
+                </a>
+                .
+              </p>
+            </div>
+          </section>
         </div>
       </main>
       <Footer />
