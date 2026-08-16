@@ -12,3 +12,18 @@
 
 # Website build output
 website/.next/*
+
+# Unity generated / vendored content. graphify only reads root-level ignores,
+# so vr_app/.gitignore (which normally excludes these) is NOT honored — mirror
+# the build-artifact & restored-package exclusions here to keep the graph
+# scoped to OmniBot source, not Unity's IL2CPP build cache or third-party UPM
+# packages restored into Packages/. See vr_app/.gitignore for the source list.
+vr_app/Library/
+vr_app/.utmp/
+vr_app/Temp/
+vr_app/Obj/
+vr_app/Logs/
+vr_app/UserSettings/
+vr_app/MemoryCaptures/
+vr_app/LocalPackages/
+vr_app/Packages/
