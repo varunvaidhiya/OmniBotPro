@@ -37,7 +37,7 @@ export default function CtaBanner() {
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <a
               href={SIGNUP_HREF}
-              className="hdr-cta inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
+              className="inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.boxShadow = "0 10px 32px rgba(0,212,255,0.32)";

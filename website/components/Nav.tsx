@@ -95,9 +95,9 @@ export default function Nav() {
           href="/"
           className="font-display font-bold text-[21px] tracking-tight flex items-center group"
         >
-          <span className="text-cyan hdr-logo-glow transition-all duration-350 group-hover:scale-110 group-hover:[text-shadow:0_0_16px_rgba(0,212,255,0.22)] inline-block">O</span>
+          <span className="text-cyan transition-all duration-350 group-hover:scale-110 group-hover:[text-shadow:0_0_16px_rgba(0,212,255,0.22)] inline-block">O</span>
           <span>hh</span>
-          <span className="text-cyan hdr-logo-glow transition-all duration-350 group-hover:scale-110 group-hover:[text-shadow:0_0_16px_rgba(0,212,255,0.22)] inline-block">O</span>
+          <span className="text-cyan transition-all duration-350 group-hover:scale-110 group-hover:[text-shadow:0_0_16px_rgba(0,212,255,0.22)] inline-block">O</span>
         </a>
 
         <div className="hidden md:flex items-center gap-1">
@@ -183,7 +183,7 @@ export default function Nav() {
           {!signedIn && (
             <a
               href="/#pricing"
-              className="hdr-cta text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
+              className="text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
               style={{
                 background: "var(--cyan)",
                 color: "var(--bg)",
@@ -202,7 +202,7 @@ export default function Nav() {
           {signedIn && !subscribed && (
             <a
               href={UPGRADE_HREF}
-              className="hdr-cta inline-flex items-center gap-1.5 text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold ml-[10px] px-5 py-2 rounded-lg transition-all duration-200 hover:opacity-90 hover:-translate-y-px"
               style={{
                 background: "var(--cyan)",
                 color: "var(--bg)",
@@ -392,7 +392,7 @@ function MobileMenu({
             <a
               href="/#pricing"
               onClick={onNavigate}
-              className="hdr-cta block text-center text-[14px] font-semibold py-3 rounded-lg"
+              className="block text-center text-[14px] font-semibold py-3 rounded-lg"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
             >
               Get Started
@@ -402,7 +402,7 @@ function MobileMenu({
             <a
               href={UPGRADE_HREF}
               onClick={onNavigate}
-              className="hdr-cta inline-flex items-center justify-center gap-1.5 text-[14px] font-semibold py-3 rounded-lg"
+              className="inline-flex items-center justify-center gap-1.5 text-[14px] font-semibold py-3 rounded-lg"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
             >
               <Sparkles size={14} strokeWidth={2.5} />

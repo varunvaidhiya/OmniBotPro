@@ -60,11 +60,11 @@ export default function Hero() {
             className="font-display font-bold leading-none flex items-center justify-center tracking-[-0.045em] group mb-4"
             style={{ fontSize: "clamp(64px, 12vw, 132px)" }}
           >
-            <span className="text-cyan hdr-logo-glow inline-block transition-[text-shadow] duration-300 group-hover:[text-shadow:0_0_40px_rgba(0,212,255,.65),0_0_80px_rgba(0,212,255,.28)]">
+            <span className="text-cyan inline-block transition-[text-shadow] duration-300 group-hover:[text-shadow:0_0_40px_rgba(0,212,255,.65),0_0_80px_rgba(0,212,255,.28)]">
               O
             </span>
             <span className="tracking-[-0.05em]">hh</span>
-            <span className="text-cyan hdr-logo-glow inline-block transition-[text-shadow] duration-300 group-hover:[text-shadow:0_0_40px_rgba(0,212,255,.65),0_0_80px_rgba(0,212,255,.28)]">
+            <span className="text-cyan inline-block transition-[text-shadow] duration-300 group-hover:[text-shadow:0_0_40px_rgba(0,212,255,.65),0_0_80px_rgba(0,212,255,.28)]">
               O
             </span>
           </motion.h1>
@@ -127,7 +127,7 @@ export default function Hero() {
             <a
               href={SIGNUP_HREF}
               onClick={() => track("hero_cta_click", { cta: "start_free", variant })}
-              className="hdr-cta inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
+              className="inline-flex items-center gap-2 text-sm font-semibold px-[26px] py-[13px] rounded-lg transition-all duration-200 hover:-translate-y-0.5 hover:opacity-95"
               style={{ background: "var(--cyan)", color: "var(--bg)" }}
               onMouseEnter={(e) => {
                 (e.currentTarget as HTMLElement).style.boxShadow =
