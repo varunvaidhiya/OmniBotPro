@@ -217,7 +217,7 @@ function CtaButton({ style, label, href }: { style: string; label: string; href:
     return (
       <a
         href={href}
-        className={base}
+        className={`${base} hdr-cta`}
         style={{ background: "var(--cyan)", color: "var(--bg)" }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.opacity = "0.88";
@@ -236,7 +236,7 @@ function CtaButton({ style, label, href }: { style: string; label: string; href:
     return (
       <a
         href={href}
-        className={base}
+        className={`${base} hdr-cta-violet`}
         style={{ background: "var(--violet)", color: "#fff" }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.opacity = "0.88";

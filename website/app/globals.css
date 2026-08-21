@@ -20,6 +20,104 @@
   --text: #FFFFFF;
   --muted: rgba(255,255,255,0.52);
   --faint: rgba(255,255,255,0.22);
+
+  /* ── HDR ACCENT TOKENS ─────────────────────────────────────────────
+     These are the "highlight" colours, expressed in the rec2100-pq
+     (HDR10) colour space. On an HDR-capable display + browser they render
+     BRIGHTER than any sRGB colour can — the punchy, neon-light look. On
+     every other device they are never applied (gated by
+     @media (dynamic-range: high) below), so the sRGB --cyan / --violet
+     stay in charge and the site looks exactly as before. Graceful
+     degradation is built in — non-HDR devices are unaffected.
+
+     PQ signal reference points:
+       0.0   → 0 nits (black)
+       0.508 → 100 nits (SDR reference white)
+       0.58  → 203 nits (HDR10 diffuse white)
+       0.709 → 1000 nits
+     We keep the bright channels in the ~0.60–0.66 band (≈ 250–600 nits) so
+     accents read as a confident "brighter than the page" neon — not blown
+     out. */
+  --cyan-hdr: color(rec2100-pq 0.04 0.62 0.66);        /* neon cyan  */
+  --cyan-hdr-bright: color(rec2100-pq 0.10 0.66 0.72); /* logo neon  */
+  --violet-hdr: color(rec2100-pq 0.56 0.46 0.72);      /* neon violet */
+}
+
+/* ══ HDR HIGHLIGHTS (HDR-capable displays only) ═══════════════════════
+   Everything in this block ONLY matches when the output device supports a
+   high dynamic range (HDR display + HDR-capable browser). SDR devices skip
+   it entirely, so the base sRGB palette above is untouched there.
+
+   Two layers:
+     1. A subtle global lift — every accent using var(--cyan)/var(--violet)
+        gets a touch richer on HDR (badges, borders, chips, muted accents).
+     2. Explicit "highlight" classes (.hdr-*) for the few IMPORTANT things
+        that should truly pop like a neon sign: the logo glyphs and the
+        primary calls-to-action. Keeping the strong glow on only these
+        preserves hierarchy — if everything glows, nothing is highlighted. */
+@media (dynamic-range: high) {
+  /* Layer 1 — gentle site-wide richness on the accent palette. */
+  :root {
+    --cyan: var(--cyan-hdr);
+    --violet: var(--violet-hdr);
+    /* Keep the soft glow/dim variants proportional so shadows & washes
+       track the brighter accent. */
+    --cyan-glow: color(rec2100-pq 0.04 0.62 0.66 / 0.30);
+    --violet-glow: color(rec2100-pq 0.56 0.46 0.72 / 0.30);
+  }
+
+  /* Layer 2 — the logo glyphs (the cyan "O"s). A persistent neon glow that
+     exceeds SDR white, so the wordmark reads as an illuminated sign. */
+  .hdr-logo-glow {
+    color: var(--cyan-hdr-bright) !important;
+    text-shadow:
+      0 0 18px color(rec2100-pq 0.10 0.66 0.72 / 0.85),
+      0 0 46px color(rec2100-pq 0.10 0.66 0.72 / 0.45),
+      0 0 90px color(rec2100-pq 0.10 0.66 0.72 / 0.22);
+  }
+
+  /* Primary call-to-action buttons — neon fill + halo. Applied on top of
+     the existing sRGB styles; the !important lets it win over the inline
+     `background: var(--cyan)` these CTAs set in JSX. */
+  .hdr-cta {
+    background: var(--cyan-hdr-bright) !important;
+    box-shadow:
+      0 0 22px color(rec2100-pq 0.10 0.66 0.72 / 0.55),
+      0 8px 34px color(rec2100-pq 0.10 0.66 0.72 / 0.35) !important;
+  }
+  .hdr-cta:hover {
+    box-shadow:
+      0 0 30px color(rec2100-pq 0.10 0.66 0.72 / 0.70),
+      0 12px 44px color(rec2100-pq 0.10 0.66 0.72 / 0.45) !important;
+  }
+
+  /* Violet variant (Fleet / violet CTAs). */
+  .hdr-cta-violet {
+    background: var(--violet-hdr) !important;
+    box-shadow:
+      0 0 22px color(rec2100-pq 0.56 0.46 0.72 / 0.55),
+      0 8px 34px color(rec2100-pq 0.56 0.46 0.72 / 0.35) !important;
+  }
+  .hdr-cta-violet:hover {
+    box-shadow:
+      0 0 30px color(rec2100-pq 0.56 0.46 0.72 / 0.70),
+      0 12px 44px color(rec2100-pq 0.56 0.46 0.72 / 0.45) !important;
+  }
+
+  /* Featured / "most popular" tiles get an always-on neon rim so the
+     highlighted plan reads as the recommended one at a glance. */
+  .glass-featured.glass-cyan {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.24),
+      0 0 46px color(rec2100-pq 0.04 0.62 0.66 / 0.30),
+      0 22px 60px -18px rgba(0,0,0,0.6);
+  }
+  .glass-featured.glass-violet {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.24),
+      0 0 46px color(rec2100-pq 0.56 0.46 0.72 / 0.32),
+      0 22px 60px -18px rgba(0,0,0,0.6);
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

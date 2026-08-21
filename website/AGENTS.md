@@ -513,6 +513,39 @@ When adding a new protocol/safety standard/data format:
 
 ---
 
+## 7a. HDR highlights convention
+
+The site uses HDR (high dynamic range) colour to make the *important* things
+pop like a neon sign on HDR-capable displays — starting with the logo. **All
+HDR styling is gated behind `@media (dynamic-range: high)`** in
+`app/globals.css`, so non-HDR devices keep the base sRGB palette untouched and
+the site looks exactly as before. Graceful degradation is built in — never
+apply an HDR colour outside that media query.
+
+**How it works:**
+- HDR accent tokens live in `:root`: `--cyan-hdr`, `--cyan-hdr-bright`,
+  `--violet-hdr` — expressed in the `rec2100-pq` (HDR10) colour space so they
+  render brighter than SDR white on capable displays.
+- **Layer 1 (subtle):** inside the media query, `--cyan` / `--violet` (and
+  their glow variants) are re-pointed at the HDR tokens, so every accent
+  site-wide gets a gentle richness lift on HDR.
+- **Layer 2 (strong, targeted):** utility classes for the few elements that
+  should truly glow. Apply these sparingly to preserve hierarchy:
+  - `.hdr-logo-glow` — the cyan "O" glyphs of the wordmark (Nav + Hero).
+    Persistent neon glow that exceeds SDR white.
+  - `.hdr-cta` — primary cyan calls-to-action (Hero "Start Free", Nav
+    "Get Started"/"Upgrade", Pricing "Start Building", CtaBanner).
+  - `.hdr-cta-violet` — violet CTAs (Pricing "Deploy Your Fleet").
+  - `.glass-featured` tiles get an always-on neon rim on HDR.
+
+**When adding a new important/highlighted element:** prefer applying one of
+these utility classes over inventing a new HDR colour. If you must add a new
+HDR token, define it in `:root` next to the existing `--*-hdr` tokens and only
+*use* it inside `@media (dynamic-range: high)`. Always keep the sRGB
+`--cyan`/`--violet` baseline intact for non-HDR devices.
+
+---
+
 ## 8. Build & test commands
 
 ```bash
@@ -542,6 +575,7 @@ cd website && npm run build
 | Date | Change |
 |---|---|
 | 2026-07-06 | Initial creation. 35 standards documented across 4 categories. 19 product build prompts. Brand-agnostic + hardware-agnostic rules. |
+| 2026-08-21 | Added HDR highlights convention (§7a). `rec2100-pq` accent tokens + `.hdr-logo-glow` / `.hdr-cta` / `.hdr-cta-violet` utilities, all gated by `@media (dynamic-range: high)` so non-HDR devices keep the sRGB palette. |
 
 <!-- 
   ════════════════════════════════════════════════════════════════════════════
