@@ -1,0 +1,276 @@
+% OmniBot pre-results manuscript draft.
+% IMPORTANT: This source intentionally contains no fabricated performance results.
+% Replace all \TBD{} fields only with released, traceable measurements.
+\documentclass[letterpaper,10pt,conference]{ieeeconf}
+\IEEEoverridecommandlockouts
+\overrideIEEEmargins
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{xspace}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\usepackage{enumitem}
+
+\newcommand{\TBD}[1]{\textcolor{red}{[TBD: #1]}}
+\newcommand{\OmniBot}{\textsc{OmniBot}}
+\newcommand{\eg}{e.g.,\xspace}
+\newcommand{\ie}{i.e.,\xspace}
+\newcommand{\placeholderfigure}[3]{%
+\begin{figure}[t]
+\centering
+\fbox{\parbox[c][#1][c]{0.94\columnwidth}{\centering\small #2}}
+\caption{\TBD{Replace with released vector/raster figure and traceable source data.}}
+\label{#3}
+\end{figure}}
+
+\title{\LARGE \bf
+OmniBot: An Affordable, Distributed Embodied-AI Platform for Mobile Manipulation with Vision-Language-Action Models
+}
+
+\author{Varun Vaidhiya$^{1}$% 
+\thanks{$^{1}$\TBD{Confirm affiliation, postal address, and contact email before submission.}}
+\thanks{This is a pre-results manuscript draft. No experimental performance, reliability, safety, task-success, or cost-comparison claims should be inserted without corresponding released artefacts.}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Vision-language-action (VLA) models and open robot-learning hardware broaden access to learned manipulation, yet deploying a complete mobile-manipulation system remains difficult when robot-resident compute is constrained and policy inference requires GPU resources. This paper presents \OmniBot{}, an open systems platform and a preregistered evaluation methodology for mobile manipulation. The platform combines a Raspberry Pi 5 edge computer for robot I/O and perception, a networked consumer GPU workstation for policy serving, a mecanum mobile base, a six-degree-of-freedom arm, multi-camera sensing, and ROS~2 integration with classical navigation. Its engineering focus is not a new VLA architecture. Rather, it specifies interfaces for distributed policy execution, command-source arbitration between classical navigation and learned control, and an SLO-aware benchmark suite that records component, communication, end-to-end, resource, and task-level outcomes. The paper positions the platform against open mobile manipulators, VLA policies, robot datasets, and ROS~2 benchmarking infrastructure. It then defines matched local-versus-distributed evaluation conditions, clock-synchronization requirements, cost-accounting boundaries, and raw-artifact release requirements. This pre-results version deliberately reports no unmeasured performance claims; final quantitative conclusions require the described physical-robot measurements.
+\end{abstract}
+
+\begin{keywords}
+Mobile manipulation, embodied AI, vision-language-action models, ROS~2, distributed inference, reproducible benchmarking.
+\end{keywords}
+
+\section{Introduction}
+\label{sec:intro}
+
+Mobile manipulation requires the coordinated operation of perception, navigation, control, policy inference, and hardware actuation. Recent open systems have materially reduced the barrier to collecting demonstrations and evaluating learned policies. Mobile ALOHA combines low-cost whole-body teleoperation with a mobile bimanual platform~\cite{fu2024mobile}; AhaRobot demonstrates a lower-cost open bimanual design and remote teleoperation~\cite{cui2025aharobot}; and TidyBot++ presents an open holonomic mobile manipulator designed for data collection and imitation learning~\cite{wu2025tidybot}. These systems establish that affordable hardware, teleoperation, and policy learning are not by themselves novel contributions.
+
+At the same time, VLA research has progressed from large-scale robot transformers~\cite{brohan2023rt1} and web-knowledge transfer~\cite{zitkovich2023rt2} to open models such as OpenVLA~\cite{kim2025openvla}, Octo~\cite{octo2024}, and SmolVLA~\cite{shukor2025smolvla}. Such models and their datasets~\cite{openx2024,walke2023bridgedatav2,khazatsky2024droid} enable more accessible adaptation, but their availability does not alone resolve the systems question of how to compose edge I/O, networked policy serving, classical navigation, actuation, and measurement on a small physical robot.
+
+This work investigates that systems question. \OmniBot{} is a low-cost single-arm mobile manipulator with a Raspberry Pi 5 edge node, a consumer GPU workstation for policy/VLA inference, a mecanum base, an SO-101 arm, and a six-camera sensor suite. Classical navigation is supplied by ROS~2 and Nav2~\cite{macenski2023nav2}, while policy and navigation command sources are connected by explicit command multiplexing and mission transitions. The purpose is to provide an inspectable reference implementation and a measurement protocol, not to claim a novel policy architecture, universal safety guarantee, or state-of-the-art task success.
+
+The research gap is therefore deliberately narrow: while prior literature separately supplies low-cost mobile-manipulation platforms, open VLA models, robot-learning datasets, navigation frameworks, and robotics-computing benchmarks~\cite{robotperf2024}, there is limited open systems evidence for a complete low-cost mobile-manipulation configuration that (i) separates robot-resident I/O from GPU policy inference, (ii) reports the resulting communication and tail-latency behaviour, (iii) makes navigation-to-manipulation handoff explicit, and (iv) publishes raw measurements and reproducibility artefacts. This is a qualified empirical gap, not a claim that no comparable system exists.
+
+\noindent The paper makes the following contributions:
+\begin{enumerate}[leftmargin=*,itemsep=1pt]
+    \item An open reference design for a low-cost, single-arm, mecanum mobile manipulator with a Pi-edge/GPU-server deployment topology.
+    \item A documented integration boundary among ROS~2 navigation, policy/VLA serving, command multiplexing, actuator constraints, and mission orchestration.
+    \item A preregistered, SLO-aware measurement protocol covering component latency, client/server policy timing, end-to-end action latency, resource use, network load, and limited physical task trials.
+    \item A reproducibility package specification that requires a frozen bill of materials (BOM), machine-labelled raw results, pinned software configuration, clock-synchronization metadata, and regression-gate evidence.
+\end{enumerate}
+
+\paragraph{Integrity statement.} This manuscript is intentionally a pre-results draft. All performance thresholds in the repository are engineering targets, not observations. The final version must replace every \TBD{} marker only with data from the released experimental protocol.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Open and affordable mobile manipulators}
+
+Original ALOHA introduced a low-cost bimanual teleoperation system for fine-grained manipulation~\cite{zhao2023aloha}. Mobile ALOHA extends this direction to whole-body mobile manipulation and evaluates long-horizon household activities~\cite{fu2024mobile}. AhaRobot provides another open bimanual platform, combining off-the-shelf hardware, precision-control compensation, and remote teleoperation~\cite{cui2025aharobot}. TidyBot++ focuses on an open holonomic mobile base, phone-based teleoperation, and policy learning with human-guided data~\cite{wu2025tidybot}. These works make platform access and data collection central research contributions.
+
+\OmniBot{} differs in platform geometry, compute topology, and central evaluation question. It employs a mecanum base and one arm rather than dual arms, and separates edge-resident I/O from a networked GPU inference service. It should not be described as the first affordable, open, or holonomic/omnidirectional mobile manipulator. Its comparison table must instead state cost accounting boundaries, compute inclusion, sensing, base type, software scope, and whether distributed deployment metrics are reported.
+
+\subsection{VLA policies and robot-learning data}
+
+RT-1 developed a scalable transformer policy for real-world control~\cite{brohan2023rt1}; RT-2 expressed robot actions as tokens and studied the benefits of co-fine-tuning vision-language models with robot trajectories and web-scale vision-language data~\cite{zitkovich2023rt2}. OpenVLA released an open 7B VLA and studied adaptation plus quantized serving on consumer GPUs~\cite{kim2025openvla}. Octo provides an open generalist robot policy~\cite{octo2024}, while SmolVLA targets smaller, more efficient VLA training and inference, including asynchronous execution~\cite{shukor2025smolvla}.
+
+These model papers are essential dependencies but not direct hardware-latency baselines. Open X-Embodiment~\cite{openx2024}, BridgeData V2~\cite{walke2023bridgedatav2}, and DROID~\cite{khazatsky2024droid} establish the scale and diversity of open robot-learning data. In contrast, the present work does not introduce a large dataset or claim data-efficiency. Its data pipeline is relevant only insofar as it interoperates with policy training/deployment and records task evaluation artefacts.
+
+\subsection{ROS~2 systems, benchmarking, and safety terminology}
+
+Nav2 provides a modular ROS~2 framework for planning, localization, control, recovery behaviour, and velocity-command generation across robot kinematics~\cite{macenski2023nav2}. RobotPerf advances open, ROS~2-based robotics computing benchmarks~\cite{robotperf2024}. These works motivate measuring modular components and reproducible systems performance, but they do not replace a platform-specific end-to-end study.
+
+Safety terminology also requires care. Formal shielding monitors learned actions against explicit specifications and corrects actions that would violate them~\cite{alshiekh2018shielding}. \OmniBot's current described mechanism is a command-source multiplexer with actuator limits and an emergency stop. It is therefore termed a \emph{safety-bounded command mux}, not a formally verified shield. Formal safety guarantees are out of scope and remain future work.
+
+\begin{table*}[t]
+\caption{Positioning against representative related work. ``NR'' means not reported in the cited paper, not absent from the system. The final manuscript must verify every row against the cited source and use consistent cost-accounting labels.}
+\label{tab:comparison}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l c c c c X}
+\toprule
+System & Open hardware & Mobile manipulation & Primary emphasis & Compute / cost boundary & Relationship to \OmniBot{} \\
+\midrule
+Mobile ALOHA~\cite{fu2024mobile} & Yes & Bimanual & Whole-body teleoperation and policy learning & Onboard laptop; paper-specific platform accounting & Closest whole-body mobile-learning comparator; different base, arms, compute topology \\
+AhaRobot~\cite{cui2025aharobot} & Yes & Bimanual & Low-cost hardware, precision control, remote teleoperation & Hardware / total system reported separately & Contemporary affordability comparator; not a claim of priority \\
+TidyBot++~\cite{wu2025tidybot} & Yes & Single arm & Holonomic platform and data collection & Base cost reported by authors & Direct holonomic-mobile-learning comparator; different wheel design and cost scale \\
+OpenVLA~\cite{kim2025openvla} & N/A & Manipulation policies & Open VLA and efficient adaptation & Consumer-GPU serving & Policy dependency; not a platform-cost/latency baseline \\
+RobotPerf~\cite{robotperf2024} & Software & N/A & ROS~2 computing benchmarks & Cross-hardware benchmarks & Methodological antecedent; \OmniBot{} adds platform-specific e2e protocol \\
+\OmniBot{} & Yes & Single arm & Distributed deployment and reproducibility & \TBD{three explicit accounting boundaries} & Subject of this study \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\section{Platform and System Architecture}
+\label{sec:system}
+
+\subsection{Physical platform}
+
+The system comprises a Raspberry Pi 5 (8~GB) robot computer, an NVIDIA GPU workstation for policy serving, a Yahboom motor controller, a mecanum base, an SO-101 six-degree-of-freedom arm using Feetech STS3215 servos, an IMU, four base cameras for bird's-eye-view (BEV) synthesis, a depth camera, and a wrist camera. The policy action interface is
+\begin{equation}
+\mathbf{a}_t = [q_1, q_2, q_3, q_4, q_5, q_6, v_x, v_y, \omega_z]^\top,
+\end{equation}
+where $q_i$ are arm commands and $(v_x,v_y,\omega_z)$ are planar base commands. The final paper must report all sensor models, resolutions, frame rates, arm/base limits, power system, mechanical configuration, and unit costs in a dated BOM.
+
+\begin{table}[t]
+\caption{Required BOM accounting. Values are intentionally withheld pending a dated supplier audit.}
+\label{tab:bom}
+\centering
+\small
+\begin{tabular}{p{0.33\columnwidth} p{0.55\columnwidth}}
+\toprule
+Cost boundary & Required inclusions \\
+\midrule
+Robot-only & Base, arm, motor controller, sensors, battery, structural hardware, wiring, storage and Pi \\
+On-robot operational & Robot-only plus all required on-robot cooling, power and peripherals \\
+Full experimental stack & On-robot operational plus GPU workstation, network equipment, teleoperation/display peripherals and shared power equipment \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Compute and control topology}
+
+The Pi hosts robot I/O, ROS~2 nodes, sensor acquisition, state estimation, command routing, and actuation. The GPU workstation hosts policy/VLA inference through a service endpoint and records accelerator-side telemetry. In the distributed configuration, a timestamped request containing the policy observation is emitted by the edge node, processed by the server, and returned as a policy action. The edge node then applies command-source selection and publishes the executable actuator commands.
+
+\placeholderfigure{3.0cm}{\textbf{System architecture placeholder.} Depict the Pi edge node, GPU policy server, ROS~2 topic/service interfaces, BEV and wrist/depth inputs, Nav2, command mux, arm mux, emergency-stop path, and the timestamped measurement points.}{fig:architecture}
+
+\subsection{Classical and learned command composition}
+
+Nav2 supplies navigation commands based on the localization, map, and costmap stack. Learned policies supply base and/or arm actions. A mission planner triggers staged transitions such as ``navigate to named pose'' followed by ``manipulate at goal.'' A command mux selects among permitted sources, logs the selected source, and applies documented bounds. This architecture is an engineering interface, not evidence that the components independently improve task success. The physical task study in \cref{sec:method} tests whether this staged composition is executable and exposes its failure modes.
+
+\section{Experimental Methodology}
+\label{sec:method}
+
+\subsection{Research questions and conditions}
+
+The headline comparison is between a local-edge policy path (M1) and a distributed Pi-edge/GPU-server path (M2), run with a matched policy class, checkpoint, quantization configuration, input representation, action representation, camera rate, and warm-up protocol. If the selected VLA cannot load or operate on the Pi, the final paper must report the exact failure mode, model memory requirement, error output, and configuration; it must not silently substitute a smaller model and present the result as a like-for-like comparison.
+
+The study also includes component-only baselines (M0), navigation-only trials (M3), manipulation-at-goal trials (M4), and staged hybrid missions (M5). M3--M5 are supporting integration evidence, not a claim of a new autonomy algorithm.
+
+\begin{table*}[t]
+\caption{Pre-registered evaluation conditions. Every row requires machine, commit, model, configuration, network, warm-up, and repetition metadata.}
+\label{tab:conditions}
+\centering
+\small
+\begin{tabularx}{\textwidth}{l X X X}
+\toprule
+Condition & Edge responsibilities & GPU responsibilities & Primary measurement \\
+\midrule
+M0 Component baseline & Execute isolated protocol, kinematics, perception or preprocessing component & As required for GPU-only component & p50/p95/p99, SLO status \\
+M1 Local/edge policy & I/O, perception, preprocessing and attempted policy inference & None & Feasibility, latency, control rate, Pi resources \\
+M2 Distributed policy & I/O, capture, preprocessing, request/action timing, command execution & Policy service, server timing and GPU telemetry & End-to-end latency, network load, resource split \\
+M3 Navigation-only & Nav2 stack and physical base control & None & Reach success and completion time \\
+M4 Manipulation-at-goal & Fixed-base manipulation path & Policy service if applicable & Manipulation success and failure taxonomy \\
+M5 Staged mission & Navigation-to-policy transition, mux logs and physical execution & Policy service if applicable & Stage/mission success, time, aborts and interventions \\
+\bottomrule
+\end{tabularx}
+\end{table*}
+
+\subsection{Timing and instrumentation}
+
+Every frame, request, response, selected action, and actuator publication must carry a unique identifier. Define total frame-to-actuation latency as
+\begin{equation}
+L_{\mathrm{e2e}} = t_{\mathrm{actuation\ publish}} - t_{\mathrm{frame\ capture}}.
+\end{equation}
+Where clocks permit, decompose latency into capture, preprocessing, uplink, queueing, server inference, downlink, mux, and actuation stages. Cross-host one-way timing is valid only after recording clock offset/jitter using chrony, PTP, or an equivalent approach. Otherwise, report client round-trip time and server-side inference time separately; unsynchronized wall-clock timestamps must not be summed.
+
+The repository timing harness uses monotonic timing and reports mean, median/p50, p95, p99, minimum, maximum, and standard deviation. Component benchmarks should use at least 50 warm-up executions followed by 1,000 timed iterations. The networked policy/full-pipeline experiment should use at least 30 independent short runs per condition, with 100 or more requests per run where stable, so the independent unit is a run rather than an autocorrelated request.
+
+\begin{table}[t]
+\caption{Selected predeclared engineering SLOs in the existing benchmark harness. These are targets/gates, \emph{not} measured results.}
+\label{tab:slos}
+\centering
+\small
+\begin{tabular}{lrr}
+\toprule
+Metric & Target (ms) & Maximum (ms) \\
+\midrule
+Yahboom TX packet & 1.0 & 5.0 \\
+Yahboom RX parse & 0.5 & 2.0 \\
+Mecanum IK / FK & 0.05 & 0.5 \\
+BEV stitch frame & 33.0 & 50.0$^{a}$ \\
+SmolVLA preprocessing & 5.0 & 20.0 \\
+SmolVLA inference & 100.0 & 200.0$^{b}$ \\
+OpenVLA inference & 500.0 & 2000.0$^{b}$ \\
+Full control loop & 50.0 & 100.0 \\
+\bottomrule
+\multicolumn{3}{p{0.94\columnwidth}}{\footnotesize $^{a}$Pi-specific maximum is 80~ms. $^{b}$GPU-specific targets/maxima are tighter in the repository. Final paper must reproduce the full SLO table and version hash.}
+\end{tabular}
+\end{table}
+
+\subsection{Resource, network, and cost measurements}
+
+Each experimental run records Pi CPU utilisation, memory, temperature and power where available; workstation CPU/GPU utilisation, VRAM, temperature and power; process/resource sampling period; network payload bytes, request rate and retries; and all dropped, late or rejected actions. Resource telemetry is reported as run-level median, p95 and peak alongside time series. The paper must state missing telemetry channels rather than treating absence as zero consumption.
+
+Costs are reported under three non-interchangeable boundaries: robot-only BOM, on-robot operational system, and full experimental stack. Every entry requires original currency, dated source/supplier, quantity, shipping/tax convention, and any conversion rate. Cross-platform comparison will show the reported accounting boundary of each cited system instead of placing incomparable headline totals in a single ranking.
+
+\subsection{Physical task protocol and analysis}
+
+The supporting task study uses two or three fixed navigation-then-manipulation tasks. Before data collection, the authors must specify workspace layout, object/pose distribution, navigation tolerance, grasp-success criterion, time limit, reset procedure, model version, human intervention policy, emergency-stop treatment, and failure codes. Each task-condition cell should contain 15--20 independent trials when feasible. The final results report the success numerator/denominator, Wilson 95\% confidence interval, median and IQR completion time, and the number of manual/e-stop interventions.
+
+A failure taxonomy distinguishes localization/planning, perception, network/service timeout, policy error, grasp/arm execution, mux/transition, and manual/e-stop failures. The task study is a platform demonstration on one physical robot; it must not be described as population-level evidence of general robotic capability.
+
+\subsection{Statistical and reproducibility protocol}
+
+For M1 versus M2, use independent runs as the unit of inference. Report the run-level median difference in latency and sustainable action rate with a paired bootstrap 95\% confidence interval. If a null-hypothesis test is used, pre-specify it, use an appropriate paired nonparametric test, and provide an effect size and uncertainty. For task success, report Wilson intervals and use exact comparisons only for pre-specified, sufficiently powered contrasts.
+
+All results must be linked to a public git tag, hardware manifest, model/checkpoint provenance, network configuration, benchmark invocation, raw JSON/CSV, analysis script, and trial log. A seeded regression (for example, a controlled added-delay condition) should demonstrate that the SLO gate can detect the stated type of performance regression.
+
+\section{Results: Evidence Required Before Submission}
+\label{sec:results}
+
+\noindent\textbf{No results are inserted in this pre-results version.} The final manuscript should populate the following artifacts only from released data.
+
+\begin{table*}[t]
+\caption{Results table template. Do not replace dashes with anticipated values. Values must link to raw runs.}
+\label{tab:results}
+\centering
+\small
+\begin{tabular}{l l r r r r l}
+\toprule
+Metric & Mode / machine & Runs & p50 & p95 & p99 & SLO status \\
+\midrule
+Policy client RTT (ms) & M1 Pi & \TBD{n} & -- & -- & -- & -- \\
+Policy client RTT (ms) & M2 Pi$\leftrightarrow$GPU & \TBD{n} & -- & -- & -- & -- \\
+Server inference (ms) & M2 GPU & \TBD{n} & -- & -- & -- & -- \\
+Frame-to-actuation (ms) & M1 Pi & \TBD{n} & -- & -- & -- & -- \\
+Frame-to-actuation (ms) & M2 Pi$\leftrightarrow$GPU & \TBD{n} & -- & -- & -- & -- \\
+Sustainable action rate (Hz) & M1 / M2 & \TBD{n} & -- & -- & -- & \TBD{criterion} \\
+Hybrid mission success & M5 & \TBD{N trials} & \multicolumn{4}{l}{--; report numerator/denominator and Wilson 95\% CI} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\placeholderfigure{3.2cm}{\textbf{Results figure placeholder.} Use a latency CDF or violin plot with per-run sample counts, medians, p95 values, and M1/M2 condition labels. Add a stacked latency breakdown only if clock-synchronization uncertainty validates the cross-host decomposition.}{fig:results}
+
+The result narrative must answer each research question without extrapolation. A lower M2 latency or higher M2 control rate supports the architecture only for the stated policy, hardware, network and workload. A local-model load failure supports a constrained deployability claim, not a universal claim about edge inference. SLO breaches are observations requiring diagnosis, not values to be hidden or removed.
+
+\section{Limitations, Safety, and Responsible Release}
+\label{sec:limits}
+
+The evaluation is limited to one platform, a small set of tasks, one or few networks, and selected policy checkpoints. Network performance may be specific to the laboratory and cannot establish Internet/cloud-operation guarantees. A bounded command mux, actuator limits and emergency stop are prudent controls but do not constitute formal safety verification. Physical trials must use an emergency-stop procedure, a clear operator role, speed/space limits, and documented abort criteria. The release should include negative results, failed trials, and configuration caveats so that other groups can assess applicability.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+\OmniBot{} is positioned as an open mobile-manipulation systems platform rather than a new VLA model. The research contribution is viable only if the implementation is accompanied by a transparent experimental record: consistent cost boundaries, matched local-versus-distributed policy configurations, synchronized timing, resource and network telemetry, explicit command-arbitration logs, limited but honest physical task trials, and raw reproducibility artefacts. The protocol defined here makes the central claim falsifiable. Once the measurements exist, the final version can establish which deployment properties this particular low-cost edge/GPU configuration actually achieves.
+
+\section*{Acknowledgment}
+\TBD{Add funding, institutional, contributor, hardware, model, and dataset acknowledgments; verify all third-party licences.}
+
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+
+\end{document}
