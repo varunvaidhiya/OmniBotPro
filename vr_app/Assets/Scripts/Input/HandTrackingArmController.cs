@@ -37,6 +37,10 @@ namespace OmniBot.VR.Input
         private float _thumbsUpHoldTimer = 0f;
         private const float ThumbsUpHoldRequired = 0.5f; // seconds hold to toggle
 
+        // ── Velocity prediction ──────────────────────────────────────────────
+        private Vector3 _lastWorldHandPos;
+        private float   _lastHandPosTime;
+
         // ── Arm max reach (metres) ────────────────────────────────────────────
         private static readonly float ArmMaxReach =
             RobotConfig.ARM_LINK1_LENGTH +
@@ -51,6 +55,8 @@ namespace OmniBot.VR.Input
             // Initialize joint angles to home (all zeros, gripper open)
             for (int i = 0; i < 6; i++)
                 _currentAngles[i] = 0f;
+                
+            _lastHandPosTime = Time.time;
         }
 
         private void Start()
@@ -70,6 +76,12 @@ namespace OmniBot.VR.Input
 
         private void Update()
         {
+            // ── Calibration ───────────────────────────────────────────────
+            if (OVRInput.GetDown(OVRInput.Button.One))
+            {
+                CalibrateHomePose();
+            }
+
             // ── Left-hand thumbs-up gesture: toggle arm enable ────────────────
             if (gestureDetector != null &&
                 gestureDetector.leftHand != null &&
@@ -110,7 +122,15 @@ namespace OmniBot.VR.Input
             Vector3    worldHandPos = gestureDetector.GetHandPosition(gestureDetector.rightHand);
             Quaternion worldHandRot = gestureDetector.GetHandRotation(gestureDetector.rightHand);
 
-            Vector3 localHandPos = handWorkspaceOrigin.InverseTransformPoint(worldHandPos);
+            // Predict forward 30ms to handle latency
+            float dt = Time.time - _lastHandPosTime;
+            Vector3 velocity = dt > 0.001f ? (worldHandPos - _lastWorldHandPos) / dt : Vector3.zero;
+            _lastWorldHandPos = worldHandPos;
+            _lastHandPosTime = Time.time;
+            
+            Vector3 predictedWorldHandPos = worldHandPos + velocity * 0.03f; // 30ms latency prediction
+
+            Vector3 localHandPos = handWorkspaceOrigin.InverseTransformPoint(predictedWorldHandPos);
 
             // 2. Scale: workspace radius → arm reach
             float scale = ArmMaxReach / RobotConfig.HAND_WORKSPACE_RADIUS;
@@ -127,9 +147,13 @@ namespace OmniBot.VR.Input
                 handWorkspaceOrigin.position.z);
 
             // Target relative to arm base
-            Vector3 targetRelativeToBase = worldHandPos - armBaseWorld;
+            Vector3 targetRelativeToBase = predictedWorldHandPos - armBaseWorld;
             targetRelativeToBase = targetRelativeToBase * scale;
+            
+            bool unreachable = targetRelativeToBase.magnitude > ArmMaxReach * 0.98f;
             targetRelativeToBase = Vector3.ClampMagnitude(targetRelativeToBase, ArmMaxReach * 0.98f);
+            
+            SetHandColor(unreachable ? Color.red : Color.white);
 
             Vector3 absoluteTarget = armBaseWorld + targetRelativeToBase;
 
@@ -148,6 +172,28 @@ namespace OmniBot.VR.Input
                 newAngles);
 
             ROSBridgeClient.Instance.Publish(RobotConfig.TOPIC_ARM_COMMANDS, msg);
+        }
+
+        // ── Public API ───────────────────────────────────────────────────────
+
+        private void CalibrateHomePose()
+        {
+            if (gestureDetector == null || gestureDetector.rightHand == null) return;
+            Vector3 handPos = gestureDetector.GetHandPosition(gestureDetector.rightHand);
+            // The VR app resets the reference frame origin so that the current hand pose maps to the robot's default forward-facing arm pose
+            handWorkspaceOrigin.position = handPos - new Vector3(0, 0, ArmMaxReach * 0.5f);
+            handWorkspaceOrigin.rotation = Quaternion.identity;
+            Debug.Log("[HandTrackingArmController] Calibrated home pose.");
+        }
+        
+        private void SetHandColor(Color color)
+        {
+            if (gestureDetector == null || gestureDetector.rightHand == null) return;
+            var smr = gestureDetector.rightHand.GetComponentInChildren<SkinnedMeshRenderer>();
+            if (smr != null && smr.material != null)
+            {
+                smr.material.color = color;
+            }
         }
 
         // ── Public API ───────────────────────────────────────────────────────

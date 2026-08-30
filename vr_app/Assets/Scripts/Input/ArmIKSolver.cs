@@ -70,7 +70,8 @@ namespace OmniBot.VR.Input
                 angles[i] = currentAngles != null && currentAngles.Length == 6
                     ? currentAngles[i] : 0f;
 
-            // ── CCD position loop ────────────────────────────────────────────
+            // ── DLS position loop ────────────────────────────────────────────
+            float lambdaSq = 0.01f; // Damping factor squared
             for (int iter = 0; iter < MaxIterations; iter++)
             {
                 // Forward kinematics to get all joint world positions/rotations
@@ -79,41 +80,64 @@ namespace OmniBot.VR.Input
                 ForwardKinematics(angles, jointPos, jointRot, PositionJoints);
 
                 Vector3 eePos = jointPos[PositionJoints];
+                Vector3 deltaPos = targetPos - eePos;
 
                 // Check convergence
-                if ((eePos - targetPos).sqrMagnitude < Tolerance * Tolerance)
+                if (deltaPos.sqrMagnitude < Tolerance * Tolerance)
                     break;
 
-                // Iterate joints from EE backward to root
-                for (int j = PositionJoints - 1; j >= 0; j--)
+                // Build Jacobian (3x5)
+                Vector3[] J = new Vector3[PositionJoints];
+                for (int j = 0; j < PositionJoints; j++)
                 {
-                    // Recompute FK (angles may have changed in this iteration)
-                    ForwardKinematics(angles, jointPos, jointRot, PositionJoints);
-                    eePos = jointPos[PositionJoints];
-
-                    Vector3 jointWorldPos  = jointPos[j];
-                    Vector3 toEE           = (eePos - jointWorldPos).normalized;
-                    Vector3 toTarget       = (targetPos - jointWorldPos).normalized;
-
-                    if (toEE.sqrMagnitude < 1e-6f || toTarget.sqrMagnitude < 1e-6f)
-                        continue;
-
-                    // Compute rotation that swings toEE → toTarget in the joint's local frame
                     Quaternion parentRot = j > 0 ? jointRot[j] : Quaternion.identity;
-                    Vector3 localAxis    = JointAxes[j];
-                    Vector3 worldAxis    = parentRot * localAxis;
+                    Vector3 worldAxis = parentRot * JointAxes[j];
+                    // Cross product of rotation axis and vector from joint to EE
+                    J[j] = Vector3.Cross(worldAxis, eePos - jointPos[j]);
+                }
 
-                    // Project both vectors onto the plane perpendicular to worldAxis
-                    Vector3 projEE     = Vector3.ProjectOnPlane(toEE, worldAxis).normalized;
-                    Vector3 projTarget = Vector3.ProjectOnPlane(toTarget, worldAxis).normalized;
+                // Compute JJ^T (3x3)
+                // JJ^T = sum_{j} J[j] * J[j]^T
+                float m00 = lambdaSq, m01 = 0, m02 = 0;
+                float m10 = 0, m11 = lambdaSq, m12 = 0;
+                float m20 = 0, m21 = 0, m22 = lambdaSq;
 
-                    if (projEE.sqrMagnitude < 1e-6f || projTarget.sqrMagnitude < 1e-6f)
-                        continue;
+                for (int j = 0; j < PositionJoints; j++)
+                {
+                    Vector3 Jj = J[j];
+                    m00 += Jj.x * Jj.x; m01 += Jj.x * Jj.y; m02 += Jj.x * Jj.z;
+                    m10 += Jj.y * Jj.x; m11 += Jj.y * Jj.y; m12 += Jj.y * Jj.z;
+                    m20 += Jj.z * Jj.x; m21 += Jj.z * Jj.y; m22 += Jj.z * Jj.z;
+                }
 
-                    float angleDeg = Vector3.SignedAngle(projEE, projTarget, worldAxis);
-                    float angleRad = angleDeg * Mathf.Deg2Rad;
+                // Invert M = JJ^T + lambda^2 I
+                float det = m00 * (m11 * m22 - m12 * m21) - m01 * (m10 * m22 - m12 * m20) + m02 * (m10 * m21 - m11 * m20);
+                if (Mathf.Abs(det) < 1e-6f) break; // Singular
 
-                    angles[j] = ClampJoint(j, angles[j] + angleRad);
+                float invDet = 1f / det;
+                float i00 =  (m11 * m22 - m12 * m21) * invDet;
+                float i01 = -(m01 * m22 - m02 * m21) * invDet;
+                float i02 =  (m01 * m12 - m02 * m11) * invDet;
+                float i10 = -(m10 * m22 - m12 * m20) * invDet;
+                float i11 =  (m00 * m22 - m02 * m20) * invDet;
+                float i12 = -(m00 * m12 - m02 * m10) * invDet;
+                float i20 =  (m10 * m21 - m11 * m20) * invDet;
+                float i21 = -(m00 * m21 - m01 * m20) * invDet;
+                float i22 =  (m00 * m11 - m01 * m10) * invDet;
+
+                // dy = M^-1 * dx
+                Vector3 dy = new Vector3(
+                    i00 * deltaPos.x + i01 * deltaPos.y + i02 * deltaPos.z,
+                    i10 * deltaPos.x + i11 * deltaPos.y + i12 * deltaPos.z,
+                    i20 * deltaPos.x + i21 * deltaPos.y + i22 * deltaPos.z
+                );
+
+                // dTheta = J^T * dy
+                for (int j = 0; j < PositionJoints; j++)
+                {
+                    float dTheta = Vector3.Dot(J[j], dy);
+                    // DLS doesn't clamp per iteration usually but it's safe to enforce joint limits
+                    angles[j] = ClampJoint(j, angles[j] + dTheta);
                 }
             }
 
