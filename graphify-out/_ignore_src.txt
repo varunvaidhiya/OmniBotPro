@@ -1,0 +1,219 @@
+======================================================================
+_load_graphifyignore
+======================================================================
+def _load_graphifyignore(root: Path) -> list[tuple[Path, str]]:
+    """Read .graphifyignore files and return (anchor_dir, pattern) pairs.
+
+    Patterns are returned outer-first so that inner (closer) rules are
+    appended last and win via last-match-wins semantics — matching gitignore
+    behavior exactly.
+
+    Walk ceiling: the nearest VCS root if inside a repo, otherwise the scan
+    root itself (hermetic — no leakage across unrelated sibling projects).
+    """
+    root = root.resolve()
+    ceiling = _find_vcs_root(root) or root
+
+    # Collect ancestor dirs from ceiling down to root (outer → inner)
+    dirs: list[Path] = []
+    current = root
+    while True:
+        dirs.append(current)
+        if current == ceiling:
+            break
+        current = current.parent
+    dirs.reverse()  # ceiling first, scan root last
+
+    patterns: list[tuple[Path, str]] = []
+    for d in dirs:
+        # Merge .gitignore and .graphifyignore for this dir (#1363). Previously
+        # the presence of a .graphifyignore made graphify skip that dir's
+        # .gitignore entirely, so a file excluded only by .gitignore (e.g. a
+        # neutrally-named secret like prod-dump.sql) silently got indexed into
+        # the graph — whose artifacts embed file contents and are often
+        # committed. .gitignore is read first and .graphifyignore last, so
+        # .graphifyignore patterns (including `!` negations) win on conflict via
+        # last-match-wins; adding a .graphifyignore can only ever exclude MORE,
+        # never re-include a .gitignore-excluded file (#945 kept: a project with
+        # only a .gitignore still gets sensible defaults).
+        for fname in (".gitignore", ".graphifyignore"):
+            ignore_file = d / fname
+            if ignore_file.exists():
+                for raw in ignore_file.read_text(encoding="utf-8", errors="ignore").splitlines():
+                    line = _parse_gitignore_line(raw)
+                    if line:
+                        patterns.append((d, line))
+    return patterns
+
+======================================================================
+_parse_gitignore_line
+======================================================================
+def _parse_gitignore_line(raw: str) -> str:
+    """Parse one raw line from a .graphifyignore file per gitignore spec.
+
+    - Strip newline chars
+    - Strip inline comments (whitespace + # suffix), but only when # is
+      preceded by whitespace — so path#with#hash.py is preserved
+    - Unescape \\# to literal #
+    - Remove trailing spaces unless escaped with backslash
+    - Strip leading whitespace
+    - Return empty string for blank lines and full-line comments
+    """
+    line = raw.rstrip("\n\r")
+    line = line.lstrip()
+    if not line or line.startswith("#"):
+        return ""
+    # Strip inline comments: require whitespace before # (gitignore extension)
+    line = re.sub(r"\s+#+[^\\].*$", "", line)
+    # Unescape \# → literal #
+    line = line.replace("\\#", "#")
+    # Remove unescaped trailing spaces (per gitignore spec)
+    line = re.sub(r"(?<!\\) +$", "", line)
+    return line
+
+======================================================================
+_is_ignored
+======================================================================
+def _is_ignored(
+    path: Path,
+    root: Path,
+    patterns: list[tuple[Path, str]],
+    *,
+    _cache: dict[Path, bool] | None = None,
+) -> bool:
+    """Return True if the path should be ignored per .graphifyignore patterns.
+
+    Uses gitignore last-match-wins semantics: all patterns are evaluated in
+    order; the final matching pattern determines the result. Negation patterns
+    (starting with !) un-ignore a previously ignored path.
+
+    Enforces gitignore's parent-exclusion rule: a ! pattern cannot re-include
+    a file whose ancestor directory is already excluded.
+
+    _cache: optional dict shared across calls within the same scan. Ancestor
+    directory results are memoised so files under the same subtree don't
+    re-evaluate the same patterns repeatedly.
+    """
+    if not patterns:
+        return False
+
+    def _eval(target: Path) -> bool:
+        """Apply last-match-wins to a single target path."""
+        if _cache is not None and target in _cache:
+            return _cache[target]
+        def _matches(rel: str, p: str, anchored: bool) -> bool:
+            if anchored:
+                return fnmatch.fnmatch(rel, p)
+            parts = rel.split("/")
+            if fnmatch.fnmatch(rel, p):
+                return True
+            if fnmatch.fnmatch(target.name, p):
+                return True
+            for i, part in enumerate(parts):
+                if fnmatch.fnmatch(part, p):
+                    return True
+                if fnmatch.fnmatch("/".join(parts[:i + 1]), p):
+                    return True
+            return False
+
+        result = False
+        for anchor, pattern in patterns:
+            negated = pattern.startswith("!")
+            raw = pattern[1:] if negated else pattern
+            anchored = raw.startswith("/")
+            p = raw.strip("/")
+            if not p:
+                continue
+
+            matched = False
+            if anchored:
+                try:
+                    rel_anchor = str(target.relative_to(anchor)).replace(os.sep, "/")
+                    matched = _matches(rel_anchor, p, anchored=True)
+                except ValueError:
+                    pass
+            else:
+                try:
+                    rel = str(target.relative_to(root)).replace(os.sep, "/")
+                    matched = _matches(rel, p, anchored=False)
+                except ValueError:
+                    pass
+                if not matched and anchor != root:
+                    try:
+                        rel_anchor = str(target.relative_to(anchor)).replace(os.sep, "/")
+                        matched = _matches(rel_anchor, p, anchored=False)
+                    except ValueError:
+                        pass
+
+            if matched:
+                result = not negated  # last match wins; ! flips to un-ignore
+        if _cache is not None:
+            _cache[target] = result
+        return result
+
+    # Gitignore parent-exclusion rule: a ! re-include cannot rescue a file
+    # whose ancestor directory is already excluded. Walk ancestors top-down;
+    # if any ancestor is excluded, the file is excluded regardless of later
+    # ! patterns targeting the file or a sub-path.
+    try:
+        rel_parts = path.relative_to(root).parts
+    except ValueError:
+        return _eval(path)
+
+    ancestor = root
+    for part in rel_parts[:-1]:
+        ancestor = ancestor / part
+        if _eval(ancestor):
+            return True
+    return _eval(path)
+
+======================================================================
+_could_contain_included_path
+======================================================================
+def _could_contain_included_path(path: Path, root: Path, patterns: list[tuple[Path, str]]) -> bool:
+    """Return True if a directory may contain files matched by .graphifyinclude."""
+    if not patterns:
+        return False
+
+    rels: list[str] = []
+    try:
+        rels.append(str(path.relative_to(root)).replace(os.sep, "/"))
+    except ValueError:
+        pass
+    for anchor, _ in patterns:
+        if anchor != root:
+            try:
+                rels.append(str(path.relative_to(anchor)).replace(os.sep, "/"))
+            except ValueError:
+                pass
+
+    for rel in rels:
+        rel = rel.strip("/")
+        if not rel:
+            return True
+        for _, pattern in patterns:
+            p = pattern.strip("/")
+            if not p:
+                continue
+            if p == rel or p.startswith(rel + "/"):
+                return True
+            if fnmatch.fnmatch(rel, p):
+                return True
+    return False
+
+======================================================================
+_is_noise_dir
+======================================================================
+def _is_noise_dir(part: str, parent: "Path | None" = None) -> bool:
+    """Return True if this directory name looks like a venv, cache, or dep dir."""
+    if part in _SKIP_DIRS:
+        return True
+    # Catch *_venv, *_repo/site-packages patterns
+    if part.endswith("_venv") or part.endswith("_env"):
+        return True
+    if part.endswith(".egg-info"):
+        return True
+    # worktrees/ nested inside a dotted dir (e.g. .claude/worktrees/, .git/worktrees/)
+    if part == "worktrees" and parent is not None and parent.name.startswith("."):
+        return True
+    return False

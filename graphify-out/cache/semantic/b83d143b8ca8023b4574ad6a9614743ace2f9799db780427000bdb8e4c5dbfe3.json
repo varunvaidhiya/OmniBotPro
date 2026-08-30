@@ -1,0 +1,1 @@
+{"nodes": [{"id": "config_perception_params_object_perception_node", "label": "Object Perception Node Configuration (YOLO & Depth Clustering)", "file_type": "code", "source_file": "robot_ws/src/omnibot_perception/config/perception_params.yaml", "source_location": null, "source_url": null, "captured_at": null, "author": null, "contributor": null}], "edges": [], "hyperedges": []}
