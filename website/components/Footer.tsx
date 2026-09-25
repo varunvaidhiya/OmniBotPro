@@ -10,7 +10,7 @@ const ALL_LINKS = ["OhhO OS", "Why OhhO", "Start", "Standards", "Products", "Ser
 // Dev-focused footer links for subscribed users — no product/pricing/team marketing.
 const DEV_LINKS = ["OhhO OS", "Start", "Docs", "GitHub", "License", "Contact"];
 
-const LICENSE_HREF = `${GITHUB_HREF}/blob/main/sdk/LICENSE`;
+const LICENSE_HREF = "https://github.com/varunvaidhiya/OmniBotPro/blob/main/sdk/LICENSE";
 
 export default function Footer() {
   const { user, subscription } = useAuth();

@@ -2,7 +2,7 @@
 
 import GlassCard from "@/components/GlassCard";
 import { ArrowRight } from "lucide-react";
-import { SIGNUP_HREF } from "@/lib/site";
+import { SIGNUP_HREF, GITHUB_HREF } from "@/lib/site";
 
 export default function CtaBanner() {
   return (
@@ -49,7 +49,7 @@ export default function CtaBanner() {
               Start Free — No Card Needed <ArrowRight size={15} strokeWidth={2.5} />
             </a>
             <a
-              href="https://github.com/varunvaidhiya/OmniBotPro"
+              href={GITHUB_HREF}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-medium px-[22px] py-[12px] rounded-lg transition-all duration-200"
